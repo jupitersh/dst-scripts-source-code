@@ -169,6 +169,9 @@ self:SetRegrowthForType("flower_cave_double", TUNING.FLOWER_CAVE_REGROWTH_TIME, 
 self:SetRegrowthForType("flower_cave_triple", TUNING.FLOWER_CAVE_REGROWTH_TIME, "flower_cave_triple", function()
         return TUNING.FLOWER_CAVE_REGROWTH_TIME_MULT
     end)
+self:SetRegrowthForType("lightflier_flower", TUNING.LIGHTFLIER_FLOWER.REGROWTH.TIME, "lightflier_flower", function()
+        return TUNING.LIGHTFLIER_FLOWER.REGROWTH.TIME_MULT
+    end)
 
 --------------------------------------------------------------------------
 --[[ Update ]]

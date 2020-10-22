@@ -39,4 +39,6 @@ return pillar("pillar_ruins", true),
        pillar("pillar_cave", true),
        pillar("pillar_cave_flintless", true),
        pillar("pillar_cave_rock", true),
-       pillar("pillar_stalactite")
+       pillar("pillar_stalactite")--,
+       --pillar("pillar_cave_moon", true),
+       --pillar("pillar_stalactite_moon"),

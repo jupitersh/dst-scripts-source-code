@@ -269,7 +269,7 @@ local CloudServerSettingsPopup = Class(Screen, function(self, prev_screen, user_
 
     --Internal data
     self.encode_user_path = true
-    self.use_cluster_path = true
+    self.use_legacy_session_path = nil
 
     -- Skip the intention picker if forced.
     self:SetServerIntention(self.forced_settings.server_intention)
@@ -443,7 +443,7 @@ function CloudServerSettingsPopup:UpdateDetails()
         self.server_desc.textbox:SetString("")
         self.privacy_type.buttons:SetSelected(PRIVACY_TYPE.PUBLIC)
         self.encode_user_path = true
-        self.use_cluster_path = true
+        self.use_legacy_session_path = nil
 
         self:SetServerIntention(nil)
         self:SetOnlineWidgets(online)
@@ -502,7 +502,11 @@ function CloudServerSettingsPopup:GetEncodeUserPath()
 end
 
 function CloudServerSettingsPopup:GetUseClusterPath()
-    return self.use_cluster_path
+    return not self.use_legacy_session_path
+end
+
+function CloudServerSettingsPopup:GetUseLegacySessionPath()
+    return self.use_legacy_session_path
 end
 
 function CloudServerSettingsPopup:GetServerData()
@@ -512,7 +516,7 @@ function CloudServerSettingsPopup:GetServerData()
         game_mode = self:GetGameMode(),
         online_mode = self:GetOnlineMode(),
         encode_user_path = self:GetEncodeUserPath(),
-        use_cluster_path = self:GetUseClusterPath(),
+        use_legacy_session_path = self:GetUseLegacySessionPath(),
         max_players = self:GetMaxPlayers(),
         name = self:GetServerName(),
         password = self:GetPassword(),

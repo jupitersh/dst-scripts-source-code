@@ -89,6 +89,8 @@ Recipe("ruinsrelic_table", {Ingredient("cutstone", 4)}, RECIPETABS.TOWN, TECH.LO
 Recipe("dragonflychest", {Ingredient("dragon_scales", 1), Ingredient("boards", 4), Ingredient("goldnugget", 10)}, RECIPETABS.TOWN, TECH.SCIENCE_TWO, "dragonflychest_placer", 1.5)
 Recipe("dragonflyfurnace", {Ingredient("dragon_scales", 1), Ingredient("redgem", 2), Ingredient("charcoal", 10)}, RECIPETABS.TOWN, TECH.LOST, "dragonflyfurnace_placer")
 
+Recipe("archive_resonator_item", {Ingredient("moonrocknugget", 1), Ingredient("thulecite_pieces", 2)}, RECIPETABS.TOWN, TECH.LOST)
+
 --FARM
 Recipe("slow_farmplot", {Ingredient("cutgrass", 8),Ingredient("poop", 4),Ingredient("log", 4)}, RECIPETABS.FARM,  TECH.SCIENCE_ONE, "slow_farmplot_placer")
 Recipe("fast_farmplot", {Ingredient("cutgrass", 10),Ingredient("poop", 6),Ingredient("rocks", 4)}, RECIPETABS.FARM,  TECH.SCIENCE_TWO, "fast_farmplot_placer")
@@ -174,6 +176,7 @@ Recipe("rainometer", {Ingredient("boards", 2), Ingredient("goldnugget", 2), Ingr
 Recipe("gunpowder", {Ingredient("rottenegg", 1), Ingredient("charcoal", 1), Ingredient("nitre", 1)}, RECIPETABS.SCIENCE,  TECH.SCIENCE_TWO)
 Recipe("lightning_rod", {Ingredient("goldnugget", 4), Ingredient("cutstone", 1)}, RECIPETABS.SCIENCE,  TECH.SCIENCE_ONE, "lightning_rod_placer")
 Recipe("firesuppressor", {Ingredient("gears", 2),Ingredient("ice", 15),Ingredient("transistor", 2)}, RECIPETABS.SCIENCE,  TECH.SCIENCE_TWO, "firesuppressor_placer")
+Recipe("turfcraftingstation", {Ingredient("thulecite", 1), Ingredient("cutstone", 3), Ingredient("wetgoop", 1)}, RECIPETABS.SCIENCE,  TECH.LOST, "turfcraftingstation_placer")
 
 --MAGIC
 Recipe("abigail_flower", {Ingredient("ghostflower", 1), Ingredient("nightmarefuel", 1)}, RECIPETABS.MAGIC, TECH.NONE, nil, nil, nil, nil, "ghostlyfriend")
@@ -234,6 +237,7 @@ Recipe("nightmarefuel", {Ingredient("petals_evil", 4)}, RECIPETABS.REFINE, TECH.
 Recipe("purplegem", {Ingredient("redgem",1), Ingredient("bluegem", 1)}, RECIPETABS.REFINE, TECH.MAGIC_TWO)
 Recipe("moonrockcrater", {Ingredient("moonrocknugget", 3)}, RECIPETABS.REFINE, TECH.SCIENCE_TWO)
 Recipe("malbatross_feathered_weave", {Ingredient("malbatross_feather", 6), Ingredient("silk", 1)}, RECIPETABS.REFINE, TECH.LOST)
+Recipe("refined_dust", {Ingredient("saltrock", 1), Ingredient("rocks", 2), Ingredient("nitre", 1)}, RECIPETABS.REFINE, TECH.LOST)
 
 --WAR
 Recipe("spear_wathgrithr", {Ingredient("twigs", 2), Ingredient("flint", 2), Ingredient("goldnugget", 2)}, RECIPETABS.WAR, TECH.NONE, nil, nil, nil, nil, "valkyrie")
@@ -325,10 +329,12 @@ Recipe("eyeturret_item", {Ingredient("deerclops_eyeball", 1), Ingredient("minota
 Recipe("moonrockidol", {Ingredient("moonrocknugget", 1), Ingredient("purplegem", 1)}, RECIPETABS.CELESTIAL, TECH.CELESTIAL_ONE, nil, nil, true)
 Recipe("multiplayer_portal_moonrock_constr_plans", {Ingredient("boards", 1), Ingredient("rope", 1)}, RECIPETABS.CELESTIAL, TECH.CELESTIAL_ONE, nil, nil, true)
 
+
 ----MOON_ALTAR-----
 Recipe("moonglassaxe", {Ingredient("twigs", 2),  		    Ingredient("moonglass", 3)},  RECIPETABS.MOON_ALTAR, TECH.MOON_ALTAR_TWO, nil, nil, true)
 Recipe("glasscutter",  {Ingredient("boards", 1), 		    Ingredient("moonglass", 6) }, RECIPETABS.MOON_ALTAR, TECH.MOON_ALTAR_TWO, nil, nil, true)
-Recipe("turf_meteor",  {Ingredient("moonrocknugget", 1),    Ingredient("moonglass", 2)},  RECIPETABS.MOON_ALTAR, TECH.MOON_ALTAR_TWO, nil, nil, true, 6)
+Recipe("turf_meteor",       {Ingredient("moonrocknugget", 1),    Ingredient("moonglass", 2)},  RECIPETABS.MOON_ALTAR, TECH.MOON_ALTAR_TWO, nil, nil, true, 6)
+Recipe("turf_fungus_moon",  {Ingredient("moonrocknugget", 1),    Ingredient("moon_cap", 3)},   RECIPETABS.MOON_ALTAR, TECH.MOON_ALTAR_TWO, nil, nil, true, 6)
 Recipe("bathbomb", 	   {Ingredient("moon_tree_blossom", 6), Ingredient("nitre", 1)}, 	  RECIPETABS.MOON_ALTAR, TECH.MOON_ALTAR_TWO, nil, nil, true)
 Recipe("chesspiece_butterfly_sketch", {Ingredient("papyrus", 1)}, RECIPETABS.MOON_ALTAR, TECH.MOON_ALTAR_TWO, nil, nil, true)
 Recipe("chesspiece_moon_sketch", 	  {Ingredient("papyrus", 1)}, RECIPETABS.MOON_ALTAR, TECH.MOON_ALTAR_TWO, nil, nil, true)
@@ -557,6 +563,27 @@ Recipe("hermitshop_chum", {Ingredient("messagebottleempty", 3)}, RECIPETABS.HERM
 
 Recipe("hermitshop_supertacklecontainer", {Ingredient("messagebottleempty", 8)}, RECIPETABS.HERMITCRABSHOP, TECH.LOST, nil, nil, true, nil, nil, nil, nil, nil, "supertacklecontainer")
 
+
+----TURFCRAFTING-----
+
+Recipe("turf_forest", {Ingredient("twigs", 1), Ingredient("pinecone", 1)}, RECIPETABS.TURFCRAFTING, TECH.TURFCRAFTING_ONE, nil, nil, true)
+Recipe("turf_grass", {Ingredient("cutgrass", 1), Ingredient("petals", 1)}, RECIPETABS.TURFCRAFTING, TECH.TURFCRAFTING_ONE, nil, nil, true)
+Recipe("turf_savanna", {Ingredient("cutgrass", 1), Ingredient("poop", 1)}, RECIPETABS.TURFCRAFTING, TECH.TURFCRAFTING_ONE, nil, nil, true)
+Recipe("turf_deciduous", {Ingredient("twigs", 1), Ingredient("acorn", 1)}, RECIPETABS.TURFCRAFTING, TECH.TURFCRAFTING_ONE, nil, nil, true)
+Recipe("turf_desertdirt", {Ingredient("rocks", 1), Ingredient("boneshard", 1)}, RECIPETABS.TURFCRAFTING, TECH.TURFCRAFTING_ONE, nil, nil, true)
+Recipe("turf_rocky", {Ingredient("rocks", 1), Ingredient("flint", 1)}, RECIPETABS.TURFCRAFTING, TECH.TURFCRAFTING_ONE, nil, nil, true)
+Recipe("turf_pebblebeach", {Ingredient("rocks", 1), Ingredient("driftwood_log", 1)}, RECIPETABS.TURFCRAFTING, TECH.TURFCRAFTING_ONE, nil, nil, true)
+
+Recipe("turf_cave", {Ingredient("guano", 2)}, RECIPETABS.TURFCRAFTING, TECH.TURFCRAFTING_ONE, nil, nil, true)
+Recipe("turf_underrock", {Ingredient("rocks", 3)}, RECIPETABS.TURFCRAFTING, TECH.TURFCRAFTING_ONE, nil, nil, true)
+Recipe("turf_sinkhole", {Ingredient("cutgrass", 1), Ingredient("foliage", 1)}, RECIPETABS.TURFCRAFTING, TECH.TURFCRAFTING_ONE, nil, nil, true)
+Recipe("turf_mud", {Ingredient("turf_desertdirt", 1), Ingredient("ice", 1)}, RECIPETABS.TURFCRAFTING, TECH.TURFCRAFTING_ONE, nil, nil, true)
+
+Recipe("turf_fungus", {Ingredient("cutlichen", 1), Ingredient("spore_tall", 1)}, RECIPETABS.TURFCRAFTING, TECH.TURFCRAFTING_ONE, nil, nil, true)
+Recipe("turf_fungus_red", {Ingredient("cutlichen", 1), Ingredient("spore_medium", 1)}, RECIPETABS.TURFCRAFTING, TECH.TURFCRAFTING_ONE, nil, nil, true)
+Recipe("turf_fungus_green", {Ingredient("cutlichen", 1), Ingredient("spore_small", 1)}, RECIPETABS.TURFCRAFTING, TECH.TURFCRAFTING_ONE, nil, nil, true)
+
+
 ----UNCRAFTABLE----
 --NOTE: These recipes are not supposed to be craftable!
 Recipe("pighead",  {Ingredient("pigskin", 4), 	   Ingredient("twigs", 4)}, nil, TECH.LOST, nil, nil, true)
@@ -594,6 +621,8 @@ Recipe("yotc_carrat_gym_speed",       	{Ingredient("lucky_goldnugget", 4)},nil, 
 Recipe("yotc_carrat_gym_reaction",   	{Ingredient("lucky_goldnugget", 4)},nil, TECH.LOST, nil, nil, true)
 Recipe("yotc_carrat_gym_stamina",		{Ingredient("lucky_goldnugget", 4)},nil, TECH.LOST, nil, nil, true)
 Recipe("yotc_carrat_scale",			    {Ingredient("lucky_goldnugget", 1)}, nil, TECH.LOST, nil, nil, true)
+Recipe("wall_ruins_2_item",              {Ingredient("thulecite", 1)},       nil, TECH.LOST, nil, nil, true)
+Recipe("wall_stone_2_item",              {Ingredient("cutstone", 2)},        nil, TECH.LOST, nil, nil, true)
 
 ----CONSTRUCTION PLANS----
 CONSTRUCTION_PLANS =

@@ -803,6 +803,41 @@ local states =
         end,
     },
 
+    State
+    {
+        name = "fall",
+        tags = {"busy", "stunned"},
+
+        onenter = function(inst)
+            inst.Physics:SetDamping(0)
+            inst.Physics:SetMotorVel(0, (math.random() * 10) - 20, 0)
+            inst.AnimState:PlayAnimation("stunned_loop", true)
+        end,
+
+        onupdate = function(inst)
+            local pt = Point(inst.Transform:GetWorldPosition())
+            if pt.y < 2 then
+                inst.Physics:SetMotorVel(0,0,0)
+            end
+
+            if pt.y <= .1 then
+                pt.y = 0
+
+                inst.Physics:Stop()
+                inst.Physics:SetDamping(5)
+                inst.Physics:Teleport(pt.x, pt.y, pt.z)
+                inst.DynamicShadow:Enable(true)
+
+                inst.sg:GoToState("stunned")
+            end
+        end,
+
+        onexit = function(inst)
+            local pt = inst:GetPosition()
+            pt.y = 0
+            inst.Transform:SetPosition(pt:Get())
+        end,
+    },
 }
 CommonStates.AddSleepExStates(states,
 {

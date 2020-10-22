@@ -1047,7 +1047,7 @@ CommonStates.AddFrozenStates = function(states, onoverridesymbols, onclearsymbol
 end
 
 --------------------------------------------------------------------------
-CommonStates.AddCombatStates = function(states, timelines, anims)
+CommonStates.AddCombatStates = function(states, timelines, anims, fns)
     table.insert(states, State
     {
         name = "hit",
@@ -1096,6 +1096,12 @@ CommonStates.AddCombatStates = function(states, timelines, anims)
 
         timeline = timelines ~= nil and timelines.attacktimeline or nil,
 
+        onexit = function(inst)
+            if fns ~= nil and fns.attackexit ~= nil then
+                fns.attackexit(inst)
+            end
+        end,
+
         events =
         {
             EventHandler("animover", idleonanimover),
@@ -1114,7 +1120,7 @@ CommonStates.AddCombatStates = function(states, timelines, anims)
             inst.AnimState:PlayAnimation(anims ~= nil and anims.death or "death")
             RemovePhysicsColliders(inst)
             inst.components.lootdropper:DropLoot(inst:GetPosition())
-        end,
+        end,        
 
         timeline = timelines ~= nil and timelines.deathtimeline or nil,
     })

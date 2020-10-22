@@ -19,8 +19,9 @@ function Gym:RemoveTrainee()
         if self.onLoseTraineeFn then
             self.onLoseTraineeFn(self.inst)
         end
-        self.inst:RemoveEventCallback("removed", function() self:RemoveTrainee() end, self.trainee)
-        self.inst:RemoveEventCallback("death", function() self:RemoveTrainee() end, self.trainee)
+        self.inst:RemoveEventCallback("removed", self._removetrainee, self.trainee)
+        self.inst:RemoveEventCallback("death", self._removetrainee, self.trainee)
+        self._removetrainee = nil
         self.trainee = nil
     end        
     if self.inst.components.timer:TimerExists("training") then
@@ -31,8 +32,9 @@ end
 function Gym:SetTrainee(inst)    
     if inst ~= nil then
         self.trainee = inst
-        self.inst:ListenForEvent("removed", function() self:RemoveTrainee() end, inst )
-        self.inst:ListenForEvent("death", function() self:RemoveTrainee() end, inst )
+        self._removetrainee = function() self:RemoveTrainee() end
+        self.inst:ListenForEvent("removed", self._removetrainee, inst )
+        self.inst:ListenForEvent("death", self._removetrainee, inst )
     end
 end
 

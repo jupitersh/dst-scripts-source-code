@@ -6,12 +6,16 @@ local actionhandlers =
 
 local events =
 {
-    CommonHandlers.OnDeath(),
     CommonHandlers.OnLocomote(false, true),
+
+    EventHandler("death", function(inst)
+		inst.sg:GoToState("death", "death")
+	end),
 
     EventHandler("doattack", function(inst)
         if not (inst.sg:HasStateTag("busy")) then
-            inst.sg:GoToState("attack")
+            inst.sg:GoToState(inst.isguard and "guardattack" 
+								or "attack")
         end
     end),
 }
@@ -89,7 +93,7 @@ local states=
     },
 
     State{
-        name = "disappear",
+        name = "death",
         tags = {"busy", "noattack"},
 		
         onenter = function(inst)
@@ -140,7 +144,7 @@ local states=
         end,
         
         ontimeout = function(inst)
-			inst.sg.statemem.dest = TheWorld.components.brightmarespawner:FindRelocatePoint(inst) or nil
+			inst.sg.statemem.dest = inst:FindRelocatePoint()
 			if inst.sg.statemem.dest ~= nil then
 				inst.sg:GoToState("emerge") 
 			else
@@ -160,7 +164,7 @@ local states=
 
     State{
         name = "attack",
-        tags = { "busy", "attack", "jumping" },
+        tags = { "busy", "noattack", "attack", "jumping" },
 		
         onenter = function(inst)
             inst.AnimState:PlayAnimation("attack")
@@ -215,11 +219,66 @@ local states=
     },
 
     State{
-        name = "mutate_pre",
-        tags = {"busy", "jumping"},
+        name = "guardattack",
+        tags = { "busy", "noattack", "attack", "jumping" },
 		
         onenter = function(inst)
-			inst.Physics:SetMotorVelOverride(2, 0, 0)
+            inst.AnimState:PlayAnimation("attack")
+			inst.components.locomotor:Stop()
+			if inst.components.combat.target ~= nil then
+				inst:ForceFacePoint(inst.components.combat.target.Transform:GetWorldPosition())
+			end
+	        inst.components.combat:StartAttack()
+		end,
+        
+        timeline=
+        {
+            TimeEvent(8*FRAMES, function(inst) 
+					if inst.components.combat.target ~= nil then
+						inst:ForceFacePoint(inst.components.combat.target.Transform:GetWorldPosition())
+					end
+					inst.Physics:SetMotorVelOverride(30, 0, 0)
+					inst.sg.statemem.enable_attack = true
+				end ),
+            TimeEvent(19*FRAMES, function(inst) 
+					inst.Physics:ClearMotorVelOverride()
+					inst.components.locomotor:Stop()
+					inst.sg.statemem.enable_attack = false
+					inst.components.combat:DropTarget()
+				end ),
+        },
+        
+        onupdate = function(inst)
+			if inst.sg.statemem.enable_attack then
+				local target = inst.components.combat.target
+				if target ~= nil and target:IsValid() and inst:GetDistanceSqToInst(target) <= TUNING.GESTALT.ATTACK_HIT_RANGE_SQ then
+                    if inst.components.combat:CanTarget(target) then
+						inst.components.combat:DoAttack(target)
+						inst.sg:GoToState("mutate_pre", 6)
+					end
+				end
+			end
+        end,
+        
+        events =
+        {
+            EventHandler("animover", function(inst) 
+				inst.sg:GoToState("idle") 
+			end),
+        },
+
+        onexit = function(inst)
+			inst.Physics:ClearMotorVelOverride()
+			inst.components.locomotor:Stop()
+		end,
+    },
+
+    State{
+        name = "mutate_pre",
+        tags = {"busy", "noattack", "jumping"},
+		
+        onenter = function(inst, speed)
+			inst.Physics:SetMotorVelOverride(speed or 2, 0, 0)
             inst.AnimState:PlayAnimation("mutate")
 			inst.persists = false
         end,
@@ -240,9 +299,11 @@ local states=
 }
 
 local function SpawnTrail(inst)
-	local trail = SpawnPrefab("gestalt_trail")
-	trail.Transform:SetPosition(inst.Transform:GetWorldPosition())
-	trail.Transform:SetRotation(inst.Transform:GetRotation())
+	if not inst._notrail then
+		local trail = SpawnPrefab("gestalt_trail")
+		trail.Transform:SetPosition(inst.Transform:GetWorldPosition())
+		trail.Transform:SetRotation(inst.Transform:GetRotation())
+	end
 end
 
 CommonStates.AddWalkStates(states,

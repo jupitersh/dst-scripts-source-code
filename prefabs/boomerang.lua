@@ -69,7 +69,7 @@ local function OnHit(inst, owner, target)
     else
         ReturnToOwner(inst, owner)
     end
-    if target ~= nil and target:IsValid() then
+    if target ~= nil and target:IsValid() and target.components.combat then
         local impactfx = SpawnPrefab("impact")
         if impactfx ~= nil then
             local follower = impactfx.entity:AddFollower()

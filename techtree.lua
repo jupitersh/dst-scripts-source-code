@@ -20,7 +20,8 @@ local AVAILABLE_TECH =
     "FOODPROCESSING",
 	"FISHING",
 	"WINTERSFEASTCOOKING",
-	"HERMITCRABSHOP",
+    "HERMITCRABSHOP",
+    "TURFCRAFTING",
 }
 
 -- only these tech trees can have tech bonuses added to them

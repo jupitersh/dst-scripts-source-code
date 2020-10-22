@@ -792,6 +792,40 @@ local foods =
         cooktime = 2,
         overridebuild = "cook_pot_food4",
         floater = {"med", 0.05, {0.65, 0.6, 0.65}},
+	},
+
+    shroomcake =
+    {
+        test = function(cooker, names, tags)
+            return names.moon_cap and names.red_cap and names.blue_cap and names.green_cap
+        end,
+        priority = 55,
+        foodtype = FOODTYPE.GOODIES,
+        health = 0,
+        hunger = TUNING.CALORIES_MED,
+        sanity = TUNING.SANITY_SMALL,
+        perishtime = TUNING.PERISH_SLOW,
+        cooktime = 1,
+        overridebuild = "cook_pot_food6",
+        floater = {"med", 0.05, 1.0},
+
+        prefabs = { "buff_sleepresistance" },
+        oneat_desc = STRINGS.UI.COOKBOOK.FOOD_EFFECTS_SLEEP_RESISTANCE,
+        oneatenfn = function(inst, eater)
+            if eater.components.grogginess ~= nil and
+                    (eater.components.debuffable ~= nil and eater.components.debuffable:IsEnabled()) and
+                    not (eater.components.health ~= nil and eater.components.health:IsDead()) and
+                    not eater:HasTag("playerghost") then
+
+                if eater.components.grogginess ~= nil then
+                    eater.components.grogginess:ResetGrogginess()
+                end
+
+                if eater.components.debuffable ~= nil and eater.components.debuffable:IsEnabled() then
+                    eater.components.debuffable:AddDebuff("shroomsleepresist", "buff_sleepresistance")
+                end
+            end
+        end,
     },
 }
 

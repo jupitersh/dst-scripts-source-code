@@ -3696,8 +3696,7 @@ local states =
         end,
     },
 
-    State
-    {
+    State{
         name = "terraform",
         tags = { "busy" },
 
@@ -4769,8 +4768,7 @@ local states =
         end,
     },
 
-    State
-    {
+    State{
         name = "unsaddle",
         tags = { "doing", "busy" },
 
@@ -4878,8 +4876,7 @@ local states =
         end,
     },
 
-    State
-    {
+    State{
         name = "heavylifting_drop",
         tags = { "doing", "busy" },
 
@@ -4914,8 +4911,7 @@ local states =
         end,
     },
 
-    State
-    {
+    State{
         name = "dostandingaction",
         tags = { "doing", "busy" },
 
@@ -4950,8 +4946,7 @@ local states =
         end,
     },
 
-    State
-    {
+    State{
         name = "doshortaction",
         tags = { "doing", "busy" },
 
@@ -4998,8 +4993,7 @@ local states =
         end,
     },
 
-    State
-    {
+    State{
         name = "dosilentshortaction",
 
         onenter = function(inst)
@@ -5007,8 +5001,7 @@ local states =
         end,
     },
 
-    State
-    {
+    State{
         name = "dohungrybuild",
 
         onenter = function(inst)
@@ -5040,8 +5033,7 @@ local states =
         end,
     },
 
-    State
-    {
+    State{
         name = "domediumaction",
 
         onenter = function(inst)
@@ -5049,8 +5041,7 @@ local states =
         end,
     },
 
-    State
-    {
+    State{
         name = "revivecorpse",
 
         onenter = function(inst)
@@ -5065,8 +5056,7 @@ local states =
         end,
     },
 
-    State
-    {
+    State{
         name = "dolongaction",
         tags = { "doing", "busy", "nodangle" },
 
@@ -5233,8 +5223,7 @@ local states =
         end,
     },
 
-    State
-    {
+    State{
         name = "dochannelaction",
         tags = { "doing", "busy", "nodangle" },
 
@@ -5797,8 +5786,7 @@ local states =
         },
     },
 
-    State
-    {
+    State{
         name = "summon_abigail",
         tags = { "doing", "busy", "nodangle", "canrotate" },
 
@@ -5883,8 +5871,7 @@ local states =
         end,
     },    
 
-    State
-    {
+    State{
         name = "unsummon_abigail",
         tags = { "doing", "busy", "nodangle" },
 
@@ -5961,8 +5948,7 @@ local states =
         end,
     },
 
-    State
-    {
+    State{
         name = "commune_with_abigail",
         tags = { "doing", "busy", "nodangle" },
 
@@ -6054,8 +6040,7 @@ local states =
         },
     },
 
-    State
-    {
+    State{
         name = "channel_longaction",
         tags = { "doing", "canrotate", "channeling"},
 
@@ -6322,6 +6307,12 @@ local states =
         tags = { "attack", "notalking", "abouttoattack", "autopredict" },
 
         onenter = function(inst)
+            if inst.components.combat:InCooldown() then
+                inst.sg:RemoveStateTag("abouttoattack")
+                inst:ClearBufferedAction()
+                inst.sg:GoToState("idle", true)
+                return
+            end
             local buffaction = inst:GetBufferedAction()
             local target = buffaction ~= nil and buffaction.target or nil
             local equip = inst.components.inventory:GetEquippedItem(EQUIPSLOTS.HANDS)
@@ -6418,6 +6409,12 @@ local states =
         tags = { "attack", "notalking", "abouttoattack", "autopredict" },
 
         onenter = function(inst)
+            if inst.components.combat:InCooldown() then
+                inst.sg:RemoveStateTag("abouttoattack")
+                inst:ClearBufferedAction()
+                inst.sg:GoToState("idle", true)
+                return
+            end
             local buffaction = inst:GetBufferedAction()
             local target = buffaction ~= nil and buffaction.target or nil
             inst.components.combat:SetTarget(target)
@@ -6532,6 +6529,12 @@ local states =
         tags = { "attack", "notalking", "abouttoattack", "autopredict" },
 
         onenter = function(inst)
+            if inst.components.combat:InCooldown() then
+                inst.sg:RemoveStateTag("abouttoattack")
+                inst:ClearBufferedAction()
+                inst.sg:GoToState("idle", true)
+                return
+            end
             local buffaction = inst:GetBufferedAction()
             local target = buffaction ~= nil and buffaction.target or nil
             local equip = inst.components.inventory:GetEquippedItem(EQUIPSLOTS.HANDS)
@@ -7819,8 +7822,7 @@ local states =
         end,
     },
 
-    State
-    {
+    State{
         name = "raiseanchor",
         tags = { "doing", "nodangle" },
 
@@ -8298,8 +8300,7 @@ local states =
 
     },
 
-    State
-    {
+    State{
         name = "cast_net",
         tags = { "doing", "busy" },
 
@@ -8343,8 +8344,7 @@ local states =
         ]]--
     },   
 
-    State
-    {
+    State{
         name = "cast_net_retrieving",
         tags = { "doing", "busy" },
 
@@ -8362,8 +8362,7 @@ local states =
         },
     },  
 
-    State
-    {
+    State{
         name = "cast_net_release",
         tags = { "doing", "busy" },
 
@@ -8379,8 +8378,7 @@ local states =
         }
     },   
 
-    State
-    {
+    State{
         name = "cast_net_release_pst",
         tags = { "doing" },
 
@@ -9510,8 +9508,7 @@ local states =
         end,
     },
 
-    State
-    {
+    State{
         name = "corpse",
         tags = { "busy", "dead", "noattack", "nopredict", "nomorph", "nodangle" },
 
@@ -10847,8 +10844,7 @@ local states =
         end,
     },
 
-    State
-    {
+    State{
         name = "multithrust_pre",
         tags = { "thrusting", "doing", "busy", "nointerrupt", "nomorph", "pausepredict" },
 
@@ -10884,8 +10880,7 @@ local states =
         end,
     },
 
-    State
-    {
+    State{
         name = "multithrust",
         tags = { "thrusting", "doing", "busy", "nointerrupt", "nomorph", "pausepredict" },
 
@@ -10952,8 +10947,7 @@ local states =
         end,
     },
 
-    State
-    {
+    State{
         name = "helmsplitter_pre",
         tags = { "helmsplitting", "doing", "busy", "nointerrupt", "nomorph", "pausepredict" },
 
@@ -10996,8 +10990,7 @@ local states =
         end,
     },
 
-    State
-    {
+    State{
         name = "helmsplitter",
         tags = { "helmsplitting", "doing", "busy", "nointerrupt", "nomorph", "pausepredict" },
 
@@ -11085,8 +11078,7 @@ local states =
         end,
     },
 
-    State
-    {
+    State{
         name = "blowdart_special",
         tags = { "doing", "busy", "nointerrupt", "nomorph" },
 
@@ -11161,12 +11153,17 @@ local states =
         },
     },
 
-    State
-    {
+    State{
         name = "slingshot_shoot",
         tags = { "attack" },
 
         onenter = function(inst)
+            if inst.components.combat:InCooldown() then
+                inst.sg:RemoveStateTag("abouttoattack")
+                inst:ClearBufferedAction()
+                inst.sg:GoToState("idle", true)
+                return
+            end
             local buffaction = inst:GetBufferedAction()
             local target = buffaction ~= nil and buffaction.target or nil
             if target ~= nil and target:IsValid() then
@@ -11296,8 +11293,7 @@ local states =
         end,
 	},
 
-    State
-    {
+    State{
         name = "throw_line",
         tags = { "doing", "busy", "nointerrupt", "nomorph" },
 
@@ -12017,8 +12013,7 @@ local states =
         end,
     },
 
-    State
-    {
+    State{
         name = "migrate",
         tags = { "doing", "busy" },
 
@@ -12246,8 +12241,7 @@ local states =
         },
     },
 
-    State
-    {
+    State{
         name = "bundle",
         tags = { "doing", "busy", "nodangle" },
 
@@ -12290,8 +12284,7 @@ local states =
         end,
     },
 
-    State
-    {
+    State{
         name = "bundling",
         tags = { "doing", "nodangle" },
 
@@ -12320,8 +12313,7 @@ local states =
         end,
     },
 
-    State
-    {
+    State{
         name = "bundle_pst",
         tags = { "doing", "busy", "nodangle" },
 
@@ -12360,8 +12352,7 @@ local states =
         end,
     },
 
-    State
-    {
+    State{
         name = "startconstruct",
 
         onenter = function(inst)
@@ -12369,8 +12360,7 @@ local states =
         end,
     },
 
-    State
-    {
+    State{
         name = "construct",
         tags = { "doing", "busy", "nodangle" },
 
@@ -12429,8 +12419,7 @@ local states =
         end,
     },
 
-    State
-    {
+    State{
         name = "constructing",
         tags = { "doing", "busy", "nodangle" },
 
@@ -12479,8 +12468,7 @@ local states =
         end,
     },
 
-    State
-    {
+    State{
         name = "construct_pst",
         tags = { "doing", "busy", "nodangle" },
 
@@ -12518,8 +12506,7 @@ local states =
         end,
     },
 
-    State
-    {
+    State{
         name = "startchanneling",
         tags = { "doing", "busy", "prechanneling", "nodangle" },
 
@@ -12554,8 +12541,7 @@ local states =
         },
     },
 
-    State
-    {
+    State{
         name = "channeling",
         tags = { "doing", "channeling", "nodangle" },
 
@@ -12622,8 +12608,7 @@ local states =
         end,
     },
 
-    State
-    {
+    State{
         name = "stopchanneling",
         tags = { "idle", "nodangle" },
 
@@ -13166,10 +13151,11 @@ local states =
             inst:PerformBufferedAction() -- this will clear the buffer if it's full, but you don't get here from an action anyway.
             if inst.sg.mem.furl_target.components.mast then
                 inst.sg.mem.furl_target.components.mast:AddSailFurler(inst, 1)
-                inst:ListenForEvent("onburnt", function() 
-                        inst.AnimState:PlayAnimation("pull_small_pst")
-                        inst.sg:GoToState("idle",true)
-                    end, inst.sg.mem.furl_target)
+                inst.sg.statemem._onburnt = function()
+                    inst.AnimState:PlayAnimation("pull_small_pst")
+                    inst.sg:GoToState("idle",true)
+                end
+                inst:ListenForEvent("onburnt", inst.sg.statemem._onburnt, inst.sg.mem.furl_target)
             end
         end, 
 
@@ -13183,10 +13169,7 @@ local states =
                 inst:RemoveTag("is_heaving")
             end
 
-            inst:RemoveEventCallback("onburnt", function() 
-                    inst.AnimState:PlayAnimation("pull_small_pst")
-                    inst.sg:GoToState("idle",true)
-                end, inst.sg.mem.furl_target)
+            inst:RemoveEventCallback("onburnt", inst.sg.statemem._onburnt, inst.sg.mem.furl_target)
         end,
 
         timeline =

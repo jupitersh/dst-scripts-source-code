@@ -234,6 +234,8 @@ local function accepttest(inst, item)
         return false, "MUSHROOMFARM_NEEDSLOG"
     elseif not (item:HasTag("mushroom") or item:HasTag("spore")) then
         return false, "MUSHROOMFARM_NEEDSSHROOM"
+    elseif item:HasTag("moonmushroom") then
+        return false, "MUSHROOMFARM_NOMOONALLOWED"
     end
     return true
 end

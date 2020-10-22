@@ -65,9 +65,9 @@ return{
         
 		DISMANTLE =
 		{
-			COOKING = "TODO",
+			COOKING = "I'm all for striking while the iron's hot, but...",
 			INUSE = "No rush.",
-			NOTEMPTY = "TODO",
+			NOTEMPTY = "Better clear it out first.",
         },
         FISH_OCEAN =
 		{
@@ -97,6 +97,7 @@ return{
             NOTSTAFF = "It doesn't fit together like that.",
             MUSHROOMFARM_NEEDSSHROOM = "It doesn't need this.",
             MUSHROOMFARM_NEEDSLOG = "It needs something else.",
+            MUSHROOMFARM_NOMOONALLOWED = "No amount of elbow grease is gonna make these things grow.",
             SLOTFULL = "No sense wasting materials.",
             FOODFULL = "Ah, a wonderful bird, the peli-can.",
             NOTDISH = "I don't wanna go angering no demons.",
@@ -508,12 +509,14 @@ return{
     ANNOUNCE_ATTACH_BUFF_PLAYERABSORPTION  = "I'm tough as nails!",
     ANNOUNCE_ATTACH_BUFF_WORKEFFECTIVENESS = "Let's turn up the elbow grease!",
     ANNOUNCE_ATTACH_BUFF_MOISTUREIMMUNITY  = "I've been waterproofed!",
+    ANNOUNCE_ATTACH_BUFF_SLEEPRESISTANCE   = "Whew, wish I had some of this back when I was working night shifts.",
     
     ANNOUNCE_DETACH_BUFF_ELECTRICATTACK    = "I'm all outta juice!",
     ANNOUNCE_DETACH_BUFF_ATTACK            = "Y'know, fightin' ain't always the answer.",
     ANNOUNCE_DETACH_BUFF_PLAYERABSORPTION  = "I'd better take a step back.",
     ANNOUNCE_DETACH_BUFF_WORKEFFECTIVENESS = "I'm off the clock!",
     ANNOUNCE_DETACH_BUFF_MOISTUREIMMUNITY  = "I think I might be needin' an umbrella soon.",
+    ANNOUNCE_DETACH_BUFF_SLEEPRESISTANCE   = "I'm beat!",
     
 	ANNOUNCE_OCEANFISHING_LINESNAP = "You rascal!",
 	ANNOUNCE_OCEANFISHING_LINETOOLOOSE = "I ain't no slacker! Time to reel 'er in!",
@@ -585,6 +588,10 @@ return{
 --fallback to speech_wilson.lua     ANNOUNCE_NOINSPIRATION = "only_used_by_wathgrithr",
 --fallback to speech_wilson.lua     ANNOUNCE_BATTLESONG_INSTANT_TAUNT_BUFF = "only_used_by_wathgrithr",
 --fallback to speech_wilson.lua     ANNOUNCE_BATTLESONG_INSTANT_PANIC_BUFF = "only_used_by_wathgrithr",
+
+    ANNOUNCE_ARCHIVE_NEW_KNOWLEDGE = "It's showin' me how to build... a machine!",
+    ANNOUNCE_ARCHIVE_OLD_KNOWLEDGE = "I've already got that one stored in my noggin'.",
+    ANNOUNCE_ARCHIVE_NO_POWER = "Maybe I should poke around, see if I can't get it workin' again.",
 
 	BATTLECRY =
 	{
@@ -1109,6 +1116,8 @@ return{
 
 		TURF_CAVE="That's a chunk of mineshaft.",
 		TURF_FUNGUS="That's a chunk of weird ground.",
+		TURF_FUNGUS_MOON = "That's a chunk of weird ground.",
+		TURF_ARCHIVE = "That's a well made chunk of ground.",
 		TURF_SINKHOLE="That's a chunk of ground.",
 		TURF_UNDERROCK="That's a chunk of ground.",
 		TURF_MUD="That's a chunk of muddy ground.",
@@ -1427,7 +1436,7 @@ return{
 		COOKEDMANDRAKE = "Dead as several doornails.",
 		COOKEDMEAT = "Cooked meat, ready to eat.",
 		COOKEDMONSTERMEAT = "It's still purple in the middle.",
-		COOKEDSMALLMEAT = "Well, a morsel's a morsel.",
+		COOKEDSMALLMEAT = "Well, a morsel's a morsel.",        
 		COOKPOT =
 		{
 			COOKING_LONG = "Still got a bit of a wait.",
@@ -3096,6 +3105,10 @@ return{
         MOON_ALTAR_CROWN = "Don't worry, I'll get you where you need to go.",
         MOON_ALTAR_COSMIC = "Can't shake the feeling that this is all building up to somethin'...",
 
+        MOON_ALTAR_ASTRAL = "All the pieces are finally in their proper place.",
+        MOON_ALTAR_ICON = "Now what were you doin' hiding underground?",
+        MOON_ALTAR_WARD = "Let's getcha fixed up.",        
+
         SEAFARING_PROTOTYPER =
         {
             GENERIC = "Always be inventing.",
@@ -3138,6 +3151,7 @@ return{
 		KELP_DRIED = "I kinda like the stuff!",
 
 		GESTALT = "I feel like... they've seen my sister.",
+        GESTALT_GUARD = "Don't think I like the looks of that.",
 
 		COOKIECUTTER = "What's the matter lil guy?",
 		COOKIECUTTERSHELL = "That thing was well protected.",
@@ -3515,6 +3529,95 @@ return{
         LEAFYMEATBURGER = "It's not like any burger I've ever tried.",
         LEAFYMEATSOUFFLE = "Well... I guess it's creative.",
         MEATYSALAD = "Huh. Pretty hearty for some leafy greens.",
+
+        -- GROTTO
+
+		MOLEBAT = "I think it nose a thing or two. Ha!",
+        MOLEBATHILL = "Might be some good materials stuck in that gunk.",
+
+        BATNOSE = "Got yer nose!",
+        BATNOSE_COOKED = "I ain't picky.",
+        BATNOSEHAT = "Pretty practical if you ask me.",
+
+        MUSHGNOME = "Strange, no matter how you spin it.",
+
+        SPORE_MOON = "Yeesh, that's gotta be a health hazard.",
+
+        MOON_CAP = "Anyone wanna volunteer to try it?",
+        MOON_CAP_COOKED = "Wouldn't have minded having some of these around when I was pulling overtime.",
+
+        MUSHTREE_MOON = "Now that's a weird looking mushroom.",
+
+        LIGHTFLIER = "Doesn't even need a battery!",
+
+        GROTTO_POOL_BIG = "Fancy a swim? Ha! Didn't think so.",
+        GROTTO_POOL_SMALL = "Fancy a swim? Ha! Didn't think so.",
+
+        DUSTMOTH = "Quite the tenacious little worker.",
+
+        DUSTMOTHDEN = "Sorry little fellas, but you've got some material I need.",
+
+        ARCHIVE_LOCKBOX = "I'm thinkin' this might be a cog for a larger machine.",
+        ARCHIVE_CENTIPEDE = "Feelin' feisty now, are we?",
+        ARCHIVE_CENTIPEDE_HUSK = "Wonder what made these things tick?",
+
+        ARCHIVE_COOKPOT =
+        {
+            COOKING_LONG = "Still got a bit of a wait.",
+            COOKING_SHORT = "Almost!",
+            DONE = "Soup's on!",
+            EMPTY = "Seems to be the only thing those critters haven't dusted.",
+            BURNT = "You guys like gristle, right?",
+        },
+
+        ARCHIVE_MOON_STATUE = "All that material wasted on some decoration.",
+        ARCHIVE_RUNE_STATUE = 
+        {
+            LINE_1 = "I can't make heads or tails of it.",
+            LINE_2 = "Ancient writing ain't exactly my specialty.",
+            LINE_3 = "I can't make heads or tails of it.",
+            LINE_4 = "Ancient writing ain't exactly my specialty.",
+            LINE_5 = "I can't make heads or tails of it.",
+        },        
+
+        ARCHIVE_RESONATOR = "Might as well see where the trail leads.",
+        ARCHIVE_RESONATOR_ITEM = "They sure knew how to build 'em back in the day.",
+
+        ARCHIVE_LOCKBOX_DISPENCER = {
+          POWEROFF = "Looks like it needs some power to get it going.",
+          GENERIC =  "Now that's one fine piece of engineering!",
+        },
+
+        ARCHIVE_SECURITY_DESK = {
+            POWEROFF = "Bet if it had some power it'd start right up.",
+            GENERIC = "They really built things to last back then.",
+        },
+
+        ARCHIVE_SECURITY_PULSE = "Just where do you think you're going?",
+
+        ARCHIVE_SWITCH = {
+            VALID = "Seems like all three need a power source to complete the circuit.",
+            GEMS = "This one needs a power source.",
+        },
+
+        ARCHIVE_PORTAL = {
+            POWEROFF = "Is that... a portal? Maybe we can get it up and running!",
+            GENERIC = "Come on! Why won't you work?",
+        },
+
+        WALL_STONE_2 = "The building part is over.",
+        WALL_RUINS_2 = "If I break it, I'll get to build it again.",
+
+        REFINED_DUST = "It's gotta be useful for something.",
+        DUSTMERINGUE = "Ugh. Maybe one of those little moth guys will clean this mess up.",
+
+        SHROOMCAKE = "Aw c'mon, it's not that bad.",
+
+        NIGHTMAREGROWTH = "Charlie...",
+
+        TURFCRAFTINGSTATION = "Better pound the pavement! Ha!",
+
+        MOON_ALTAR_LINK = "Looks like it's still under construction.",
     },
 
     DESCRIBE_GENERIC = "Incredible! I have no idea what that is.",

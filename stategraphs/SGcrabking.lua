@@ -199,9 +199,6 @@ local states =
 
         events =
         {
-            EventHandler("attacked", function(inst)
-                inst.sg:GoToState("hit_light")
-            end), 
             EventHandler("animover", function(inst)
                 inst.sg:GoToState("inert")
             end),

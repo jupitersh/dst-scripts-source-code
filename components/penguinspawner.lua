@@ -39,7 +39,7 @@ local _checktime = 5
 local _lastSpawnTime = 0
 
 local _maxColonies = 5
-local _maxPenguins = FLOCK_SIZE * (_maxColonies + 1)  -- max simultaneous penguins
+local _maxPenguins = _flockSize * (_maxColonies + 1)  -- max simultaneous penguins
 local _spawnInterval = 30
 
 local _active = true
@@ -164,12 +164,16 @@ local function SpawnPenguin(inst,spawner,colonyNum,pos,angle)
 end
 
 local function SpawnFlock(colonyNum,loc,check_angle)
+    local colony = colonyNum and _colonies[colonyNum] or {}
     local map = TheWorld.Map
     local flock = GetRandomWithVariance(_flockSize,3)
     local spawned = 0
     local i = 0
     local pang = check_angle/DEGREES
     while spawned < flock and i < flock + 7 do
+        if (colony.numspawned or 0) + spawned >= _flockSize then
+            return
+        end
         local spawnPos = loc + Vector3(GetRandomWithVariance(0,0.5),0.0,GetRandomWithVariance(0,0.5))
         i = i + 1
         if map:IsAboveGroundAtPoint(spawnPos:Get()) then
@@ -237,7 +241,7 @@ local function EstablishColony(loc)
     -- Look for any nearby colonies with enough room
     -- return the colony if you find it
     for i,v in ipairs(_colonies) do
-        if GetTableSize(v.members) <= (_maxColonySize-(FLOCK_SIZE*.8)) then
+        if GetTableSize(v.members) <= (_maxColonySize-(_flockSize*.8)) then
             pos = v.rookery
             if pos and distsq(loc,pos) < SEARCH_RADIUS2+60 and
                 ground.Pathfinder:IsClear(loc.x, loc.y, loc.z,                    -- check for interposing water
@@ -469,6 +473,7 @@ function self:AddToColony(colonyNum,pengu)
     local colony = colonyNum ~= nil and _colonies[colonyNum] or nil
     if colony then
         --print(pengu," added to ",colonyNum)
+        colony.numspawned = (colony.numspawned or 0) + 1
         colony.members = colony.members or {}
         colony.members[pengu] = true
         pengu.colonyNum = colonyNum
@@ -493,19 +498,19 @@ end
 
 function self:SpawnModeLight()
     _maxColonies = 3
-    _maxPenguins = FLOCK_SIZE * (_maxColonies + 1)
+    _maxPenguins = _flockSize * (_maxColonies + 1)
     _spawnInterval = 60
 end
 
 function self:SpawnModeMed()
     _maxColonies = 6
-    _maxPenguins = FLOCK_SIZE * (_maxColonies + 2)
+    _maxPenguins = _flockSize * (_maxColonies + 2)
     _spawnInterval = 20
 end
 
 function self:SpawnModeHeavy()
     _maxColonies = 7
-    _maxPenguins = FLOCK_SIZE * (_maxColonies + 5)
+    _maxPenguins = _flockSize * (_maxColonies + 5)
     _spawnInterval = 10
 end
 
@@ -517,7 +522,7 @@ function self:OnSave()
     if #_colonies >= 1 then
         data.colonies = {}
         for i,v in ipairs(_colonies) do
-            data.colonies[i] = {v.rookery.x,v.rookery.y,v.rookery.z,v.is_mutated}
+            data.colonies[i] = {v.rookery.x,v.rookery.y,v.rookery.z,v.is_mutated,numspawned=v.numspawned}
         end
     else
         --print("__NO COLONIES")

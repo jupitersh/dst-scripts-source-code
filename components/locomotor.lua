@@ -992,9 +992,8 @@ function LocoMotor:OnUpdate(dt)
             local dsq = distsq(destpos_x, destpos_z, mypos_x, mypos_z)
             local run_dist = self:GetRunSpeed() * dt * .5
             reached_dest = dsq <= math.max(run_dist * run_dist, self.arrive_dist * self.arrive_dist)
-            if not reached_dest then
-                reached_dest, invalid = self.inst.replica.combat:CanAttack(self.bufferedaction.target)
-            end
+            
+            reached_dest, invalid = self.inst.replica.combat:LocomotorCanAttack(reached_dest, self.bufferedaction.target)
         elseif self.bufferedaction ~= nil 
             and self.bufferedaction.action.customarrivecheck ~= nil then
             reached_dest, invalid = self.bufferedaction.action.customarrivecheck(self.inst, self.dest)

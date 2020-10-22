@@ -868,6 +868,8 @@ local ExampleLayout =
 
     ["BathbombedHotspring"] = StaticLayout.Get("map/static_layouts/bathbombedhotspring"),
 
+    ["MoonFissures"] = StaticLayout.Get("map/static_layouts/fissures_1"),
+
 
 --------------------------------------------------------------------------------
 -- Ocean
@@ -940,6 +942,20 @@ local ExampleLayout =
 	}),
 
 --------------------------------------------------------------------------------
+-- Grotto
+--------------------------------------------------------------------------------
+    ["GrottoPoolBig"] = StaticLayout.Get("map/static_layouts/grotto_pool_large"),
+    ["GrottoPoolSmall"] = StaticLayout.Get("map/static_layouts/grotto_pool_small"),
+
+--------------------------------------------------------------------------------
+-- Archive
+--------------------------------------------------------------------------------
+	["ArchiveDoor"] = StaticLayout.Get("map/static_layouts/archivedoor",{
+			start_mask = PLACE_MASK.IGNORE_IMPASSABLE_BARREN_RESERVED,
+			fill_mask = PLACE_MASK.IGNORE_IMPASSABLE_BARREN_RESERVED,
+			layout_position = LAYOUT_POSITION.CENTER}),
+
+--------------------------------------------------------------------------------
 -- Return of Them Retrofitting
 --------------------------------------------------------------------------------
 	["retrofit_moonisland_small"] = StaticLayout.Get("map/static_layouts/retrofit_moonisland_small",
@@ -979,10 +995,18 @@ local ExampleLayout =
 		areas =
 		{
 			saltstack_area = function() return {"saltstack"} end, 
-		}
+		},
     }),
 
-	
+	["retrofit_moonmush"] = StaticLayout.Get("map/static_layouts/retrofit_moonmush", {
+		start_mask = PLACE_MASK.IGNORE_IMPASSABLE,
+		fill_mask = PLACE_MASK.IGNORE_IMPASSABLE,
+		force_rotation = LAYOUT_ROTATION.NORTH,
+		areas =
+		{
+		},
+    }),
+
 	
 	
 	

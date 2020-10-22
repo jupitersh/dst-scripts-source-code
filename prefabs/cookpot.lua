@@ -10,6 +10,7 @@ local assets =
 	Asset("ANIM", "anim/cook_pot_food3.zip"),
     Asset("ANIM", "anim/cook_pot_food4.zip"),
     Asset("ANIM", "anim/cook_pot_food5.zip"),
+    Asset("ANIM", "anim/cook_pot_food6.zip"),
     Asset("ANIM", "anim/ui_cookpot_1x4.zip"),
 }
 
@@ -17,6 +18,22 @@ local prefabs =
 {
     "collapse_small",
 }
+
+
+local assets_archive =
+{
+    Asset("ANIM", "anim/cook_pot.zip"),
+    Asset("ANIM", "anim/cookpot_archive.zip"),
+    Asset("ANIM", "anim/cook_pot_food.zip"),
+    Asset("ANIM", "anim/cook_pot_food2.zip"),
+    Asset("ANIM", "anim/cook_pot_food3.zip"),
+    Asset("ANIM", "anim/cook_pot_food4.zip"),
+    Asset("ANIM", "anim/cook_pot_food5.zip"),
+    Asset("ANIM", "anim/cook_pot_food6.zip"),
+    Asset("ANIM", "anim/ui_cookpot_1x4.zip"),
+    Asset("MINIMAP_IMAGE", "cookpot_archive"),
+}
+
 for k, v in pairs(cooking.recipes.cookpot) do
     table.insert(prefabs, v.name)
 end
@@ -94,6 +111,8 @@ local function SetProductSymbol(inst, product, overridebuild)
     local recipe = cooking.GetRecipe(inst.prefab, product)
     local potlevel = recipe ~= nil and recipe.potlevel or nil
     local build = overridebuild or (recipe ~= nil and recipe.overridebuild) or "cook_pot_food"
+    local overridesymbol = (recipe ~= nil and recipe.overridesymbolname) or product
+
     if potlevel == "high" then
         inst.AnimState:Show("swap_high")
         inst.AnimState:Hide("swap_mid")
@@ -107,7 +126,8 @@ local function SetProductSymbol(inst, product, overridebuild)
         inst.AnimState:Show("swap_mid")
         inst.AnimState:Hide("swap_low")
     end
-    inst.AnimState:OverrideSymbol("swap_cooked", build, product)
+
+    inst.AnimState:OverrideSymbol("swap_cooked", build, overridesymbol)
 end
 
 local function spoilfn(inst)
@@ -182,6 +202,15 @@ local function onload(inst, data)
     if data ~= nil and data.burnt then
         inst.components.burnable.onburnt(inst)
         inst.Light:Enable(false)
+    end   
+end
+
+local function onloadpostpass(inst, newents, data)
+    if data and data.additems and inst.components.container then
+        for i, itemname in ipairs(data.additems)do
+            local ent = SpawnPrefab(itemname)
+            inst.components.container:GiveItem( ent )
+        end
     end
 end
 
@@ -215,84 +244,115 @@ end
     return ret
 end]]
 
-local function fn()
-    local inst = CreateEntity()
 
-    inst.entity:AddTransform()
-    inst.entity:AddAnimState()
-    inst.entity:AddSoundEmitter()
-    inst.entity:AddMiniMapEntity()
-    inst.entity:AddLight()
-    inst.entity:AddNetwork()
-
-    MakeObstaclePhysics(inst, .5)
-
-    inst.MiniMapEntity:SetIcon("cookpot.png")
-
-    inst.Light:Enable(false)
-    inst.Light:SetRadius(.6)
-    inst.Light:SetFalloff(1)
-    inst.Light:SetIntensity(.5)
-    inst.Light:SetColour(235/255,62/255,12/255)
-    --inst.Light:SetColour(1,0,0)
-
-    inst:AddTag("structure")
-
-    --stewer (from stewer component) added to pristine state for optimization
-    inst:AddTag("stewer")
-
+local function cookpot_common(inst)
     inst.AnimState:SetBank("cook_pot")
     inst.AnimState:SetBuild("cook_pot")
     inst.AnimState:PlayAnimation("idle_empty")
+    inst.MiniMapEntity:SetIcon("cookpot.png")    
+end
 
-    MakeSnowCoveredPristine(inst)
+local function cookpot_common_master(inst)
+    inst.components.container:WidgetSetup("cookpot")    
+end
 
-    inst.entity:SetPristine()
+local function cookpot_archive(inst)
+    inst.AnimState:SetBank("cook_pot")
+    inst.AnimState:SetBuild("cookpot_archive")
+    inst.AnimState:PlayAnimation("idle_empty")
+    inst.MiniMapEntity:SetIcon("cookpot_archive.png")  
+end
 
-    if not TheWorld.ismastersim then
+local function cookpot_archive_master(inst)
+    inst.components.container:WidgetSetup("archive_cookpot")
+end
+
+local function MakeCookPot(name, common_postinit, master_postinit, assets, prefabs)
+    local function fn()
+        local inst = CreateEntity()
+
+        inst.entity:AddTransform()
+        inst.entity:AddAnimState()
+        inst.entity:AddSoundEmitter()
+        inst.entity:AddMiniMapEntity()
+        inst.entity:AddLight()
+        inst.entity:AddNetwork()
+
+        MakeObstaclePhysics(inst, .5)
+
+        inst.Light:Enable(false)
+        inst.Light:SetRadius(.6)
+        inst.Light:SetFalloff(1)
+        inst.Light:SetIntensity(.5)
+        inst.Light:SetColour(235/255,62/255,12/255)
+        --inst.Light:SetColour(1,0,0)
+
+        inst:AddTag("structure")
+
+        --stewer (from stewer component) added to pristine state for optimization
+        inst:AddTag("stewer")
+
+        if common_postinit ~= nil then
+            common_postinit(inst)
+        end
+
+        MakeSnowCoveredPristine(inst)
+
+        inst.entity:SetPristine()
+
+        if not TheWorld.ismastersim then
+            return inst
+        end
+
+        inst:AddComponent("stewer")
+        inst.components.stewer.onstartcooking = startcookfn
+        inst.components.stewer.oncontinuecooking = continuecookfn
+        inst.components.stewer.oncontinuedone = continuedonefn
+        inst.components.stewer.ondonecooking = donecookfn
+        inst.components.stewer.onharvest = harvestfn
+        inst.components.stewer.onspoil = spoilfn
+
+        inst:AddComponent("container")
+        --inst.components.container:WidgetSetup("cookpot")
+        inst.components.container.onopenfn = onopen
+        inst.components.container.onclosefn = onclose
+        inst.components.container.skipclosesnd = true
+        inst.components.container.skipopensnd = true
+
+        inst:AddComponent("inspectable")
+        inst.components.inspectable.getstatus = getstatus
+
+        inst:AddComponent("lootdropper")
+        inst:AddComponent("workable")
+        inst.components.workable:SetWorkAction(ACTIONS.HAMMER)
+        inst.components.workable:SetWorkLeft(4)
+        inst.components.workable:SetOnFinishCallback(onhammered)
+        inst.components.workable:SetOnWorkCallback(onhit)
+
+        inst:AddComponent("hauntable")
+        inst.components.hauntable:SetHauntValue(TUNING.HAUNT_TINY)
+        --inst.components.hauntable:SetOnHauntFn(OnHaunt)
+
+        MakeSnowCovered(inst)
+        inst:ListenForEvent("onbuilt", onbuilt)
+
+        MakeMediumBurnable(inst, nil, nil, true)
+        MakeSmallPropagator(inst)
+
+        inst.OnSave = onsave 
+        inst.OnLoad = onload
+        inst.OnLoadPostPass = onloadpostpass
+
+        if master_postinit ~= nil then
+            master_postinit(inst)
+        end
+
         return inst
     end
 
-    inst:AddComponent("stewer")
-    inst.components.stewer.onstartcooking = startcookfn
-    inst.components.stewer.oncontinuecooking = continuecookfn
-    inst.components.stewer.oncontinuedone = continuedonefn
-    inst.components.stewer.ondonecooking = donecookfn
-    inst.components.stewer.onharvest = harvestfn
-    inst.components.stewer.onspoil = spoilfn
+    return Prefab(name, fn, assets, prefabs)
+end 
 
-    inst:AddComponent("container")
-    inst.components.container:WidgetSetup("cookpot")
-    inst.components.container.onopenfn = onopen
-    inst.components.container.onclosefn = onclose
-    inst.components.container.skipclosesnd = true
-    inst.components.container.skipopensnd = true
-
-    inst:AddComponent("inspectable")
-    inst.components.inspectable.getstatus = getstatus
-
-    inst:AddComponent("lootdropper")
-    inst:AddComponent("workable")
-    inst.components.workable:SetWorkAction(ACTIONS.HAMMER)
-    inst.components.workable:SetWorkLeft(4)
-    inst.components.workable:SetOnFinishCallback(onhammered)
-    inst.components.workable:SetOnWorkCallback(onhit)
-
-    inst:AddComponent("hauntable")
-    inst.components.hauntable:SetHauntValue(TUNING.HAUNT_TINY)
-    --inst.components.hauntable:SetOnHauntFn(OnHaunt)
-
-    MakeSnowCovered(inst)
-    inst:ListenForEvent("onbuilt", onbuilt)
-
-    MakeMediumBurnable(inst, nil, nil, true)
-    MakeSmallPropagator(inst)
-
-    inst.OnSave = onsave 
-    inst.OnLoad = onload
-
-    return inst
-end
-
-return Prefab("cookpot", fn, assets, prefabs),
-    MakePlacer("cookpot_placer", "cook_pot", "cook_pot", "idle_empty")
+return MakeCookPot("cookpot", cookpot_common, cookpot_common_master, assets, prefabs),
+    MakePlacer("cookpot_placer", "cook_pot", "cook_pot", "idle_empty"),
+    MakeCookPot("archive_cookpot", cookpot_archive, cookpot_archive_master, assets_archive, prefabs)

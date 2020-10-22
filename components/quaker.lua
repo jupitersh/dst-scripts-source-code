@@ -63,6 +63,10 @@ local _debris =
     { weight = 1, loot = { "rocks" } },
 }
 
+local _tagdebris =
+{
+}
+
 local _activeplayers = {}
 local _scheduleddrops = {}
 local _originalplayers = {}
@@ -81,14 +85,36 @@ local UpdateShadowSize = _ismastersim and function(shadow, height)
     shadow.Transform:SetScale(scaleFactor, scaleFactor, scaleFactor)
 end or nil
 
-local GetDebris = _ismastersim and function()
+local GetDebris = _ismastersim and function(node_data)
+    local debris_table = nil
+    if node_data == nil or node_data.tags == nil then
+        debris_table = _debris
+    else
+        debris_table = {}
+
+        -- We support empty tables to produce no debris,
+        -- so we can't just test for an empty table later.
+        local tag_found = false
+        for _, tag in ipairs(node_data.tags) do
+            local tag_table = _tagdebris[tag]
+            if tag_table ~= nil then
+                tag_found = true
+                ConcatArrays(debris_table, tag_table)
+            end
+        end
+
+        if not tag_found then
+            debris_table = _debris
+        end
+    end
+
     local weighttotal = 0
-    for i,v in ipairs(_debris) do
+    for i,v in ipairs(debris_table) do
         weighttotal = weighttotal + v.weight
     end
     local val = math.random() * weighttotal
     local droptable = nil
-    for i,v in ipairs(_debris) do
+    for i,v in ipairs(debris_table) do
         if val < v.weight then
             droptable = deepcopy(v.loot) -- we will be modifying this
             break
@@ -102,7 +128,7 @@ local GetDebris = _ismastersim and function()
         while todrop == nil and #droptable > 0 do
             local index = math.random(1,#droptable)
             todrop = droptable[index]
-            if todrop == "mole" or todrop == "rabbit" then
+            if todrop == "mole" or todrop == "rabbit" or todrop == "carrat" then
                 -- if it's a small creature, count it, or remove it from the table and try again
                 if _mammalsremaining == 0 then
                     table.remove(droptable, index)
@@ -145,7 +171,7 @@ local _GroundDetectionUpdate = _ismastersim and function(debris, override_densit
             debris:PushEvent("detachchild")
             debris:Remove()
         elseif _world.Map:IsPointNearHole(Vector3(x, 0, z)) then
-            if debris.prefab == "mole" or debris.prefab == "rabbit" then
+            if debris.prefab == "mole" or debris.prefab == "rabbit" or debris.prefab == "carrat" then
                 debris:PushEvent("detachchild")
                 debris:Remove()
             else
@@ -229,6 +255,7 @@ local _GroundDetectionUpdate = _ismastersim and function(debris, override_densit
             if density <= 0 or
                 debris.prefab == "mole" or
                 debris.prefab == "rabbit" or
+                debris.prefab == "carrat" or
                 not (math.random() < .75 or
                     --NOTE: There will always be at least one found within DENSITYRADIUS, ourself!
                     #TheSim:FindEntities(x, 0, y, density, nil, QUAKEDEBRIS_CANT_TAGS, QUAKEDEBRIS_ONEOF_TAGS) > 1
@@ -271,7 +298,7 @@ local _GroundDetectionUpdate = _ismastersim and function(debris, override_densit
             end
         end
         debris:PushEvent("stopfalling")
-    elseif debris.prefab == "mole" or debris.prefab == "rabbit" then
+    elseif debris.prefab == "mole" or debris.prefab == "rabbit" or debris.prefab == "carrat" then
         --failsafe
         debris:PushEvent("detachchild")
         debris:Remove()
@@ -288,14 +315,16 @@ local OnRemoveDebris = _ismastersim and function(debris)
 end or nil
 
 local SpawnDebris = _ismastersim and function(spawn_point, override_prefab, override_density)
-    local prefab = override_prefab or GetDebris()
+    local node_index = _world.Map:GetNodeIdAtPoint(spawn_point:Get())
+
+    local prefab = override_prefab or GetDebris(_world.topology.nodes[node_index])
     if prefab ~= nil then
         local debris = SpawnPrefab(prefab)
         if debris ~= nil then
             debris.entity:SetCanSleep(false)
             debris.persists = false
 
-            if (prefab == "rabbit" or prefab == "mole") and debris.sg ~= nil then
+            if (prefab == "rabbit" or prefab == "mole" or prefab == "carrat") and debris.sg ~= nil then
                 _mammalsremaining = _mammalsremaining - 1
                 debris.sg:GoToState("fall")
             end
@@ -615,6 +644,12 @@ function self:SetDebris(data)
     _debris = data
 end
 
+function self:SetTagDebris(tile, data)
+    if not _ismastersim then return end
+
+    _tagdebris[tile] = data
+end
+
 --------------------------------------------------------------------------
 --[[ Initialization ]]
 --------------------------------------------------------------------------
@@ -668,6 +703,31 @@ self:SetDebris( {
         },
     },
 })
+
+local MUTATED_MUSH_DEBRIS =
+{
+    { -- common
+        weight = 0.60,
+        loot =
+        {
+            "rocks",
+            "flint",
+            "moonglass",
+        }
+    },
+    { -- uncomon
+        weight = 0.40,
+        loot =
+        {
+            "rock_avocado_fruit",
+            "carrat",
+        },
+    },
+}
+self:SetTagDebris( "lunacyarea", MUTATED_MUSH_DEBRIS )
+
+-- If we were to use nil, we would fall through to the default debris table.
+self:SetTagDebris( "nocavein", {})
 
 self:SetQuakeData({
     warningtime = 7,

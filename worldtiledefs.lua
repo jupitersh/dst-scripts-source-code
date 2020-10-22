@@ -117,9 +117,12 @@ local GROUND_PROPERTIES =
     { GROUND.FUNGUS,     { name = "cave",       noise_texture = "levels/textures/noise_fungus.tex",                 runsound="dontstarve/movement/run_moss",        walksound="dontstarve/movement/walk_moss",      snowsound="dontstarve/movement/run_ice",    mudsound = "dontstarve/movement/run_mud", flashpoint_modifier = 0, colors=GROUND_OCEAN_COLOR   } },
     { GROUND.FUNGUSRED,  { name = "cave",       noise_texture = "levels/textures/noise_fungus_red.tex",             runsound="dontstarve/movement/run_moss",        walksound="dontstarve/movement/walk_moss",      snowsound="dontstarve/movement/run_ice",    mudsound = "dontstarve/movement/run_mud", flashpoint_modifier = 0, colors=GROUND_OCEAN_COLOR   } },
     { GROUND.FUNGUSGREEN,{ name = "cave",       noise_texture = "levels/textures/noise_fungus_green.tex",           runsound="dontstarve/movement/run_moss",        walksound="dontstarve/movement/walk_moss",      snowsound="dontstarve/movement/run_ice",    mudsound = "dontstarve/movement/run_mud", flashpoint_modifier = 0, colors=GROUND_OCEAN_COLOR   } },
+    { GROUND.FUNGUSMOON, { name = "cave",       noise_texture = "levels/textures/Ground_noise_moon_fungus.tex",     runsound="grotto/movement/grotto_footstep",     walksound="grotto/movement/grotto_footstep",    snowsound="dontstarve/movement/run_ice",    mudsound = "dontstarve/movement/run_mud", flashpoint_modifier = 0, colors=GROUND_OCEAN_COLOR   } },
     { GROUND.SINKHOLE,   { name = "cave",       noise_texture = "levels/textures/noise_sinkhole.tex",               runsound="dontstarve/movement/run_dirt",        walksound="dontstarve/movement/walk_dirt",      snowsound="dontstarve/movement/run_snow",   mudsound = "dontstarve/movement/run_mud", flashpoint_modifier = 0, colors=GROUND_OCEAN_COLOR   } },
     { GROUND.UNDERROCK,  { name = "cave",       noise_texture = "levels/textures/noise_rock.tex",                   runsound="dontstarve/movement/run_dirt",        walksound="dontstarve/movement/walk_dirt",      snowsound="dontstarve/movement/run_ice",    mudsound = "dontstarve/movement/run_mud", flashpoint_modifier = 0, colors=GROUND_OCEAN_COLOR   } },
     { GROUND.MUD,        { name = "cave",       noise_texture = "levels/textures/noise_mud.tex",                    runsound="dontstarve/movement/run_mud",         walksound="dontstarve/movement/walk_mud",       snowsound="dontstarve/movement/run_snow",   mudsound = "dontstarve/movement/run_mud", flashpoint_modifier = 0, colors=GROUND_OCEAN_COLOR   } },
+
+    { GROUND.ARCHIVE,    { name = "blocky",       noise_texture = "levels/textures/Ground_noise_archive.tex",         runsound="dontstarve/movement/run_marble",       walksound="dontstarve/movement/run_marble",      snowsound="dontstarve/movement/run_ice",    mudsound = "dontstarve/movement/run_mud", flashpoint_modifier = 0, colors=GROUND_OCEAN_COLOR   } },
 
     { GROUND.BRICK_GLOW, { name = "cave",       noise_texture = "levels/textures/noise_ruinsbrick.tex",             runsound="dontstarve/movement/run_dirt",        walksound="dontstarve/movement/walk_dirt",      snowsound="dontstarve/movement/run_ice",    mudsound = "dontstarve/movement/run_mud", flashpoint_modifier = 0, colors=GROUND_OCEAN_COLOR   } },
     { GROUND.BRICK,      { name = "cave",       noise_texture = "levels/textures/noise_ruinsbrickglow.tex",         runsound="dontstarve/movement/run_moss",        walksound="dontstarve/movement/walk_moss",      snowsound="dontstarve/movement/run_ice",    mudsound = "dontstarve/movement/run_mud", flashpoint_modifier = 0, colors=GROUND_OCEAN_COLOR   } },
@@ -171,14 +174,17 @@ local TURF_PROPERTIES =
     [GROUND.WOODFLOOR] =    { name = "woodfloor",       anim = "woodfloor"      ,   bank_build = "turf" },
     [GROUND.CARPET] =       { name = "carpetfloor",     anim = "carpet"         ,   bank_build = "turf" },
     [GROUND.CHECKER] =      { name = "checkerfloor",    anim = "checker"        ,   bank_build = "turf" },
-    [GROUND.METEOR] =       { name = "meteor",          anim = "meteor"         ,   bank_build = "turf_moon"    },
-    [GROUND.PEBBLEBEACH] =  { name = "pebblebeach",     anim = "pebblebeach"    ,   bank_build = "turf_moon"    },
-    [GROUND.SHELLBEACH] =   { name = "shellbeach",      anim = "shellbeach",   bank_build = "turf_shellbeach"    },
+    [GROUND.METEOR] =       { name = "meteor",          anim = "meteor"         ,   bank_build = "turf_moon" },
+    [GROUND.PEBBLEBEACH] =  { name = "pebblebeach",     anim = "pebblebeach"    ,   bank_build = "turf_moon" },
+    [GROUND.SHELLBEACH] =   { name = "shellbeach",      anim = "shellbeach"     ,   bank_build = "turf_shellbeach" },
 
     [GROUND.CAVE] =         { name = "cave",            anim = "cave"           ,   bank_build = "turf" },
     [GROUND.FUNGUS] =       { name = "fungus",          anim = "fungus"         ,   bank_build = "turf" },
     [GROUND.FUNGUSRED] =    { name = "fungus_red",      anim = "fungus_red"     ,   bank_build = "turf" },
     [GROUND.FUNGUSGREEN] =  { name = "fungus_green",    anim = "fungus_green"   ,   bank_build = "turf" },
+    [GROUND.FUNGUSMOON] =   { name = "fungus_moon",     anim = "fungus_moon"	,   bank_build = "turf_fungus_moon" },
+
+    [GROUND.ARCHIVE] =		{ name = "archive",			anim = "archive"		,   bank_build = "turf_archives" },    
 
     [GROUND.SINKHOLE] =     { name = "sinkhole",        anim = "sinkhole"       ,   bank_build = "turf" },
     [GROUND.UNDERROCK] =    { name = "underrock",       anim = "rock"           ,   bank_build = "turf" },

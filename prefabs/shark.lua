@@ -94,9 +94,7 @@ local function OnAttackOther(inst, data)
         end, 5)
 end
 
-local function removefood(inst,target)    
-    inst:RemoveEventCallback("onremoved", function(inst) inst:removefood(target) end, target)
-    inst:RemoveEventCallback("onpickup", function(inst) inst:removefood(target) end, target)
+local function removefood(inst,target)
     inst.foodtoeat = nil
 end
 

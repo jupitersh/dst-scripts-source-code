@@ -53,6 +53,10 @@ function FishingNetVisualizer:UpdateWhenMovingToTarget(dt)
         self.has_played_throw_pst = true
     end
 
+	if self.total_distance == nil then
+		-- adding this here to stop mods from crashing, no idea if this is rigth or not, but we arent using this thing anyway...
+		self.total_distance = self.distance_remaining
+	end
 	local y = self:CalculateY(self.total_distance - self.distance_remaining - self.total_distance * 0.5, self.total_distance, 0.2)
 
 	my_x, my_z = VecUtil_Add(my_x, my_z, VecUtil_Scale(self.dir_x, self.dir_z, distance_traveled))

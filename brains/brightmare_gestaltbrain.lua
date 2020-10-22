@@ -22,6 +22,7 @@ local L3_ATTACK_CHASE_TIME = 5
 local L3_AVOID_PLAYER_DIST = L3_ATTACK_CHASE_START_DIST + 0.1
 local L3_AVOID_PLAYER_STOP = L3_AVOID_PLAYER_DIST + 2
 
+
 local SHADOW_TAGS = {oneoftags = {"nightmarecreature", "shadowcreature", "shadow", "shadowminion", "stalker", "stalkerminion", "nightmare", "shadow_fire"}}
 
 local GestaltBrain = Class(Brain, function(self, inst)
@@ -51,8 +52,8 @@ function GestaltBrain:OnStart()
 						StandStill(self.inst),
 					}),
 
-				RunAway(self.inst, SHADOW_TAGS, AVOID_SHADOW_DIST, AVOID_SHADOW_STOP, onrunaway),
 
+				RunAway(self.inst, SHADOW_TAGS, AVOID_SHADOW_DIST, AVOID_SHADOW_STOP, onrunaway),
 				WhileNode( function() return self.inst.behaviour_level == 1 end, "level1",
 					PriorityNode({
 						RunAway(self.inst, "player", L1_AVOID_PLAYER_DIST, L1_AVOID_PLAYER_STOP),

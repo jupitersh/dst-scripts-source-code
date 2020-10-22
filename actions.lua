@@ -1946,13 +1946,20 @@ ACTIONS.STEALMOLEBAIT.fn = function(act)
 end
 
 ACTIONS.MAKEMOLEHILL.fn = function(act)
-    if act.doer and act.doer.prefab == "mole" then
+    if act.doer then
+        if act.doer.prefab == "mole" then
         local molehill = SpawnPrefab("molehill")
         molehill.Transform:SetPosition(act.doer.Transform:GetWorldPosition())
         molehill:AdoptChild(act.doer)
         act.doer.needs_home_time = nil
         return true
+        elseif act.doer.prefab == "molebat" then
+            local molebathill = SpawnPrefab("molebathill")
+            molebathill.Transform:SetPosition(act.doer.Transform:GetWorldPosition())
+            molebathill:AdoptChild(act.doer)
+            return true
     end
+end
 end
 
 ACTIONS.MOLEPEEK.fn = function(act)

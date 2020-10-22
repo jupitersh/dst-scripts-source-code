@@ -323,6 +323,15 @@ function PlayerProfile:GetItemSortMode()
     return self.persistdata.item_explorer_sort_mode
 end
 
+function PlayerProfile:SetServerSortMode(sort_mode)
+    self.persistdata.save_explorer_sort_mode = sort_mode
+	self:Save()
+end
+
+function PlayerProfile:GetServerSortMode()
+    return self.persistdata.save_explorer_sort_mode
+end
+
 -- Filters that determine which customization items are displayed in the collection.
 function PlayerProfile:SetCustomizationFilterState(customize_screen, customize_filter, filter_state)
 	if not self.persistdata.customization_filters then

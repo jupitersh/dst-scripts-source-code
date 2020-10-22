@@ -78,9 +78,28 @@ local function keeptargetfn()
     return false
 end
 
-local function onload(inst)
+local function onload(inst,data)
     if inst.components.health:IsDead() then
         clearobstacle(inst)
+    end
+
+    if data and data.gridnudge then
+        local function normalize(coord)       
+
+            local temp = coord%0.5 
+            coord = coord + 0.5 - temp
+
+            if  coord%1 == 0 then
+                coord = coord -0.5
+            end
+
+            return coord
+        end
+
+        local pt = Vector3(inst.Transform:GetWorldPosition())
+        pt.x = normalize(pt.x)
+        pt.z = normalize(pt.z)
+        inst.Transform:SetPosition(pt.x,pt.y,pt.z)
     end
 end
 
@@ -269,6 +288,13 @@ function MakeWallType(data)
         inst.components.repairable.repairmaterial = data.name == "ruins" and MATERIALS.THULECITE or data.name
         inst.components.repairable.onrepaired = onrepaired
 
+        if data.name == "ruins_2" then
+            inst.components.repairable.repairmaterial = MATERIALS.THULECITE
+        end
+        if data.name == "stone_2" then
+            inst.components.repairable.repairmaterial = "stone"
+        end        
+
         inst:AddComponent("combat")
         inst.components.combat:SetKeepTargetFunction(keeptargetfn)
         inst.components.combat.onhitfn = onhit
@@ -323,13 +349,14 @@ local wallprefabs = {}
 --NOTE: Stacksize is now set in the actual recipe for the item.
 local walldata =
 {
-    { name = MATERIALS.STONE,    material = "stone", tags = { "stone" },             loot = "rocks",            maxloots = 2, maxhealth = TUNING.STONEWALL_HEALTH,                      buildsound = "dontstarve/common/place_structure_stone" },
+    { name = MATERIALS.STONE,          material = "stone", tags = { "stone" },             loot = "rocks",            maxloots = 2, maxhealth = TUNING.STONEWALL_HEALTH,                      buildsound = "dontstarve/common/place_structure_stone" },
+    { name = MATERIALS.STONE.."_2",    material = "stone", tags = { "stone" },             loot = "rocks",            maxloots = 2, maxhealth = TUNING.STONEWALL_HEALTH,                      buildsound = "dontstarve/common/place_structure_stone" },
     { name = MATERIALS.WOOD,     material = "wood",  tags = { "wood" },              loot = "log",              maxloots = 2, maxhealth = TUNING.WOODWALL_HEALTH,     flammable = true, buildsound = "dontstarve/common/place_structure_wood"  },
     { name = MATERIALS.HAY,      material = "straw", tags = { "grass" },             loot = "cutgrass",         maxloots = 2, maxhealth = TUNING.HAYWALL_HEALTH,      flammable = true, buildsound = "dontstarve/common/place_structure_straw" },
     { name = "ruins",            material = "stone", tags = { "stone", "ruins" },    loot = "thulecite_pieces", maxloots = 2, maxhealth = TUNING.RUINSWALL_HEALTH,                      buildsound = "dontstarve/common/place_structure_stone" },
+    { name = "ruins_2",          material = "stone", tags = { "stone", "ruins" },    loot = "thulecite_pieces", maxloots = 2, maxhealth = TUNING.RUINSWALL_HEALTH,                      buildsound = "dontstarve/common/place_structure_stone" },    
     { name = MATERIALS.MOONROCK, material = "stone", tags = { "stone", "moonrock" }, loot = "moonrocknugget",   maxloots = 2, maxhealth = TUNING.MOONROCKWALL_HEALTH,                   buildsound = "dontstarve/common/place_structure_stone" },
 }
-
 for i, v in ipairs(walldata) do
     local wall, item, placer = MakeWallType(v)
     table.insert(wallprefabs, wall)
@@ -338,3 +365,4 @@ for i, v in ipairs(walldata) do
 end
 
 return unpack(wallprefabs)
+

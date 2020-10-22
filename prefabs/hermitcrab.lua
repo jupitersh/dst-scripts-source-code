@@ -1031,12 +1031,13 @@ local function startfishing(inst)
         inst.putawayrod:Cancel()
         inst.putawayrod = nil
     end
-    inst:ListenForEvent("timerdone", function(inst, data) 
+    inst._fishingtimer = function(inst, data) 
         if data.name == "fishingtime" then
             inst.sg:GoToState("oceanfishing_stop")
             inst.stopfishing(inst)            
         end
-    end)
+    end
+    inst:ListenForEvent("timerdone", inst._fishingtimer)
 
     inst:ListenForEvent("newfishingtarget", function(inst, data)         
         if data.target:HasTag("oceanfish") then
@@ -1047,12 +1048,10 @@ end
 
 local function stopfishing(inst)    
     inst.hookfish = nil
-    inst:RemoveEventCallback("timerdone", function(inst, data) 
-        if data.name == "fishingtime" then
-            inst.sg:GoToState("oceanfishing_stop")
-            inst.stopfishing(inst)            
-        end
-    end)
+	if inst._fishingtimer ~= nil then
+		inst:RemoveEventCallback("timerdone", inst._fishingtimer)
+		inst._fishingtimer = nil
+	end
     if inst.components.timer:TimerExists("fishingtime") then
         inst.components.timer:StopTimer("fishingtime")
     end

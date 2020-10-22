@@ -267,7 +267,20 @@ end
 --
 -- Assumes the button's parent is a Menu.
 -- Put a bunch of these into a StandardMenu.
-function TEMPLATES.MenuButton(text, onclick, tooltip_text, tooltip_widget)
+function TEMPLATES.MenuButton(text, onclick, tooltip_text, tooltip_widget, style, text_size)
+	local image_scale = {0.6, 0.6}
+	local image_offset = {-10,1}
+	local text_region_width = 250
+	local text_offset_x = 0
+	if style then
+		if "wide" == style then
+			image_scale = {0.75, 0.6}
+			image_offset = {15,1}
+			text_region_width = 300
+			text_offset_x = 25
+		end
+	end
+		
     local btn = ImageButton(
         "images/global_redux.xml",
         "blank.tex", -- never used, hidden
@@ -275,8 +288,8 @@ function TEMPLATES.MenuButton(text, onclick, tooltip_text, tooltip_widget)
         nil,
         nil,
         "menu_selected.tex",
-        {0.6},
-        {-10,1})
+        image_scale,
+        image_offset)
     btn.scale_on_focus = false
     btn:UseFocusOverlay("menu_focus.tex")
     btn:SetImageNormalColour(1,1,1,0) -- we don't want anything shown for normal.
@@ -288,16 +301,18 @@ function TEMPLATES.MenuButton(text, onclick, tooltip_text, tooltip_widget)
     btn:SetTextFocusColour(UICOLOURS.WHITE)
     btn:SetTextSelectedColour(UICOLOURS.GOLD_FOCUS)
     btn:SetText(text, true)
-    btn.text:SetRegionSize(250,40)
+    btn.text:SetRegionSize(text_region_width,40)
+	btn.text:SetPosition(text_offset_x,0)
     btn.text:SetHAlign(ANCHOR_LEFT)
-    btn.text_shadow:SetRegionSize(250,40)
+    btn.text_shadow:SetRegionSize(text_region_width,40)
+	btn.text_shadow:SetPosition(text_offset_x,0)
     btn.text_shadow:SetHAlign(ANCHOR_LEFT)
-    btn:SetTextSize(25)
+    btn:SetTextSize(text_size or 25)
 
     btn.bg = btn:AddChild(Image("images/ui.xml", "blank.tex"))
     local w,h = btn.text:GetRegionSize()
-    btn.bg:ScaleToSize(250, h+15)
-    btn.bg:SetPosition(-10,1)
+    btn.bg:ScaleToSize(text_region_width, h+15)
+    btn.bg:SetPosition(-10 + text_offset_x,1)
 
     btn.ongainfocus = function(is_enabled)
         if tooltip_widget ~= nil then

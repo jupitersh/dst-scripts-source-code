@@ -182,6 +182,7 @@ function params.cookpot.widget.buttoninfo.validfn(inst)
     return inst.replica.container ~= nil and inst.replica.container:IsFull()
 end
 
+params.archive_cookpot = params.cookpot
 params.portablecookpot = params.cookpot
 
 --------------------------------------------------------------------------

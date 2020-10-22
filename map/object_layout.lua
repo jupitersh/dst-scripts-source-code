@@ -195,17 +195,28 @@ local function ConvertLayoutToEntitylist(layout)
 					end
 
 					if area_contents ~= nil then
-						for i,r_prefab in ipairs(area_contents) do
+						for i,r_prefab in ipairs(area_contents) do							
+					
 							local x, y = 0, 0
+							local properties = current_prefab_data.properties
+							
 							if type(r_prefab) == "table" then
 								x = r_prefab.x
 								y = r_prefab.y
+								
+								if r_prefab.properties ~= nil then 
+									if properties and type(properties) == "table" and #properties > 0 then
+										properties = JoinArrays(properties, r_prefab.properties)
+									else
+										properties = r_prefab.properties
+									end
+								end
 								r_prefab = r_prefab.prefab
 							else
 								x = (current_prefab_data.x-current_prefab_data.width/2.0) + (math.random()*current_prefab_data.width)
 								y = (current_prefab_data.y-current_prefab_data.height/2.0) + (math.random()*current_prefab_data.height)
+								properties = current_prefab_data.properties
 							end
-							local properties = current_prefab_data.properties
 							if to_add[r_prefab] == nil then
 								to_add[r_prefab] = {}
 							end

@@ -146,16 +146,9 @@ local function OnCavePhase(inst, cavephase)
     end
 end
 
-local function OnFullMoon(inst)
-    if TheWorld.state.iscavenight then
-        OnCavePhase(inst, "night")
-    end
-end
-
 local function OnInit(inst)
     if TheWorld.ismastersim then
         inst:WatchWorldState("cavephase", OnCavePhase)
-        inst:WatchWorldState("startfullmoon", OnFullMoon)
         local params = light_params[TheWorld.state.iscavenight and TheWorld.state.isfullmoon and "fullmoon" or TheWorld.state.cavephase]
         if params ~= nil then
             inst._lightphase:set(params.id)

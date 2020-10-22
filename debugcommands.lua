@@ -488,12 +488,12 @@ function d_reportevent(other_ku)
 		}), function(ku_tbl, success) print( "Report event:", success) dumptable(ku_tbl) end )
 end
 
-function d_ground(ground)
+function d_ground(ground, pt)
 	ground = ground == nil and GROUND.QUAGMIRE_SOIL or 
 			type(ground) == "string" and GROUND[string.upper(ground)] 
 			or ground
 
-	local pt = TheInput:GetWorldPosition()
+	pt = pt or TheInput:GetWorldPosition()
 	
     local x, y = TheWorld.Map:GetTileCoordsAtPoint(pt:Get())
 

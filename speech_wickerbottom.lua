@@ -65,9 +65,9 @@ return{
         
 		DISMANTLE =
 		{
-			COOKING = "TODO",
+			COOKING = "I'm afraid I'll have to wait until it's finished cooking.",
 			INUSE = "It's already in use.",
-			NOTEMPTY = "TODO",
+			NOTEMPTY = "I'll have to remove its contents first.",
         },
         FISH_OCEAN =
 		{
@@ -97,6 +97,7 @@ return{
             NOTSTAFF = "This is not the staff I seek.",
             MUSHROOMFARM_NEEDSSHROOM = "Goodness no, it needs a fresh mushroom.",
             MUSHROOMFARM_NEEDSLOG = "It needs a log, imbued with magical properties.",
+            MUSHROOMFARM_NOMOONALLOWED = "This species seems to only grow in the wild.",
             SLOTFULL = "Let's finish what's on our plate first, shall we?",
             FOODFULL = "I'll be around when you're ready for seconds, dear.",
             NOTDISH = "That food is simply not suitable.",
@@ -502,12 +503,14 @@ return{
     ANNOUNCE_ATTACH_BUFF_PLAYERABSORPTION  = "I daresay I'm tougher than I may appear!",
     ANNOUNCE_ATTACH_BUFF_WORKEFFECTIVENESS = "I'll have everything done in a snap!",
     ANNOUNCE_ATTACH_BUFF_MOISTUREIMMUNITY  = "I feel so pleasantly dry!",
+    ANNOUNCE_ATTACH_BUFF_SLEEPRESISTANCE   = "I'm no stranger to sleeplessness.",
     
     ANNOUNCE_DETACH_BUFF_ELECTRICATTACK    = "Back to the the natural state of things.",
     ANNOUNCE_DETACH_BUFF_ATTACK            = "Oh my, what came over me?",
     ANNOUNCE_DETACH_BUFF_PLAYERABSORPTION  = "It appears my defense has weakened.",
     ANNOUNCE_DETACH_BUFF_WORKEFFECTIVENESS = "I can only work tirelessly for so long.",
     ANNOUNCE_DETACH_BUFF_MOISTUREIMMUNITY  = "Did I just feel a raindrop?",
+    ANNOUNCE_DETACH_BUFF_SLEEPRESISTANCE   = "How strange, I do in fact feel a bit tired...",
     
 	ANNOUNCE_OCEANFISHING_LINESNAP = "Oh dear, I must have put too much strain on my line.",
 	ANNOUNCE_OCEANFISHING_LINETOOLOOSE = "The line must remain taut!",
@@ -579,6 +582,10 @@ return{
 --fallback to speech_wilson.lua     ANNOUNCE_NOINSPIRATION = "only_used_by_wathgrithr",
 --fallback to speech_wilson.lua     ANNOUNCE_BATTLESONG_INSTANT_TAUNT_BUFF = "only_used_by_wathgrithr",
 --fallback to speech_wilson.lua     ANNOUNCE_BATTLESONG_INSTANT_PANIC_BUFF = "only_used_by_wathgrithr",
+
+    ANNOUNCE_ARCHIVE_NEW_KNOWLEDGE = "What a peculiar sensation, it's transmitting a blueprint telepathically!",
+    ANNOUNCE_ARCHIVE_OLD_KNOWLEDGE = "I'm already familiar with this particular piece of knowledge.",
+    ANNOUNCE_ARCHIVE_NO_POWER = "How very disappointing, I was curious to see what it would do.",
 
 	BATTLECRY =
 	{
@@ -1103,6 +1110,8 @@ return{
 
 		TURF_CAVE="The ground. You step on it.",
 		TURF_FUNGUS="The ground. You step on it.",
+		TURF_FUNGUS_MOON = "The ground. You step on it.",
+		TURF_ARCHIVE = "The ground. You step on it.",
 		TURF_SINKHOLE="The ground. You step on it.",
 		TURF_UNDERROCK="The ground. You step on it.",
 		TURF_MUD="The ground. You step on it.",
@@ -1421,7 +1430,7 @@ return{
 		COOKEDMANDRAKE = "Mandragora officinarum, cooked in the name of discovery.",
 		COOKEDMEAT = "It is slightly more appetizing when cooked.",
 		COOKEDMONSTERMEAT = "It's still a little bit poisonous.",
-		COOKEDSMALLMEAT = "It is slightly more appetizing when cooked.",
+		COOKEDSMALLMEAT = "It is slightly more appetizing when cooked.",        
 		COOKPOT =
 		{
 			COOKING_LONG = "It's got a bit to go before it's ready.",
@@ -3090,6 +3099,10 @@ return{
         MOON_ALTAR_CROWN = "Come now, let's get you back where you belong.",
         MOON_ALTAR_COSMIC = "It says there's more knowledge yet to be found.",
 
+        MOON_ALTAR_ASTRAL = "Are you ready to share your knowledge with me?",
+        MOON_ALTAR_ICON = "It's projecting a sense of urgency into my mind.",
+        MOON_ALTAR_WARD = "It's communicating a need to be reconstructed.",        
+
         SEAFARING_PROTOTYPER =
         {
             GENERIC = "It's good to keep the mind occupied at sea.",
@@ -3132,6 +3145,7 @@ return{
 		KELP_DRIED = "It's slightly more palatable with this texture.",
 
 		GESTALT = "They are the projections of something stronger.",
+        GESTALT_GUARD = "They possess higher defensive capabilities than their smaller counterparts.",
 
 		COOKIECUTTER = "Its eyes seem fixed to my raft.",
 		COOKIECUTTERSHELL = "A thick casing of calcium carbonate.",
@@ -3509,6 +3523,95 @@ return{
         LEAFYMEATBURGER = "At least I shouldn't have to worry about it being undercooked.",
         LEAFYMEATSOUFFLE = "It seems to be made from a plant-based gelatin of sorts.",
         MEATYSALAD = "It contains quite a bit of protein for a salad.",
+
+        -- GROTTO
+
+		MOLEBAT = "I suspect the impressive snout must compensate for its poor eyesight.",
+        MOLEBATHILL = "The burrow appears to be mainly comprised of phlegm and mud.",
+
+        BATNOSE = "Evolution truly is remarkable.",
+        BATNOSE_COOKED = "It's moderately better.",
+        BATNOSEHAT = "How... innovative.",
+
+        MUSHGNOME = "Should I classify you under Anamalia or Fungi?",
+
+        SPORE_MOON = "An odd, yet effective defense mechanism.",
+
+        MOON_CAP = "It seems to possess strong sleep inducing properties.",
+        MOON_CAP_COOKED = "How odd. Once cooked, they seem to act as a stimulant.",
+
+        MUSHTREE_MOON = "I suspect some property in the water caused it to change.",
+
+        LIGHTFLIER = "If it could be convinced to stay still, it would make an excellent reading light.",
+
+        GROTTO_POOL_BIG = "How interesting, it seems to be forming moon glass stalagmites.",
+        GROTTO_POOL_SMALL = "How interesting, it seems to be forming moon glass stalagmites.",
+
+        DUSTMOTH = "I would have been quite pleased to have one helping me in the library.",
+
+        DUSTMOTHDEN = "It seems a chemical reaction within the bodies of these creatures creates Thulecite.",
+
+        ARCHIVE_LOCKBOX = "It seems to require an outside power source to activate.",
+        ARCHIVE_CENTIPEDE = "An impressive piece of ancient engineering.",
+        ARCHIVE_CENTIPEDE_HUSK = "These parts appear to be inoperative.",
+
+        ARCHIVE_COOKPOT =
+        {
+            COOKING_LONG = "It's got a bit to go before it's ready.",
+            COOKING_SHORT = "Almost done!",
+            DONE = "Supper time!",
+            EMPTY = "I suspect it must have had a purpose specific to these chambers.",
+            BURNT = "Now it's truly derelict.",
+        },
+
+        ARCHIVE_MOON_STATUE = "These chambers appear to pre-date the rest of the ruins.",
+        ARCHIVE_RUNE_STATUE = 
+        {
+            LINE_1 = "Fascinating! These glyphs seem to be the base that their language evolved from.",
+            LINE_2 = "The introduction of shadow fuel must have had a tremendous impact on their culture.",
+            LINE_3 = "These glyphs must pre-date their discovery of the shadow fuel.",
+            LINE_4 = "This glyph in particular keeps repeating... if only I could decipher its meaning.",
+            LINE_5 = "This will need further study.",
+        },        
+
+        ARCHIVE_RESONATOR = "The path to discovery awaits.",
+        ARCHIVE_RESONATOR_ITEM = "How exciting! This technology most likely hasn't been used in hundreds of years!",
+
+        ARCHIVE_LOCKBOX_DISPENCER = {
+          POWEROFF = "It appears to lack an energy source.",
+          GENERIC =  "Somehow, the ancients devised a way to store knowledge in liquid form.",
+        },
+
+        ARCHIVE_SECURITY_DESK = {
+            POWEROFF = "I wonder what its intended purpose was.",
+            GENERIC = "It appears to be a remarkably advanced security system.",
+        },
+
+        ARCHIVE_SECURITY_PULSE = "It seems unwise to follow it.",
+
+        ARCHIVE_SWITCH = {
+            VALID = "The pedestals seem to draw power from these gems.",
+            GEMS = "It appears to require a specific gem to activate.",
+        },
+
+        ARCHIVE_PORTAL = {
+            POWEROFF = "The design is reminiscent of the Gateways we've traversed through before.",
+            GENERIC = "A shame, it appears to no longer be operational.",
+        },
+
+        WALL_STONE_2 = "That is quite secure.",
+        WALL_RUINS_2 = "A very secure wall.",
+
+        REFINED_DUST = "Better here than on my bookshelves.",
+        DUSTMERINGUE = "Perhaps there's a creature around here that could metabolize this.",
+
+        SHROOMCAKE = "I don't believe that qualifies as a \"cake\" dear.",
+
+        NIGHTMAREGROWTH = "These crystalline structures do not appear to be natural.",
+
+        TURFCRAFTINGSTATION = "I surmise this was a crucial part of ancient farming methods.",
+
+        MOON_ALTAR_LINK = "I'm afraid its purpose eludes me, for now.",
     },
 
     DESCRIBE_GENERIC = "A rare occurrence. I don't know what that is.",

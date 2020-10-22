@@ -508,6 +508,134 @@ local function Barnacles_ReplaceSeastacks()
     print("Retrofitting for Return Of Them: Troubled Waters - Added "..tostring(plant_spawn_count).." Barnacle Plants")
 end
 
+local function RepositionInaccessibleUnderwaterObjects()
+	local sunken_objects_count = 0
+
+	for _, ent in pairs(Ents) do
+		if ent:IsValid() and ent.prefab == "underwater_salvageable" then
+			if ent.components.winchtarget ~= nil then
+				local sunken_object = ent.components.winchtarget:GetSunkenObject()
+				local x, y, z = ent.Transform:GetWorldPosition()
+				
+				if sunken_object ~= nil  then
+					ent.components.inventory:RemoveItem(sunken_object)
+					sunken_object.Transform:SetPosition(x, y, z)
+
+					local repositioned = false
+					if sunken_object.components.submersible ~= nil then
+						repositioned = sunken_object.components.submersible:OnLanded()
+					end
+
+					if repositioned and sunken_object ~= nil and sunken_object:IsValid() then
+						local new_x, new_y, new_z = sunken_object.Transform:GetWorldPosition()
+						print("Retrofitting for Return of Them: Forgotten Knowledge - Repositioning ", sunken_object, " from " .. x, z, "to", new_x, new_z)
+					end
+				end
+
+				ent:Remove()
+
+				sunken_objects_count = sunken_objects_count + 1
+			end
+		end
+	end
+
+	print("Retrofitting for Return of Them: Forgotten Knowledge - Validated positions of", sunken_objects_count, "sunken heavy objects.")
+end
+
+local HAS_WATERSOURCE = {"watersource"}
+local function MoonFissures()
+	local moonfissures = {}
+
+	for _, ent in pairs(Ents) do
+		if ent:IsValid() and ent.prefab == "moon_fissure" then
+			table.insert(moonfissures,ent)			
+		end		
+	end
+	local options = {}
+	for i, ent in ipairs(moonfissures) do
+		local x,y,z = ent.Transform:GetWorldPosition()
+		local ents = TheSim:FindEntities(x,y,z, 12, HAS_WATERSOURCE)
+		if #ents == 0 then
+			table.insert(options,ent)
+		end		
+	end
+	if #options > 0 then
+		for i, ent in ipairs(options) do
+			local pos = Vector3(ent.Transform:GetWorldPosition())
+			local startangle = math.random()*PI*2
+			local offset_a = FindWalkableOffset(pos, startangle, 12, 12, true, true)
+			local offset_b = nil
+			if offset_a.x and offset_a.z then
+				offset_b = FindWalkableOffset(pos, startangle+(PI/3), 12, 12, true, true)
+			end
+			if offset_b then
+				local fissure_1 = SpawnPrefab("moon_fissure")
+				fissure_1.Transform:SetPosition( pos.x+offset_a.x , 0 , pos.z+offset_a.z )
+
+				local fissure_2 = SpawnPrefab("moon_fissure")
+				fissure_2.Transform:SetPosition( pos.x+offset_b.x , 0 , pos.z+offset_b.z )				
+				print("Retrofitting: for Return of Them: Forgotten Knowledge - 2 Moon Fissures added ", pos.x+offset_a.x, pos.z+offset_a.z, ":", pos.x+offset_b.x, pos.z+offset_b.z)
+				break
+			end			
+		end
+	else
+		print("Retrofitting: for Return of Them: Forgotten Knowledge: No Moon Fissures added")
+	end
+end
+		
+local function AstralMarkers()
+		
+	local potential = {}
+	for i, node in ipairs(TheWorld.topology.nodes) do
+		if table.contains(node.tags, "ExitPiece") and not table.contains(node.tags, "lunacyarea") then
+			table.insert(potential,node)
+		end
+	end
+
+    for k,v in pairs(Ents) do
+        if v.prefab == "moon_altar_astral_marker_1" or v.prefab == "moon_altar_astral_marker_2" then
+        	print("Retrofitting: for Return of Them: Forgotten Knowledge: Astral Markets Exist")
+    		return 
+        end
+    end
+
+	if #potential == 0 then
+		print("Retrofitting: for Return of Them: Forgotten Knowledge: No Astral Markers Added")
+	else
+		local moon_altar_astral_marker_1 = false
+		
+		while moon_altar_astral_marker_1 == false do
+			local rand = math.random(1,#potential) 
+			local testnode = potential[rand]
+
+			if TheWorld.Map:IsVisualGroundAtPoint(testnode.cent[1], 0, testnode.cent[2]) then
+				local marker = SpawnPrefab("moon_altar_astral_marker_1")
+				marker.Transform:SetPosition(testnode.cent[1], 0, testnode.cent[2])
+				moon_altar_astral_marker_1 = true
+				print("Retrofitting: for Return of Them: Forgotten Knowledge - Astral Marker added ", testnode.cent[1], 0, testnode.cent[2])
+			end
+
+			table.remove(potential,rand)
+		end
+
+		local  moon_altar_astral_marker_2 = false
+
+		while moon_altar_astral_marker_2 == false do
+			local rand = math.random(1,#potential) 
+			local testnode = potential[rand]
+
+			if TheWorld.Map:IsVisualGroundAtPoint(testnode.cent[1], 0, testnode.cent[2]) then
+				local marker = SpawnPrefab("moon_altar_astral_marker_2")
+				marker.Transform:SetPosition(testnode.cent[1], 0, testnode.cent[2])
+				moon_altar_astral_marker_2 = true
+				print("Retrofitting: for Return of Them: Forgotten Knowledge - Astral Marker added ", testnode.cent[1], 0, testnode.cent[2])
+			end
+
+			table.remove(potential,rand)
+		end
+	end
+end
+
 --------------------------------------------------------------------------
 --[[ Lightning Bluff Retrofit ]]
 --------------------------------------------------------------------------
@@ -910,7 +1038,23 @@ function self:OnPostInit()
     if self.retrofit_barnacles then
         print("Retrofitting for Return Of Them: Troubled Waters - Replacing Seastacks With Barnacle Plants")
         Barnacles_ReplaceSeastacks()
-    end
+	end
+	
+	if self.retrofit_inaccessibleunderwaterobjects then
+		print("Retrofitting for Return of Them: Forgotten Knowledge - Repositioning inaccessible underwater objects.")
+		RepositionInaccessibleUnderwaterObjects()
+	end
+
+	if self.retrofit_moonfissures then
+		print("Retrofitting for Return of Them: Forgotten Knowledge - Verifying moon fissure proximity.")
+		MoonFissures()
+	end
+
+	if self.retrofit_astralmarkers then
+		print("Retrofitting for Return of Them: Forgotten Knowledge - Placing Astral Markers.")
+		AstralMarkers()
+	end
+
 
 	---------------------------------------------------------------------------
 	if self.requiresreset then
@@ -953,7 +1097,10 @@ function self:OnLoad(data)
 		self.retrofit_fix_sculpture_pieces = data.retrofit_fix_sculpture_pieces or false
 		self.retrofit_salty = data.retrofit_salty or false
         self.retrofit_shesellsseashells = data.retrofit_shesellsseashells or false
-        self.retrofit_barnacles = data.retrofit_barnacles or false
+		self.retrofit_barnacles = data.retrofit_barnacles or false
+		self.retrofit_inaccessibleunderwaterobjects = data.retrofit_inaccessibleunderwaterobjects or false
+		self.retrofit_moonfissures = data.retrofit_moonfissures or false
+		self.retrofit_astralmarkers = data.retrofit_astralmarkers or false
     end
 end
 

@@ -39,17 +39,17 @@ local WorldCustomizationTab = Class(Widget, function(self, tab_location_index, s
     local spinner_width = 375
     local spinner_height = 40 -- use default height
     local btn_width = 50
-    local remove_width = 320*0.6 -- Same scaling as delete world button.
+    local remove_width = 190
     local preset_width = label_width + spacing + spinner_width
     local header_width = preset_width + (spacing + btn_width)*2
 
     -- Top border of the scroll list.
 	self.customizations_horizontal_line = self.settings_root:AddChild(Image("images/global_redux.xml", "item_divider.tex"))
-    self.customizations_horizontal_line:SetPosition(0,173)
+    self.customizations_horizontal_line:SetPosition(0,223)
     self.customizations_horizontal_line:SetSize(header_width+end_spacing, 5)
 
     self.presetpanel = self.settings_root:AddChild(Widget("presetpanel"))
-    self.presetpanel:SetPosition(0, 240)
+    self.presetpanel:SetPosition(0, 287)
     self.presetpanel.bg = self.presetpanel:AddChild(TEMPLATES.ListItemBackground(header_width+end_spacing*2, spinner_height+end_spacing))
 
     self.presetdesc = self.presetpanel:AddChild(Text(CHATFONT, 25))
@@ -58,7 +58,7 @@ local WorldCustomizationTab = Class(Widget, function(self, tab_location_index, s
     self.presetdesc:SetRegionSize(header_width-remove_width, 40)
     self.presetdesc:SetString("")
     self.presetdesc:EnableWordWrap(true)
-    self.presetdesc:SetPosition(-remove_width/2, -50)
+    self.presetdesc:SetPosition(-remove_width/2, -47)
 
     -- not sure why we have this offset
     local x = -50
@@ -142,14 +142,15 @@ local WorldCustomizationTab = Class(Widget, function(self, tab_location_index, s
         "",
         {remove_width, 89*0.6}
         ))
-    self.removelevelbutton:SetPosition(header_width/2 - remove_width/2, -45)
+    self.removelevelbutton:SetPosition(355, -42)
     self.removelevelbutton:MoveToBack() -- move behind preset buttons' hovertext
+    self.removelevelbutton:SetScale(.8)
     self.presetpanel.bg:MoveToBack()
 
     --add the custom options panel
     self.current_option_settingspanel = self.settings_root:AddChild(Widget("optionspanel"))
     self.current_option_settingspanel:SetScale(.9)
-    self.current_option_settingspanel:SetPosition(0,-53)
+    self.current_option_settingspanel:SetPosition(0,-10)
 
     local locationname, tabname = self:GetLocationName(self.tab_location_index)
     local action = string.format(STRINGS.UI.SANDBOXMENU.ADDLEVEL, tabname)
@@ -159,12 +160,37 @@ local WorldCustomizationTab = Class(Widget, function(self, tab_location_index, s
                 {
                     text = action,
                     cb = function()
-                        self:AddMultiLevel(self.tab_location_index)
-                        self:Refresh()
-                        if TheInput:ControllerAttached() and not TheFrontEnd.tracking_mouse then
-                            self:SetFocus(self.focus_forward)
+                        local function addmultilevel()
+                            self:AddMultiLevel(self.tab_location_index)
+                            self:Refresh()
+                            if TheInput:ControllerAttached() and not TheFrontEnd.tracking_mouse then
+                                self:SetFocus(self.focus_forward)
+                            end
+                            self:_SetSublevelAdderVisibility(false)
                         end
-                        self:_SetSublevelAdderVisibility(false)
+                        if not ShardSaveGameIndex:IsSlotEmpty(self.slot) then
+                            TheFrontEnd:PushScreen(
+                                PopupDialogScreen(action, STRINGS.UI.SANDBOXMENU.ADDLEVEL_EXISTINGWARNING,
+                                { 
+                                    { 
+                                        text = action, 
+                                        cb = function()
+                                            TheFrontEnd:PopScreen()
+                                            addmultilevel()
+                                        end
+                                    },
+                                    { 
+                                        text = STRINGS.UI.SERVERCREATIONSCREEN.CANCEL, 
+                                        cb = function()
+                                            TheFrontEnd:PopScreen()                 
+                                        end
+                                    }
+                                }
+                                )
+                            )
+                        else
+                            addmultilevel()
+                        end
                     end,
                 },
             },
@@ -295,6 +321,7 @@ function WorldCustomizationTab:UpdatePresetList()
                 self:SetTweak(self.currentmultilevel, option, value)
             end))
         self.customizationlist:SetFocusChangeDir(MOVE_LEFT, self.servercreationscreen.getfocussaveslot)
+        self.customizationlist:SetFocusChangeDir(MOVE_UP, self.presetpanel)
         local leveldata = Levels.GetDataForLevelID(self.current_option_settings[self.currentmultilevel].preset)
         if leveldata ~= nil then -- e.g. loading a slot for a disabled mod
             self.customizationlist:SetPresetValues(leveldata.overrides)
@@ -365,7 +392,7 @@ end
 
 function WorldCustomizationTab:UpdateMultilevelUI()
 
-    if self.allowEdit and self.currentmultilevel ~= 1 then
+    if self.allowEdit and self.currentmultilevel ~= 1 and IsNotConsole() then
         self.removelevelbutton:Show()
     else
         self.removelevelbutton:Hide()
@@ -592,31 +619,15 @@ function WorldCustomizationTab:CollectOptions()
     return ret
 end
 
-function WorldCustomizationTab:UpdateSlot(slotnum, prevslot, delete)
-    if not delete and (slotnum == prevslot or not slotnum or not prevslot) then return end
-
+function WorldCustomizationTab:SetDataForSlot(slot)
     self.allowEdit = true
-    self.slot = slotnum
-
-    -- Remember what was typed/set
-    local prev_option_settings = nil
-    if prevslot and prevslot > 0 then
-        prev_option_settings = deepcopy(self.current_option_settings)
-    end
+    self.slot = slot
 
     self.current_option_settings = {}
 
     -- No save data
-    if SaveGameIndex:IsSlotEmpty(slotnum) then
-        -- no slot, so hide all the details and set all the text boxes back to their defaults
-        if prevslot and prevslot > 0 and SaveGameIndex:IsSlotEmpty(prevslot) then
-            -- Duplicate prevslot's data into our new slot if it was also a blank slot
-            local prev = prev_option_settings[self.tab_location_index]
-            if prev then
-                self:LoadPreset(prev.preset)
-                self.current_option_settings[self.tab_location_index].tweaks = deepcopy(prev.tweaks)
-            end
-        elseif self.tab_location_index == 1 or Profile:GetAutoCavesEnabled() then
+    if ShardSaveGameIndex:IsSlotEmpty(slot) then
+        if self.tab_location_index == 1 or Profile:GetAutoCavesEnabled() then
             -- If we're the default location, load up a preset. (Otherwise, we
             -- wait for user to add us.)
             self:LoadPreset(nil)
@@ -624,18 +635,26 @@ function WorldCustomizationTab:UpdateSlot(slotnum, prevslot, delete)
         end
     else -- Save data
         self.allowEdit = false
-        local options = SaveGameIndex:GetSlotGenOptions(slotnum)
+
+        local options = ShardSaveGameIndex:GetSlotGenOptions(slot, self.tab_location_index == 1 and "Master" or "Caves")
         if options == nil or GetTableSize(options) == 0 then
+
+            local use_legacy_session_path = ShardSaveGameIndex:GetSlotServerData(slot).use_legacy_session_path
+            if not use_legacy_session_path and self.tab_location_index ~= 1 then
+                self.allowEdit = true
+            end
+
             -- Ruh roh! Bad data. Fill in with a default.
             local location = self.current_level_locations[1]
             local level_type = GetLevelType( self.servercreationscreen:GetGameMode() )
             local presetdata = Levels.GetDefaultLevelData(level_type, location)
-            self.slotoptions[slotnum] = { presetdata }
+            self.slotoptions[slot] = { presetdata }
         else
-            self.slotoptions[slotnum] = options
+            self.slotoptions[slot] = self.slotoptions[slot] or {}
+            self.slotoptions[slot][self.tab_location_index] = options
         end
 
-        local level = self.slotoptions[slotnum][self.tab_location_index]
+        local level = self.slotoptions[slot][self.tab_location_index]
         if level then
             self:LoadPreset(level.id)
             for option, value in pairs(level.overrides) do
@@ -688,8 +707,6 @@ function WorldCustomizationTab:RevertChanges()
 end
 
 function WorldCustomizationTab:HookupFocusMoves()
-    local tosaveslots = self.servercreationscreen ~= nil and self.servercreationscreen.getfocussaveslot or nil
-
     -- We Kill the list repeatedly so we need a level of indirection to find it again.
     local function tocustomizationlist()
         return self.customizationlist
@@ -700,9 +717,7 @@ function WorldCustomizationTab:HookupFocusMoves()
         right:SetFocusChangeDir(MOVE_LEFT, left)
     end
 
-
     self.presetpanel:SetFocusChangeDir(MOVE_DOWN, tocustomizationlist)
-    self.presetpanel:SetFocusChangeDir(MOVE_LEFT, tosaveslots)
     SequenceFocusHorizontal(self.presetspinner, self.revertbutton)
     SequenceFocusHorizontal(self.revertbutton, self.savepresetbutton)
     self.presetspinner:SetFocusChangeDir(MOVE_DOWN, self.removelevelbutton)

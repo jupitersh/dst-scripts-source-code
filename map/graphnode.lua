@@ -261,11 +261,12 @@ function Node:ConvertGround(spawnFn, entitiesOut, width, height, world_gen_choic
 	-- Get the list of special items for this node
 	local add_fn = {fn=function(...) self:AddEntity(...) end,args={entitiesOut=entitiesOut, width=width, height=height, rand_offset = false, debug_prefab_list=prefab_list}}
 
+	local scratchpad = {} -- shared data between all entries in countstaticlayouts. This is not shared with countprefabs.
 	if self.data.terrain_contents.countstaticlayouts ~= nil then
 		for k,count in pairs(self.data.terrain_contents.countstaticlayouts) do
             --print("STATIC LAYOUTS: adding a "..k.." to "..self.id)
 			if type(count) == "function" then
-				count = count(area)
+				count = count(area, k, scratchpad)
 			end
 			
 			for i=1, count do
@@ -360,10 +361,11 @@ function Node:PopulateVoronoi(spawnFn, entitiesOut, width, height, world_gen_cho
 
 	local area = #points_x
 
+	local scratchpad = {} -- shared data between all entries in countprefabs. This is not shared with countstaticlayouts.
 	if self.data.terrain_contents.countprefabs ~= nil then
 		for prefab, count in pairs(self.data.terrain_contents.countprefabs) do
 			if type(count) == "function" then
-				count = count(area)
+				count = count(area, prefab, scratchpad)
 			end
 			generate_these[prefab] = count
 			pos_needed = pos_needed + count

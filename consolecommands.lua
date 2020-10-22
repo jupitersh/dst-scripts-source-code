@@ -73,7 +73,7 @@ end
 local function doreset()
     StartNextInstance({
         reset_action = RESET_ACTION.LOAD_SLOT,
-        save_slot = SaveGameIndex:GetCurrentSaveSlot()
+        save_slot = ShardGameIndex:GetSlot()
     })
 end
 
@@ -114,13 +114,9 @@ end
 -- NOTE: It is not recommended to use this instead of c_regenerateworld,
 --       unless you need to regenerate only one shard in a cluster
 function c_regenerateshard(wipesettings)
-    local shouldpreserve = true
-    if wipesettings ~= nil then
-        shouldpreserve = not wipesettings
-    end
+    local shouldpreserve = not wipesettings
     if TheWorld ~= nil and TheWorld.ismastersim then
-        SaveGameIndex:DeleteSlot(
-            SaveGameIndex:GetCurrentSaveSlot(),
+        ShardGameIndex:Delete(
             doreset,
             shouldpreserve
         )
@@ -151,7 +147,7 @@ function c_shutdown(save)
             v:OnDespawn()
         end
         TheSystemService:EnableStorage(true)
-        SaveGameIndex:SaveCurrent(Shutdown, true)
+        ShardGameIndex:SaveCurrent(Shutdown, true)
     else
         SerializeUserSession(ThePlayer)
         Shutdown()
@@ -1496,8 +1492,8 @@ function c_shellsfromtable(song, startpos, placementfn, spacing_multiplier, out_
     end
 
     --
-
-	startpos = startpos or TheInput:GetWorldPosition()
+    
+    startpos = startpos or ConsoleWorldPosition()
 
 	placementfn = placementfn or function(currentpos, multiplier)
 		-- Default placementfn spawns shells in a straight line along world x

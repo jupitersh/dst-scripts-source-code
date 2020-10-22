@@ -185,6 +185,8 @@ function FilterBar:AddSearch( thin )
     searchbox.textbox:EnableScrollEditWindow(true)
     searchbox.textbox:SetHelpTextEdit("")
     searchbox.textbox:SetHelpTextApply(STRINGS.UI.WARDROBESCREEN.SEARCH)
+    searchbox.textbox:SetTextPrompt(STRINGS.UI.WARDROBESCREEN.SEARCH, UICOLOURS.GREY)
+    searchbox.textbox.prompt:SetHAlign(ANCHOR_MIDDLE)
     searchbox.textbox.OnTextEntered = function()
         if self.search_delay then
             self.search_delay:Cancel()

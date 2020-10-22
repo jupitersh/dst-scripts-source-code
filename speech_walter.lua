@@ -65,9 +65,9 @@ return{
         
 		DISMANTLE =
 		{
-			COOKING = "TODO",
+			COOKING = "That seems kind of dangerous.",
 			INUSE = "Guess I have to wait.",
-			NOTEMPTY = "TODO",
+			NOTEMPTY = "I should make sure it's empty first.",
         },
         FISH_OCEAN =
 		{
@@ -92,11 +92,12 @@ return{
             BUSY = "I guess they're busy.",
             ABIGAILHEART = "If it makes you feel better, ghosts are way more interesting anyway.",
             GHOSTHEART = "They seem pretty committed to their lifestyle. Or lack of one?",
-            NOTGEM = "That's probably a not going to work.",
+            NOTGEM = "That's probably not going to work.",
             WRONGGEM = "That doesn't look right.",
             NOTSTAFF = "That's not going to fit there.",
             MUSHROOMFARM_NEEDSSHROOM = "I need to forage for mushrooms! C'mon Woby!",
             MUSHROOMFARM_NEEDSLOG = "One of those haunted logs should do the trick.",
+            MUSHROOMFARM_NOMOONALLOWED = "I don't think they'll grow here.",
             SLOTFULL = "It's already packed.",
             FOODFULL = "There's some provisions in there already.",
             NOTDISH = "That... doesn't look like something anyone would eat.",
@@ -502,12 +503,14 @@ return{
     ANNOUNCE_ATTACH_BUFF_PLAYERABSORPTION  = "I'm invincible!",
     ANNOUNCE_ATTACH_BUFF_WORKEFFECTIVENESS = "Come on Woby, let's get to work!",
     ANNOUNCE_ATTACH_BUFF_MOISTUREIMMUNITY  = "Nothing's going to rain on my parade! Because I'm waterproof, get it?",
+    ANNOUNCE_ATTACH_BUFF_SLEEPRESISTANCE   = "Wide awake and ready for anything!",
     
     ANNOUNCE_DETACH_BUFF_ELECTRICATTACK    = "Darnit... guess the show's over.",
     ANNOUNCE_DETACH_BUFF_ATTACK            = "Huh? My punches feel wimpier... not that I was wimpy before!",
     ANNOUNCE_DETACH_BUFF_PLAYERABSORPTION  = "Back to regular Walter.",
     ANNOUNCE_DETACH_BUFF_WORKEFFECTIVENESS = "Alright, time for a break.",
     ANNOUNCE_DETACH_BUFF_MOISTUREIMMUNITY  = "Oh well. It's good to stay hydrated anyway.",
+    ANNOUNCE_DETACH_BUFF_SLEEPRESISTANCE   = "I'm starting to get a bit tired...",
     
 	ANNOUNCE_OCEANFISHING_LINESNAP = "Darnit!",
 	ANNOUNCE_OCEANFISHING_LINETOOLOOSE = "Just reel it in a little... just like they taught us...",
@@ -579,6 +582,10 @@ return{
 --fallback to speech_wilson.lua     ANNOUNCE_NOINSPIRATION = "only_used_by_wathgrithr",
 --fallback to speech_wilson.lua     ANNOUNCE_BATTLESONG_INSTANT_TAUNT_BUFF = "only_used_by_wathgrithr",
 --fallback to speech_wilson.lua     ANNOUNCE_BATTLESONG_INSTANT_PANIC_BUFF = "only_used_by_wathgrithr",
+
+    ANNOUNCE_ARCHIVE_NEW_KNOWLEDGE = "Huh? It's giving me instructions!",
+    ANNOUNCE_ARCHIVE_OLD_KNOWLEDGE = "I knew that one already.",
+    ANNOUNCE_ARCHIVE_NO_POWER = "Hm, it doesn't look like it's working.",
 
 	BATTLECRY =
 	{
@@ -1103,6 +1110,8 @@ return{
 
 		TURF_CAVE="A patch of... underground.",
 		TURF_FUNGUS="A patch of ground.",
+		TURF_FUNGUS_MOON = "A patch of ground.",
+		TURF_ARCHIVE = "A patch of ground.",
 		TURF_SINKHOLE="A patch of ground.",
 		TURF_UNDERROCK="A patch of ground.",
 		TURF_MUD="A patch of ground.",
@@ -1421,7 +1430,7 @@ return{
 		COOKEDMANDRAKE = "Sorry little buddy.",
 		COOKEDMEAT = "You can't beat cooking outdoors!",
 		COOKEDMONSTERMEAT = "Is it supposed to have that weird aftertaste?",
-		COOKEDSMALLMEAT = "A little meat is better than none.",
+		COOKEDSMALLMEAT = "A little meat is better than none.",        
 		COOKPOT =
 		{
 			COOKING_LONG = "This might take a while. Wanna see this cool bug I found in the meantime?",
@@ -3090,6 +3099,10 @@ return{
         MOON_ALTAR_CROWN = "Don't worry, we'll get you home!",
         MOON_ALTAR_COSMIC = "\"It's almost time\"? Time for what?",
 
+        MOON_ALTAR_ASTRAL = "I think it's ready.",
+        MOON_ALTAR_ICON = "Woby and I will get you back together!",
+        MOON_ALTAR_WARD = "It's okay, we'll have you home in no time.",        
+
         SEAFARING_PROTOTYPER =
         {
             GENERIC = "We're going to need a better boat.",
@@ -3132,6 +3145,7 @@ return{
 		KELP_DRIED = "Crunchy and salty. It's not bad.",
 
 		GESTALT = "Are you a ghost... from the moon?",
+        GESTALT_GUARD = "Wow, they reeaally don't like those shadow creatures.",
 
 		COOKIECUTTER = "They're smiling! Wait, I think I was looking at them upside-down.",
 		COOKIECUTTERSHELL = "These guys have tough armor!",
@@ -3509,6 +3523,95 @@ return{
         LEAFYMEATBURGER = "It's not quite the same.",
         LEAFYMEATSOUFFLE = "I don't think we needed to get that fancy with it...",
         MEATYSALAD = "What are those chunks in it?",
+
+        -- GROTTO
+
+		MOLEBAT = "They must have terrible allergies.",
+        MOLEBATHILL = "There might be something interesting in there.",
+
+        BATNOSE = "Looks like someone got a bit nosy. Get it? Because it's a nose?",
+        BATNOSE_COOKED = "It sure doesn't smell so good now...",
+        BATNOSEHAT = "Milk is good for your skeleton!",
+
+        MUSHGNOME = "A living mushroom! Well, I guess all mushrooms are technically living...",
+
+        SPORE_MOON = "I probably shouldn't touch that.",
+
+        MOON_CAP = "Another mushroom that isn't in my handbook...",
+        MOON_CAP_COOKED = "This doesn't seem like the smartest idea.",
+
+        MUSHTREE_MOON = "It's actually kind of pretty!",
+
+        LIGHTFLIER = "I think I have a new favourite kind of bug!",
+
+        GROTTO_POOL_BIG = "Sorry Woby, I don't think it'll be any good for swimming.",
+        GROTTO_POOL_SMALL = "Sorry Woby, I don't think it'll be any good for swimming.",
+
+        DUSTMOTH = "Can I keep them? Pleeeaaaase?",
+
+        DUSTMOTHDEN = "Woah, so that's where that weird material comes from!",
+
+        ARCHIVE_LOCKBOX = "I wish it came with instructions...",
+        ARCHIVE_CENTIPEDE = "Maybe it's friendly?",
+        ARCHIVE_CENTIPEDE_HUSK = "I don't think it's worked in a long time.",
+
+        ARCHIVE_COOKPOT =
+        {
+            COOKING_LONG = "This might take a while. Wanna see this cool bug I found in the meantime?",
+            COOKING_SHORT = "Almost time to eat!",
+            DONE = "Come and get it!",
+            EMPTY = "They weren't so different from us, were they?",
+            BURNT = "It's uh... extra done!",
+        },
+
+        ARCHIVE_MOON_STATUE = "Well, they look happier than the statues outside... I think.",
+        ARCHIVE_RUNE_STATUE = 
+        {
+            LINE_1 = "I sure wish I could read it.",
+            LINE_2 = "I wonder what it says.",
+            LINE_3 = "I sure wish I could read it.",
+            LINE_4 = "I wonder what it says.",
+            LINE_5 = "I sure wish I could read it.",
+        },        
+
+        ARCHIVE_RESONATOR = "I guess it's kind of like a compass.",
+        ARCHIVE_RESONATOR_ITEM = "It must do something important.",
+
+        ARCHIVE_LOCKBOX_DISPENCER = {
+          POWEROFF = "I wonder what they used it for.",
+          GENERIC =  "That glass part looks kind of familiar.",
+        },
+
+        ARCHIVE_SECURITY_DESK = {
+            POWEROFF = "It doesn't seem to work anymore.",
+            GENERIC = "Any respectable ancient ruin should have some kind of traps.",
+        },
+
+        ARCHIVE_SECURITY_PULSE = "Come on Woby, let's see where it goes!",
+
+        ARCHIVE_SWITCH = {
+            VALID = "I think these gems might be important, Woby!",
+            GEMS = "There's something missing...",
+        },
+
+        ARCHIVE_PORTAL = {
+            POWEROFF = "I wonder what this did?",
+            GENERIC = "Weird, this is the only thing that didn't turn back on.",
+        },
+
+        WALL_STONE_2 = "Looks pretty sturdy.",
+        WALL_RUINS_2 = "I like the spooky atmosphere.",
+
+        REFINED_DUST = "It took a long time to collect all that dust.",
+        DUSTMERINGUE = "Uh... no thanks. Maybe the moths will like it?",
+
+        SHROOMCAKE = "Is that really a cake?",
+
+        NIGHTMAREGROWTH = "We should probably stay away from those, Woby.",
+
+        TURFCRAFTINGSTATION = "I think we might be tampering with something we don't understand.",
+
+        MOON_ALTAR_LINK = "What is it? Aaah, the suspense!",
     },
 
     DESCRIBE_GENERIC = "That sure is a mystery!",

@@ -12,10 +12,6 @@ assert(TheWorld.ismastersim, "Brightmare spawner should not exist on client")
 
 local POP_CHANGE_INTERVAL = 10
 local POP_CHANGE_VARIANCE = 2
-local SPAWN_INTERVAL = 2
-local SPAWN_VARIANCE = 4
-local NON_INSANITY_MODE_DESPAWN_INTERVAL = 0.1
-local NON_INSANITY_MODE_DESPAWN_VARIANCE = 0.1
 
 --------------------------------------------------------------------------
 --[[ Member variables ]]
@@ -106,11 +102,7 @@ local function UpdatePopulation()
 					if #gestalts < maxpop then
 						inc_chance = .3
 					end
-				elseif level == 3 then
-					if #gestalts < maxpop then
-						inc_chance = .4
-					end
-				else -- level == 4
+				else -- level == 3
 					if #gestalts < maxpop then
 						inc_chance = .4
 					end
@@ -176,7 +168,7 @@ end
 --------------------------------------------------------------------------
 
 local function OnSanityModeChanged(player, data)
-	if data.mode == SANITY_MODE_LUNACY then
+	if data ~= nil and data.mode == SANITY_MODE_LUNACY then
 		_players[player] = {}
 	else
 		_players[player] = nil
@@ -198,7 +190,7 @@ end
 
 local function OnPlayerLeft(inst, player)
     inst:RemoveEventCallback("sanitymodechanged", OnSanityModeChanged, player)
-    _players[player] = nil
+	OnSanityModeChanged(player, nil)
 end
 
 --------------------------------------------------------------------------

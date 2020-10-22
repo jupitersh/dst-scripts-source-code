@@ -17,7 +17,7 @@ local function DoHeal(inst)
         for i, v in ipairs(targets) do
             --always heal, but don't stack visual fx
             v.components.health:DoDelta(amt, nil, inst.prefab)
-            if v.blocksoulhealfxtask == nil then
+            if v.blocksoulhealfxtask == nil and v.components.combat then
                 v.blocksoulhealfxtask = v:DoTaskInTime(.5, EndBlockSoulHealFX)
                 local fx = SpawnPrefab("wortox_soul_heal_fx")
                 fx.entity:AddFollower():FollowSymbol(v.GUID, v.components.combat.hiteffectsymbol, 0, -50, 0)

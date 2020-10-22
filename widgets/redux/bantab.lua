@@ -8,11 +8,6 @@ local TEMPLATES = require "widgets/redux/templates"
 
 require("constants")
 
-local font_size = 35
-if JapaneseOnPS4() then
-    font_size = 35 * 0.75;
-end
-
 local item_width = 800
 local item_height = 64
 local end_spacing = 30
@@ -144,6 +139,8 @@ function PlayerDetailsPopup:OnControl(control, down)
         if self.buttons then
             self.buttons[#self.buttons].cb()
             return true
+		else
+			TheFrontEnd:PopScreen()
         end
     end
 end
@@ -151,35 +148,41 @@ end
 function PlayerDetailsPopup:GetHelpText()
 	local controller_id = TheInput:GetControllerID()
 	local t = {}
-	if #self.buttons > 1 and self.buttons[#self.buttons] then
+	if (nil == self.buttons) or (#self.buttons > 1 and self.buttons[#self.buttons]) then
         table.insert(t, TheInput:GetLocalizedControl(controller_id, CONTROL_CANCEL) .. " " .. STRINGS.UI.HELP.BACK)	
     end
 	return table.concat(t, "  ")
 end
 
-local BanTab = Class(Screen, function(self, servercreationscreen)
+local BanTab = Class(Screen, function(self)
     Widget._ctor(self, "BanTab")
 
-    self.servercreationscreen = servercreationscreen
+	self.can_view_profile = not IsPS4()
+    self.root = self:AddChild(Widget("root"))
     
-    self.ban_page = self:AddChild(Widget("ban_page"))
+    self.dialog = self.root:AddChild(TEMPLATES.RectangleWindow(736, 400))
+    local r,g,b = unpack(UICOLOURS.BROWN_DARK)
+    self.dialog:SetBackgroundTint(r,g,b, 1) -- need high opacity because of text behind
+    self.dialog.top:Hide() -- top crown would be behind our title.
+
+    local title = self.root:AddChild(Text(HEADERFONT, 28, STRINGS.UI.SERVERCREATIONSCREEN.BANS, UICOLOURS.HIGHLIGHT_GOLD))
+    title:SetPosition(0, 222)
+    
+
+    self.ban_page = self.root:AddChild(Widget("ban_page"))
 
     self.blacklist = TheNet:GetBlacklist()
 
     self:MakeMenuButtons()
 
-    self:MakePlayerPanel()
+    self.dialog:InsertWidget( self:MakePlayerList() )
+
 
     self.default_focus = self.player_scroll_list
     self.focus_forward = self.player_scroll_list
 end)
 
-function BanTab:MakePlayerPanel()
-    self.player_list_rows = self.ban_page:AddChild(Widget("player_list_rows"))
-    self.player_list_rows:SetPosition(0, -8, 0) 
 
-    self:MakePlayerList()
-end
 
 function BanTab:MakePlayerList()
     local function bannedPlayerRowConstructor(context, index)
@@ -190,7 +193,7 @@ function BanTab:MakePlayerList()
 
         widget.index = index
 
-        widget.NAME = widget:AddChild(Text(CHATFONT, font_size))
+        widget.NAME = widget:AddChild(Text(HEADERFONT, 22))
         widget.NAME:SetColour(UICOLOURS.GOLD)
         widget.NAME._align =
         {
@@ -198,7 +201,7 @@ function BanTab:MakePlayerList()
             maxchars = 44,
         }
 
-        widget.EMPTY = widget:AddChild(Text(CHATFONT, font_size, STRINGS.UI.SERVERADMINSCREEN.EMPTY_SLOT))
+        widget.EMPTY = widget:AddChild(Text(HEADERFONT, 22, STRINGS.UI.SERVERADMINSCREEN.EMPTY_SLOT))
         widget.EMPTY:SetHAlign( ANCHOR_LEFT )
         widget.EMPTY:SetColour(UICOLOURS.GOLD)
         widget.EMPTY:Hide()
@@ -206,9 +209,15 @@ function BanTab:MakePlayerList()
         local buttons = 
         {
             {widget=TEMPLATES.IconButton("images/button_icons.xml", "view_ban.tex", STRINGS.UI.SERVERADMINSCREEN.PLAYER_DETAILS, false, false, function() self:ShowPlayerDetails(index) end, {size=22/.85})},
-            {widget=TEMPLATES.IconButton("images/button_icons.xml", "player_info.tex", STRINGS.UI.PLAYERSTATUSSCREEN.VIEWPROFILE, false, false, function() self:ShowNetProfile(index) end, {size=22/.85})},
+			-- this button moved below because not all platforms can view profiles 
+			-- {widget=TEMPLATES.IconButton("images/button_icons.xml", "player_info.tex", STRINGS.UI.PLAYERSTATUSSCREEN.VIEWPROFILE, false, false, function() self:ShowNetProfile(index) end, {size=22/.85})},
             {widget=TEMPLATES.IconButton("images/button_icons.xml", "unban.tex", STRINGS.UI.SERVERADMINSCREEN.PLAYER_DELETE, false, false, function() self:PromptDeletePlayer(index) end, {size=22/.85})},
         }
+
+		if self.can_view_profile then
+			table.insert(buttons, 2, {widget=TEMPLATES.IconButton("images/button_icons.xml", "player_info.tex", STRINGS.UI.PLAYERSTATUSSCREEN.VIEWPROFILE, false, false, function() self:ShowNetProfile(index) end, {size=22/.85})})
+		end
+
         for i,v in pairs(buttons) do
             v.widget:SetScale(.85)
         end
@@ -238,22 +247,20 @@ function BanTab:MakePlayerList()
             widget.NAME:Show()
             widget.EMPTY:Hide()
             
-            widget.MENU.items[1]:SetOnClick(function() self:ShowPlayerDetails(index) end)
-            widget.MENU.items[2]:SetOnClick(function() self:ShowNetProfile(index) end)
-            widget.MENU.items[3]:SetOnClick(function() self:PromptDeletePlayer(index) end)
-
             if "" == data.character and "" == data.servername and "" == data.serverdescription then
                 widget.MENU.items[1]:Select()
             else
                 widget.MENU.items[1]:Unselect()
             end
             -- no net id means we can't show the profile
-            if not TheNet:IsNetIDPlatformValid(data.netid) then
-                widget.MENU.items[2]:Select()
-            else
-                widget.MENU.items[2]:Unselect()
-            end
-
+			if self.can_view_profile then
+				if not TheNet:IsNetIDPlatformValid(data.netid) then
+					widget.MENU.items[2]:Select()
+				else
+					widget.MENU.items[2]:Unselect()
+				end
+			end
+			
             widget.MENU:Show()
             widget:Enable()
             widget.focus_forward = widget.MENU
@@ -268,29 +275,26 @@ function BanTab:MakePlayerList()
         end
     end
 
-    self.ban_page_scroll_root = self.ban_page:AddChild(Widget("scroll_root"))
-
     self.ban_page_row_root = self.ban_page:AddChild(Widget("row_root"))
     self.ban_page_row_root:SetPosition(80,0)
 
-    local num_visible_rows = math.floor(self.servercreationscreen:GetContentHeight() / item_height)
-    self.player_scroll_list = self.ban_page_scroll_root:AddChild(TEMPLATES.ScrollingGrid(
-            self.blacklist, 
-            {
-                scroll_context = {
-                },
-                widget_width  = item_width,
-                widget_height = item_height,
-                num_visible_rows = num_visible_rows,
-                num_columns = 1,
-                item_ctor_fn = bannedPlayerRowConstructor,
-                apply_fn = bannedPlayerRowUpdate,
-                scrollbar_offset = 20,
-                scrollbar_height_offset = -60
-                -- Don't need peek_percent since the list should never grow within this screen.
-            }
-        ))
-    self.player_scroll_list:SetPosition(-110, 0)
+    local num_visible_rows = 6
+
+    --Not adding this to the hierachy yet, it will be inserted after returning
+    self.player_scroll_list = TEMPLATES.ScrollingGrid(
+        self.blacklist, 
+        {
+            scroll_context = {
+            },
+            widget_width  = item_width,
+            widget_height = item_height,
+            num_visible_rows = num_visible_rows,
+            num_columns = 1,
+            item_ctor_fn = bannedPlayerRowConstructor,
+            apply_fn = bannedPlayerRowUpdate,
+            scrollbar_offset = 20,
+            scrollbar_height_offset = -60,
+        })
 
     self:RefreshPlayers()
     
@@ -298,6 +302,8 @@ function BanTab:MakePlayerList()
         self.ban_page_row_root:SetFocusChangeDir(MOVE_RIGHT, function() return self.clear_button:IsVisible() and self.clear_button:IsEnabled() and self.clear_button or nil end)
         self.clear_button:SetFocusChangeDir(MOVE_LEFT, self.player_scroll_list)
     end
+
+    return self.player_scroll_list
 end
 
 function BanTab:RefreshPlayers()
@@ -333,9 +339,13 @@ end
 
 function BanTab:ShowPlayerDetails(selected_player)
     if selected_player and self.blacklist[selected_player] then
+		local buttons = nil
+		if not TheInput:ControllerAttached() then
+			buttons = {{text=STRINGS.UI.SERVERADMINSCREEN.BACK, cb = function() TheFrontEnd:PopScreen() end}}
+		end
 	    local popup = PlayerDetailsPopup(
 	            self.blacklist[selected_player],
-			    {{text=STRINGS.UI.SERVERADMINSCREEN.BACK, cb = function() TheFrontEnd:PopScreen() end}}
+				buttons
 			)
 		TheFrontEnd:PushScreen(popup)
     end
@@ -405,7 +415,7 @@ function BanTab:MakeMenuButtons()
             {"images/button_icons.xml", "unbanall.tex"}
         ))
     -- Would be better if we could align to same x as Create Server.
-    self.clear_button:SetPosition(215, bottom_button_y)
+    self.clear_button:SetPosition(0, bottom_button_y)
     self.clear_button:SetScale(0.7)
 
     if #self.blacklist == 0 then
@@ -428,15 +438,12 @@ function BanTab:MakeMenuButtons()
     if TheInput:ControllerAttached() then
         self.clear_button:Hide()
     end
-
-    local tocreate = self.servercreationscreen ~= nil and self.servercreationscreen.getfocuscreate or nil
-    self.clear_button:SetFocusChangeDir(MOVE_DOWN, tocreate)
 end
 
 function BanTab:OnControl(control, down)
     if BanTab._base.OnControl(self, control, down) then return true end
     
-    if not down then 
+    if not self.allEmpties and not down then 
         if TheInput:ControllerAttached() and not TheFrontEnd.tracking_mouse then 
             if control == CONTROL_INSPECT then 
                 self:ClearPlayers()

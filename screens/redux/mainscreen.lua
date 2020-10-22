@@ -325,23 +325,18 @@ end
 
 function MainScreen:OnHostButton()
     CacheCurrentVanityItems(self.profile)
-    SaveGameIndex:LoadServerEnabledModsFromSlot()
+    ShardSaveGameIndex:LoadSlotEnabledServerMods()
     KnownModIndex:Save()
     local start_in_online_mode = false
-    local slot = SaveGameIndex:GetCurrentSaveSlot()
-    if TheNet:StartServer(start_in_online_mode, slot, SaveGameIndex:GetSlotServerData(slot)) then
+    local slot = 1
+    if TheNet:StartServer(start_in_online_mode, slot, ShardSaveGameIndex:GetSlotServerData(slot)) then
         DisableAllDLC()
-        if TheInput:IsKeyDown(KEY_SHIFT) then
-            SaveGameIndex:DeleteSlot(
+        local shift_down = TheInput:IsKeyDown(KEY_SHIFT)
+        if shift_down or TheInput:IsKeyDown(KEY_CTRL) then
+            ShardSaveGameIndex:DeleteSlot(
                 slot,
-                function() StartNextInstance({ reset_action = RESET_ACTION.LOAD_SLOT, save_slot = slot }) end,
-                true -- true causes world gen options to be preserved
-            )
-        elseif TheInput:IsKeyDown(KEY_CTRL) then
-            SaveGameIndex:DeleteSlot(
-                slot,
-                function() StartNextInstance({ reset_action = RESET_ACTION.LOAD_SLOT, save_slot = slot }) end,
-                false -- false causes world gen options to be wiped!
+                function() if TheSim:EnsureShardIndexPathExists(slot) then StartNextInstance({ reset_action = RESET_ACTION.LOAD_SLOT, save_slot = slot }) end end,
+                shift_down -- true causes world gen options to be preserved, false causes world gen options to be wiped!
             )
         else
             StartNextInstance({ reset_action = RESET_ACTION.LOAD_SLOT, save_slot =  slot })

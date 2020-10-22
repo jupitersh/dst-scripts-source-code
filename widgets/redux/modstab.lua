@@ -295,6 +295,10 @@ end
 function ModsTab:_SetModsList(listtype, forcescroll)
     local scroll_to = forcescroll or self.currentmodtype ~= listtype
     self.currentmodtype = listtype
+    if self.currentmodtype ~= listtype and self.modfilterbar then
+        self.modfilterbar:RefreshFilterState()
+        return --this does a callback to this function, so we return so don't run this logic twice.
+    end
 
     -- Always show details so it can show the empty message (if workshop is
     -- slow, we'll at least have something reasonable visible).
@@ -1384,8 +1388,8 @@ function ModsTab:Apply()
     if self.slotnum > -1 then
         -- We don't have a valid slot from ModsScreen (we're not configuring a
         -- server).
-        SaveGameIndex:SetServerEnabledMods( self.slotnum )
-        SaveGameIndex:Save()
+        ShardSaveGameIndex:SetSlotEnabledServerMods( self.slotnum )
+        ShardSaveGameIndex:Save()
     else
         -- ModsScreen needs us to reload so frontend UI mods can work.
         TheFrontEnd:Fade(FADE_OUT, SCREEN_FADE_TIME, function()
@@ -1534,13 +1538,13 @@ function ModsTab:UpdateAllButton(force)
     end
 end
 
-function ModsTab:SetSaveSlot(slotnum, fromDelete)
-    if not fromDelete and slotnum == self.slotnum then return end
+function ModsTab:SetDataForSlot(slotnum)
+    if slotnum == self.slotnum then return end
 
     ModManager:FrontendUnloadMod(nil) -- all mods
 
     self.slotnum = slotnum
-    SaveGameIndex:LoadServerEnabledModsFromSlot( self.slotnum )
+    ShardSaveGameIndex:LoadSlotEnabledServerMods( self.slotnum )
 
     for i, name in ipairs(ModManager:GetEnabledServerModNames()) do
         ModManager:FrontendLoadMod(name)

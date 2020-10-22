@@ -65,9 +65,9 @@ return{
         
 		DISMANTLE =
 		{
-			COOKING = "TODO",
+			COOKING = "Wait, it making food!",
 			INUSE = "Gotta wait.",
-			NOTEMPTY = "TODO",
+			NOTEMPTY = "Too much stuff inside, florp.",
         },
         FISH_OCEAN =
 		{
@@ -97,6 +97,7 @@ return{
             NOTSTAFF = "Don't look right.",
             MUSHROOMFARM_NEEDSSHROOM = "Need to find mushroom!",
             MUSHROOMFARM_NEEDSLOG = "Oooh, need creepy log for this.",
+            MUSHROOMFARM_NOMOONALLOWED = "Why mushrooms not grow?",
             SLOTFULL = "It already full.",
             FOODFULL = "Something cooking already.",
             NOTDISH = "Blegh!!",
@@ -502,12 +503,14 @@ return{
     ANNOUNCE_ATTACH_BUFF_PLAYERABSORPTION  = "Me tougher than you!",
     ANNOUNCE_ATTACH_BUFF_WORKEFFECTIVENESS = "Florp...? Why me suddenly wanna do chores?",
     ANNOUNCE_ATTACH_BUFF_MOISTUREIMMUNITY  = "Glurph... drying up...",
+    ANNOUNCE_ATTACH_BUFF_SLEEPRESISTANCE   = "No sleep ever!",
     
     ANNOUNCE_DETACH_BUFF_ELECTRICATTACK    = "Awwwwww...",
     ANNOUNCE_DETACH_BUFF_ATTACK            = "Don't feel like fighting anymore.",
     ANNOUNCE_DETACH_BUFF_PLAYERABSORPTION  = "G-glorp, don't hit!",
     ANNOUNCE_DETACH_BUFF_WORKEFFECTIVENESS = "Tired...",
     ANNOUNCE_DETACH_BUFF_MOISTUREIMMUNITY  = "Yay!! Feel wetter already, flurp!",
+    ANNOUNCE_DETACH_BUFF_SLEEPRESISTANCE   = "Getting bit sleepy now, florp.",
     
 	ANNOUNCE_OCEANFISHING_LINESNAP = "Glurph! Hey!",
 	ANNOUNCE_OCEANFISHING_LINETOOLOOSE = "Line too loose, fish gonna get away!",
@@ -579,6 +582,10 @@ return{
 --fallback to speech_wilson.lua     ANNOUNCE_NOINSPIRATION = "only_used_by_wathgrithr",
 --fallback to speech_wilson.lua     ANNOUNCE_BATTLESONG_INSTANT_TAUNT_BUFF = "only_used_by_wathgrithr",
 --fallback to speech_wilson.lua     ANNOUNCE_BATTLESONG_INSTANT_PANIC_BUFF = "only_used_by_wathgrithr",
+
+    ANNOUNCE_ARCHIVE_NEW_KNOWLEDGE = "Head filled with pictures!",
+    ANNOUNCE_ARCHIVE_OLD_KNOWLEDGE = "Seen these pictures already.",
+    ANNOUNCE_ARCHIVE_NO_POWER = "Hey! It not do anything!",
 
 	BATTLECRY =
 	{
@@ -1041,12 +1048,12 @@ return{
         },
         MUSHTREE_TALL =
         {
-            GENERIC = "Look kinda tasty, florp",
+            GENERIC = "It grow so big!",
             BLOOM = "Something falling off it.",
         },
         MUSHTREE_MEDIUM =
         {
-            GENERIC = "It grow so big!",
+            GENERIC = "Look kinda tasty, florp.",
             BLOOM = "Pretty!",
         },
         MUSHTREE_SMALL =
@@ -1103,6 +1110,8 @@ return{
 
 		TURF_CAVE="Ground bit.",
 		TURF_FUNGUS="Ground bit.",
+		TURF_FUNGUS_MOON = "Ground bit.",
+		TURF_ARCHIVE = "Ground bit.",
 		TURF_SINKHOLE="Ground bit.",
 		TURF_UNDERROCK="Ground bit.",
 		TURF_MUD="Ground bit.",
@@ -1421,7 +1430,7 @@ return{
 		COOKEDMANDRAKE = "Feel bit weird eating veggie with face, florp.",
 		COOKEDMEAT = "Don't want it, florp.",
 		COOKEDMONSTERMEAT = "Gluuurrrgh.",
-		COOKEDSMALLMEAT = "Won't eat it, flurp.",
+		COOKEDSMALLMEAT = "Won't eat it, flurp.",        
 		COOKPOT =
 		{
 			COOKING_LONG = "This take foreverrr...",
@@ -3090,6 +3099,10 @@ return{
         MOON_ALTAR_CROWN = "Time to go home!",
         MOON_ALTAR_COSMIC = "It saying something...",
 
+        MOON_ALTAR_ASTRAL = "All done, florp!",
+        MOON_ALTAR_ICON = "Found you!",
+        MOON_ALTAR_WARD = "Glurgh... would be easier if you weren't so heavy.",        
+
         SEAFARING_PROTOTYPER =
         {
             GENERIC = "Make things for water, florp!",
@@ -3132,6 +3145,7 @@ return{
 		KELP_DRIED = "Salty crunchies.",
 
 		GESTALT = "They want to tell story.",
+        GESTALT_GUARD = "Not as strong as Mermfold guard, florp!",
 
 		COOKIECUTTER = "It look friendly.",
 		COOKIECUTTERSHELL = "Ha ha! Mine now!",
@@ -3509,6 +3523,95 @@ return{
         LEAFYMEATBURGER = "Glurph, not real veggie!",
         LEAFYMEATSOUFFLE = "Smell funny... not gonna eat it.",
         MEATYSALAD = "Don't think this real veggies!",
+
+        -- GROTTO
+
+		MOLEBAT = "Don't trust its big piggy nose.",
+        MOLEBATHILL = "Maybe there treasures inside!",
+
+        BATNOSE = "Glurph... don't like it.",
+        BATNOSE_COOKED = "Nuh-uh.",
+        BATNOSEHAT = "Weird hat.",
+
+        MUSHGNOME = "Hee-hee, silly spinny mushroom.",
+
+        SPORE_MOON = "Explodey floaty fluffs!",
+
+        MOON_CAP = "Glurgh, make eyes feel heavy.",
+        MOON_CAP_COOKED = "Taste diffent now.",
+
+        MUSHTREE_MOON = "Mushrooms weird here.",
+
+        LIGHTFLIER = "Follow me, glowy bug!",
+
+        GROTTO_POOL_BIG = "Spiky water!",
+        GROTTO_POOL_SMALL = "Spiky water!",
+
+        DUSTMOTH = "Hee-hee, tickly!",
+
+        DUSTMOTHDEN = "Any sweepy bugs in there?",
+
+        ARCHIVE_LOCKBOX = "Grrr, how get it open?!",
+        ARCHIVE_CENTIPEDE = "Glurp! Never see Ironfolk like that before!",
+        ARCHIVE_CENTIPEDE_HUSK = "Buncha Ironfolk bits.",
+
+        ARCHIVE_COOKPOT =
+        {
+            COOKING_LONG = "This take foreverrr...",
+            COOKING_SHORT = "Will be done quick!",
+            DONE = "Time for yums!",
+            EMPTY = "Is old and dusty.",
+            BURNT = "Oops...",
+        },
+
+        ARCHIVE_MOON_STATUE = "Look just like moon!",
+        ARCHIVE_RUNE_STATUE = 
+        {
+            LINE_1 = "Glorph... it too hard to read.",
+            LINE_2 = "Someone read story!",
+            LINE_3 = "Glorph... it too hard to read.",
+            LINE_4 = "Someone read story!",
+            LINE_5 = "Glorph... it too hard to read.",
+        },        
+
+        ARCHIVE_RESONATOR = "Glorph! What it doing?!",
+        ARCHIVE_RESONATOR_ITEM = "Wonder why it so important, florp?",
+
+        ARCHIVE_LOCKBOX_DISPENCER = {
+          POWEROFF = "Weird statue.",
+          GENERIC =  "Funny-hair man say it full of \"gnaw-ledge\".",
+        },
+
+        ARCHIVE_SECURITY_DESK = {
+            POWEROFF = "Is fancy.",
+            GENERIC = "Ooooh, got more fancy!",
+        },
+
+        ARCHIVE_SECURITY_PULSE = "Floaty glowy! Come back!",
+
+        ARCHIVE_SWITCH = {
+            VALID = "Shiny!",
+            GEMS = "It missing a shiny...",
+        },
+
+        ARCHIVE_PORTAL = {
+            POWEROFF = "It look like pond, but not.",
+            GENERIC = "Still not pond.",
+        },
+
+        WALL_STONE_2 = "Look good, florp!",
+        WALL_RUINS_2 = "How look so old already, flort?",
+
+        REFINED_DUST = "Made dusty block, florpt.",
+        DUSTMERINGUE = "Throw it on floor, then don't have to eat it.",
+
+        SHROOMCAKE = "Is best cake ever!",
+
+        NIGHTMAREGROWTH = "Glurp... something bad happening!",
+
+        TURFCRAFTINGSTATION = "Yay! Can make so much more swamp, florp!",
+
+        MOON_ALTAR_LINK = "What inside? Wanna see!",
     },
 
     DESCRIBE_GENERIC = "What that?",

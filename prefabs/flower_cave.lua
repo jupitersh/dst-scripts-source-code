@@ -240,6 +240,14 @@ local function GetDebugString(inst)
     return string.format("State: %s", inst.light_state)
 end
 
+local function OnMoonMutate(inst, new_inst)
+    if inst.plantname ~= nil then
+        new_inst.plantname = inst.plantname
+        new_inst.AnimState:SetBank("bulb_plant"..new_inst.plantname)
+        new_inst.AnimState:SetBuild("bulb_plant"..new_inst.plantname)
+    end
+end
+
 local function commonfn(bank, build, light_params)
     local inst = CreateEntity()
 
@@ -305,6 +313,10 @@ local function commonfn(bank, build, light_params)
 
     inst:AddComponent("lootdropper")
     inst:AddComponent("inspectable")
+
+    inst:AddComponent("halloweenmoonmutable")
+    inst.components.halloweenmoonmutable:SetPrefabMutated("lightflier_flower")
+    inst.components.halloweenmoonmutable:SetOnMutateFn(OnMoonMutate)
 
     ---------------------
     MakeMediumBurnable(inst)

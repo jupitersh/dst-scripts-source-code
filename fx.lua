@@ -1823,7 +1823,34 @@ local fx =
         build = "shadow_teleport",
         anim = "portal_out",
         fn = GroundOrientation,        
-    }
+    }, 
+    {
+        name = "spore_moon_coughout",
+        bank = "spore_moon",
+        build = "mushroom_spore_moon",
+        anim = "pre_cough_out",
+    },
+    {
+        name = "archive_lockbox_player_fx",
+        bank = "archive_lockbox_player_fx",
+        build = "archive_lockbox_player_fx",
+        anim = "activation",
+        fn = FinalOffset1,
+    },
+    {
+        name = "moon_altar_link_fx",
+        bank = "moon_altar_link_fx",
+        build ="moon_altar_link_fx",
+        anim = "fx1",
+        fn = function(inst)
+            local rand = math.random()
+            if rand < 0.33 then
+                inst.AnimState:PlayAnimation("fx2")
+            elseif rand < 0.67 then
+                inst.AnimState:PlayAnimation("fx3")
+            end
+        end
+    },
 }
 
 for cratersteamindex = 1, 4 do

@@ -65,9 +65,9 @@ return{
         
 		DISMANTLE =
 		{
-			COOKING = "TODO",
+			COOKING = "I'm afraid the pot is far too hot!",
 			INUSE = "Another soul has use of it right now.",
-			NOTEMPTY = "TODO",
+			NOTEMPTY = "First it must be relieved of its possessions.",
         },
         FISH_OCEAN =
 		{
@@ -97,6 +97,7 @@ return{
             NOTSTAFF = "That's quite wrong, yes, yes!",
             MUSHROOMFARM_NEEDSSHROOM = "There is only room... for a 'shroom!",
             MUSHROOMFARM_NEEDSLOG = "Its tummy rumbles for the soul of a log.",
+            MUSHROOMFARM_NOMOONALLOWED = "It doesn't want to put down roots here.",
             SLOTFULL = "It is full already.",
             FOODFULL = "There's already a dish, and it looks delish!",
             NOTDISH = "It would be in our best interest to not.",
@@ -507,12 +508,14 @@ return{
     ANNOUNCE_ATTACH_BUFF_PLAYERABSORPTION  = "I feel just great! Must've been something I ate!",
     ANNOUNCE_ATTACH_BUFF_WORKEFFECTIVENESS = "That was just the thing to give my step a spring!",
     ANNOUNCE_ATTACH_BUFF_MOISTUREIMMUNITY  = "There will be no wet fur smell for this imp! Hyuyu!",
+    ANNOUNCE_ATTACH_BUFF_SLEEPRESISTANCE   = "You won't catch this imp sleeping, hyuyu!",
     
     ANNOUNCE_DETACH_BUFF_ELECTRICATTACK    = "I think I gave them quite a shock! Hyuyu!",
     ANNOUNCE_DETACH_BUFF_ATTACK            = "It was all just a prank!",
     ANNOUNCE_DETACH_BUFF_PLAYERABSORPTION  = "That was fun, let's do it again!",
     ANNOUNCE_DETACH_BUFF_WORKEFFECTIVENESS = "All work and no play doesn't suit an imp. Hyuyu!",
     ANNOUNCE_DETACH_BUFF_MOISTUREIMMUNITY  = "Alas and alack, the dampness is back.",
+    ANNOUNCE_DETACH_BUFF_SLEEPRESISTANCE   = "Maybe I could do with a wink or two...",
     
 	ANNOUNCE_OCEANFISHING_LINESNAP = "Well drat, I guess that's that.",
 	ANNOUNCE_OCEANFISHING_LINETOOLOOSE = "The line's gone slack, best reel it back!",
@@ -584,6 +587,10 @@ return{
 --fallback to speech_wilson.lua     ANNOUNCE_NOINSPIRATION = "only_used_by_wathgrithr",
 --fallback to speech_wilson.lua     ANNOUNCE_BATTLESONG_INSTANT_TAUNT_BUFF = "only_used_by_wathgrithr",
 --fallback to speech_wilson.lua     ANNOUNCE_BATTLESONG_INSTANT_PANIC_BUFF = "only_used_by_wathgrithr",
+
+    ANNOUNCE_ARCHIVE_NEW_KNOWLEDGE = "Oooh, now there's an interesting idea!",
+    ANNOUNCE_ARCHIVE_OLD_KNOWLEDGE = "Oh drat, I already knew that.",
+    ANNOUNCE_ARCHIVE_NO_POWER = "What great power could wake it from its slumber?",
 
 	BATTLECRY =
 	{
@@ -1108,6 +1115,8 @@ return{
 
 		TURF_CAVE="Floor or ceiling, depending on your perspective.",
 		TURF_FUNGUS="Floor or ceiling, depending on your perspective.",
+		TURF_FUNGUS_MOON = "Floor or ceiling, depending on your perspective.",
+		TURF_ARCHIVE = "Floor or ceiling, depending on your perspective.",
 		TURF_SINKHOLE="Floor or ceiling, depending on your perspective.",
 		TURF_UNDERROCK="Floor or ceiling, depending on your perspective.",
 		TURF_MUD="Floor or ceiling, depending on your perspective.",
@@ -1427,7 +1436,7 @@ return{
 		COOKEDMANDRAKE = "It's at peace now.",
 		COOKEDMEAT = "I don't really like having food in my stomach.",
 		COOKEDMONSTERMEAT = "I'd still rather not eat it.",
-		COOKEDSMALLMEAT = "At least it smells better now.",
+		COOKEDSMALLMEAT = "At least it smells better now.",        
 		COOKPOT =
 		{
 			COOKING_LONG = "It will take quite some time.",
@@ -3096,6 +3105,10 @@ return{
         MOON_ALTAR_CROWN = "Well, you've had quite the adventure, hyuyu!",
         MOON_ALTAR_COSMIC = "The stage is nearly set!",
 
+        MOON_ALTAR_ASTRAL = "All together again. You must be over the moon, hyuyu!",
+        MOON_ALTAR_ICON = "You hid away with quite some skill, you're lucky that I had a drill!",
+        MOON_ALTAR_WARD = "Lost, found, now homeward bound!",        
+
         SEAFARING_PROTOTYPER =
         {
             GENERIC = "For a mind as vast as the sea is deep!",
@@ -3138,6 +3151,7 @@ return{
 		KELP_DRIED = "I do not want it, no siree.",
 
 		GESTALT = "Good evening, children!",
+        GESTALT_GUARD = "They grow up so fast!",
 
 		COOKIECUTTER = "Well, aren't you a funny fellow!",
 		COOKIECUTTERSHELL = "The creature fell, now I take its shell!",
@@ -3515,6 +3529,95 @@ return{
         LEAFYMEATBURGER = "Mortals seem to get quite irritated when you mess with their food.",
         LEAFYMEATSOUFFLE = "I'll stick to souls, thank you.",
         MEATYSALAD = "Hyuyuyu! What a deliciously deceptive prank!",
+
+        -- GROTTO
+
+		MOLEBAT = "Hyuyu, what a nosy creature!",
+        MOLEBATHILL = "This snotty collection needs further inspection.",
+
+        BATNOSE = "Oh my, looks like somebody blew it.",
+        BATNOSE_COOKED = "This smells! I think it's gone off!",
+        BATNOSEHAT = "What will the mortals cook up next.",
+
+        MUSHGNOME = "I mistook that portly fellow for a Portobello! Hyuyu!",
+
+        SPORE_MOON = "Don't get too close or you'll be feeling awfully spore.",
+
+        MOON_CAP = "Why not cap the day off with a little snooze? Hyuyuyu!",
+        MOON_CAP_COOKED = "Why you tricky thing, you've changed!",
+
+        MUSHTREE_MOON = "Someone played a prank on it.",
+
+        LIGHTFLIER = "Bloom and glow!",
+
+        GROTTO_POOL_BIG = "Perhaps it is home to a nymph.",
+        GROTTO_POOL_SMALL = "Perhaps it is home to a very tiny nymph.",
+
+        DUSTMOTH = "That charming creature nearly swept me off my feet, hyuyu!",
+
+        DUSTMOTHDEN = "I'm afraid their nest has something I wish to possess.",
+
+        ARCHIVE_LOCKBOX = "Oh ho! A puzzling piece indeed!",
+        ARCHIVE_CENTIPEDE = "The message is clear, it does not want me here.",
+        ARCHIVE_CENTIPEDE_HUSK = "An empty, soulless shell.",
+
+        ARCHIVE_COOKPOT =
+        {
+            COOKING_LONG = "It will take quite some time.",
+            COOKING_SHORT = "I'm shivering with anticipation!",
+            DONE = "Looks like my treat is ready to eat!",
+            EMPTY = "I think whatever was cooking has gone cold.",
+            BURNT = "I don't understand how to make mortal food.",
+        },
+
+        ARCHIVE_MOON_STATUE = "My, that looks heavy.",
+        ARCHIVE_RUNE_STATUE = 
+        {
+            LINE_1 = "Oh, what's this? A bit of light reading?",
+            LINE_2 = "It seems they were quite enamoured with our fickle moon once.",
+            LINE_3 = "Now this one doesn't make much sense at all. Unless...",
+            LINE_4 = "Oh my! My, my my!",
+            LINE_5 = "Hyuyu, I shouldn't spoil the surprise!",
+        },        
+
+        ARCHIVE_RESONATOR = "There's something hidden that it seeks.",
+        ARCHIVE_RESONATOR_ITEM = "What a curious contraption!",
+
+        ARCHIVE_LOCKBOX_DISPENCER = {
+          POWEROFF = "What a shame, these machines have no souls to claim.",
+          GENERIC =  "Do you have any secrets for me?",
+        },
+
+        ARCHIVE_SECURITY_DESK = {
+            POWEROFF = "Now what are you, and what did you do?",
+            GENERIC = "Oooh how fun! A trap!",
+        },
+
+        ARCHIVE_SECURITY_PULSE = "A fellow fae come to show me the way? I think not, hyuyu!",
+
+        ARCHIVE_SWITCH = {
+            VALID = "It's clutching tightly to that treasure.",
+            GEMS = "It craves something glittery.",
+        },
+
+        ARCHIVE_PORTAL = {
+            POWEROFF = "I won't tell the mortals it's here, it'll just get their poor hopes up.",
+            GENERIC = "My my, someone didn't want this door opened.",
+        },
+
+        WALL_STONE_2 = "To keep you out, or keep me in?",
+        WALL_RUINS_2 = "To keep you out, or keep me in?",
+
+        REFINED_DUST = "Just a bit of faith, trust, and assorted dust.",
+        DUSTMERINGUE = "Hyuyuyu! The pranks I could pull with these!",
+
+        SHROOMCAKE = "There's no room in my stomach, I'm afraid.",
+
+        NIGHTMAREGROWTH = "Methinks we'd best be on our way!",
+
+        TURFCRAFTINGSTATION = "Mortals just love to change the world to suit them.",
+
+        MOON_ALTAR_LINK = "Oh, this is going to be fun! Hyuyuyu!",
     },
 
     DESCRIBE_GENERIC = "Ooo, a mystery!",

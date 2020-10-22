@@ -25,26 +25,35 @@ local MainMenuStatsPanel = Class(Widget, function(self, config)
 	local item_root = self:AddChild(Widget("store_root"))
     item_root:SetPosition(-50, -90)
 
-	
-	self.image = item_root:AddChild(ImageButton("images/stats_panel_motd.xml", "stats_panel_motd.tex"))
-	self.image:ForceImageSize(motd_cell_size.width, motd_cell_size.height)
-	self.image:SetNormalScale(0.4,0.4)
-	self.image:SetFocusScale(0.41,0.41)
-	self.image:SetOnClick( function() config.store_cb() end )
+	self.image_bg = item_root:AddChild(ImageButton("images/stats_panel_motd.xml", "stats_panel_motd.tex"))
+	self.image_bg:SetNormalScale(0.44,0.42)
+	self.image_bg:SetFocusScale(0.44,0.42)
+	self.image_bg:SetOnClick( function() config.store_cb() end )
+
+	local featured_iap = GetRandomItem(GetFeaturedPacks())
+	if featured_iap ~= nil then	
+		local iap_image = GetPurchaseDisplayForItem(featured_iap)
+
+		self.image = item_root:AddChild(ImageButton(unpack(iap_image)))
+		self.image:SetNormalScale(0.29,0.29)
+		self.image:SetFocusScale(0.3,0.3)
+		self.image:SetOnClick( function() config.store_cb() end )
+		self.image:SetPosition(0, 5)
+	end
 
 	local max_w = motd_cell_size.width - text_padding * 2
-	local title = self.image.image:AddChild(Text(BODYTEXTFONT, 44, "", UICOLOURS.HIGHLIGHT_GOLD))
+	local title = item_root:AddChild(Text(BODYTEXTFONT, 22, "", UICOLOURS.HIGHLIGHT_GOLD))
 	title:SetAutoSizingString(STRINGS.UI.STATSPANEL.MOTD_TITLE, max_w)
 	title:SetHAlign(ANCHOR_LEFT)
-	title:SetPosition(-230,180)
+	title:SetPosition(-110, 74)
 
-	local body = self.image.image:AddChild(Text(BODYTEXTFONT, 48, "", UICOLOURS.GOLD_SELECTED))
-	body:SetMultilineTruncatedString(STRINGS.UI.STATSPANEL.MOTD_BODY, 3, 800, nil, true)
-	body:SetHAlign(ANCHOR_LEFT)
-	body:SetPosition(0,-160)
-		
-
-
+	local body = item_root:AddChild(Text(BODYTEXTFONT, 20, "", UICOLOURS.GOLD_SELECTED))
+	body:SetMultilineTruncatedString(STRINGS.UI.STATSPANEL.MOTD_BODY, 2, 355, nil, true)
+	body:SetHAlign(ANCHOR_MIDDLE)
+	body:SetVAlign(ANCHOR_MIDDLE)
+	body:SetPosition(1,-74)
+	
+	
     item_root = self:AddChild(Widget("friend_root"))
     item_root:SetPosition(-50, -220)
     local death_label = item_root:AddChild(Text(HEADERFONT, 25, STRINGS.UI.PLAYERSUMMARYSCREEN.MOST_COMMON_FRIENDS, UICOLOURS.GOLD_SELECTED))

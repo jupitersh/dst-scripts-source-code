@@ -359,8 +359,8 @@ function GenerateNew(debug, world_gen_data)
     print("level_data:")
     dumptable(world_gen_data.level_data)
 
-    assert(world_gen_data.level_data ~= nil and world_gen_data.level_data[1] ~= nil, "Must provide complete level data to worldgen.")
-    local level = Level(world_gen_data.level_data[1]) -- we always generate the first level defined in the data
+    assert(world_gen_data.level_data ~= nil, "Must provide complete level data to worldgen.")
+    local level = Level(world_gen_data.level_data) -- we always generate the first level defined in the data
 
     print(string.format("\n#######\n#\n# Generating %s Mode Level\n#\n#######\n", world_gen_data.level_type))
 

@@ -11,6 +11,11 @@ local assets =
     Asset("FILE", "sound/hookline.fsb"),
     Asset("SOUNDPACKAGE", "sound/hookline_2.fev"),
     Asset("FILE", "sound/hookline_2.fsb"),
+    
+    Asset("SOUNDPACKAGE", "sound/grotto.fev"),
+    Asset("FILE", "sound/grotto_sfx.fsb"),
+    Asset("FILE", "sound/grotto_amb.fsb"),
+
     Asset("SOUNDPACKAGE", "sound/dangerous_sea.fev"),
     Asset("FILE", "sound/dangerous_sea.fsb"),      
 

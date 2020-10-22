@@ -297,10 +297,12 @@ local COMPONENT_ACTIONS =
         portablestructure = function(inst, doer, actions, right)
             if right and not inst:HasTag("fire") and
                 (not inst:HasTag("mastercookware") or doer:HasTag("masterchef")) then
-                
-                local container = inst.replica.container
-                if container == nil or (container:CanBeOpened() and not container:IsOpenedBy(doer)) then
-                    table.insert(actions, ACTIONS.DISMANTLE)
+
+                if  not inst.candismantle or inst.candismantle(inst) then
+                    local container = inst.replica.container
+                    if (container == nil or (container:CanBeOpened() and not container:IsOpenedBy(doer)))  then
+                        table.insert(actions, ACTIONS.DISMANTLE)
+                    end
                 end
             end
         end,

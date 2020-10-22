@@ -63,7 +63,7 @@ local function SpawnSucculents(inst)
     local pt = inst:GetPosition()
 
     local function noentcheckfn(offset)
-        return #TheSim:FindEntities(pt.x + offset.x, pt.y + offset.y, pt.z + offset.z, 2, nil, NOTENTCHECK_CANT_TAGS) == 0
+        return #TheSim:FindEntities(offset.x, offset.y, offset.z, 2, nil, NOTENTCHECK_CANT_TAGS) == 0
     end
 
     local succulents_to_spawn = MAX_SUCCULENTS - #TheSim:FindEntities(pt.x, pt.y, pt.z, SUCCULENT_RANGE, SUCCULENT_TAGS)

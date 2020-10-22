@@ -55,7 +55,7 @@ function NightmareCreatureBrain:OnStart()
             }, .25)),
         WhileNode(function() return self._harasstarget ~= nil end, "LoiterAndHarass",
             Wander(self.inst, function() return self._harasstarget:GetPosition() end, 20, { minwaittime = 0, randwaittime = .3 }, function() return GetHarassWanderDir(self) end)),
-        Wander(self.inst, function() return self.inst.components.knownlocations:GetLocation("home") end, 20),
+        Wander(self.inst, function() return self.inst.components.knownlocations:GetLocation("war_home") or self.inst.components.knownlocations:GetLocation("home") end, 20),
     }, .25)
 
     self.bt = BT(self.inst, root)

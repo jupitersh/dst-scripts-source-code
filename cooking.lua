@@ -6,12 +6,8 @@ local cookerrecipes = {}
 
 local cookbook_recipes = {}
 local MOD_COOKBOOK_CATEGORY = "mod"
-local asdf = 0
 function AddCookerRecipe(cooker, recipe, is_mod_food)
 	if is_mod_food then
-	asdf = asdf + 1
-	print("AddCookerRecipe", asdf, recipe.name)
-	if recipe.name == "salad_carrot_spice_chili" then print(debugstack()) end
 		recipe.cookbook_category = MOD_COOKBOOK_CATEGORY
 	else
 		official_foods[recipe.name] = true
@@ -23,7 +19,7 @@ function AddCookerRecipe(cooker, recipe, is_mod_food)
 	end
 	cookerrecipes[cooker][recipe.name] = recipe
 
-	if cooker ~= "portablespicer" or recipe.no_cookbook then
+	if cooker ~= "portablespicer" and not recipe.no_cookbook then
 		if not cookbook_recipes[recipe.cookbook_category] then
 			cookbook_recipes[recipe.cookbook_category] = {}
 		end
@@ -98,13 +94,13 @@ AddIngredientValues({"royal_jelly"}, {sweetener=3}, true)
 local veggies = {"carrot", "corn", "pumpkin", "eggplant", "cutlichen", "asparagus", "onion", "garlic", "tomato", "potato", "pepper"}
 AddIngredientValues(veggies, {veggie=1}, true)
 
-local mushrooms = {"red_cap", "green_cap", "blue_cap"}
+local mushrooms = {"red_cap", "green_cap", "blue_cap", "moon_cap"}
 AddIngredientValues(mushrooms, {veggie=.5}, true)
 
 AddIngredientValues({"meat"}, {meat=1}, true, true)
 AddIngredientValues({"monstermeat"}, {meat=1, monster=1}, true, true)
 AddIngredientValues({"froglegs", "drumstick", "batwing"}, {meat=.5}, true)
-AddIngredientValues({"smallmeat"}, {meat=.5}, true, true)
+AddIngredientValues({"smallmeat", "batnose"}, {meat=.5}, true, true)
 
 AddIngredientValues({"eel"}, {meat=.5,fish=1}, true)
 AddIngredientValues({"fish"}, {meat=1,fish=1}, true)
@@ -152,6 +148,8 @@ AddIngredientValues({"barnacle","barnacle_cooked"}, {meat=0.25, fish=0.25})
 
 AddIngredientValues({"plantmeat","plantmeat_cooked"}, {meat=1})
 
+AddIngredientValues({"refined_dust"}, {decoration=2})
+
 
 --our naming conventions aren't completely consistent, sadly
 local aliases =
@@ -169,6 +167,7 @@ local foods = require("preparedfoods")
 for k,recipe in pairs (foods) do
 	AddCookerRecipe("cookpot", recipe)
 	AddCookerRecipe("portablecookpot", recipe)
+	AddCookerRecipe("archive_cookpot", recipe)	
 end
 
 local portable_foods = require("preparedfoods_warly")
@@ -179,6 +178,13 @@ end
 local spicedfoods = require("spicedfoods")
 for k, recipe in pairs(spicedfoods) do
     AddCookerRecipe("portablespicer", recipe)
+end
+
+local nonfoods = require("preparednonfoods")
+for k, recipe in pairs(nonfoods) do
+    AddCookerRecipe("cookpot", recipe)
+    AddCookerRecipe("portablecookpot", recipe)
+    AddCookerRecipe("archive_cookpot", recipe)	
 end
 
 local function GetIngredientValues(prefablist)

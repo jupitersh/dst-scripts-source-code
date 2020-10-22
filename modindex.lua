@@ -276,7 +276,11 @@ function ModIndex:UpdateSingleModInfo(modname)
 	self.savedata.known_mods[modname].modinfo = self:LoadModInfo(modname)
 end
 
-function ModIndex:LoadModOverides()
+function ModIndex:LoadModOverides(shardGameIndex)
+	if TheNet:GetIsClient() then
+		return {}
+	end
+	
     local overrides = {}
     local filename = "../modoverrides.lua"
 
@@ -286,7 +290,8 @@ function ModIndex:LoadModOverides()
             if fn ~= nil then
                 local env = {}
                 local success, r = RunInEnvironment(fn, env)
-                if success and type(r) == "table" then
+				if success and type(r) == "table" then
+					print("SUCCESS: Loaded modoverrides.lua")
                     overrides = r
                 else
                     print("ERROR: Failed to run code from modoverrides.lua")
@@ -297,8 +302,15 @@ function ModIndex:LoadModOverides()
         end
     end
 
-    if not TheNet:IsDedicated() and SaveIndex:GetSlotServerData(SaveIndex:GetCurrentSaveSlot()).use_cluster_path then
-        TheSim:GetPersistentStringInClusterSlot(SaveIndex:GetCurrentSaveSlot(), "Master", filename, onload)
+	--ShardGameIndex isn't loaded yet, load a temp one for this test...
+	shardGameIndex = shardGameIndex or ShardGameIndex
+	if not shardGameIndex then
+		require("shardindex")
+		shardGameIndex = ShardIndex()
+		shardGameIndex:Load()
+	end
+    if not TheNet:IsDedicated() and shardGameIndex:IsValid() and not shardGameIndex:GetServerData().use_legacy_session_path then
+        TheSim:GetPersistentStringInClusterSlot(shardGameIndex:GetSlot(), "Master", filename, onload)
     else
         TheSim:GetPersistentString(filename, onload)
     end
@@ -333,7 +345,7 @@ function GetWorkshopIdNumber(modname)
 	return string.sub(modname, workshop_prefix:len() + 1)
 end
 
-function ModIndex:ApplyEnabledOverrides(mod_overrides) --Note(Peter): This function is now coupled with the format written by SaveIndex:SetServerEnabledMods
+function ModIndex:ApplyEnabledOverrides(mod_overrides) --Note(Peter): This function is now coupled with the format written by ShardSaveIndex:SetSlotEnabledServerMods
 	if mod_overrides == nil then
 		print("Warning: modoverrides.lua is empty, or is failing to return a table.")
 	else	

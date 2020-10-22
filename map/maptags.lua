@@ -61,7 +61,7 @@ local function MakeTags()
 			["Town"] =  function(tagdata)
 							return "TAG", 0x000001	
 						end,
-			["Chester_Eyebone"] =	function(tagdata)
+			["Chester_Eyebone"] =	function(tagdata)			
 										if tagdata["Chester_Eyebone"] == false then
 											return
 										end
@@ -82,6 +82,20 @@ local function MakeTags()
 										tagdata["Hutch_Fishbowl"] = false
 										return "ITEM", "hutch_fishbowl"
 									end,
+			["Astral_1"] =	function(tagdata)
+										if tagdata["Astral_1"] == false then
+											return
+										end
+										tagdata["Astral_1"] = false
+										return "ITEM", "moon_altar_astral_marker_1"
+									end,
+			["Astral_2"] =	function(tagdata)
+										if tagdata["Astral_2"] == false then
+											return
+										end
+										tagdata["Astral_2"] = false
+										return "ITEM", "moon_altar_astral_marker_2"
+									end,									
 
             ["Nightmare"] =           function(tagdata) return "TAG", "Nightmare" end, 
             ["Atrium"] =              function(tagdata) return "TAG", "Atrium" end, 
@@ -92,7 +106,7 @@ local function MakeTags()
             ["nohasslers"] =          function(tagdata) return "TAG", "nohasslers" end, 
             ["not_mainland"] =        function(tagdata) return "TAG", "not_mainland" end, 
             ["lunacyarea"] =          function(tagdata) return "TAG", "lunacyarea" end, 
-
+            ["GrottoWarEntrance"] =   function(tagdata) return "TAG", "GrottoWarEntrance" end, 
 		}
 	return {Tag = map_tags, TagData = map_data }
 end

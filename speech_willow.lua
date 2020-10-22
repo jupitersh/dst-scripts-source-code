@@ -65,9 +65,9 @@ return{
         
 		DISMANTLE =
 		{
-			COOKING = "TODO",
+			COOKING = "I'm not going to interrupt it while it's cooking.",
 			INUSE = "But I want to use it!",
-			NOTEMPTY = "TODO",
+			NOTEMPTY = "Hey, there's still stuff in here!",
         },
         FISH_OCEAN =
 		{
@@ -97,6 +97,7 @@ return{
             NOTSTAFF = "I don't have to jam stuff into every hole I see!",
             MUSHROOMFARM_NEEDSSHROOM = "Ughh, it doesn't need this! It needs a mushroom!",
             MUSHROOMFARM_NEEDSLOG = "Ughh, it doesn't need this! It needs a living log!",
+            MUSHROOMFARM_NOMOONALLOWED = "These dumb mushrooms won't grow!",
             SLOTFULL = "Naw, can't make it fit.",
             FOODFULL = "I have to wait for it to eat this one first.",
             NOTDISH = "I wouldn't serve that to a dog!",
@@ -509,12 +510,14 @@ return{
     ANNOUNCE_ATTACH_BUFF_PLAYERABSORPTION  = "Come at me, jerks!",
     ANNOUNCE_ATTACH_BUFF_WORKEFFECTIVENESS = "Where did all this motivation come from?!",
     ANNOUNCE_ATTACH_BUFF_MOISTUREIMMUNITY  = "Ha! Take that, water!",
+    ANNOUNCE_ATTACH_BUFF_SLEEPRESISTANCE   = "Yeah! I'll stay awake forever!",
     
     ANNOUNCE_DETACH_BUFF_ELECTRICATTACK    = "I like setting fires the old fashioned way, anyhow.",
     ANNOUNCE_DETACH_BUFF_ATTACK            = "Nooo I still had more hitting I wanted to do!",
     ANNOUNCE_DETACH_BUFF_PLAYERABSORPTION  = "Might not be the best time to pick a fight.",
     ANNOUNCE_DETACH_BUFF_WORKEFFECTIVENESS = "Welp. The motivation didn't last.",
     ANNOUNCE_DETACH_BUFF_MOISTUREIMMUNITY  = "Ugh. Back to watching out for puddles.",
+    ANNOUNCE_DETACH_BUFF_SLEEPRESISTANCE   = "No! I don't wanna feel tired yet!",
     
 	ANNOUNCE_OCEANFISHING_LINESNAP = "Hey! That dumb fish stole my tackle!",
 	ANNOUNCE_OCEANFISHING_LINETOOLOOSE = "Better start reeling or it's gonna get away!",
@@ -586,6 +589,10 @@ return{
 --fallback to speech_wilson.lua     ANNOUNCE_NOINSPIRATION = "only_used_by_wathgrithr",
 --fallback to speech_wilson.lua     ANNOUNCE_BATTLESONG_INSTANT_TAUNT_BUFF = "only_used_by_wathgrithr",
 --fallback to speech_wilson.lua     ANNOUNCE_BATTLESONG_INSTANT_PANIC_BUFF = "only_used_by_wathgrithr",
+
+    ANNOUNCE_ARCHIVE_NEW_KNOWLEDGE = "Ugh, it's filling my head with nerd junk!",
+    ANNOUNCE_ARCHIVE_OLD_KNOWLEDGE = "Meh. Seen it before.",
+    ANNOUNCE_ARCHIVE_NO_POWER = "Well that was exciting.",
 
 	BATTLECRY =
 	{
@@ -1110,6 +1117,8 @@ return{
 
 		TURF_CAVE="The ground is boring.",
 		TURF_FUNGUS="The ground is boring.",
+		TURF_FUNGUS_MOON = "The ground is boring.",
+		TURF_ARCHIVE = "The ground is boring.",
 		TURF_SINKHOLE="The ground is boring.",
 		TURF_UNDERROCK="The ground is boring.",
 		TURF_MUD="The ground is boring.",
@@ -1428,7 +1437,7 @@ return{
 		COOKEDMANDRAKE = "The fire didn't get rid of its face. Gives me the willies.",
 		COOKEDMEAT = "Unseasoned meat... great.",
 		COOKEDMONSTERMEAT = "It's still gross.",
-		COOKEDSMALLMEAT = "Gonna need a lot of appetizers to survive out here!",
+		COOKEDSMALLMEAT = "Gonna need a lot of appetizers to survive out here!",        
 		COOKPOT =
 		{
 			COOKING_LONG = "The fire still has quite a bit of work to do.",
@@ -3097,6 +3106,10 @@ return{
         MOON_ALTAR_CROWN = "Y'know, this would be a lot easier if you weren't so heavy.",
         MOON_ALTAR_COSMIC = "Why do I get the feeling we aren't done yet?",
 
+        MOON_ALTAR_ASTRAL = "Back together again.",
+        MOON_ALTAR_ICON = "Alright, alright, let's get going.",
+        MOON_ALTAR_WARD = "You're right, I really am the best for helping you out.",        
+
         SEAFARING_PROTOTYPER =
         {
             GENERIC = "Watery nerd stuff.",
@@ -3139,6 +3152,7 @@ return{
 		KELP_DRIED = "It's not half bad.",
 
 		GESTALT = "It feels like they're speaking inside my head!",
+        GESTALT_GUARD = "They sure hate those shadow creeps.",
 
 		COOKIECUTTER = "Hey! What are you lookin' at?!",
 		COOKIECUTTERSHELL = "Ha, I stole its house.",
@@ -3516,6 +3530,95 @@ return{
         LEAFYMEATBURGER = "Does this burger taste weird to anyone else?",
         LEAFYMEATSOUFFLE = "What kind of monster would combine dessert with vegetables?",
         MEATYSALAD = "Wait... what ARE these leaves?",
+
+        -- GROTTO
+
+		MOLEBAT = "Haha gross! I just saw it eat something through its nose!",
+        MOLEBATHILL = "Ew, is it sleeping in its own snot?",
+
+        BATNOSE = "Ewww.",
+        BATNOSE_COOKED = "Is that supposed to make it better?",
+        BATNOSEHAT = "Is that even a real hat?",
+
+        MUSHGNOME = "Ew, it's dropping spores everywhere!",
+
+        SPORE_MOON = "Alright, I get the message! I'll stay away!",
+
+        MOON_CAP = "What a weird looking mushroom.",
+        MOON_CAP_COOKED = "Once again, fire makes it better.",
+
+        MUSHTREE_MOON = "Bet this would look really nice if I set it on fire.",
+
+        LIGHTFLIER = "I'd rather use fire to light my way.",
+
+        GROTTO_POOL_BIG = "Ugh, this whole place is damp and gross! I hate it!",
+        GROTTO_POOL_SMALL = "Ugh, this whole place is damp and gross! I hate it!",
+
+        DUSTMOTH = "They just clean all day? What a boring life.",
+
+        DUSTMOTHDEN = "It's not flammable. Not that I tried or anything.",
+
+        ARCHIVE_LOCKBOX = "Great. We turned on the mysterious thing and got another mysterious thing.",
+        ARCHIVE_CENTIPEDE = "Burn, bug!",
+        ARCHIVE_CENTIPEDE_HUSK = "Just a bunch of broken parts.",
+
+        ARCHIVE_COOKPOT =
+        {
+            COOKING_LONG = "The fire still has quite a bit of work to do.",
+            COOKING_SHORT = "The fire is doing its thing!",
+            DONE = "Fire makes everything better. Mmm!",
+            EMPTY = "Fire's the best ancient invention there is!",
+            BURNT = "At least it went out in a blaze of glory.",
+        },
+
+        ARCHIVE_MOON_STATUE = "Huh. These look different from the other statues down here.",
+        ARCHIVE_RUNE_STATUE = 
+        {
+            LINE_1 = "A bunch of old mumbo jumbo.",
+            LINE_2 = "If it doesn't burn I don't care.",
+            LINE_3 = "A bunch of old mumbo jumbo.",
+            LINE_4 = "If it doesn't burn I don't care.",
+            LINE_5 = "A bunch of old mumbo jumbo.",
+        },        
+
+        ARCHIVE_RESONATOR = "Point the way!",
+        ARCHIVE_RESONATOR_ITEM = "It's humming to itself.",
+
+        ARCHIVE_LOCKBOX_DISPENCER = {
+          POWEROFF = "Looks like it's busted.",
+          GENERIC =  "Ugh, I feel a puzzle coming on...",
+        },
+
+        ARCHIVE_SECURITY_DESK = {
+            POWEROFF = "Whatever it is, it's not working.",
+            GENERIC = "Yeah, that doesn't look suspicious.",
+        },
+
+        ARCHIVE_SECURITY_PULSE = "Hey! Get back here!",
+
+        ARCHIVE_SWITCH = {
+            VALID = "I'm sure nobody would mind if I borrowed one of those gems.",
+            GEMS = "Something's missing here.",
+        },
+
+        ARCHIVE_PORTAL = {
+            POWEROFF = "Another portal? You don't think...?",
+            GENERIC = "Shoulda known it wouldn't be that easy.",
+        },
+
+        WALL_STONE_2 = "Eh. I guess that's okay.",
+        WALL_RUINS_2 = "And they'll huff and they'll puff!",
+
+        REFINED_DUST = "Great. What am I supposed to do with this stuff?",
+        DUSTMERINGUE = "Yeah, I don't think I'm THAT hungry.",
+
+        SHROOMCAKE = "Cake's cake, pass it here.",
+
+        NIGHTMAREGROWTH = "That's probably not... great...",
+
+        TURFCRAFTINGSTATION = "I guess I could use a change in scenery.",
+
+        MOON_ALTAR_LINK = "Aw c'mon! What is it?!",
     },
 
     DESCRIBE_GENERIC = "I have no idea what that is!",

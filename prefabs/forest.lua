@@ -383,6 +383,9 @@ local prefabs =
     "gingerbreadpig",
 	"gingerbreadwarg",
 	"crumbs",
+
+    "moon_altar_astral",
+    "archive_resonator",
 }
 
 local FISH_DATA = require("prefabs/oceanfishdef")

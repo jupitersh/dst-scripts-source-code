@@ -103,6 +103,7 @@ local function fn(data, build, swap_build, fuel_value, is_wooden, is_waterproof)
     inst.components.finiteuses:SetUses(data.USES)
     inst.components.finiteuses:SetOnFinished(onfiniteusesfinished)
     inst.components.finiteuses:SetConsumption(ACTIONS.ROW, 1)
+    inst.components.finiteuses:SetConsumption(ACTIONS.ROW_CONTROLLER, 1)
     inst.components.finiteuses:SetConsumption(ACTIONS.ROW_FAIL, data.ROW_FAIL_WEAR)
 
     MakeHauntableLaunch(inst)

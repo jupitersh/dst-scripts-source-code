@@ -65,9 +65,9 @@ return{
         
 		DISMANTLE =
 		{
-			COOKING = "TODO",
+			COOKING = "I'd rather not lay my hands on a hot stove, thank you very much.",
 			INUSE = "It's occupied.",
-			NOTEMPTY = "TODO",
+			NOTEMPTY = "First I must remove its contents.",
         },
         FISH_OCEAN =
 		{
@@ -97,6 +97,7 @@ return{
             NOTSTAFF = "Hm. No, that's not right.",
             MUSHROOMFARM_NEEDSSHROOM = "A mushroom would be more suited to this.",
             MUSHROOMFARM_NEEDSLOG = "A living log would be more suited to this.",
+            MUSHROOMFARM_NOMOONALLOWED = "The blasted thing refuses to grow!",
             SLOTFULL = "Occupied.",
             FOODFULL = "We've already placed something on the altar.",
             NOTDISH = "That wouldn't be a very good sacrifice, now would it?",
@@ -502,12 +503,14 @@ return{
     ANNOUNCE_ATTACH_BUFF_PLAYERABSORPTION  = "I feel protected by an unseen force.",
     ANNOUNCE_ATTACH_BUFF_WORKEFFECTIVENESS = "My focus feels heightened!",
     ANNOUNCE_ATTACH_BUFF_MOISTUREIMMUNITY  = "Finally, some respite from the dampness.",
+    ANNOUNCE_ATTACH_BUFF_SLEEPRESISTANCE   = "This will serve as a suitable ward against drowsiness.",
     
     ANNOUNCE_DETACH_BUFF_ELECTRICATTACK    = "Shame. I was starting to enjoy that.",
     ANNOUNCE_DETACH_BUFF_ATTACK            = "My strength has left me.",
     ANNOUNCE_DETACH_BUFF_PLAYERABSORPTION  = "I've been left vulnerable!",
     ANNOUNCE_DETACH_BUFF_WORKEFFECTIVENESS = "My enthusiasm for this has run dry.",
     ANNOUNCE_DETACH_BUFF_MOISTUREIMMUNITY  = "I'm exposed to the elements!",
+    ANNOUNCE_DETACH_BUFF_SLEEPRESISTANCE   = "I'm growing tired.",
     
 	ANNOUNCE_OCEANFISHING_LINESNAP = "Blast! That cad-fish got away with my tackle!",
 	ANNOUNCE_OCEANFISHING_LINETOOLOOSE = "The line needs more tension.",
@@ -579,6 +582,10 @@ return{
 --fallback to speech_wilson.lua     ANNOUNCE_NOINSPIRATION = "only_used_by_wathgrithr",
 --fallback to speech_wilson.lua     ANNOUNCE_BATTLESONG_INSTANT_TAUNT_BUFF = "only_used_by_wathgrithr",
 --fallback to speech_wilson.lua     ANNOUNCE_BATTLESONG_INSTANT_PANIC_BUFF = "only_used_by_wathgrithr",
+
+    ANNOUNCE_ARCHIVE_NEW_KNOWLEDGE = "This knowledge... it was hidden even from me.",
+    ANNOUNCE_ARCHIVE_OLD_KNOWLEDGE = "A waste of my time. This knowledge is already mine.",
+    ANNOUNCE_ARCHIVE_NO_POWER = "It doesn't respond to shadow magic. Perhaps another power source...",
 
 	BATTLECRY =
 	{
@@ -1103,6 +1110,8 @@ return{
 
 		TURF_CAVE="Turf.",
 		TURF_FUNGUS="Turf.",
+		TURF_FUNGUS_MOON = "Turf.",
+		TURF_ARCHIVE = "A stone floor.",
 		TURF_SINKHOLE="Turf.",
 		TURF_UNDERROCK="Turf.",
 		TURF_MUD="Turf.",
@@ -1421,7 +1430,7 @@ return{
 		COOKEDMANDRAKE = "It has lost a lot of its power.",
 		COOKEDMEAT = "It smells less like barnyard, now.",
 		COOKEDMONSTERMEAT = "It's still filthy.",
-		COOKEDSMALLMEAT = "Well, at least it's not moving anymore.",
+		COOKEDSMALLMEAT = "Well, at least it's not moving anymore.",        
 		COOKPOT =
 		{
 			COOKING_LONG = "Wait for it...",
@@ -3090,6 +3099,10 @@ return{
         MOON_ALTAR_CROWN = "This powerful energy... I've seen it before.",
         MOON_ALTAR_COSMIC = "It is not yet time?",
 
+        MOON_ALTAR_ASTRAL = "Why do I get the sense... ah, I'm sure it's nothing.",
+        MOON_ALTAR_ICON = "I know where you need to be.",
+        MOON_ALTAR_WARD = "I'll take you to the others.",        
+
         SEAFARING_PROTOTYPER =
         {
             GENERIC = "Now to see if Higgsbury's ideas hold water.",
@@ -3132,6 +3145,7 @@ return{
 		KELP_DRIED = "Sadly, I've eaten worse out here.",
 
 		GESTALT = "It communes with us through them.",
+        GESTALT_GUARD = "I think it would be best to keep my distance.",
 
 		COOKIECUTTER = "Stay back, you!",
 		COOKIECUTTERSHELL = "Hmph. I suppose this could be useful.",
@@ -3509,6 +3523,95 @@ return{
         LEAFYMEATBURGER = "How pedestrian.",
         LEAFYMEATSOUFFLE = "I appreciate the attempt at presentation.",
         MEATYSALAD = "This seems suspect.",
+
+        -- GROTTO
+
+		MOLEBAT = "Indecent.",
+        MOLEBATHILL = "Do I even want anything I find in there, knowing its spent time in a rodent's nostrils?",
+
+        BATNOSE = "It smells.",
+        BATNOSE_COOKED = "The things I must do to survive...",
+        BATNOSEHAT = "Do I have no dignity left?",
+
+        MUSHGNOME = "I don't trust anyone who walks so jauntily.",
+
+        SPORE_MOON = "It reminds me of those infernal balloons.",
+
+        MOON_CAP = "Strange, my eyelids are getting heavy just looking at it.",
+        MOON_CAP_COOKED = "Odd, but not unpleasant.",
+
+        MUSHTREE_MOON = "How garish.",
+
+        LIGHTFLIER = "Finally, a mutation that's actually useful.",
+
+        GROTTO_POOL_BIG = "Don't expect me to wade in there for some wretched moon glass.",
+        GROTTO_POOL_SMALL = "I suppose it is quite picturesque.",
+
+        DUSTMOTH = "Hmph. Just stay away from my suit, pal.",
+
+        DUSTMOTHDEN = "So this is the source of the Thulecite... I must say, I'm underwhelmed.",
+
+        ARCHIVE_LOCKBOX = "Impossible... I thought I was privy to all of Their secrets.",
+        ARCHIVE_CENTIPEDE = "I get the sensation that we are not welcome here.",
+        ARCHIVE_CENTIPEDE_HUSK = "A pile of worthless parts.",
+
+        ARCHIVE_COOKPOT =
+        {
+            COOKING_LONG = "Wait for it...",
+            COOKING_SHORT = "Here it comes!",
+            DONE = "Finally, some quality grub.",
+            EMPTY = "They didn't always live off of the fuel.",
+            BURNT = "A bit overdone for my tastes.",
+        },
+
+        ARCHIVE_MOON_STATUE = "How did I not know of this place? Did They know?",
+        ARCHIVE_RUNE_STATUE = 
+        {
+            LINE_1 = "These runes are... different.",
+            LINE_2 = "I can only glean a hint of their meaning.",
+            LINE_3 = "This symbol here keeps repeating...",
+            LINE_4 = "\"To change?\" No. It's a name...",
+            LINE_5 = "\"Alter\"?",
+        },        
+
+        ARCHIVE_RESONATOR = "It's leading us to something...",
+        ARCHIVE_RESONATOR_ITEM = "I have many questions.",
+
+        ARCHIVE_LOCKBOX_DISPENCER = {
+          POWEROFF = "I always wondered where those parts came from.",
+          GENERIC =  "Ah. I suppose I misinterpreted the original design.",
+        },
+
+        ARCHIVE_SECURITY_DESK = {
+            POWEROFF = "It's powerless.",
+            GENERIC = "Hm. I have a bad feeling...",
+        },
+
+        ARCHIVE_SECURITY_PULSE = "Don't let it escape!",
+
+        ARCHIVE_SWITCH = {
+            VALID = "It saps power from the gems.",
+            GEMS = "I suppose I'll need to find a suitable gem.",
+        },
+
+        ARCHIVE_PORTAL = {
+            POWEROFF = "It couldn't be...",
+            GENERIC = "Still inactive. Curious.",
+        },
+
+        WALL_STONE_2 = "This will keep the riff-raff out.",
+        WALL_RUINS_2 = "An ancient wall.",
+
+        REFINED_DUST = "It may have some alchemical uses.",
+        DUSTMERINGUE = "I'll pass.",
+
+        SHROOMCAKE = "I suppose I've eaten worse.",
+
+        NIGHTMAREGROWTH = "Charlie... what are you planning?",
+
+        TURFCRAFTINGSTATION = "I despise getting my hands dirty.",
+
+        MOON_ALTAR_LINK = "Events have been set into motion...",
     },
 
     DESCRIBE_GENERIC = "You tell me.",

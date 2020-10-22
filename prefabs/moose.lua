@@ -87,8 +87,8 @@ local function OnEntitySleep(inst)
     end
 end
 
-local function OnSpringChange(inst, isSpring)
-    inst.shouldGoAway = not isSpring or TheWorld:HasTag("cave")
+local function OnSpringChange(inst, isspring)
+    inst.shouldGoAway = not isspring or TheWorld:HasTag("cave")
     if inst:IsAsleep() then
         OnEntitySleep(inst)
     end
@@ -105,7 +105,7 @@ end
 local function OnSave(inst, data)
     data.WantsToLayEgg = inst.WantsToLayEgg
     data.CanDisarm = inst.CanDisarm
-    data.shouldGoAway = inst.shouldGoAway
+    data.shouldGoAway = inst.shouldGoAway or nil
 end
 
 local function OnLoad(inst, data)
@@ -115,7 +115,9 @@ local function OnLoad(inst, data)
     if data.CanDisarm then
         inst.CanDisarm = data.CanDisarm
     end
-    inst.shouldGoAway = data.shouldGoAway or false
+    if data.shouldGoAway then
+        inst.shouldGoAway = data.shouldGoAway
+    end
 end
 
 local function ontimerdone(inst, data)
@@ -216,7 +218,6 @@ local function fn()
     ------------------------------------------
 
     inst:AddComponent("sleeper")
-    inst.shouldGoAway = false
 
     ------------------------------------------
 
@@ -252,6 +253,8 @@ local function fn()
     inst:ListenForEvent("attacked", OnAttacked)
     inst:ListenForEvent("entitysleep", OnEntitySleep)
 
+    OnSpringChange(inst, TheWorld.state.isspring)
+
     ------------------------------------------
 
     MakeLargeBurnableCharacter(inst, "swap_fire")
@@ -264,6 +267,8 @@ local function fn()
     inst.CanDisarm = false
 
     inst.OnPreLoad = OnPreLoad
+    inst.OnSave = OnSave
+    inst.OnLoad = OnLoad
 
     ------------------------------------------
 

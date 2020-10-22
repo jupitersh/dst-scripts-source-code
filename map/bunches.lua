@@ -79,6 +79,28 @@ local Bunches =
             GROUND.OCEAN_SWELL, -- Plants can "spill over" to swell waters.
         },
     },
+
+    rubble1 = {
+        prefab = "rock1",
+        range = 25,
+        min = 1000,
+        max = 1000,
+        min_spacing = 3,
+        valid_tile_types = {
+            GROUND.DIRT,
+        },
+    },    
+
+    rubble2 = {
+        prefab = "cavein_boulder",
+        range = 25,
+        min = 500,
+        max = 500,
+        min_spacing = 2,
+        valid_tile_types = {
+            GROUND.DIRT,
+        },
+    },
 }
 
 return 

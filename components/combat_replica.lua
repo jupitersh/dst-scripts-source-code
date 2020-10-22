@@ -140,6 +140,15 @@ function Combat:CancelAttack()
     end
 end
 
+function Combat:InCooldown()
+    if self.inst.components.combat ~= nil then
+        return self.inst.components.combat:InCooldown()
+    elseif self.classified ~= nil then
+        return self._laststartattacktime ~= nil and self._laststartattacktime + self.classified.minattackperiod:value() > GetTime()
+    end
+    return false
+end
+
 function Combat:CanAttack(target)
     if self.inst.components.combat ~= nil then
         return self.inst.components.combat:CanAttack(target)
@@ -176,12 +185,44 @@ function Combat:CanAttack(target)
     end
 end
 
+function Combat:LocomotorCanAttack(reached_dest, target)
+    if self.inst.components.combat ~= nil then
+        return self.inst.components.combat:LocomotorCanAttack(reached_dest, target)
+    elseif self.classified ~= nil then
+        if not self:IsValidTarget(target) then
+            return false, true
+        end
+
+        local range = math.max(0, target:GetPhysicsRadius(0) + self:GetAttackRangeWithWeapon() - .5)
+        reached_dest = reached_dest or distsq(target:GetPosition(), self.inst:GetPosition()) <= range * range
+
+        local valid = self.classified.canattack:value()
+            and (   self._laststartattacktime == nil or
+                    GetTime() - self._laststartattacktime >= self.classified.minattackperiod:value()
+                )
+            and (   self.inst.sg == nil or
+                    not self.inst.sg:HasStateTag("busy") or
+                    self.inst.sg:HasStateTag("hit")
+                )
+            and not (   -- gjans: Some specific logic so the birchnutter doesn't attack it's spawn with it's AOE
+                        -- This could possibly be made more generic so that "things" don't attack other things in their "group" or something
+                        self.inst:HasTag("birchnutroot") and
+                        (   target:HasTag("birchnutroot") or
+                            target:HasTag("birchnut") or
+                            target:HasTag("birchnutdrake")
+                        )
+                    )
+        return reached_dest, not valid
+    else
+        return reached_dest, true
+    end
+end
+
 function Combat:CanExtinguishTarget(target, weapon)
     if self.inst.components.combat ~= nil then
         return self.inst.components.combat:CanExtinguishTarget(target, weapon)
     end
-    return weapon ~= nil
-        and weapon:HasTag("extinguisher")
+    return (weapon ~= nil and weapon:HasTag("extinguisher") or self.inst:HasTag("extinguisher"))
         and (target:HasTag("smolder") or target:HasTag("fire"))
 end
 

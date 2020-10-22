@@ -65,9 +65,9 @@ return{
         
 		DISMANTLE =
 		{
-			COOKING = "TODO",
+			COOKING = "Cooking. Wait",
 			INUSE = "Someone else using it",
-			NOTEMPTY = "TODO",
+			NOTEMPTY = "Things inside",
         },
         FISH_OCEAN =
 		{
@@ -97,6 +97,7 @@ return{
             NOTSTAFF = "Wrong one. Oops",
             MUSHROOMFARM_NEEDSSHROOM = "Needs Fun Guy Friends",
             MUSHROOMFARM_NEEDSLOG = "Needs friends",
+            MUSHROOMFARM_NOMOONALLOWED = "Friends won't live here",
             SLOTFULL = "Too full",
             FOODFULL = "Already has belly stuff",
             NOTDISH = "Not belly stuff",
@@ -506,12 +507,14 @@ return{
     ANNOUNCE_ATTACH_BUFF_PLAYERABSORPTION  = "Hmm, bark feel thicker!",
     ANNOUNCE_ATTACH_BUFF_WORKEFFECTIVENESS = "Faster gooder!",
     ANNOUNCE_ATTACH_BUFF_MOISTUREIMMUNITY  = "No more wet!",
+    ANNOUNCE_ATTACH_BUFF_SLEEPRESISTANCE   = "Awake!",
     
     ANNOUNCE_DETACH_BUFF_ELECTRICATTACK    = "Aww. No more zaps",
     ANNOUNCE_DETACH_BUFF_ATTACK            = "Feel less fighty now",
     ANNOUNCE_DETACH_BUFF_PLAYERABSORPTION  = "Back to normal",
     ANNOUNCE_DETACH_BUFF_WORKEFFECTIVENESS = "Tired now",
     ANNOUNCE_DETACH_BUFF_MOISTUREIMMUNITY  = "Water back!",
+    ANNOUNCE_DETACH_BUFF_SLEEPRESISTANCE   = "Bit sleepy...",
     
 	ANNOUNCE_OCEANFISHING_LINESNAP = "Oh!",
 	ANNOUNCE_OCEANFISHING_LINETOOLOOSE = "Too loose?",
@@ -583,6 +586,10 @@ return{
 --fallback to speech_wilson.lua     ANNOUNCE_NOINSPIRATION = "only_used_by_wathgrithr",
 --fallback to speech_wilson.lua     ANNOUNCE_BATTLESONG_INSTANT_TAUNT_BUFF = "only_used_by_wathgrithr",
 --fallback to speech_wilson.lua     ANNOUNCE_BATTLESONG_INSTANT_PANIC_BUFF = "only_used_by_wathgrithr",
+
+    ANNOUNCE_ARCHIVE_NEW_KNOWLEDGE = "Oooooh, pictures!",
+    ANNOUNCE_ARCHIVE_OLD_KNOWLEDGE = "Know it",
+    ANNOUNCE_ARCHIVE_NO_POWER = "Nope",
 
 	BATTLECRY =
 	{
@@ -1107,6 +1114,8 @@ return{
 
 		TURF_CAVE="Rocky",
 		TURF_FUNGUS="Mushy",
+		TURF_FUNGUS_MOON = "Mushy",
+		TURF_ARCHIVE = "Not dirt",
 		TURF_SINKHOLE="Slimy",
 		TURF_UNDERROCK="Too rocky",
 		TURF_MUD="Sticky",
@@ -1425,7 +1434,7 @@ return{
 		COOKEDMANDRAKE = "Smells sleepy",
 		COOKEDMEAT = "Yummm",
 		COOKEDMONSTERMEAT = "Smells bad",
-		COOKEDSMALLMEAT = "Little belly stuff",
+		COOKEDSMALLMEAT = "Little belly stuff",        
 		COOKPOT =
 		{
 			COOKING_LONG = "Waiting...",
@@ -3094,6 +3103,10 @@ return{
         MOON_ALTAR_CROWN = "Lost?",
         MOON_ALTAR_COSMIC = "Soon",
 
+        MOON_ALTAR_ASTRAL = "Ready?",
+        MOON_ALTAR_ICON = "Silly! Home not under dirt",
+        MOON_ALTAR_WARD = "Lonely. Find friends",        
+
         SEAFARING_PROTOTYPER =
         {
             GENERIC = "Can build Floaty stuff",
@@ -3136,6 +3149,7 @@ return{
 		KELP_DRIED = "Crunchy",
 
 		GESTALT = "Saying something?",
+        GESTALT_GUARD = "Protect",
 
 		COOKIECUTTER = "Oh. Hello!",
 		COOKIECUTTERSHELL = "Spiky home",
@@ -3507,12 +3521,101 @@ return{
         BARNACLEPITA = "Goes in belly now",
         BARNACLESUSHI = "Belly stuff",
         BARNACLINGUINE = "Strings of belly stuff",
-        BARNACLESTUFFEDFISHHEAD = "Glub glubs?",
+        BARNACLESTUFFEDFISHHEAD = "Glub Glubs?",
 
         LEAFLOAF = "Is friend? Or not friend?",
         LEAFYMEATBURGER = "Hmmm",
         LEAFYMEATSOUFFLE = "Wiggly",
         MEATYSALAD = "Friends? No?",
+
+        -- GROTTO
+
+		MOLEBAT = "Big sniffer",
+        MOLEBATHILL = "Sleeping",
+
+        BATNOSE = "Chewy",
+        BATNOSE_COOKED = "Crispy",
+        BATNOSEHAT = "Food? No. Hat?",
+
+        MUSHGNOME = "Mushy friend!",
+
+        SPORE_MOON = "Pop!",
+
+        MOON_CAP = "Sleepytime",
+        MOON_CAP_COOKED = "Wakey wakey",
+
+        MUSHTREE_MOON = "Friend looks different",
+
+        LIGHTFLIER = "Buzzy",
+
+        GROTTO_POOL_BIG = "Clear rock water",
+        GROTTO_POOL_SMALL = "Clear rock water",
+
+        DUSTMOTH = "Sweep Sweep",
+
+        DUSTMOTHDEN = "Home for Sweep Sweep",
+
+        ARCHIVE_LOCKBOX = "Plant this in funny floor",
+        ARCHIVE_CENTIPEDE = "Ouchie roll bug awake!",
+        ARCHIVE_CENTIPEDE_HUSK = "Sleeping. Shhh",
+
+        ARCHIVE_COOKPOT =
+        {
+            COOKING_LONG = "Waiting...",
+            COOKING_SHORT = "Done soon",
+            DONE = "Done!",
+            EMPTY = "Dusty",
+            BURNT = "Oh",
+        },
+
+        ARCHIVE_MOON_STATUE = "Friends of night ball",
+        ARCHIVE_RUNE_STATUE = 
+        {
+            LINE_1 = "Skritch scratches",
+            LINE_2 = "Pretty",
+            LINE_3 = "Skritch scratches",
+            LINE_4 = "Pretty",
+            LINE_5 = "Skritch scratches",
+        },        
+
+        ARCHIVE_RESONATOR = "That way",
+        ARCHIVE_RESONATOR_ITEM = "Hmmmm",
+
+        ARCHIVE_LOCKBOX_DISPENCER = {
+          POWEROFF = "Sleeping",
+          GENERIC =  "Not for watering?",
+        },
+
+        ARCHIVE_SECURITY_DESK = {
+            POWEROFF = "Sleeping",
+            GENERIC = "Woke up",
+        },
+
+        ARCHIVE_SECURITY_PULSE = "Come back friend!",
+
+        ARCHIVE_SWITCH = {
+            VALID = "Awake",
+            GEMS = "Missing...",
+        },
+
+        ARCHIVE_PORTAL = {
+            POWEROFF = "Door?",
+            GENERIC = "Stuck closed",
+        },
+
+        WALL_STONE_2 = "Solid",
+        WALL_RUINS_2 = "Strong",
+
+        REFINED_DUST = "Dusty",
+        DUSTMERINGUE = "Sweep Sweep belly stuff",
+
+        SHROOMCAKE = "Squishy",
+
+        NIGHTMAREGROWTH = "Bad things",
+
+        TURFCRAFTINGSTATION = "Make dirt!",
+
+        MOON_ALTAR_LINK = "Seed",
     },
 
     DESCRIBE_GENERIC = "Friend?",

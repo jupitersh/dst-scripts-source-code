@@ -2,7 +2,7 @@
 AddRoom("BGSavanna", {
 					colour={r=.8,g=.8,b=.2,a=.50},
 					value = GROUND.SAVANNA,
-					tags = {"ExitPiece", "Chester_Eyebone"},
+					tags = {"ExitPiece", "Chester_Eyebone", "Astral_2"},
 					contents =  {
 					                distributepercent = .1,
 					                distributeprefabs=
@@ -18,7 +18,7 @@ AddRoom("BGSavanna", {
 AddRoom("Plain", {
 					colour={r=.8,g=.4,b=.4,a=.50},
 					value = GROUND.SAVANNA,
-					tags = {"ExitPiece", "Chester_Eyebone"},
+					tags = {"ExitPiece", "Chester_Eyebone", "Astral_1"},
 					contents =  {
 					                distributepercent = .2,
 					                distributeprefabs=
@@ -33,7 +33,7 @@ AddRoom("Plain", {
 	-- Rabbit holes, Beefalow hurds if bigger
 AddRoom("BarePlain", {					colour={r=.5,g=.5,b=.45,a=.50},
 					value = GROUND.SAVANNA,
-					tags = {"ExitPiece", "Chester_Eyebone"},
+					tags = {"ExitPiece", "Chester_Eyebone", "Astral_2"},
 					contents =  {
 					                distributepercent = 0.1,
 					                distributeprefabs=

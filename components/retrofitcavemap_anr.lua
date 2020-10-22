@@ -36,6 +36,18 @@ local LOCOMOTOR_TAGS = {"locomotor"}
 --------------------------------------------------------------------------
 --[[ Private member functions ]]
 --------------------------------------------------------------------------
+local function RemovePrefabs(prefabs_to_remove, biomes_to_cleanup)
+	local count = 0
+	for _,ent in pairs(Ents) do
+		if ent:IsValid() and table.contains(prefabs_to_remove, ent.prefab) and (biomes_to_cleanup == nil or table.contains(biomes_to_cleanup, TheWorld.Map:GetTileAtPoint(ent.Transform:GetWorldPosition()))) then
+			count = count + 1
+			ent:Remove()
+		end
+	end
+
+	return count
+end
+
 
 local function RetrofitNewCaveContentPrefab(inst, prefab, min_space, dist_from_structures, nightmare)
 	local attempt = 1
@@ -49,6 +61,7 @@ local function RetrofitNewCaveContentPrefab(inst, prefab, min_space, dist_from_s
 	for k = 1, #topology.nodes do
 		if (nightmare == table.contains(topology.nodes[k].tags, "Nightmare")) 
 			and (not table.contains(topology.nodes[k].tags, "Atrium"))
+			and (not table.contains(topology.nodes[k].tags, "lunacyarea"))
 			and (not string.find(topology.ids[k], "RuinedGuarden")) then
 
 			table.insert(searchnodes, k)
@@ -206,7 +219,7 @@ local function HeartOfTheRuinsAtriumRetrofitting(inst)
 		
 		AddAtriumWorldTopolopy((left * 4) - (map_width * 0.5 * 4), (top* 4) - (map_height * 0.5 * 4))
 		
-		inst.components.retrofitcavemap_anr.requiresreset = true
+		self.requiresreset = true
 
 		print ("Retrofitting for A New Reign: Heart of the Ruins - Successfully added atruim into the world.")
 	else
@@ -453,6 +466,124 @@ local function HeartOfTheRuinsRuinsRetrofitting_StatueChessRespawners(inst)
 	AddRuinsRespawner("ruins_statue_mage_nogem")
 end
 
+local function ArchiveDispencerFixup()
+
+	local a = {}
+	local b = {}
+	local c = {}
+	local dispencers = {}
+	local lockboxes = {}
+
+	for k,v in pairs(Ents) do
+		if v.prefab == "archive_lockbox_dispencer" then
+			table.insert(dispencers,v)
+		end
+
+		if v.prefab == "archive_lockbox" then
+			table.insert(lockboxes,v)
+		end
+
+		if v.prefab == "archive_lockbox_dispencer" then
+			if v.product_orchestrina ~= nil and v.product_orchestrina ~= "" then
+				if v.product_orchestrina == "archive_resonator_item" then
+					table.insert(b,v)
+				elseif v.product_orchestrina == "refined_dust" then
+					table.insert(c,v)
+				elseif v.product_orchestrina == "turfcraftingstation" then
+					table.insert(a,v)
+				end
+			end			
+		end		
+	end
+
+	if #a < 1 or #b < 1 or #c < 1 then
+		if #a >= 1 then
+			for i,ent in ipairs(dispencers)	do
+				if ent == a[1] then
+					table.remove(dispencers,i)
+					break
+				end
+			end
+		else
+			print("Retrofitting for Return of Them: Forgotten Knowledge - NO dispencer type A.")
+		end	
+		if #b >= 1 then
+			for i,ent in ipairs(dispencers)	do
+				if ent == b[1] then
+					table.remove(dispencers,i)
+					break
+				end
+			end
+		else
+			print("Retrofitting for Return of Them: Forgotten Knowledge - NO dispencer type B.")
+		end	
+		if #c >= 1 then
+			for i,ent in ipairs(dispencers)	do
+				if ent == c[1] then
+					table.remove(dispencers,i)
+					break
+				end
+			end
+		else
+			print("Retrofitting for Return of Them: Forgotten Knowledge - NO dispencer type C.")
+		end					
+	end
+	if #a == 0 and #dispencers > 0 then
+		local rand = math.random(1,#dispencers)
+		local ent = dispencers[rand]
+		ent.product_orchestrina = "turfcraftingstation"
+		ent.updateart(ent)
+		table.remove(dispencers,rand)
+		print("Retrofitting for Return of Them: Forgotten Knowledge - Making dispencer type A.")
+	end
+	if #b == 0 and #dispencers > 0 then
+		local rand = math.random(1,#dispencers)
+		local ent = dispencers[rand]
+		ent.product_orchestrina = "archive_resonator_item"
+		ent.updateart(ent)
+		table.remove(dispencers,rand)
+		print("Retrofitting for Return of Them: Forgotten Knowledge - Making dispencer type B.")
+	end	
+	if #c == 0 and #dispencers > 0 then
+		local rand = math.random(1,#dispencers)
+		local ent = dispencers[rand]
+		ent.product_orchestrina = "refined_dust"
+		ent.updateart(ent)
+		table.remove(dispencers,rand)
+		print("Retrofitting for Return of Them: Forgotten Knowledge - Making dispencer type C.")
+	end
+
+	if #dispencers > 0 then
+		local total  = 0
+		for i, ent in ipairs(dispencers) do
+			if ent.product_orchestrina == nil or ent.product_orchestrina == "" then
+				total = total +1
+				local list = {"turfcraftingstation","archive_resonator_item","refined_dust"}
+				ent.product_orchestrina = list[math.random(1,#list)]
+				ent.updateart(ent)
+			end
+		end		
+		if total > 0 then
+			print("Retrofitting for Return of Them: Forgotten Knowledge - "..total.." Dispencers fixed.")	
+		end
+	end	
+
+	if #lockboxes > 0 then
+		local total  = 0
+		for i, ent in ipairs(lockboxes) do
+			if ent.product_orchestrina == nil or ent.product_orchestrina == "" then
+				total = total +1
+				local list = {"turfcraftingstation","archive_resonator_item","refined_dust"}
+				ent.product_orchestrina = list[math.random(1,#list)]
+			end
+		end		
+		if total > 0 then
+			print("Retrofitting for Return of Them: Forgotten Knowledge - "..total.." Distilled Knowledge fixed.")	
+		end
+	end
+
+end
+
 --------------------------------------------------------------------------
 --[[ Post initialization ]]
 --------------------------------------------------------------------------
@@ -577,7 +708,7 @@ function self:OnPostInit()
 	end
 	
 	if self.retrofit_sacred_chest then
-		self.retrofit_AnrArg = nil
+		self.retrofit_sacred_chest = nil
 		print ("Retrofitting for A New Reign: Sacred Chest")
 		
 		local altars = {}	
@@ -616,7 +747,7 @@ function self:OnPostInit()
 							TrySpawnAt(x + 8, z) or TrySpawnAt(x - 8, z) or TrySpawnAt(x, z + 8) or TrySpawnAt(x, z - 8)
 		
 			if success then
-				print ("Retrofitting for A New Reign: Sacred Chest: Added sacred_chest")
+				print ("Retrofitting for A New Reign: Sacred Chest: Added sacred_chest.")
 			else
 				print ("Retrofitting for A New Reign: Sacred Chest: FAILED to add sacred_chest, not enough room in the Sacred Altar to place it!")
 			end	
@@ -625,23 +756,78 @@ function self:OnPostInit()
 		end
 	end
 	
+	if self.retrofit_acientarchives then
+		local success = false
+		for _, v in pairs(Ents) do
+			if v.prefab == "retrofit_archiveteleporter" then
+				print("Retrofitting for Return of Them: Forgotten Knowledge - Found retrofit_archiveteleporter.")
+				success = v:DoRetrofitting()
+				break
+			end
+		end
 
+		if success then
+			print("Retrofitting for Return of Them: Forgotten Knowledge - Add a wormhole linking the blue mush forest to the retrofitted land.")
+		else
+			print("Retrofitting for Return of Them: Forgotten Knowledge - Failed to add a wormhole linking the blue mush forest to the retrofitted land!")
+			print('Retrofitting for Return of Them: Forgotten Knowledge - An admin can force the wormhole link by running the command: c_findnext("retrofit_archiveteleporter"):DoRetrofitting(ThePlayer:GetPosition())')
+			print("Retrofitting for Return of Them: Forgotten Knowledge - This will create a wormhole where the admin is currenlty standing, so make sure you are standing where you want it to be!")
+		end
+	end
+
+	if self.retrofit_acientarchives_fixes then
+		local success = false
+
+		local topology = TheWorld.topology
+		local is_retrofitted_world = false
+		for k = 1, #topology.nodes do
+			if topology.ids[k] == "AncientArchivesRetrofit:2:MoonMush" then
+				if topology.nodes[k].tags == nil then
+					topology.nodes[k].tags = {}
+				end
+				table.insert(topology.nodes[k].tags, "MushGnomeSpawnArea")
+				print("Retrofitting for Return of Them: Forgotten Knowledge - Added MushGnomeSpawnArea tag to node " .. tostring(topology.ids[k]) .. " ("..tostring(k)..")")
+
+				is_retrofitted_world = true
+			end
+			if topology.ids[k] == "AncientArchivesRetrofit:0:Archives" then
+				if topology.nodes[k].tags == nil then
+					topology.nodes[k].tags = {}
+				end
+				table.insert(topology.nodes[k].tags, "nocavein")
+				print("Retrofitting for Return of Them: Forgotten Knowledge - Added nocavein tag to node " .. tostring(topology.ids[k]) .. " ("..tostring(k)..")")
+			end
+		end
+
+		if not is_retrofitted_world then
+			local num_removed = RemovePrefabs({"nightmaregrowth", "nightmaregrowth_spawner", "fissure_grottowar"})
+			print("Retrofitting for Return of Them: Forgotten Knowledge - Removed " .. tostring(num_removed) .. " nightmaregrowth_spawner and fissure_grottowar objects")
+		end
+		-- remove all nightmaregrowth_spawner and fissure_grottowar
+		-- add room MushGnomeSpawnArea to retrofitted blue mush forest
+		-- add room tag nocavein to retrofitted archives
+
+	end
+
+	if self.retrofit_dispencer_fixes then
+		print("Retrofitting for Return of Them: Forgotten Knowledge - Repairing Retrofitted Dispencers.")
+		ArchiveDispencerFixup()
+	end
 
 	---------------------------------------------------------------------------
-	if inst.components.retrofitcavemap_anr.requiresreset then
-		-- not quite working in all cases...
+	if self.requiresreset then
+		print ("Retrofitting: Worldgen retrofitting requires the server to save and restart to fully take effect.")
+		print ("Restarting server in 45 seconds...")
 
-		print ("Retrofitting for A New Reign. Savefile retrofitting requires the server to be restarted to fully take effect.")
-		print ("Retrofitting for A New Reign. Restarting caves in 40 seconds.")
-
-        inst:DoTaskInTime(5, function() TheNet:Announce("World will reload in 35 seconds to complete retrofitting.") end)
-        inst:DoTaskInTime(10, function() TheNet:Announce("World will reload in 30 seconds to complete retrofitting.") end)
-        inst:DoTaskInTime(15, function() TheNet:Announce("World will reload in 25 seconds to complete retrofitting.") end)
-        inst:DoTaskInTime(20, function() TheNet:Announce("World will reload in 20 seconds to complete retrofitting.") end)
-        inst:DoTaskInTime(25, function() TheNet:Announce("World will reload in 15 seconds to complete retrofitting.") end)
-		inst:DoTaskInTime(30, function() TheWorld:PushEvent("ms_save") TheNet:Announce("World will reload in 10 seconds to complete retrofitting.") end)
-		inst:DoTaskInTime(35, function() TheNet:Announce("World will reload in 5 seconds to complete retrofitting.") end)
-		inst:DoTaskInTime(40, function() TheNet:SendWorldRollbackRequestToServer(0) end)
+        inst:DoTaskInTime(5,  function() TheNet:Announce(subfmt(STRINGS.UI.HUD.RETROFITTING_ANNOUNCEMENT, {time = 40})) end)
+        inst:DoTaskInTime(10, function() TheNet:Announce(subfmt(STRINGS.UI.HUD.RETROFITTING_ANNOUNCEMENT, {time = 35})) end)
+        inst:DoTaskInTime(15, function() TheNet:Announce(subfmt(STRINGS.UI.HUD.RETROFITTING_ANNOUNCEMENT, {time = 30})) end)
+		inst:DoTaskInTime(25, function() TheNet:Announce(subfmt(STRINGS.UI.HUD.RETROFITTING_ANNOUNCEMENT, {time = 20})) end)
+		inst:DoTaskInTime(35, function() TheNet:Announce(subfmt(STRINGS.UI.HUD.RETROFITTING_ANNOUNCEMENT, {time = 10})) end)
+		inst:DoTaskInTime(37, function() TheWorld:PushEvent("ms_save") end)
+		inst:DoTaskInTime(40, function() TheNet:Announce(subfmt(STRINGS.UI.HUD.RETROFITTING_ANNOUNCEMENT, {time = 5})) end)
+		inst:DoTaskInTime(43, function() TheNet:Announce(STRINGS.UI.HUD.RETROFITTING_ANNOUNCEMENT_NOW) end)
+		inst:DoTaskInTime(45, function() TheNet:SendWorldRollbackRequestToServer(0) end)
 	end
 end
 
@@ -655,6 +841,7 @@ end
 
 function self:OnLoad(data)
     if data ~= nil then
+		self.requiresreset = data.requiresreset -- in case other retrofitting defined in savefileupgrades.lua needs a reset
 		retrofit_warts = data.retrofit_warts or false
 		self.retrofit_artsandcrafts = data.retrofit_artsandcrafts
 		self.retrofit_heartoftheruins = data.retrofit_heartoftheruins
@@ -664,6 +851,10 @@ function self:OnLoad(data)
 		self.retrofit_heartoftheruins_oldatriumfixup = data.retrofit_heartoftheruins_oldatriumfixup
 		self.retrofit_heartoftheruins_statuechessrespawners = data.retrofit_heartoftheruins_statuechessrespawners
 		self.retrofit_sacred_chest = data.retrofit_sacred_chest
+		self.retrofit_acientarchives = data.retrofit_acientarchives
+		self.retrofit_acientarchives_fixes = data.retrofit_acientarchives_fixes
+		self.retrofit_dispencer_fixes = data.retrofit_dispencer_fixes
+		
     end
 end
 

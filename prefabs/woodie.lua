@@ -575,6 +575,7 @@ local function OnIsFullmoon(inst, isfullmoon)
         else
             inst.components.wereness:SetWereMode("fullmoon")
             inst.components.wereness:SetPercent(1, true)
+            inst.components.wereness:StartDraining()
         end
     end
     if IsWereMode(inst.weremode:value()) then
@@ -1228,6 +1229,7 @@ local function OnForceTransform(inst, weremode)
 
     inst.components.wereness:SetWereMode(WEREMODE_NAMES[weremode])
     inst.components.wereness:SetPercent(1, true)
+    inst.components.wereness:StartDraining()
 end
 
 --------------------------------------------------------------------------

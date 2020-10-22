@@ -627,6 +627,34 @@ function Combat:CanAttack(target)
                 )
 end
 
+function Combat:LocomotorCanAttack(reached_dest, target)
+    if not self:IsValidTarget(target) then
+        return false, true
+    end
+
+    reached_dest = reached_dest or
+        (self.ignorehitrange or distsq(target:GetPosition(), self.inst:GetPosition()) <= self:CalcAttackRangeSq(target))
+
+    local valid = self.canattack
+        and (   self.laststartattacktime == nil or
+                GetTime() - self.laststartattacktime >= self.min_attack_period
+            )
+        and (   self.inst.sg == nil or
+                not self.inst.sg:HasStateTag("busy") or
+                self.inst.sg:HasStateTag("hit")
+            )
+        and not (   -- gjans: Some specific logic so the birchnutter doesn't attack it's spawn with it's AOE
+                    -- This could possibly be made more generic so that "things" don't attack other things in their "group" or something
+                    self.inst:HasTag("birchnutroot") and
+                    (   target:HasTag("birchnutroot") or
+                        target:HasTag("birchnut") or
+                        target:HasTag("birchnutdrake")
+                    )
+                )
+
+    return reached_dest, not valid
+end
+
 function Combat:TryAttack(target)
     local target = target or self.target 
 
@@ -782,11 +810,10 @@ function Combat:CalcHitRangeSq(target)
 end
 
 function Combat:CanExtinguishTarget(target, weapon)
-    return weapon ~= nil
-        and weapon:HasTag("extinguisher")
-        and target.components.burnable ~= nil
-        and (target.components.burnable:IsSmoldering() or
-            target.components.burnable:IsBurning())
+	local burnable = target.components.burnable
+    return burnable ~= nil 
+        and (burnable:IsSmoldering() or burnable:IsBurning())
+        and (weapon ~= nil and weapon:HasTag("extinguisher") or self.inst:HasTag("extinguisher"))
 end
 
 function Combat:CanLightTarget(target, weapon)

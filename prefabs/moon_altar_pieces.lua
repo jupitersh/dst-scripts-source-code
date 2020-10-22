@@ -182,11 +182,40 @@ local function makerockpiece(name, socket_product)
     return Prefab("moon_altar_rock_"..name, fn, assets, rock_prefabs)
 end
 
---For searching: "moon_altar_idol", "moon_altar_glass", "moon_altar_seed", "moon_altar_crown", "moon_altar_rock_glass", "moon_altar_rock_seed", "moon_altar_rock_idol"
-return makepiece("idol"),
-	makerockpiece("idol"),
-    makepiece("glass", "moon_altar"),
+
+
+local function makemarker(name, socket_product)
+ 
+    local function fn()
+        local inst = CreateEntity()
+
+        inst.entity:AddTransform()
+        inst.entity:AddNetwork()
+
+        inst:AddTag("moon_altar_marker")
+
+        inst.entity:SetPristine()
+
+        if not TheWorld.ismastersim then
+            return inst
+        end
+
+        return inst
+    end
+
+    return Prefab("moon_altar_marker")
+end
+
+--For searching: "moon_altar_idol", "moon_altar_glass", "moon_altar_seed", "moon_altar_crown", "moon_altar_rock_glass", "moon_altar_rock_seed", "moon_altar_rock_idol" ,"moon_altar_ward", "moon_altar_icon"
+return 
+    makerockpiece("idol"),
+    makepiece("idol"),	   
 	makerockpiece("glass"),
+    makepiece("glass", "moon_altar"),
+    makerockpiece("seed"),
     makepiece("seed"),
-	makerockpiece("seed"),
-    makepiece("crown", "moon_altar_cosmic")
+	
+    makepiece("crown", "moon_altar_cosmic"),
+
+    makepiece("ward"),
+    makepiece("icon", "moon_altar_astral")

@@ -3,7 +3,6 @@ require("stategraphs/commonstates")
 
 
 local function removeboat(inst)
-    inst:RemoveEventCallback("onremove", function() removeboat( inst ) end, inst.boat)
     inst.boat = nil
     inst:PushEvent("releaseclamp")
 end

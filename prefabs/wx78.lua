@@ -26,7 +26,7 @@ local function applyupgrades(inst)
 
     local hunger_percent = inst.components.hunger:GetPercent()
     local health_percent = inst.components.health:GetPercent()
-    local sanity_percent = inst.components.sanity:GetPercent()
+    local sanity_percent = inst.components.sanity:GetRealPercent()
 
     inst.components.hunger.max = math.ceil(TUNING.WX78_MIN_HUNGER + inst.level * (TUNING.WX78_MAX_HUNGER - TUNING.WX78_MIN_HUNGER) / max_upgrades)
     inst.components.health.maxhealth = math.ceil(TUNING.WX78_MIN_HEALTH + inst.level * (TUNING.WX78_MAX_HEALTH - TUNING.WX78_MIN_HEALTH) / max_upgrades)

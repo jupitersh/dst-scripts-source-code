@@ -61,11 +61,28 @@ local function StartTracking(player, params, ent)
         end
     end, ent)
 
+    inst:ListenForEvent("entitysleep", function()
+        inst:DoTaskInTime(0, function() ent:Remove() end)
+    end, ent)
+
     ent:ListenForEvent("onremove", function()
         ent.spawnedforplayer = nil
         ent.persists = false
         ent.wantstodespawn = true
     end, player)
+end
+
+local function OnExchangeShadowCreature(inst, data)
+    local origent = data.ent
+    local exchangedent = data.exchangedent
+
+    local player = origent.spawnedforplayer
+    if not player then return end
+
+    local params = _players[player]
+    if not table.contains(params.ents, origent) then return end
+
+    StartTracking(player, params, exchangedent)
 end
 
 local function SpawnLandShadowCreature(player)
@@ -309,6 +326,7 @@ end
 --Register events
 inst:ListenForEvent("ms_playerjoined", OnPlayerJoined)
 inst:ListenForEvent("ms_playerleft", OnPlayerLeft)
+inst:ListenForEvent("ms_exchangeshadowcreature", OnExchangeShadowCreature)
 
 --------------------------------------------------------------------------
 --[[ Debug ]]

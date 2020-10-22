@@ -19,6 +19,11 @@ local quagmire_assets =
     Asset("ANIM", "anim/quagmire_meat_small.zip"),
 }
 
+local batnose_assets =
+{
+    Asset("ANIM", "anim/batnose.zip"),
+}
+
 local prefabs =
 {
     "cookedmeat",
@@ -671,6 +676,45 @@ local function barnacle_cooked()
     return inst
 end
 
+local BATNOSE_TAGS = { "catfood" }
+local BATNOSE_DRYABLE_DATA = { product = "smallmeat_dried", time = TUNING.DRY_MED }
+local BATNOSE_COOKABLE_DATA = { product = "batnose_cooked" }
+local function batnose()
+    local inst = common("batnose", "batnose", "raw", BATNOSE_TAGS, BATNOSE_DRYABLE_DATA, BATNOSE_COOKABLE_DATA)
+
+    inst.components.floater:SetSize("med")
+    inst.components.floater:SetScale(0.7)
+
+    if not TheWorld.ismastersim then
+        return inst
+    end
+
+    inst.components.edible.healthvalue = TUNING.HEALING_SMALL
+    inst.components.edible.hungervalue = TUNING.CALORIES_SMALL
+    inst.components.edible.sanityvalue = -TUNING.SANITY_SMALL
+    
+    inst.components.perishable:SetPerishTime(TUNING.PERISH_FAST)
+
+    return inst
+end
+
+local function batnose_cooked()
+    local inst = common("batnose", "batnose", "cooked")
+
+    inst.components.floater:SetSize("med")
+    inst.components.floater:SetScale(0.7)
+
+    if not TheWorld.ismastersim then
+        return inst
+    end
+
+    inst.components.edible.healthvalue = TUNING.HEALING_MEDSMALL
+    inst.components.edible.hungervalue = TUNING.CALORIES_MEDSMALL
+    inst.components.perishable:SetPerishTime(TUNING.PERISH_MED)
+
+    return inst
+end
+
 return Prefab("meat", raw, assets, prefabs),
         Prefab("cookedmeat", cooked, assets),
         Prefab("meat_dried", driedmeat, assets),
@@ -696,4 +740,6 @@ return Prefab("meat", raw, assets, prefabs),
         Prefab("quagmire_smallmeat", quagmire_smallmeat, quagmire_assets, quagmire_prefabs),
         Prefab("quagmire_cookedsmallmeat", quagmire_cookedsmallmeat, quagmire_assets),
         Prefab("barnacle", barnacle, assets),
-        Prefab("barnacle_cooked", barnacle_cooked, assets)
+        Prefab("barnacle_cooked", barnacle_cooked, assets),
+        Prefab("batnose", batnose, batnose_assets, batwingprefabs),
+        Prefab("batnose_cooked", batnose_cooked, batnose_assets)

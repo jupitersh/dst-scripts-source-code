@@ -97,6 +97,7 @@ return{
             NOTSTAFF = "I need something long and thin, like a wooden spoon.",
             MUSHROOMFARM_NEEDSSHROOM = "It needs a dash of something else.",
             MUSHROOMFARM_NEEDSLOG = "It needs a dash of something else.",
+            MUSHROOMFARM_NOMOONALLOWED = "They don't seem to take well to planting.",
             SLOTFULL = "I'd have to take the other object out first.",
             FOODFULL = "Let them enjoy their meal first.",
             NOTDISH = "It would tarnish my reputation to serve that.",
@@ -502,12 +503,14 @@ return{
     ANNOUNCE_ATTACH_BUFF_PLAYERABSORPTION  = "I feel très formidable!",
     ANNOUNCE_ATTACH_BUFF_WORKEFFECTIVENESS = "Now we're cooking!",
     ANNOUNCE_ATTACH_BUFF_MOISTUREIMMUNITY  = "Ah, nice and dry!",
+    ANNOUNCE_ATTACH_BUFF_SLEEPRESISTANCE   = "Fresh and awake!",
     
     ANNOUNCE_DETACH_BUFF_ELECTRICATTACK    = "Oh well, I prefer natural gas over electric anyway.",
     ANNOUNCE_DETACH_BUFF_ATTACK            = "Erm... I think I'm more of a food lover than a fighter after all.",
     ANNOUNCE_DETACH_BUFF_PLAYERABSORPTION  = "Ah... I've gone from tough to tender.",
     ANNOUNCE_DETACH_BUFF_WORKEFFECTIVENESS = "Ah non, I think I'm losing steam.",
     ANNOUNCE_DETACH_BUFF_MOISTUREIMMUNITY  = "Is it getting a bit soggy in here?",
+    ANNOUNCE_DETACH_BUFF_SLEEPRESISTANCE   = "Oh dear, I seem to be getting a bit tired after all...",
     
 	ANNOUNCE_OCEANFISHING_LINESNAP = "Ah, zut! I've lost my tackle.",
 	ANNOUNCE_OCEANFISHING_LINETOOLOOSE = "I should tighten my line a bit.",
@@ -579,6 +582,10 @@ return{
 --fallback to speech_wilson.lua     ANNOUNCE_NOINSPIRATION = "only_used_by_wathgrithr",
 --fallback to speech_wilson.lua     ANNOUNCE_BATTLESONG_INSTANT_TAUNT_BUFF = "only_used_by_wathgrithr",
 --fallback to speech_wilson.lua     ANNOUNCE_BATTLESONG_INSTANT_PANIC_BUFF = "only_used_by_wathgrithr",
+
+    ANNOUNCE_ARCHIVE_NEW_KNOWLEDGE = "Oh! It's teaching me a new recipe for a machine!",
+    ANNOUNCE_ARCHIVE_OLD_KNOWLEDGE = "I believe I already knew that one.",
+    ANNOUNCE_ARCHIVE_NO_POWER = "If only there was a way to get it working again...",
 
 	BATTLECRY =
 	{
@@ -1103,6 +1110,8 @@ return{
 
 		TURF_CAVE="It's like an ingredient for the ground.",
 		TURF_FUNGUS="It's like an ingredient for the ground.",
+		TURF_FUNGUS_MOON = "It's like an ingredient for the ground.",
+		TURF_ARCHIVE = "It's like an ingredient for the ground.",
 		TURF_SINKHOLE="It's like an ingredient for the ground.",
 		TURF_UNDERROCK="It's like an ingredient for the ground.",
 		TURF_MUD="It's like an ingredient for the ground.",
@@ -1421,7 +1430,7 @@ return{
 		COOKEDMANDRAKE = "Could use horseradish...",
 		COOKEDMEAT = "Could use a chimichurri sauce...",
 		COOKEDMONSTERMEAT = "Could use... uh... I don't even...",
-		COOKEDSMALLMEAT = "Could use sea salt...",
+		COOKEDSMALLMEAT = "Could use sea salt...",        
 		COOKPOT =
 		{
 			COOKING_LONG = "A masterpiece takes time.",
@@ -3090,6 +3099,10 @@ return{
         MOON_ALTAR_CROWN = "Come on mon ami, let's get you back where you belong!",
         MOON_ALTAR_COSMIC = "Something tells me this is part of a bigger recipe...",
 
+        MOON_ALTAR_ASTRAL = "The ingredients are all together.",
+        MOON_ALTAR_ICON = "I'll have you home tout de suite!",
+        MOON_ALTAR_WARD = "Patience mon ami, you'll be home soon.",        
+
         SEAFARING_PROTOTYPER =
         {
             GENERIC = "All the knowledge of a seasoned seafarer!",
@@ -3132,6 +3145,7 @@ return{
 		KELP_DRIED = "Ah, crispy!",
 
 		GESTALT = "Can you... get me home to dear Maman?",
+        GESTALT_GUARD = "I think it would be wise to stay out of their way.",
 
 		COOKIECUTTER = "Could I interest you in something other than my boat?",
 		COOKIECUTTERSHELL = "Reminds me a bit of a durian... mostly the smell.",
@@ -3509,6 +3523,95 @@ return{
         LEAFYMEATBURGER = "Perhaps this is how we'll convince Mademoiselle Wigfrid to eat her vegetables?",
         LEAFYMEATSOUFFLE = "It is certainly... food.",
         MEATYSALAD = "I'm not sure whether we can truly call this vegetarian.",
+
+        -- GROTTO
+
+		MOLEBAT = "I've never seen a creature that inhales its food so... literally.",
+        MOLEBATHILL = "Mon dieu, to think it can sleep in that mess!",
+
+        BATNOSE = "This will be a challenging ingredient.",
+        BATNOSE_COOKED = "It could use some marinade, perhaps.",
+        BATNOSEHAT = "Quelle horreur! What a waste of good food!",
+
+        MUSHGNOME = "I can't help but wonder how it tastes.",
+
+        SPORE_MOON = "Keep those away from my soufflés!",
+
+        MOON_CAP = "It would add a lovely pop of color... perhaps to a pasta dish.",
+        MOON_CAP_COOKED = "Hm. It has quite the... interesting aroma.",
+
+        MUSHTREE_MOON = "How lovely!",
+
+        LIGHTFLIER = "Light the way, mon ami!",
+
+        GROTTO_POOL_BIG = "My, how beautiful!",
+        GROTTO_POOL_SMALL = "My, how beautiful!",
+
+        DUSTMOTH = "It seems like a gentle soul.",
+
+        DUSTMOTHDEN = "Quelle suprise! It's so clean you could eat off it!",
+
+        ARCHIVE_LOCKBOX = "Perhaps it contains an ancient recipe of some kind.",
+        ARCHIVE_CENTIPEDE = "Excusez-moi, sorry to disturb you!",
+        ARCHIVE_CENTIPEDE_HUSK = "Hm, it seems to be missing a key ingredient.",
+
+        ARCHIVE_COOKPOT =
+        {
+            COOKING_LONG = "A masterpiece takes time.",
+            COOKING_SHORT = "Nearly there...",
+            DONE = "Ahh, fini!",
+            EMPTY = "The ones who lived here had good taste in cookware.",
+            BURNT = "Tragique.",
+        },
+
+        ARCHIVE_MOON_STATUE = "They seemed to think quite highly of the moon.",
+        ARCHIVE_RUNE_STATUE = 
+        {
+            LINE_1 = "I'm afraid its meaning is lost on me.",
+            LINE_2 = "So many secrets lost to time.",
+            LINE_3 = "I'm afraid its meaning is lost on me.",
+            LINE_4 = "So many secrets lost to time.",
+            LINE_5 = "I'm afraid its meaning is lost on me.",
+        },        
+
+        ARCHIVE_RESONATOR = "Let's see where this takes us, non?",
+        ARCHIVE_RESONATOR_ITEM = "I cooked it up with a dash of ancient knowledge.",
+
+        ARCHIVE_LOCKBOX_DISPENCER = {
+          POWEROFF = "This looks like it hasn't been used in a long time.",
+          GENERIC =  "I wonder what this machine will cook up for us.",
+        },
+
+        ARCHIVE_SECURITY_DESK = {
+            POWEROFF = "It's quiet.",
+            GENERIC = "How strange!",
+        },
+
+        ARCHIVE_SECURITY_PULSE = "C'est beau! I wonder where it's going?",
+
+        ARCHIVE_SWITCH = {
+            VALID = "The gems seem to be important.",
+            GEMS = "It's missing a key ingredient.",
+        },
+
+        ARCHIVE_PORTAL = {
+            POWEROFF = "Could this be a way home?",
+            GENERIC = "Ah, I shouldn't have gotten my hopes up.",
+        },
+
+        WALL_STONE_2 = "Good stone work.",
+        WALL_RUINS_2 = "Look at the carvings...",
+
+        REFINED_DUST = "A most unusual ingredient.",
+        DUSTMERINGUE = "I'm afraid even I can't make dust palatable.",
+
+        SHROOMCAKE = "It certainly has a unique flavor profile.",
+
+        NIGHTMAREGROWTH = "Mon dieu, the crust is cracking!",
+
+        TURFCRAFTINGSTATION = "This recipe calls for some ground ingredients, non?",
+
+        MOON_ALTAR_LINK = "It needs just a bit more time in the oven.",
     },
 
     DESCRIBE_GENERIC = "It is what it is...",

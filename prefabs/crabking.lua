@@ -71,8 +71,7 @@ local function getfreezerange(inst)
     return TUNING.CRABKING_FREEZE_RANGE * (0.75 + Remap(inst.countgems(inst).blue,0,9,0,2.25)) /2
 end
 
-local function removecrab(inst) 
-    inst:RemoveEventCallback("onremove", function() removecrab( inst ) end, inst.crab)
+local function removecrab(inst)
     inst.crab = nil
     inst:Remove()
 end
@@ -146,6 +145,9 @@ local function socketitem(inst,item,slot)
     if #inst.socketed >= MAX_SOCKETS then
         inst.components.health:SetMaxHealth(TUNING.CRABKING_HEALTH + (math.floor(inst.countgems(inst).red/2) * math.floor(inst.countgems(inst).red/2) *TUNING.CRABKING_HEALTH_BONUS ))
         inst.components.health.currenthealth = inst.components.health.maxhealth
+
+        MakeLargeBurnableCharacter(inst, "body")
+        MakeHugeFreezableCharacter(inst, "body")
 
         inst.components.freezable:SetResistance(3 + inst.countgems(inst).blue)
 
@@ -253,7 +255,8 @@ local function OnDead(inst)
 end
 
 local function OnEntitySleep(inst)
-    inst.components.health:DoDelta(inst.components.health.maxhealth - inst.components.health.currenthealth)
+    inst.components.health:SetMaxHealth(200000)
+    inst.components.health.currenthealth = inst.components.health.maxhealth
     if not inst.sg:HasStateTag("inert") then
         inst.spawnstacks(inst)
         inst.dropgems(inst)
@@ -270,6 +273,9 @@ local function OnEntitySleep(inst)
         inst:RemoveTag("animal")
         inst:RemoveTag("scarytoprey")
         inst:RemoveTag("hostile")           
+
+        inst:RemoveComponent("freezable")
+        inst:RemoveComponent("burnable")
    end
 end
 
@@ -792,7 +798,7 @@ local function fn()
     ------------------
 
     inst:AddComponent("health")
-    inst.components.health:SetMaxHealth(TUNING.CRABKING_HEALTH)
+    inst.components.health:SetMaxHealth(200000)--TUNING.CRABKING_HEALTH)
     inst.components.health.destroytime = 5
 
     ------------------
@@ -859,9 +865,6 @@ local function fn()
     inst:ListenForEvent("timerdone", OnTimerDone)
     inst:ListenForEvent("healthdelta", onHealthChange)
     inst:ListenForEvent("freeze", oncrabfreeze)
-
-    MakeLargeBurnableCharacter(inst, "body")
-    MakeHugeFreezableCharacter(inst, "body")
   
     clearsocketart(inst)
     inst.OnSave = OnSave

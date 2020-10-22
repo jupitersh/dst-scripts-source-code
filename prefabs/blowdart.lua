@@ -31,7 +31,7 @@ end
 
 local function onhit(inst, attacker, target)
     local impactfx = SpawnPrefab("impact")
-    if impactfx ~= nil then
+    if impactfx ~= nil and target.components.combat then
         local follower = impactfx.entity:AddFollower()
         follower:FollowSymbol(target.GUID, target.components.combat.hiteffectsymbol, 0, 0, 0)
         if attacker ~= nil and attacker:IsValid() then

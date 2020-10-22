@@ -180,12 +180,16 @@ function SaveIndex:GetNumSlots()
 end
 
 function SaveIndex:GetSaveIndexName()
-    return "saveindex"..(BRANCH ~= "dev" and "" or ("_"..BRANCH))
+    return "saveindex"..(BRANCH == "dev" and ("_"..BRANCH) or "")
 end
 
 function SaveIndex:Save(callback)
-    local data = DataDumper(self.data, nil, false)
-    local insz, outsz = TheSim:SetPersistentString(self:GetSaveIndexName(), data, false, callback)
+    --09/09/2020 SaveIndex is depreciated, and will no longer save.
+    --local data = DataDumper(self.data, nil, false)
+    --local insz, outsz = TheSim:SetPersistentString(self:GetSaveIndexName(), data, false, callback)
+    if callback then
+        callback()
+    end
 end
 
 -- gjans: Added this upgrade path 28/03/2016
@@ -262,9 +266,9 @@ local function OnLoad(self, filename, callback, load_success, str)
 				self:Save()
 			end
         end
-
+        self.loaded_from_file = true --for use with saveindex to shardsaveindex migration.
     elseif filename ~= nil then
-        print("Could not load "..filename)
+        --print("Could not load "..filename)
     end
 
     if callback ~= nil then
@@ -377,8 +381,6 @@ function SaveIndex:SaveCurrent(onsavedcb, isshutdown)
     if TheNet:GetIsClient() then
         return
     end
-
-    known_assert(TheSim:HasEnoughFreeDiskSpace(), "CONFIG_DIR_DISK_SPACE")
 
     assert(TheWorld ~= nil, "missing world?")
 

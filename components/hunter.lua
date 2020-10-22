@@ -297,11 +297,13 @@ OnUpdateHunt = function(inst, hunt)
     --print("Hunter:OnUpdateHunt")
 
     if hunt.lastdirttime ~= nil then
-        if hunt.huntedbeast == nil and hunt.trackspawned >= 1 then
+        if hunt.trackspawned >= 1 then
             local wet = TheWorld.state.wetness > 15 or TheWorld.state.israining
-            if (wet and (GetTime() - hunt.lastdirttime) > (.75*TUNING.SEG_TIME))
-                or (GetTime() - hunt.lastdirttime) > (1.25*TUNING.SEG_TIME) then
-        
+            
+            local lastdirttime = GetTime() - hunt.lastdirttime
+            local maxtime = wet and 0.75*TUNING.SEG_TIME or 1.25*TUNING.SEG_TIME
+            if lastdirttime > maxtime then
+    
                 -- check if the player is currently active in any other hunts
                 local playerIsInOtherHunt = false
                 for i,v in ipairs(_activehunts) do
@@ -371,7 +373,7 @@ local function SpawnHuntedBeast(hunt, pt)
     local spawn_pt = GetSpawnPoint(pt, TUNING.HUNT_SPAWN_DIST, hunt)
     if spawn_pt ~= nil then
 		local spawn_x, spawn_y, spawn_z = spawn_pt:Get()
-        hunt.huntedbeast = SpawnPrefab(
+        local huntedbeast = SpawnPrefab(
             (self:IsWargShrineActive() and "claywarg") or
             (math.random() <= GetAlternateBeastChance() and GetRandomItem(_alternate_beasts)) or
             (TheWorld.state.iswinter and _beast_prefab_winter) or
@@ -379,21 +381,11 @@ local function SpawnHuntedBeast(hunt, pt)
             _beast_prefab_summer
         )
 
-        if hunt.huntedbeast ~= nil then
+        if huntedbeast ~= nil then
             --print("Kill the Beast!")
-            hunt.huntedbeast.Physics:Teleport(spawn_x, spawn_y, spawn_z)
+            huntedbeast.Physics:Teleport(spawn_x, spawn_y, spawn_z)
 
-            local function OnBeastDeath()
-                --print("Hunter:OnBeastDeath")
-                inst:RemoveEventCallback("onremove", OnBeastDeath, hunt.huntedbeast)
-                hunt.huntedbeast = nil
-                StartCooldown(inst, hunt)
-            end
-
-            inst:ListenForEvent("death", OnBeastDeath, hunt.huntedbeast)
-            inst:ListenForEvent("onremove", OnBeastDeath, hunt.huntedbeast)
-
-            hunt.huntedbeast:PushEvent("spawnedforhunt")
+            huntedbeast:PushEvent("spawnedforhunt")
             return true
         end
     end
@@ -522,7 +514,7 @@ function self:OnDirtInvestigated(pt, doer)
                 if SpawnHuntedBeast(hunt,pt) then
                     --print("...you found the last track, now find the beast!")
                     hunt.activeplayer:PushEvent("huntbeastnearby")
-                    StopHunt(hunt)
+                    StartCooldown(inst, hunt)
                 else
                     --print("SpawnHuntedBeast FAILED! RESETTING")
                     ResetHunt(hunt)

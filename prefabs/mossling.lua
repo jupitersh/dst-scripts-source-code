@@ -61,11 +61,15 @@ end
 
 local function OnSave(inst, data)
     data.mother_dead = inst.mother_dead
+    data.shouldGoAway = inst.shouldGoAway or nil
 end
 
 local function OnLoad(inst, data)
     if data ~= nil and data.mother_dead then
         inst.mother_dead = data.mother_dead
+    end
+    if data ~= nil and data.shouldGoAway then
+        inst.shouldGoAway = data.shouldGoAway
     end
 end
 
@@ -76,7 +80,7 @@ local function OnEntitySleep(inst)
 end
 
 local function OnSpringChange(inst, isspring)
-    inst.shouldGoAway = not isspring
+    inst.shouldGoAway = not isspring or TheWorld:HasTag("cave")
     if inst:IsAsleep() then
         OnEntitySleep(inst)
     end
@@ -181,6 +185,8 @@ local function fn()
     inst:WatchWorldState("isspring", OnSpringChange)
     inst:ListenForEvent("attacked", OnAttacked)
     inst:ListenForEvent("entitysleep", OnEntitySleep)
+
+    OnSpringChange(inst, TheWorld.state.isspring)
 
     ------------------------------------------
 

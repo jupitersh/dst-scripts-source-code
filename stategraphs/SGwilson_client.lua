@@ -499,8 +499,7 @@ local events =
 
 local states =
 {
-    State
-    {
+    State{
         name = "idle",
         tags = { "idle", "canrotate" },
 
@@ -573,8 +572,7 @@ local states =
         end,
     },
 
-    State
-    {
+    State{
         name = "run_start",
         tags = { "moving", "running", "canrotate" },
 
@@ -649,8 +647,7 @@ local states =
         },
     },
 
-    State
-    {
+    State{
         name = "run",
         tags = { "moving", "running", "canrotate" },
 
@@ -880,8 +877,7 @@ local states =
         end,
     },
 
-    State
-    {
+    State{
         name = "run_stop",
         tags = { "canrotate", "idle" },
 
@@ -916,8 +912,7 @@ local states =
         },
     },
 
-    State
-    {
+    State{
         name = "previewaction",
         tags = { "busy" },
 
@@ -943,8 +938,7 @@ local states =
         end,
     },
 
-    State
-    {
+    State{
         name = "chop_start",
         tags = { "prechop", "working" },
 
@@ -980,8 +974,7 @@ local states =
         end,
     },
 
-    State
-    {
+    State{
         name = "mine_start",
         tags = { "premine", "working" },
 
@@ -1014,8 +1007,7 @@ local states =
         end,
     },
 
-    State
-    {
+    State{
         name = "hammer_start",
         tags = { "prehammer", "working" },
 
@@ -1048,8 +1040,7 @@ local states =
         end,
     },
 
-    State
-    {
+    State{
         name = "gnaw",
         tags = { "gnawing", "working" },
 
@@ -1111,8 +1102,7 @@ local states =
         end,
     },
 
-    State
-    {
+    State{
         name = "terraform",
         tags = { "busy" },
 
@@ -1143,8 +1133,7 @@ local states =
         end,
     },
 
-    State
-    {
+    State{
         name = "dig_start",
         tags = { "predig", "working" },
 
@@ -1177,8 +1166,7 @@ local states =
         end,
     },
 
-    State
-    {
+    State{
         name = "bugnet_start",
         tags = { "prenet", "working" },
 
@@ -1200,8 +1188,7 @@ local states =
         },
     },
 
-    State
-    {
+    State{
         name = "bugnet",
         tags = { "prenet", "netting", "working" },
 
@@ -1227,8 +1214,7 @@ local states =
         },
     },
 
-    State
-    {
+    State{
         name = "fishing_pre",
         tags = { "prefish", "fishing" },
 
@@ -1257,8 +1243,7 @@ local states =
         end,
     },
 
-    State
-    {
+    State{
         name = "fishing",
         tags = { "fishing" },
 
@@ -1281,8 +1266,7 @@ local states =
         end,
     },
 
-    State
-    {
+    State{
         name = "catchfish",
         tags = { "fishing", "catchfish", "busy" },
 
@@ -1312,8 +1296,7 @@ local states =
         end,
     },
 
-    State
-    {
+    State{
         name = "oceanfishing_cast",
         tags = { "prefish", "fishing" },
 
@@ -1342,8 +1325,7 @@ local states =
         end,
     },
 
-    State
-    {
+    State{
         name = "oceanfishing_sethook",
         tags = { "fishing", "doing" },
 
@@ -1373,8 +1355,7 @@ local states =
         end,
     },
 
-    State
-    {
+    State{
         name = "oceanfishing_reel",
         tags = { "fishing", "doing" },
 
@@ -1416,8 +1397,7 @@ local states =
         end,
     },
 
-    State
-    {
+    State{
         name = "give",
         tags = { "giving" },
 
@@ -1449,8 +1429,7 @@ local states =
         end,
     },
 
-    State
-    {
+    State{
         name = "bedroll",
         tags = { "bedroll", "busy" },
 
@@ -1479,8 +1458,7 @@ local states =
         end,
     },
 
-    State
-    {
+    State{
         name = "tent",
         tags = { "tent", "busy" },
 
@@ -1511,8 +1489,7 @@ local states =
         end,
     },
 
-    State
-    {
+    State{
         name = "wakeup",
         tags = { "busy", "waking" },
 
@@ -1539,8 +1516,7 @@ local states =
         end,
     },
 
-    State
-    {
+    State{
         name = "eat",
         tags = { "busy" },
 
@@ -1569,8 +1545,7 @@ local states =
         end,
     },
 
-    State
-    {
+    State{
         name = "quickeat",
         tags = { "busy" },
 
@@ -1599,8 +1574,7 @@ local states =
         end,
     },
 
-    State
-    {
+    State{
         name = "usewardrobe",
         tags = { "doing" },
 
@@ -1632,8 +1606,7 @@ local states =
         end,
     },
 
-    State
-    {
+    State{
         name = "unsaddle",
         tags = { "doing", "busy" },
 
@@ -1671,8 +1644,7 @@ local states =
         end,
     },
 
-    State
-    {
+    State{
         name = "heavylifting_drop",
         tags = { "doing", "busy" },
 
@@ -1710,8 +1682,7 @@ local states =
         end,
     },
 
-    State
-    {
+    State{
         name = "dostandingaction",
         tags = { "doing", "busy" },
 
@@ -1748,8 +1719,7 @@ local states =
         end,
     },
 
-    State
-    {
+    State{
         name = "doshortaction",
         tags = { "doing", "busy" },
 
@@ -1791,8 +1761,7 @@ local states =
         end,
     },
 
-    State
-    {
+    State{
         name = "dohungrybuild",
 
         onenter = function(inst)
@@ -1800,8 +1769,7 @@ local states =
         end,
     },
 
-    State
-    {
+    State{
         name = "domediumaction",
 
         onenter = function(inst)
@@ -1809,8 +1777,7 @@ local states =
         end,
     },
 
-    State
-    {
+    State{
         name = "dolongaction",
         tags = { "doing", "busy" },
 
@@ -1853,8 +1820,7 @@ local states =
         end,
     },
 
-    State
-    {
+    State{
         name = "dojostleaction",
         tags = { "doing", "busy" },
 
@@ -1936,8 +1902,7 @@ local states =
         end,
     },
 
-    State
-    {
+    State{
         name = "dochannelaction",
         tags = { "doing", "busy" },
 
@@ -1975,8 +1940,7 @@ local states =
         end,
     },
 
-    State
-    {
+    State{
         name = "dostorytelling",
         tags = { "doing", "busy" },
 
@@ -2018,8 +1982,7 @@ local states =
         end,
     },
 
-    State
-    {
+    State{
         name = "makeballoon",
         tags = { "doing", "busy" },
 
@@ -2062,8 +2025,7 @@ local states =
         end,
     },
 
-    State
-    {
+    State{
         name = "shave",
         tags = { "doing", "shaving" },
 
@@ -2190,8 +2152,7 @@ local states =
         end,  
     },       
 
-    State
-    {
+    State{
         name = "play",
         tags = { "doing", "playing" },
 
@@ -2220,8 +2181,7 @@ local states =
         end,
     },
 
-    State
-    {
+    State{
         name = "channel_longaction",
         tags = { "doing", "canrotate", "channeling"},
 
@@ -2245,8 +2205,7 @@ local states =
         },
     },
 
-    State
-    {
+    State{
         name = "use_pocket_scale",
         tags = { "doing" },
 
@@ -2276,8 +2235,7 @@ local states =
         end,
     },
 
-    State
-    {
+    State{
         name = "use_fan",
         tags = { "doing" },
 
@@ -2312,8 +2270,7 @@ local states =
         end,
     },
 
-    State
-    {
+    State{
         name = "book",
         tags = { "doing", },
 
@@ -2342,8 +2299,7 @@ local states =
         end,
     },
 
-    State
-    {
+    State{
         name = "book_peruse",
         tags = { "doing" },
 
@@ -2372,8 +2328,7 @@ local states =
         end,
     },    
 
-    State
-    {
+    State{
         name = "jumpin",
         tags = { "doing", "busy", "canrotate" },
 
@@ -2404,8 +2359,7 @@ local states =
         end,
     },
 
-    State
-    {
+    State{
         name = "castspell",
         tags = { "doing", "busy", "canrotate" },
 
@@ -2434,8 +2388,7 @@ local states =
         end,
     },
 
-    State
-    {
+    State{
         name = "quickcastspell",
         tags = { "doing", "busy", "canrotate" },
 
@@ -2469,8 +2422,7 @@ local states =
         end,
     },
 
-    State
-    {
+    State{
         name = "veryquickcastspell",
         tags = { "doing", "busy", "canrotate" },
 
@@ -2511,8 +2463,7 @@ local states =
         end,
     },
 
-    State
-    {
+    State{
         name = "cointosscastspell",
         tags = { "doing", "busy", "canrotate" },
 
@@ -2541,8 +2492,7 @@ local states =
         end,
     },
 
-    State
-    {
+    State{
         name = "play_gnarwail_horn",
         tags = { "doing", "busy", "canrotate" },
 
@@ -2579,8 +2529,7 @@ local states =
         end,
     },
 
-    State
-    {
+    State{
         name = "play_strum",
         tags = { "doing", "busy", "canrotate" },
 
@@ -2617,8 +2566,7 @@ local states =
         end,
     },
 
-    State
-    {
+    State{
         name = "summon_abigail",
         tags = { "doing", "busy" },
 
@@ -2659,8 +2607,7 @@ local states =
         end,
     },
 
-    State
-    {
+    State{
         name = "unsummon_abigail",
         tags = { "doing", "busy" },
 
@@ -2702,8 +2649,7 @@ local states =
         end,
     },
 
-    State
-    {
+    State{
         name = "commune_with_abigail",
         tags = { "doing", "busy" },
 
@@ -2745,8 +2691,7 @@ local states =
         end,
     },
 
-    State
-    {
+    State{
         name = "quicktele",
         tags = { "doing", "busy", "canrotate" },
 
@@ -2780,8 +2725,7 @@ local states =
         end,
     },
 
-    State
-    {
+    State{
         name = "combat_lunge_start",
         tags = { "doing", "busy", "nointerrupt" },
 
@@ -2821,8 +2765,7 @@ local states =
         end,
     },
 
-    State
-    {
+    State{
         name = "combat_leap_start",
         tags = { "doing", "busy", "nointerrupt" },
 
@@ -2851,8 +2794,7 @@ local states =
         end,
     },
 
-    State
-    {
+    State{
         name = "combat_superjump_start",
         tags = { "doing", "busy", "nointerrupt" },
 
@@ -2881,8 +2823,7 @@ local states =
         end,
     },
 
-    State
-    {
+    State{
         name = "blowdart_special",
         tags = { "doing", "busy", "nointerrupt" },
 
@@ -2919,8 +2860,7 @@ local states =
         end,
     },
 
-    State
-    {
+    State{
         name = "slingshot_shoot",
         tags = { "attack" },
 
@@ -2986,8 +2926,7 @@ local states =
 		end,
     },
 
-    State
-    {
+    State{
         name = "throw_line",
         tags = { "doing", "busy", "nointerrupt" },
 
@@ -3024,8 +2963,7 @@ local states =
         end,
     },
 
-    State
-    {
+    State{
         name = "catch_pre",
         tags = { "notalking", "readytocatch" },
 
@@ -3055,14 +2993,20 @@ local states =
         end,
     },
 
-    State
-    {
+    State{
         name = "attack",
         tags = { "attack", "notalking", "abouttoattack" },
 
         onenter = function(inst)
+            local buffaction = inst:GetBufferedAction()
             local cooldown = 0
             if inst.replica.combat ~= nil then
+                if inst.replica.combat:InCooldown() then
+                    inst.sg:RemoveStateTag("abouttoattack")
+                    inst:ClearBufferedAction()
+                    inst.sg:GoToState("idle", true)
+                    return
+                end
                 inst.replica.combat:StartAttack()
                 cooldown = inst.replica.combat:MinAttackPeriod() + .5 * FRAMES
             end
@@ -3193,7 +3137,6 @@ local states =
                 end
             end
 
-            local buffaction = inst:GetBufferedAction()
             if buffaction ~= nil then
                 inst:PerformPreviewBufferedAction()
 
@@ -3284,8 +3227,7 @@ local states =
         end,
     },
 
-    State
-    {
+    State{
         name = "attack_prop_pre",
         tags = { "propattack", "doing", "busy" },
 
@@ -3314,13 +3256,19 @@ local states =
         end,
     },
 
-    State
-    {
+    State{
         name = "throw",
         tags = { "attack", "notalking", "abouttoattack" },
 
         onenter = function(inst)
+            local buffaction = inst:GetBufferedAction()
             if inst.replica.combat ~= nil then
+                if inst.replica.combat:InCooldown() then
+                    inst.sg:RemoveStateTag("abouttoattack")
+                    inst:ClearBufferedAction()
+                    inst.sg:GoToState("idle", true)
+                    return
+                end
                 inst.replica.combat:StartAttack()
                 inst.sg:SetTimeout(math.max(11 * FRAMES, inst.replica.combat:MinAttackPeriod() + .5 * FRAMES))
             end
@@ -3328,7 +3276,6 @@ local states =
 
             inst.AnimState:PlayAnimation("throw")
 
-            local buffaction = inst:GetBufferedAction()
             if buffaction ~= nil then
                 inst:PerformPreviewBufferedAction()
 
@@ -3368,12 +3315,23 @@ local states =
         end,
     },
 
-    State
-    {
+    State{
         name = "blowdart",
         tags = { "attack", "notalking", "abouttoattack" },
 
         onenter = function(inst)
+            local buffaction = inst:GetBufferedAction()
+            if inst.replica.combat ~= nil then
+                if inst.replica.combat:InCooldown() then
+                    inst.sg:RemoveStateTag("abouttoattack")
+                    inst:ClearBufferedAction()
+                    inst.sg:GoToState("idle", true)
+                    return
+                end
+                inst.replica.combat:StartAttack()
+                inst.sg:SetTimeout(math.max((inst.sg.statemem.chained and 14 or 18) * FRAMES, inst.replica.combat:MinAttackPeriod() + .5 * FRAMES))
+            end
+
             local equip = inst.replica.inventory:GetEquippedItem(EQUIPSLOTS.HANDS)
             inst.components.locomotor:Stop()
 
@@ -3384,12 +3342,6 @@ local states =
             end
             inst.AnimState:PushAnimation("dart", false)
 
-            if inst.replica.combat ~= nil then
-                inst.replica.combat:StartAttack()
-                inst.sg:SetTimeout(math.max((inst.sg.statemem.chained and 14 or 18) * FRAMES, inst.replica.combat:MinAttackPeriod() + .5 * FRAMES))
-            end
-
-            local buffaction = inst:GetBufferedAction()
             if buffaction ~= nil then
                 inst:PerformPreviewBufferedAction()
 
@@ -3467,8 +3419,7 @@ local states =
         end,
     },
 
-    State
-    {
+    State{
         name = "migrate",
         tags = { "doing", "busy" },
 
@@ -3505,8 +3456,7 @@ local states =
         end,
     },
 
-    State
-    {
+    State{
         name = "bundle",
         tags = { "doing", "busy" },
 
@@ -3549,8 +3499,7 @@ local states =
         end,
     },
 
-    State
-    {
+    State{
         name = "startconstruct",
 
         onenter = function(inst)
@@ -3558,8 +3507,7 @@ local states =
         end,
     },
 
-    State
-    {
+    State{
         name = "construct",
         tags = { "doing", "busy" },
 
@@ -3615,8 +3563,7 @@ local states =
         end,
     },
 
-    State
-    {
+    State{
         name = "startchanneling",
         tags = { "doing", "busy", "prechanneling" },
 
@@ -3654,8 +3601,7 @@ local states =
         end,
     },
 
-    State
-    {
+    State{
         name = "till_start",
         tags = { "doing", "busy" },
 
@@ -3686,8 +3632,7 @@ local states =
         end,
     },
 
-    State
-    {
+    State{
         name = "portal_jumpin_pre",
         tags = { "busy" },
 

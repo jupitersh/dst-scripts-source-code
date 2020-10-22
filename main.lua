@@ -200,6 +200,8 @@ require("mathutil")
 require("components/lootdropper")
 require("reload")
 require("saveindex") -- Added by Altgames for Android focus lost handling
+require("shardsaveindex")
+require("shardindex")
 require("worldtiledefs")
 require("gamemodes")
 require("skinsutils")
@@ -286,7 +288,12 @@ global("TheCookbook")
 TheCookbook = nil
 global("Lavaarena_CommunityProgression")
 Lavaarena_CommunityProgression = nil
-
+global("SaveGameIndex")
+SaveGameIndex = nil
+global("ShardGameIndex")
+ShardGameIndex = nil
+global("ShardSaveGameIndex")
+ShardSaveGameIndex = nil
 require("globalvariableoverrides")
 
 --world setup

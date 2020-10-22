@@ -1203,8 +1203,8 @@ local function ValidateAttackTarget(combat, target, force_attack, x, z, has_weap
     return target:GetDistanceSqToPoint(x, 0, z) <= reach * reach
 end
 
-local TARGET_MUST_TAGS = { "_combat" }
-local TARGET_CANT_TAGS = { "INLIMBO" }
+local REGISTERED_FIND_ATTACK_TARGET_TAGS = TheSim:RegisterFindTags({ "_combat" }, { "INLIMBO" })
+
 function PlayerController:GetAttackTarget(force_attack, force_target, isretarget)
     if self.inst:HasTag("playerghost") or
         self.inst:HasTag("weregoose") or
@@ -1267,7 +1267,8 @@ function PlayerController:GetAttackTarget(force_attack, force_target, isretarget
     --To deal with entity collision boxes we need to pad the radius.
     --Only include combat targets for auto-targetting, not light/extinguish
     --See entityreplica.lua (re: "_combat" tag)
-    local nearby_ents = TheSim:FindEntities(x, y, z, rad + 5, TARGET_MUST_TAGS, TARGET_CANT_TAGS)
+    local nearby_ents = TheSim:FindEntities_Registered(x, y, z, rad + 5, REGISTERED_FIND_ATTACK_TARGET_TAGS)
+
     local nearest_dist = math.huge
     isretarget = false --reusing variable for flagging when we've found recent target
     force_target = nil --reusing variable for our nearest target
@@ -1441,6 +1442,8 @@ function PlayerController:IsDoingOrWorking()
 end
 
 local TARGET_EXCLUDE_TAGS = { "FX", "NOCLICK", "DECOR", "INLIMBO" }
+local REGISTERED_CONTROLLER_ATTACK_TARGET_TAGS = TheSim:RegisterFindTags({ "_combat" }, TARGET_EXCLUDE_TAGS)
+
 local PICKUP_TARGET_EXCLUDE_TAGS = { "catchable", "mineactive", "intense" }
 local HAUNT_TARGET_EXCLUDE_TAGS = { "haunted", "catchable" }
 for i, v in ipairs(TARGET_EXCLUDE_TAGS) do
@@ -2249,7 +2252,8 @@ local function UpdateControllerAttackTarget(self, dt, x, y, z, dirx, dirz)
     local max_rad_sq = max_rad * max_rad
 
     --see entity_replica.lua for "_combat" tag
-    local nearby_ents = TheSim:FindEntities(x, y, z, max_rad, TARGET_MUST_TAGS, TARGET_EXCLUDE_TAGS)
+
+	local nearby_ents = TheSim:FindEntities_Registered(x, y, z, max_rad, REGISTERED_CONTROLLER_ATTACK_TARGET_TAGS)
     if self.controller_attack_target ~= nil then
         --Note: it may already contain controller_attack_target,
         --      so make sure to handle it only once later

@@ -16,7 +16,7 @@ local CompendiumScreen = require "screens/redux/compendiumscreen"
 local PlayerSummaryScreen = require "screens/redux/playersummaryscreen"
 local QuickJoinScreen = require "screens/redux/quickjoinscreen"
 local ServerListingScreen = require "screens/redux/serverlistingscreen"
-local ServerCreationScreen = require "screens/redux/servercreationscreen"
+local ServerSlotScreen = require "screens/redux/serverslotscreen"
 
 local TEMPLATES = require "widgets/redux/templates"
 
@@ -52,8 +52,8 @@ function MakeBanner(self)
 
 	if IS_BETA then
         --local anim = baner_root:AddChild(UIAnim())
-        anim:GetAnimState():SetBuild("dst_menu_wathgrithr")
-        anim:GetAnimState():SetBank ("dst_menu_wathgrithr")
+        anim:GetAnimState():SetBuild("dst_menu_grotto")
+        anim:GetAnimState():SetBank ("dst_menu_grotto")
         anim:GetAnimState():PlayAnimation("loop", true)
         anim:SetScale(.667)
         anim:SetPosition(0, 0)
@@ -75,8 +75,8 @@ function MakeBanner(self)
 		anim:GetAnimState():PlayAnimation("anim", true)
 		anim:SetScale(0.67)
 		anim:SetPosition(183, 40)]]
-		anim:GetAnimState():SetBuild("dst_menu_wurt")
-		anim:GetAnimState():SetBank("dst_menu_wurt")
+		anim:GetAnimState():SetBuild("dst_menu_grotto")
+		anim:GetAnimState():SetBank("dst_menu_grotto")
         anim:GetAnimState():PlayAnimation("loop", true)
         anim:SetScale(.667)
 	elseif IsSpecialEventActive(SPECIAL_EVENTS.WINTERS_FEAST) then
@@ -186,15 +186,20 @@ function MakeBanner(self)
   --       anim:GetAnimState():Show(c1)
   --       anim:GetAnimState():Show(c2)
   --       anim:GetAnimState():Show(c3)
-    
+--[[ 
         local anim = baner_root:AddChild(UIAnim())
         anim:GetAnimState():SetBuild("dst_menu_wathgrithr")
         anim:GetAnimState():SetBank ("dst_menu_wathgrithr")
         anim:GetAnimState():PlayAnimation("loop", true)
         anim:SetScale(.667)
         anim:SetPosition(0, 0)
-
-
+]]
+        local anim = baner_root:AddChild(UIAnim())
+        anim:GetAnimState():SetBuild("dst_menu_grotto")
+        anim:GetAnimState():SetBank ("dst_menu_grotto")
+        anim:GetAnimState():PlayAnimation("loop", true)
+        anim:SetScale(.667)
+        anim:SetPosition(0, 0)
 --[[	
         local anim = baner_root:AddChild(UIAnim())
 		anim:GetAnimState():SetBuild("dst_menu_walter")
@@ -522,7 +527,7 @@ function MultiplayerMainScreen:OnFestivalEventButton()
 end
 
 function MultiplayerMainScreen:OnCreateServerButton()
-    self:_GoToOnlineScreen(ServerCreationScreen, {})
+    self:_GoToOnlineScreen(ServerSlotScreen, {})
 end
 
 function MultiplayerMainScreen:_GoToOnlineScreen(screen_ctor, data)
@@ -625,13 +630,22 @@ function MultiplayerMainScreen:Quit()
 end
 
 function MultiplayerMainScreen:OnHostButton()
-    SaveGameIndex:LoadServerEnabledModsFromSlot()
+    ShardSaveGameIndex:LoadSlotEnabledServerMods()
     KnownModIndex:Save()
     local start_in_online_mode = false
-    local slot = SaveGameIndex:GetCurrentSaveSlot()
-    if TheNet:StartServer(start_in_online_mode, slot, SaveGameIndex:GetSlotServerData(slot)) then
+    local slot = 1
+    if TheNet:StartServer(start_in_online_mode, slot, ShardSaveGameIndex:GetSlotServerData(slot)) then
         DisableAllDLC()
-        StartNextInstance({ reset_action = RESET_ACTION.LOAD_SLOT, save_slot = slot })
+        local shift_down = TheInput:IsKeyDown(KEY_SHIFT)
+        if shift_down or TheInput:IsKeyDown(KEY_CTRL) then
+            ShardSaveGameIndex:DeleteSlot(
+                slot,
+                function() if TheSim:EnsureShardIndexPathExists(slot) then StartNextInstance({ reset_action = RESET_ACTION.LOAD_SLOT, save_slot = slot }) end end,
+                shift_down -- true causes world gen options to be preserved, false causes world gen options to be wiped!
+            )
+        else
+            StartNextInstance({ reset_action = RESET_ACTION.LOAD_SLOT, save_slot =  slot })
+        end
     end
 end
 

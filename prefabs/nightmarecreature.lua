@@ -116,6 +116,7 @@ local function MakeShadowCreature(data)
         inst.AnimState:SetMultColour(1, 1, 1, 0.5)
 
         inst:AddTag("nightmarecreature")
+        inst:AddTag("gestaltnoloot")
         inst:AddTag("monster")
         inst:AddTag("hostile")
         inst:AddTag("shadow")

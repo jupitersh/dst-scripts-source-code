@@ -26,6 +26,15 @@ local levels =
     { amount=0, idle="bees_loop", hit="hit_idle" },
 }
 
+local FLOWER_MUST_TAG = {"flower"}
+local function CanStartGrowing(inst)
+    return not inst:HasTag("burnt") and
+        inst.components.harvestable and
+        not TheWorld.state.iswinter and
+        (inst.components.childspawner and inst.components.childspawner:NumChildren() > 0) and
+        FindEntity(inst, FLOWER_TEST_RADIUS, nil, FLOWER_MUST_TAG)
+end
+
 local function Stop(inst)
     if inst.components.harvestable ~= nil and inst.components.harvestable.growtime ~= nil then
         inst.components.harvestable:PauseGrowing()
@@ -35,10 +44,8 @@ local function Stop(inst)
     end
 end
 
-local FLOWER_MUST_TAG = {"flower"}
 local function Start(inst)
-    if inst.components.harvestable ~= nil and inst.components.harvestable.growtime ~= nil
-        and FindEntity(inst, FLOWER_TEST_RADIUS, nil, FLOWER_MUST_TAG) ~= nil then
+    if CanStartGrowing(inst) and inst.components.harvestable.growtime then
         inst.components.harvestable:StartGrowing()
     end
     if inst.components.childspawner ~= nil then
@@ -141,8 +148,7 @@ local function OnSave(inst, data)
 end
 
 local function onsleep(inst)
-    if not inst:HasTag("burnt") and inst.components.harvestable ~= nil
-        and FindEntity(inst, FLOWER_TEST_RADIUS, nil, FLOWER_MUST_TAG) ~= nil then
+    if CanStartGrowing(inst) then
         inst.components.harvestable:SetGrowTime(TUNING.BEEBOX_HONEY_TIME)
         inst.components.harvestable:StartGrowing()
     end

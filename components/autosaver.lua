@@ -51,7 +51,7 @@ local DoRollback = _ismastersim and not _ismastershard and function(snapshot)
         TheNet:TruncateSnapshots(_world.meta.session_identifier, snapshot)
         StartNextInstance({
             reset_action = RESET_ACTION.LOAD_SLOT,
-            save_slot = SaveGameIndex:GetCurrentSaveSlot(),
+            save_slot = ShardGameIndex:GetSlot(),
         })
     end
 end or nil
@@ -82,7 +82,7 @@ local DoActualSave = _ismastersim and function(inst, taskid, snapshot)
         end
     end
 
-    SaveGameIndex:SaveCurrent()
+    ShardGameIndex:SaveCurrent()
     _lastsavetime = GetTime()
 end or nil
 

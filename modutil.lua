@@ -517,21 +517,61 @@ local function InsertPostInitFunctions(env, isworldgen)
 		AddModRPCHandler( namespace, name, fn )
 	end
 
+	env.AddClientModRPCHandler = function( namespace, name, fn )
+		initprint( "AddClientModRPCHandler", namespace, name )
+		AddClientModRPCHandler( namespace, name, fn )
+	end
+
+	env.AddShardModRPCHandler = function( namespace, name, fn )
+		initprint( "AddShardModRPCHandler", namespace, name )
+		AddShardModRPCHandler( namespace, name, fn )
+	end
+
 	env.GetModRPCHandler = function( namespace, name )
 		initprint( "GetModRPCHandler", namespace, name )
 		return GetModRPCHandler( namespace, name )
+	end
+
+	env.GetClientModRPCHandler = function( namespace, name )
+		initprint( "GetClientModRPCHandler", namespace, name )
+		return GetClientModRPCHandler( namespace, name )
+	end
+
+	env.GetShardModRPCHandler = function( namespace, name )
+		initprint( "GetShardModRPCHandler", namespace, name )
+		return GetShardModRPCHandler( namespace, name )
 	end
 	
 	env.SendModRPCToServer = function( id_table, ... )
 		initprint( "SendModRPCToServer", id_table.namespace, id_table.id )
 		SendModRPCToServer( id_table, ... )
 	end
+	
+	env.SendModRPCToClient = function( id_table, ... )
+		initprint( "SendModRPCToClient", id_table.namespace, id_table.id )
+		SendModRPCToClient( id_table, ... )
+	end
+	
+	env.SendModRPCToShard = function( id_table, ... )
+		initprint( "SendModRPCToShard", id_table.namespace, id_table.id )
+		SendModRPCToShard( id_table, ... )
+	end
 
 	env.MOD_RPC = MOD_RPC --legacy, mods should use GetModRPC below
+	env.CLIENT_MOD_RPC = CLIENT_MOD_RPC --legacy, mods should use GetClientModRPC below
+	env.SHARD_MOD_RPC = SHARD_MOD_RPC --legacy, mods should use GetShardModRPC below
 
 	env.GetModRPC = function( namespace, name )
 		initprint( "GetModRPC", namespace, name )
 		return GetModRPC( namespace, name )
+	end
+	env.GetClientModRPC = function( namespace, name )
+		initprint( "GetClientModRPC", namespace, name )
+		return GetClientModRPC( namespace, name )
+	end
+	env.GetShardModRPC = function( namespace, name )
+		initprint( "GetModRPC", namespace, name )
+		return GetShardModRPC( namespace, name )
 	end
 
     env.SetModHUDFocus = function(focusid, hasfocus)

@@ -217,8 +217,12 @@ function Sanity:GetPenaltyPercent()
     return self.penalty
 end
 
+function Sanity:GetRealPercent()
+    return self.current / self.max
+end
+
 function Sanity:GetPercent()
-    return self.inducedinsanity and 0 or self.current / self.max
+    return self.inducedinsanity and 0 or self:GetRealPercent()
 end
 
 function Sanity:GetPercentWithPenalty()

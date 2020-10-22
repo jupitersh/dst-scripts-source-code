@@ -65,9 +65,9 @@ return{
         
 		DISMANTLE =
 		{
-			COOKING = "TODO",
+			COOKING = "I will let it finish its work.",
 			INUSE = "I shall valiantly wait my turn.",
-			NOTEMPTY = "TODO",
+			NOTEMPTY = "First, it must be emptied!",
         },
         FISH_OCEAN =
 		{
@@ -97,6 +97,7 @@ return{
             NOTSTAFF = "The gods may frown were I to do that.",
             MUSHROOMFARM_NEEDSSHROOM = "Forest sprites have no need of that.",
             MUSHROOMFARM_NEEDSLOG = "The sprite home requires sprucing up. With magical spruce!",
+            MUSHROOMFARM_NOMOONALLOWED = "It longs for its homeland. It will not grow here.",
             SLOTFULL = "One material at a time!",
             FOODFULL = "One sacrifice at a time!",
             NOTDISH = "That's not worthy to grace the mouth of the gods!",
@@ -502,12 +503,14 @@ return{
     ANNOUNCE_ATTACH_BUFF_PLAYERABSORPTION  = "Ha! No attack frightens me!",
     ANNOUNCE_ATTACH_BUFF_WORKEFFECTIVENESS = "Stand aside, I'll have this done in no time!",
     ANNOUNCE_ATTACH_BUFF_MOISTUREIMMUNITY  = "A little water is nothing to a Viking!",
+    ANNOUNCE_ATTACH_BUFF_SLEEPRESISTANCE   = "Sleep can no longer claim me!",
     
     ANNOUNCE_DETACH_BUFF_ELECTRICATTACK    = "I... suppose I was unworthy.",
     ANNOUNCE_DETACH_BUFF_ATTACK            = "Back to merely my usual level of fearsomeness.",
     ANNOUNCE_DETACH_BUFF_PLAYERABSORPTION  = "I've lost my defensive advantage!",
     ANNOUNCE_DETACH_BUFF_WORKEFFECTIVENESS = "I think I've done my share.",
     ANNOUNCE_DETACH_BUFF_MOISTUREIMMUNITY  = "The tides have turned for the wetter.",
+    ANNOUNCE_DETACH_BUFF_SLEEPRESISTANCE   = "I fear my defense against sleep hath weakened.",
     
 	ANNOUNCE_OCEANFISHING_LINESNAP = "By Freya, the little fiend snapped my line!",
 	ANNOUNCE_OCEANFISHING_LINETOOLOOSE = "The line has gone slack, tis time to reel!",
@@ -579,6 +582,10 @@ return{
     ANNOUNCE_NOINSPIRATION = "I must warm up my voice... in the heat of battle!",
     ANNOUNCE_BATTLESONG_INSTANT_TAUNT_BUFF = "\"You scullion! You rampallian! You fustilarian! I’ll tickle your catastrophe!\"",
     ANNOUNCE_BATTLESONG_INSTANT_PANIC_BUFF = "\"By the pricking of my thumbs, something wicked this way comes!\"",
+
+    ANNOUNCE_ARCHIVE_NEW_KNOWLEDGE = "The gods have given me a vision... some kind of machine?",
+    ANNOUNCE_ARCHIVE_OLD_KNOWLEDGE = "I've already seen this vision.",
+    ANNOUNCE_ARCHIVE_NO_POWER = "It hath not the energy to perform its task.",
 
 	BATTLECRY =
 	{
@@ -1103,6 +1110,8 @@ return{
 
 		TURF_CAVE="A piece of the battlefield.",
 		TURF_FUNGUS="A piece of the battlefield.",
+		TURF_FUNGUS_MOON = "A piece of the battlefield.",
+		TURF_ARCHIVE = "A piece of the battlefield.",
 		TURF_SINKHOLE="A piece of the battlefield.",
 		TURF_UNDERROCK="A piece of the battlefield.",
 		TURF_MUD="A piece of the battlefield.",
@@ -1421,7 +1430,7 @@ return{
 		COOKEDMANDRAKE = "She's definitely dead.",
 		COOKEDMEAT = "Meeeat!",
 		COOKEDMONSTERMEAT = "Monster beast steak.",
-		COOKEDSMALLMEAT = "Yum, yum, meat snacks.",
+		COOKEDSMALLMEAT = "Yum, yum, meat snacks.",        
 		COOKPOT =
 		{
 			COOKING_LONG = "Might as well do something whilst I wait.",
@@ -3090,6 +3099,10 @@ return{
         MOON_ALTAR_CROWN = "I wonder how that creature got his claws on this?",
         MOON_ALTAR_COSMIC = "It is grateful, but my work is not yet done.",
 
+        MOON_ALTAR_ASTRAL = "I hear the whispers of Mani.",
+        MOON_ALTAR_ICON = "It calls out to me, I must take heed.",
+        MOON_ALTAR_WARD = "It has chosen me to safeguard its passage home.",        
+
         SEAFARING_PROTOTYPER =
         {
             GENERIC = "A seafaring Viking is keen of mind and sharp of wit.",
@@ -3131,7 +3144,8 @@ return{
 		KELP_COOKED = "Tis even worse than before.",
 		KELP_DRIED = "I despise it.",
 
-		GESTALT = "Goddess of the moon, shine thy smile upon me!",
+		GESTALT = "God of the moon, shine thy smile upon me!",
+        GESTALT_GUARD = "Aha, there are warriors among you!",
 
 		COOKIECUTTER = "It seeks to make a meal of my vessel!",
 		COOKIECUTTERSHELL = "Twas a spiky foe.",
@@ -3509,6 +3523,95 @@ return{
         LEAFYMEATBURGER = "This will suffice until I find real meat.",
         LEAFYMEATSOUFFLE = "A nightmarish vision... but food nonetheless.",
         MEATYSALAD = "My instincts scream against this.",
+
+        -- GROTTO
+
+		MOLEBAT = "Have at thee, rodent!",
+        MOLEBATHILL = "Your mucousy defenses will not deter me, morsel!",
+
+        BATNOSE = "A trophy from the hunt.",
+        BATNOSE_COOKED = "If it's meat, I shall eat it!",
+        BATNOSEHAT = "A warrior would never deign to wear such a thing!",
+
+        MUSHGNOME = "Foul vegetable, you will taste my spear!",
+
+        SPORE_MOON = "It carries an explosive power...",
+
+        MOON_CAP = "Despicable non-meat!",
+        MOON_CAP_COOKED = "Such a thing will never pass my lips!",
+
+        MUSHTREE_MOON = "Strange magic indeed.",
+
+        LIGHTFLIER = "Light the way, noble insect.",
+
+        GROTTO_POOL_BIG = "The pools hath been enchanted.",
+        GROTTO_POOL_SMALL = "The pools hath been enchanted.",
+
+        DUSTMOTH = "This creature has no fight in it.",
+
+        DUSTMOTHDEN = "Sorry beasties, but your home is ripe for the pillaging!",
+
+        ARCHIVE_LOCKBOX = "Will you whisper truths to me, as Mímir did to Odin?",
+        ARCHIVE_CENTIPEDE = "I fear no beast, mortal or metal!",
+        ARCHIVE_CENTIPEDE_HUSK = "This sentry seems to be asleep at its post.",
+
+        ARCHIVE_COOKPOT =
+        {
+            COOKING_LONG = "Might as well do something whilst I wait.",
+            COOKING_SHORT = "Shouldn't be long now!",
+            DONE = "What have we here?",
+            EMPTY = "There is no meat inside, so I care not.",
+            BURNT = "The fire reigned supreme.",
+        },
+
+        ARCHIVE_MOON_STATUE = "These people once praised Mani.",
+        ARCHIVE_RUNE_STATUE = 
+        {
+            LINE_1 = "These runes are foreign to me.",
+            LINE_2 = "Perhaps they speak of ancient battles.",
+            LINE_3 = "These runes are foreign to me.",
+            LINE_4 = "Perhaps they speak of ancient battles.",
+            LINE_5 = "These runes are foreign to me.",
+        },        
+
+        ARCHIVE_RESONATOR = "It calls down a sign from Mani himself!",
+        ARCHIVE_RESONATOR_ITEM = "Tis the machine from my vision.",
+
+        ARCHIVE_LOCKBOX_DISPENCER = {
+          POWEROFF = "This place has been long forgotten.",
+          GENERIC =  "Reveal thine secrets to me, O strange machine!",
+        },
+
+        ARCHIVE_SECURITY_DESK = {
+            POWEROFF = "It is at rest.",
+            GENERIC = "It guards these halls.",
+        },
+
+        ARCHIVE_SECURITY_PULSE = "Where are you going, O will-o'-wisp?",
+
+        ARCHIVE_SWITCH = {
+            VALID = "This one has been given an offering.",
+            GEMS = "It requires an offering.",
+        },
+
+        ARCHIVE_PORTAL = {
+            POWEROFF = "Another gate betwixt worlds?",
+            GENERIC = "If it is a gate, it hath been firmly shut.",
+        },
+
+        WALL_STONE_2 = "My enemies will dash themselves on these rocks.",
+        WALL_RUINS_2 = "Nigh impenetrable.",
+
+        REFINED_DUST = "The dust hath been forged into a solid block.",
+        DUSTMERINGUE = "This food is not fit for a warrior, it's fit for the floor!",
+
+        SHROOMCAKE = "A Viking would never stoop to eat such an unworthy thing.",
+
+        NIGHTMAREGROWTH = "The very ground hath split and released nightmares upon us!",
+
+        TURFCRAFTINGSTATION = "The very ground shall heed my will!",
+
+        MOON_ALTAR_LINK = "What have we summoned forth?",
     },
 
     DESCRIBE_GENERIC = "It is an artifact of this realm.",

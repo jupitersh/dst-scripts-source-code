@@ -47,6 +47,9 @@ local AMBIENT_SOUNDS =
     [GROUND.FUNGUS] = { sound = "dontstarve/AMB/caves/fungus_forest" },
     [GROUND.FUNGUSRED] = { sound = "dontstarve/AMB/caves/fungus_forest" },
     [GROUND.FUNGUSGREEN] = { sound = "dontstarve/AMB/caves/fungus_forest" },
+    
+    [GROUND.ARCHIVE] = {sound = "grotto/amb/archive"},
+    [GROUND.FUNGUSMOON] = {sound = "grotto/amb/grotto"},
 
     [GROUND.SINKHOLE] = { sound = "dontstarve/AMB/caves/litcave" },
     [GROUND.UNDERROCK] = { sound = "dontstarve/AMB/caves/main" }, --- rocky
@@ -300,12 +303,17 @@ function self:OnUpdate(dt)
                                 (_seasonmix and soundgroup[SEASON_SOUND_KEY[_seasonmix]]) or
                                 soundgroup.sound
                         local counter = soundmixcounters[sound]
+                        local increment = 1
+                        if sound == AMBIENT_SOUNDS.ABYSS.sound then
+                            increment = 0.5
+                        end
+
                         if counter == nil then
-                            counter = { sound = sound, count = 1 }
+                            counter = { sound = sound, count = increment }
                             soundmixcounters[sound] = counter
                             table.insert(soundmix, counter)
                         else
-                            counter.count = counter.count + 1
+                            counter.count = counter.count + increment
                         end
                     end
                 end

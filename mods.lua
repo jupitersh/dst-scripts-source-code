@@ -22,6 +22,8 @@ AddModReleaseID( "R09_ROT_SALTYDOG" )
 AddModReleaseID( "R09_ROT_HOOKLINEANDINKER" )
 AddModReleaseID( "R11_ROT_SHESELLSSEASHELLS" )
 AddModReleaseID( "R12_ROT_TROUBLEDWATERS" )
+AddModReleaseID( "R13_ROT_FORGOTTENKNOWLEDGE" )
+
 -----------------------------------------------------------------------------------------------
 
 MOD_AVATAR_LOCATIONS = { Default = "images/avatars/" }

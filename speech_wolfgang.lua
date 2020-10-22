@@ -65,9 +65,9 @@ return{
         
 		DISMANTLE =
 		{
-			COOKING = "TODO",
+			COOKING = "Delicious meal must finish first.",
 			INUSE = "Wolfgang would like to use after you, if okay.",
-			NOTEMPTY = "TODO",
+			NOTEMPTY = "Is still filled with things.",
         },
         FISH_OCEAN =
 		{
@@ -97,6 +97,7 @@ return{
             NOTSTAFF = "I do not think little platform would like that.",
             MUSHROOMFARM_NEEDSSHROOM = "Is needing tiny mushy-room, I think.",
             MUSHROOMFARM_NEEDSLOG = "Is needing tiny log with face.",
+            MUSHROOMFARM_NOMOONALLOWED = "Why do the mushy-rooms not grow?",
             SLOTFULL = "Something is already put!",
             FOODFULL = "It must enjoy first yummy food from Wolfgang first!",
             NOTDISH = "Wolfgang serves only best dishes!",
@@ -503,12 +504,14 @@ return{
     ANNOUNCE_ATTACH_BUFF_PLAYERABSORPTION  = "Ha! Wimpy blows bounce right off Wolfgang!",
     ANNOUNCE_ATTACH_BUFF_WORKEFFECTIVENESS = "You watch, let Wolfgang take care of this!",
     ANNOUNCE_ATTACH_BUFF_MOISTUREIMMUNITY  = "Water will not bother Wolfgang!",
+    ANNOUNCE_ATTACH_BUFF_SLEEPRESISTANCE   = "Wolfgang mightier than the sleepytimes!",
     
     ANNOUNCE_DETACH_BUFF_ELECTRICATTACK    = "Lightning magic gone.",
     ANNOUNCE_DETACH_BUFF_ATTACK            = "Wolfgang still strong! Just little less strong!",
     ANNOUNCE_DETACH_BUFF_PLAYERABSORPTION  = "Wolfgang will need new defensive strategy.",
     ANNOUNCE_DETACH_BUFF_WORKEFFECTIVENESS = "Time for little break.",
     ANNOUNCE_DETACH_BUFF_MOISTUREIMMUNITY  = "Feels damp... Wolfgang hope not to catch cold.",
+    ANNOUNCE_DETACH_BUFF_SLEEPRESISTANCE   = "Wolfgang feeling like he could use a little nap soon.",
     
 	ANNOUNCE_OCEANFISHING_LINESNAP = "Fish was too mighty for weak little string.",
 	ANNOUNCE_OCEANFISHING_LINETOOLOOSE = "Wolfgang must reel in faster!",
@@ -580,6 +583,10 @@ return{
 --fallback to speech_wilson.lua     ANNOUNCE_NOINSPIRATION = "only_used_by_wathgrithr",
 --fallback to speech_wilson.lua     ANNOUNCE_BATTLESONG_INSTANT_TAUNT_BUFF = "only_used_by_wathgrithr",
 --fallback to speech_wilson.lua     ANNOUNCE_BATTLESONG_INSTANT_PANIC_BUFF = "only_used_by_wathgrithr",
+
+    ANNOUNCE_ARCHIVE_NEW_KNOWLEDGE = "Wolfgang's brain full of strange pictures!",
+    ANNOUNCE_ARCHIVE_OLD_KNOWLEDGE = "Wolfgang has seen these brain pictures already.",
+    ANNOUNCE_ARCHIVE_NO_POWER = "Not sure what Wolfgang was expecting.",
 
 	BATTLECRY =
 	{
@@ -1104,6 +1111,8 @@ return{
 
 		TURF_CAVE="Step stones.",
 		TURF_FUNGUS="Step stones.",
+		TURF_FUNGUS_MOON = "Step stones.",
+		TURF_ARCHIVE = "Step stones.",
 		TURF_SINKHOLE="Step stones.",
 		TURF_UNDERROCK="Step stones.",
 		TURF_MUD="Step stones.",
@@ -1422,7 +1431,7 @@ return{
 		COOKEDMANDRAKE = "Little plant man is food?",
 		COOKEDMEAT = "I made meat good with fire!",
 		COOKEDMONSTERMEAT = "I still do not want to eat this.",
-		COOKEDSMALLMEAT = "It is even smaller cooked!",
+		COOKEDSMALLMEAT = "It is even smaller cooked!",        
 		COOKPOT =
 		{
 			COOKING_LONG = "This take long time.",
@@ -3091,6 +3100,10 @@ return{
         MOON_ALTAR_CROWN = "Wolfgang will help you!",
         MOON_ALTAR_COSMIC = "Such loud whisperings. Make head hurt.",
 
+        MOON_ALTAR_ASTRAL = "Seems happy now, Wolfgang thinks.",
+        MOON_ALTAR_ICON = "Wolfgang will carry you most mightily!",
+        MOON_ALTAR_WARD = "Is not so heavy, Wolfgang will carry as far as you need!",        
+
         SEAFARING_PROTOTYPER =
         {
             GENERIC = "Wolfgang need help thinking on scary water.",
@@ -3133,6 +3146,7 @@ return{
 		KELP_DRIED = "Little sea flakes make Wolfgang grow strong!",
 
 		GESTALT = "Wolfgang's brainmeats have never been so mighty!",
+        GESTALT_GUARD = "As long as they fight scary shadow, Wolfgang is happy.",
 
 		COOKIECUTTER = "Fish has strangely punchable face...",
 		COOKIECUTTERSHELL = "Tough, but not as tough as Wolfgang!",
@@ -3510,6 +3524,95 @@ return{
         LEAFYMEATBURGER = "Wolfgang want to eat cow, not eat LIKE cow.",
         LEAFYMEATSOUFFLE = "Jiggly!",
         MEATYSALAD = "Need more than weird leaves to fill Wolfgang's mighty belly!",
+
+        -- GROTTO
+
+		MOLEBAT = "Sniffer Rat has weak and puny wings! This makes Wolfgang laugh!",
+        MOLEBATHILL = "Is mushy, stinky home.",
+
+        BATNOSE = "Is naked? Wolfgang will look away.",
+        BATNOSE_COOKED = "Nose has been toasted.",
+        BATNOSEHAT = "Wolfgang likes funny milk hat!",
+
+        MUSHGNOME = "Little mushy man.",
+
+        SPORE_MOON = "Make big noise for tiny puff.",
+
+        MOON_CAP = "Wolfgang tired of mushrooms.",
+        MOON_CAP_COOKED = "It is changed.",
+
+        MUSHTREE_MOON = "Mushy tree.",
+
+        LIGHTFLIER = "Please stay close to Wolfgang.",
+
+        GROTTO_POOL_BIG = "Wolfgang would like to swim, but too much glass in the way.",
+        GROTTO_POOL_SMALL = "Even tiny pond is full of glass.",
+
+        DUSTMOTH = "Bushy beardy bug.",
+
+        DUSTMOTHDEN = "Is cozy home for moths.",
+
+        ARCHIVE_LOCKBOX = "Strange box puzzles Wolfgang...",
+        ARCHIVE_CENTIPEDE = "Metal bug is angry.",
+        ARCHIVE_CENTIPEDE_HUSK = "Is big pile of junk.",
+
+        ARCHIVE_COOKPOT =
+        {
+            COOKING_LONG = "This take long time.",
+            COOKING_SHORT = "Is almost cook!",
+            DONE = "Is time to eat!",
+            EMPTY = "Is dusty old pot.",
+            BURNT = "Pot is dead.",
+        },
+
+        ARCHIVE_MOON_STATUE = "Ha! Wolfgang could carry big rock all by himself!",
+        ARCHIVE_RUNE_STATUE = 
+        {
+            LINE_1 = "Is nice statue, but is covered in scribblemarks.",
+            LINE_2 = "Very fancy.",
+            LINE_3 = "Is nice statue, but is covered in scribblemarks.",
+            LINE_4 = "Very fancy.",
+            LINE_5 = "Is nice statue, but is covered in scribblemarks.",
+        },        
+
+        ARCHIVE_RESONATOR = "Will show the way to... something.",
+        ARCHIVE_RESONATOR_ITEM = "Is magic or science, Wolfgang not picky.",
+
+        ARCHIVE_LOCKBOX_DISPENCER = {
+          POWEROFF = "Silly machine does nothing.",
+          GENERIC =  "Buttons for Wolfgang to mash mightily!",
+        },
+
+        ARCHIVE_SECURITY_DESK = {
+            POWEROFF = "Seems fine to Wolfgang.",
+            GENERIC = "Wolfgang was wrong, is very bad.",
+        },
+
+        ARCHIVE_SECURITY_PULSE = "Where you going? Wolfgang will follow!",
+
+        ARCHIVE_SWITCH = {
+            VALID = "There is strange hum coming from underneath.",
+            GEMS = "Fancy pillar is empty. Too bad.",
+        },
+
+        ARCHIVE_PORTAL = {
+            POWEROFF = "Is another door?",
+            GENERIC = "Maybe is just pretty floor.",
+        },
+
+        WALL_STONE_2 = "Wall is strong like me!",
+        WALL_RUINS_2 = "Old wall is strong!",
+
+        REFINED_DUST = "Is strong dust! Very strong!",
+        DUSTMERINGUE = "Wolfgang will leave that for someone else to eat.",
+
+        SHROOMCAKE = "Wolfgang will eat whole cake!",
+
+        NIGHTMAREGROWTH = "Wolfgang feels chill crawling up mighty spine...",
+
+        TURFCRAFTINGSTATION = "Wolfgang will crush up dirt and turn into new dirt!",
+
+        MOON_ALTAR_LINK = "Maybe little light ball needs time to get mightier?",
     },
 
     DESCRIBE_GENERIC = "What is this thing?",

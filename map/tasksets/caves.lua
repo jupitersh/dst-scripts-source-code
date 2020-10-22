@@ -12,8 +12,11 @@ AddTaskSet("cave_default", {
         "RockyLand",
         "RedForest",
         "GreenForest",
-        "BlueForest",
+        "BlueForest",        
         "SpillagmiteCaverns",
+
+        "MoonCaveForest",
+        "ArchiveMaze",
 
         "CaveExitTask1",
         "CaveExitTask2",

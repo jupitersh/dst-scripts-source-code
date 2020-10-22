@@ -46,4 +46,8 @@ function TransparentOnSanity:OnUpdate(dt)
     end
 end
 
+function TransparentOnSanity:GetDebugString()
+	return "alpha = "..self.alpha
+end
+
 return TransparentOnSanity

@@ -86,7 +86,8 @@ local function dostew(inst, self)
             self.onspoil(inst)
         end
     elseif self.product ~= nil then
-        local prep_perishtime = cooking.GetRecipe(inst.prefab, self.product).perishtime or 0
+        local recipe = cooking.GetRecipe(inst.prefab, self.product)
+        local prep_perishtime = (recipe ~= nil and (recipe.cookpot_perishtime or recipe.perishtime)) or 0
         if prep_perishtime > 0 then
 			local prod_spoil = self.product_spoilage or 1
 			self.spoiltime = prep_perishtime * prod_spoil

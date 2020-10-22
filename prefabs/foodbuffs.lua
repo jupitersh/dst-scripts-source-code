@@ -102,6 +102,18 @@ local function electric_detach(inst, target)
     end
 end
 
+local function sleepless_attach(inst, target)
+    if target.components.grogginess ~= nil then
+        target.components.grogginess:AddResistanceSource(inst, TUNING.SLEEPRESISTBUFF_VALUE)
+    end
+end
+
+local function sleepless_detach(inst, target)
+    if target.components.grogginess ~= nil then
+        target.components.grogginess:RemoveResistanceSource(inst)
+    end
+end
+
 -------------------------------------------------------------------------
 ----------------------- Prefab building functions -----------------------
 -------------------------------------------------------------------------
@@ -183,4 +195,5 @@ return MakeBuff("attack", attack_attach, nil, attack_detach, TUNING.BUFF_ATTACK_
        MakeBuff("playerabsorption", playerabsorption_attach, nil, playerabsorption_detach, TUNING.BUFF_PLAYERABSORPTION_DURATION, 1),
        MakeBuff("workeffectiveness", work_attach, nil, work_detach, TUNING.BUFF_WORKEFFECTIVENESS_DURATION, 1),
        MakeBuff("moistureimmunity", moisture_attach, nil, moisture_detach, TUNING.BUFF_MOISTUREIMMUNITY_DURATION, 2),
-       MakeBuff("electricattack", electric_attach, electric_extend, electric_detach, TUNING.BUFF_ELECTRICATTACK_DURATION, 2, { "electrichitsparks", "electricchargedfx" })
+       MakeBuff("electricattack", electric_attach, electric_extend, electric_detach, TUNING.BUFF_ELECTRICATTACK_DURATION, 2, { "electrichitsparks", "electricchargedfx" }),
+       MakeBuff("sleepresistance", sleepless_attach, nil, sleepless_detach, TUNING.SLEEPRESISTBUFF_TIME, 2)

@@ -190,7 +190,7 @@ local function OnEntityWake(inst)
     end
 end
 
-local function Make(name, build, lightcolour, fxname)
+local function Make(name, build, lightcolour, fxname, masterinit)
     local assets =
     {
         Asset("ANIM", "anim/"..build..".zip"),
@@ -258,11 +258,28 @@ local function Make(name, build, lightcolour, fxname)
         inst.OnEntityWake = OnEntityWake
         inst.OnEntitySleep = OnEntitySleep
 
+		if masterinit ~= nil then
+			masterinit(inst)
+		end
+
         return inst
     end
 
     return Prefab(name, fn, assets, prefabs)
 end
 
+local function grottowar_onchildspawned(inst, child)
+	if child.components.knownlocations ~= nil then
+		child.components.knownlocations:RememberLocation("war_home", inst.components.knownlocations:GetLocation("war_home"))
+	end
+end
+
+local function grottowar_masterinit(inst)
+	inst:AddComponent("knownlocations")
+	inst.components.childspawner:SetSpawnedFn(grottowar_onchildspawned)
+end
+
 return Make("fissure", "nightmare_crack_upper", upperLightColour, "upper_nightmarefissurefx"),
-    Make("fissure_lower", "nightmare_crack_ruins", lowerLightColour, "nightmarefissurefx")
+    Make("fissure_lower", "nightmare_crack_ruins", lowerLightColour, "nightmarefissurefx"),
+    Make("fissure_grottowar", "fissure_grottowar", upperLightColour, "fissure_grottowarfx", grottowar_masterinit)
+

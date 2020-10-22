@@ -21,4 +21,8 @@ function WinchTarget:Salvage()
     return self.salvagefn ~= nil and self.salvagefn(self.inst) or nil
 end
 
+function WinchTarget:GetSunkenObject()
+    return self.inst.components.inventory ~= nil and self.inst.components.inventory:GetItemInSlot(1)
+end
+
 return WinchTarget

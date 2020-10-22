@@ -1638,15 +1638,17 @@ local function MakeHat(name)
     local function merm_disable(inst)
         local owner = inst.components.inventoryitem and inst.components.inventoryitem.owner
         if owner then
-			if inst.wasmonster then
+			if owner.mermhat_wasmonster then
                 owner:AddTag("monster")
+                owner.mermhat_wasmonster = nil
 			end
-			if inst.notamerm then
+			if owner.mermhat_notamerm then
                 owner:RemoveTag("merm")
 	            owner:RemoveTag("mermdisguise")
 				if owner.components.leader then
 					owner.components.leader:RemoveFollowersByTag("merm")
 				end
+                owner.mermhat_notamerm = nil
 			end
 		end
     end
@@ -1656,15 +1658,15 @@ local function MakeHat(name)
         if owner then
 			if owner.components.leader then
 	            owner.components.leader:RemoveFollowersByTag("pig")
-			end
-
+            end
+            
 			if not owner:HasTag("merm") then
-				inst.notamerm = true
+				owner.mermhat_notamerm = true
 	            owner:AddTag("merm")
 	            owner:AddTag("mermdisguise")
 			end
 			if owner:HasTag("monster") then
-				inst.wasmonster = true
+				owner.mermhat_wasmonster = true
 	            owner:RemoveTag("monster")
 			end
         end
@@ -1702,6 +1704,55 @@ local function MakeHat(name)
         inst:AddComponent("perishable")
         inst.components.perishable:SetPerishTime(TUNING.PERISH_FAST)
         inst.components.perishable:StartPerishing()
+        inst.components.perishable:SetOnPerishFn(inst.Remove)
+
+        MakeHauntableLaunchAndPerish(inst)
+
+        return inst
+    end
+
+    local function batnose_equip(inst, owner)
+        onequip(inst, owner)
+
+        inst.components.perishable:StartPerishing()
+
+        owner:PushEvent("learncookbookstats", inst.prefab)
+        if owner.components.debuffable ~= nil then
+            owner.components.debuffable:AddDebuff("hungerregenbuff", "hungerregenbuff")
+        end
+    end
+
+    local function batnose_unequip(inst, owner)
+        onunequip(inst, owner)
+
+        inst.components.perishable:StopPerishing()
+
+        if owner.components.debuffable ~= nil then
+            owner.components.debuffable:RemoveDebuff("hungerregenbuff")
+        end
+
+        if owner.components.foodmemory ~= nil then
+            owner.components.foodmemory:RememberFood("hungerregenbuff")
+        end
+    end
+
+    local function batnose()
+        local inst = simple()
+
+        inst.components.floater:SetSize("med")
+
+        if not TheWorld.ismastersim then
+            return inst
+        end
+
+        inst.components.equippable.dapperness = -TUNING.DAPPERNESS_TINY
+        inst.components.equippable:SetOnEquip(batnose_equip)
+        inst.components.equippable:SetOnUnequip(batnose_unequip)
+        inst.components.equippable.restrictedtag = "usesvegetarianequipment"
+        inst.components.equippable.refuse_on_restrict = true
+
+        inst:AddComponent("perishable")
+        inst.components.perishable:SetPerishTime(TUNING.BATNOSEHAT_PERISHTIME)
         inst.components.perishable:SetOnPerishFn(inst.Remove)
 
         MakeHauntableLaunchAndPerish(inst)
@@ -1787,6 +1838,9 @@ local function MakeHat(name)
         fn = merm
     elseif name == "cookiecutter" then
         fn = cookiecutter
+    elseif name == "batnose" then
+        fn = batnose
+        prefabs = {"hungerregenbuff"}
     end
 
     return Prefab(prefabname, fn or default, assets, prefabs)
@@ -1852,5 +1906,6 @@ return  MakeHat("straw"),
         MakeHat("skeleton"),
         MakeHat("kelp"),
         MakeHat("merm"),
- 		MakeHat("cookiecutter"),
+        MakeHat("cookiecutter"),
+        MakeHat("batnose"),
         Prefab("minerhatlight", minerhatlightfn)

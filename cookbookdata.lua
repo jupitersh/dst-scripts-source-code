@@ -115,7 +115,7 @@ function CookbookData:LearnFoodStats(product)
 	end
 
 	if updated and self.save_enabled then
-		if not cooking.IsModCookerFood(product) then
+		if not cooking.IsModCookerFood(product) and not TheNet:IsDedicated() then
 			TheInventory:SetCookbookValue(product, EncodeCookbookEntry(preparedfood))
 		end
 		self:Save(true)
@@ -178,7 +178,7 @@ function CookbookData:AddRecipe(product, ingredients)
 	end
 
 	if updated and self.save_enabled then
-		if not cooking.IsModCookerFood(product) then
+		if not cooking.IsModCookerFood(product) and not TheNet:IsDedicated() then
 			TheInventory:SetCookbookValue(product, EncodeCookbookEntry(preparedfood))
 		end
 		self:Save(true)

@@ -411,6 +411,7 @@ local function RegisterMasterEventListeners(inst)
 
 	--Cookbook events
     inst:ListenForEvent("learncookbookrecipe", ex_fns.OnLearnCookbookRecipe)
+    inst:ListenForEvent("learncookbookstats", ex_fns.OnLearnCookbookStats)
     inst:ListenForEvent("oneat", ex_fns.OnEat)
 end
 
@@ -1514,6 +1515,7 @@ local function MakePlayerCharacter(name, customprefabs, customassets, common_pos
         inst:AddTag("lightningtarget")
         inst:AddTag(UPGRADETYPES.WATERPLANT.."_upgradeuser")
         inst:AddTag(UPGRADETYPES.MAST.."_upgradeuser")
+        inst:AddTag("usesvegetarianequipment")
 
 		SetInstanceFunctions(inst)
 
@@ -1540,7 +1542,7 @@ local function MakePlayerCharacter(name, customprefabs, customassets, common_pos
 
         inst:AddComponent("playervision")
         inst:AddComponent("areaaware")
-        inst.components.areaaware:SetUpdateDist(2)
+        inst.components.areaaware:SetUpdateDist(.45)
 
         inst:AddComponent("attuner")
         --attuner server listeners are not registered until after "ms_playerjoined" has been pushed
@@ -1591,17 +1593,15 @@ local function MakePlayerCharacter(name, customprefabs, customassets, common_pos
         inst._winters_feast_music = net_event(inst.GUID, "localplayer._winters_feast_music")
         inst._hermit_music = net_event(inst.GUID, "localplayer._hermit_music")
 
-
         if not TheNet:IsDedicated() then
             inst:ListenForEvent("localplayer._winters_feast_music", OnWintersFeastMusic)
             inst:ListenForEvent("localplayer._hermit_music", OnHermitMusic)
         end
 
-        inst.entity:SetPristine()
-
         inst:ListenForEvent("sharksounddirty", OnSharkSound)
-        
-        if not TheWorld.ismastersim then    
+
+        inst.entity:SetPristine()
+        if not TheWorld.ismastersim then
             return inst
         end
 

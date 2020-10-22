@@ -549,10 +549,14 @@ GROUND =
 	METEOR = 43,
     SHELLBEACH = 44,
 
+    ARCHIVE = 45,
+    FUNGUSMOON = 46,
+
 	-- PUBLIC USE SPACE FOR MODS is 70 to 89 --
 
-    --NOISE
-	METEORMINE_NOISE = 121, -- TODO: move noise tile range to > 255
+    --NOISE -- from 110 to 127 -- TODO: move noise tile range to > 255
+	FUNGUSMOON_NOISE = 120,
+	METEORMINE_NOISE = 121,
 	METEORCOAST_NOISE = 122,
     DIRT_NOISE = 123,
 	ABYSS_NOISE = 124,
@@ -618,7 +622,7 @@ SPECIAL_EVENTS =
     YOTP = "year_of_the_pig",
     YOTC = "year_of_the_carrat",
 }
-WORLD_SPECIAL_EVENT = SPECIAL_EVENTS.NONE
+WORLD_SPECIAL_EVENT = SPECIAL_EVENTS.HALLOWED_NIGHTS
 
 FESTIVAL_EVENTS =
 {
@@ -840,8 +844,8 @@ end
 FE_MUSIC =
     (FESTIVAL_EVENT_MUSIC[WORLD_FESTIVAL_EVENT] ~= nil and FESTIVAL_EVENT_MUSIC[WORLD_FESTIVAL_EVENT].sound) or
     (SPECIAL_EVENT_MUSIC[WORLD_SPECIAL_EVENT] ~= nil and SPECIAL_EVENT_MUSIC[WORLD_SPECIAL_EVENT].sound) or
-    "dontstarve_DLC001/music/music_wigfrid_FE"
-    --"dontstarve/music/music_FE"
+   -- "dontstarve_DLC001/music/music_wigfrid_FE"
+    "dontstarve/music/music_FE"
 
 
 ---------------------------------------------------------
@@ -896,6 +900,8 @@ TECH =
 	HERMITCRABSHOP_THREE = { HERMITCRABSHOP = 3 },
 	HERMITCRABSHOP_FIVE = { HERMITCRABSHOP = 5 },
     HERMITCRABSHOP_SEVEN = { HERMITCRABSHOP = 7 },
+
+    TURFCRAFTING_ONE = { TURFCRAFTING = 1 },
 
 	WINTERSFEASTCOOKING_ONE = { WINTERSFEASTCOOKING = 1 },
 
@@ -1109,7 +1115,8 @@ RECIPETABS =
     FOODPROCESSING =		{ str = "FOODPROCESSING",		sort = 100, icon = "tab_foodprocessing.tex",	crafting_station = true },
 	FISHING =				{ str = "FISHING",				sort = 100, icon = "tab_fishing.tex",			crafting_station = true },
 	WINTERSFEASTCOOKING =	{ str = "WINTERSFEASTCOOKING",	sort = 100, icon = "tab_feast_oven.tex",		crafting_station = true },
-	HERMITCRABSHOP =		{ str = "HERMITCRABSHOP",		sort = 100, icon = "tab_hermitcrab_shop.tex",	crafting_station = true, shop = true},
+    HERMITCRABSHOP =		{ str = "HERMITCRABSHOP",		sort = 100, icon = "tab_hermitcrab_shop.tex",	crafting_station = true, shop = true},
+    TURFCRAFTING =		    { str = "TURFCRAFTING", 		sort = 100, icon = "tab_turfcrafting.tex",      crafting_station = true, icon_atlas = "images/hud2.xml" },
 }
 
 CUSTOM_RECIPETABS =
@@ -1400,10 +1407,7 @@ VIBRATION_BLOOD_OVER = 2
 
 NUM_SKIN_PRESET_SLOTS = 10
 
---V2C: NUM_DST_SAVE_SLOTS is totally redundant...
---     Not sure why it was added, but keeping it around in case mods are using it
---     SaveGameIndex:GetNumSlots() for ALL save data, e.g. maintain session cache
---     Use NUM_SAVE_SLOTS for logic on ONLY accessible save data, e.g. FE screens
+--Neither of these are used anymore, kept here only for mods.
 NUM_SAVE_SLOTS = 5
 NUM_DST_SAVE_SLOTS = NUM_SAVE_SLOTS
 
@@ -1655,6 +1659,31 @@ TROPHYSCALE_TYPES =
 	FISH = "fish",
 }
 
+NAUGHTY_VALUE =
+{
+    ["pigman"] = 3,
+    ["babybeefalo"] = 6,
+    ["teenbird"] = 2,
+    ["smallbird"] = 6,
+    ["beefalo"] = 4,
+    ["deer"] = 4,
+    ["crow"] = 1,
+    ["robin"] = 2,
+    ["robin_winter"] = 2,
+    ["canary"] = 2,
+    ["butterfly"] = 1,
+    ["moonbutterfly"] = 1,
+    ["rabbit"] = 1,
+    ["mole"] = 1,
+    ["tallbird"] = 2,
+    ["bunnyman"] = 3,
+    ["penguin"] = 2,
+    ["glommer"] = 50, -- You've been bad!
+    ["catcoon"] = 5,
+    ["lightflier"] = 1,
+    ["dustmoth"] = 4,
+}
+
 DONT_STARVE_TOGETHER_APPID = 322330
 DONT_STARVE_APPID = 219740
 REIGN_OF_GIANTS_APPID = 282470
@@ -1843,8 +1872,8 @@ LEVELTYPE = {
 
 SERVER_LEVEL_LOCATIONS =
 {
-    "forest",
     "cave",
+    "forest",
 }
 
 EVENTSERVER_LEVEL_LOCATIONS =

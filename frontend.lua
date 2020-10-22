@@ -1092,7 +1092,12 @@ function FrontEnd:OnSaveLoadError(operation, filename, status)
             local function OnProfileLoaded(success)
                 --print("OnProfileLoaded", success)
                 if success then
-                    SaveGameIndex:Load(OnSaveGameIndexLoaded)
+                    
+                    SaveGameIndex:Load(function()
+                        ShardSaveGameIndex:Load(function()
+                            ShardGameIndex:Load(OnSaveGameIndexLoaded)
+                        end)
+                    end)
                 end
             end
 

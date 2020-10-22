@@ -250,6 +250,7 @@ local function ExchangeWithTerrorBeak(inst)
                 shadow.Transform:SetPosition(sx,sy,sz)
                 shadow.sg:GoToState("appear")
                 shadow.components.combat:SetTarget(target)
+                TheWorld:PushEvent("ms_exchangeshadowcreature", {ent = inst, exchangedent = shadow})
                 local fx = SpawnPrefab("shadow_teleport_in") 
                 fx.Transform:SetPosition(sx,sy,sz)
             end

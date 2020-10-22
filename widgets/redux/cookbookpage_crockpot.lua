@@ -130,6 +130,10 @@ end
 local ingredient_icon_remap = {}
 ingredient_icon_remap.onion = "quagmire_onion"
 ingredient_icon_remap.tomato = "quagmire_tomato"
+ingredient_icon_remap.acorn = "acorn_cooked"
+
+local ingredient_name_remap = {}
+ingredient_name_remap.acorn = "acorn_cooked"
 
 function CookbookPageCrockPot:_SetupRecipeIngredientDetails(recipes, parent, y)
 	local ingredient_size = 30
@@ -154,7 +158,7 @@ function CookbookPageCrockPot:_SetupRecipeIngredientDetails(recipes, parent, y)
 
 				img:ScaleToSize(ingredient_size, ingredient_size)
 				img:SetPosition(backing:GetPosition())
-				img:SetHoverText(STRINGS.NAMES[string.upper(items[i])] or subfmt(STRINGS.UI.COOKBOOK.UNKNOWN_INGREDIENT_NAME, {ingredient = items[i]}))
+				img:SetHoverText(STRINGS.NAMES[string.upper(ingredient_name_remap[items[i]] or items[i])] or subfmt(STRINGS.UI.COOKBOOK.UNKNOWN_INGREDIENT_NAME, {ingredient = items[i]}))
 			end
 			index = index + 1
 		end
@@ -610,6 +614,7 @@ function CookbookPageCrockPot:ApplyFilters()
 			or (filterby == FOODTYPE.VEGGIE		and foodtype == FOODTYPE.VEGGIE)
 			or (filterby == "OTHER"				and foodtype ~= FOODTYPE.MEAT and foodtype ~= FOODTYPE.VEGGIE)
 			or (filterby == "SIDEEFFECTS"		and (item.recipe_def.oneat_desc ~= nil or item.recipe_def.temperature ~= nil))
+			or (filterby == "INCOMPLETE"		and (item.recipes == nil or not item.has_eaten))
 			then
 
 			table.insert(self.filtered_recipes, item)
@@ -644,6 +649,7 @@ function CookbookPageCrockPot:BuildSpinners()
 		{text = STRINGS.UI.COOKBOOK.FILTER_VEGGIE,		data = FOODTYPE.VEGGIE},
 		{text = STRINGS.UI.COOKBOOK.FILTER_OTHER,		data = "OTHER"},
 		{text = STRINGS.UI.COOKBOOK.FILTER_SIDE_EFFECTS,data = "SIDEEFFECTS"},
+		{text = STRINGS.UI.COOKBOOK.FILTER_INCOMPLETE  ,data = "INCOMPLETE"},
 	}
 	local function on_filter_fn( data )
 		TheCookbook:SetFilter("filter", data)

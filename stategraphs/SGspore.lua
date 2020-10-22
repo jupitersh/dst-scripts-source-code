@@ -58,6 +58,7 @@ local states=
             EventHandler("animover", function(inst) inst:Remove() end)
         },
     },
+
     State{
         name = "idle",
         tags = {"idle", "canrotate"},
@@ -91,7 +92,7 @@ local states=
         events=
         {
             EventHandler("animover", function(inst)
-				inst.sg:GoToState("land_idle")
+                inst.sg:GoToState("land_idle")
             end),
         },
     },

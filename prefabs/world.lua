@@ -126,6 +126,8 @@ local prefabs =
     "turf_fungus",
     "turf_fungus_red",
     "turf_fungus_green",
+    "turf_fungus_moon",
+    "turf_archive",
     "turf_sinkhole",
     "turf_underrock",
     "turf_mud",
@@ -332,6 +334,8 @@ function MakeWorld(name, customprefabs, customassets, common_postinit, master_po
 
         --Initialize map
         for i, data in ipairs(GroundTiles.ground) do
+			data[2]._render_layer = i
+
             local tile_type, props = unpack(data)
             local layer_name = props.name
             local handle = MapLayerManager:CreateRenderLayer(

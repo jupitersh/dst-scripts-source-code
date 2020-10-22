@@ -65,9 +65,9 @@ return{
         
 		DISMANTLE =
 		{
-			COOKING = "TODO",
+			COOKING = "Mother warned me not to touch a pot while it's cooking.",
 			INUSE = "Someone's in there.",
-			NOTEMPTY = "TODO",
+			NOTEMPTY = "It isn't empty inside, unlike me.",
         },
         FISH_OCEAN =
 		{
@@ -97,6 +97,7 @@ return{
             NOTSTAFF = "That's not the right thing...",
             MUSHROOMFARM_NEEDSSHROOM = "It doesn't need that. It needs a mushroom.",
             MUSHROOMFARM_NEEDSLOG = "It doesn't need that. It needs a magic log.",
+            MUSHROOMFARM_NOMOONALLOWED = "They won't survive here.",
             SLOTFULL = "There's no room...",
             FOODFULL = "It hasn't yet eaten our last sacrifice...",
             NOTDISH = "That may not be best...",
@@ -502,12 +503,14 @@ return{
     ANNOUNCE_ATTACH_BUFF_PLAYERABSORPTION  = "My pain has been dulled, for the moment.",
     ANNOUNCE_ATTACH_BUFF_WORKEFFECTIVENESS = "I suppose I might as well make myself useful.",
     ANNOUNCE_ATTACH_BUFF_MOISTUREIMMUNITY  = "At least I'll stay dry through my misery.",
+    ANNOUNCE_ATTACH_BUFF_SLEEPRESISTANCE   = "If Abigail cannot rest, I won't either.",
     
     ANNOUNCE_DETACH_BUFF_ELECTRICATTACK    = "The storm has passed.",
     ANNOUNCE_DETACH_BUFF_ATTACK            = "My strength is fading.",
     ANNOUNCE_DETACH_BUFF_PLAYERABSORPTION  = "Ah. It couldn't last.",
     ANNOUNCE_DETACH_BUFF_WORKEFFECTIVENESS = "It seems my zeal was short-lived.",
     ANNOUNCE_DETACH_BUFF_MOISTUREIMMUNITY  = "Once more I'm left defenseless against the elements.",
+    ANNOUNCE_DETACH_BUFF_SLEEPRESISTANCE   = "I'm sorry... I'm getting so tired...",
     
 	ANNOUNCE_OCEANFISHING_LINESNAP = "Ah. Predictable.",
 	ANNOUNCE_OCEANFISHING_LINETOOLOOSE = "My line is too loose.",
@@ -583,6 +586,10 @@ return{
 --fallback to speech_wilson.lua     ANNOUNCE_NOINSPIRATION = "only_used_by_wathgrithr",
 --fallback to speech_wilson.lua     ANNOUNCE_BATTLESONG_INSTANT_TAUNT_BUFF = "only_used_by_wathgrithr",
 --fallback to speech_wilson.lua     ANNOUNCE_BATTLESONG_INSTANT_PANIC_BUFF = "only_used_by_wathgrithr",
+
+    ANNOUNCE_ARCHIVE_NEW_KNOWLEDGE = "It's filling my head with plans...",
+    ANNOUNCE_ARCHIVE_OLD_KNOWLEDGE = "You already showed me this one.",
+    ANNOUNCE_ARCHIVE_NO_POWER = "I suppose it's long dead.",
 
 	BATTLECRY =
 	{
@@ -1107,6 +1114,8 @@ return{
 
 		TURF_CAVE="Some ground.",
 		TURF_FUNGUS="Some ground.",
+		TURF_FUNGUS_MOON = "Some ground.",
+		TURF_ARCHIVE = "Some ground.",
 		TURF_SINKHOLE="Some ground.",
 		TURF_UNDERROCK="Some ground.",
 		TURF_MUD="Some ground.",
@@ -1425,7 +1434,7 @@ return{
 		COOKEDMANDRAKE = "It was a good death. You will be delicious.",
 		COOKEDMEAT = "The remaining blood has been cooked away.",
 		COOKEDMONSTERMEAT = "Cooked evil is still evil.",
-		COOKEDSMALLMEAT = "Fire has purified it.",
+		COOKEDSMALLMEAT = "Fire has purified it.",        
 		COOKPOT =
 		{
 			COOKING_LONG = "Whatever's in there isn't dead yet.",
@@ -3094,6 +3103,10 @@ return{
         MOON_ALTAR_CROWN = "You're safe now.",
         MOON_ALTAR_COSMIC = "The whispers... are getting louder...",
 
+        MOON_ALTAR_ASTRAL = "You are whole again.",
+        MOON_ALTAR_ICON = "I will take you to your final resting place.",
+        MOON_ALTAR_WARD = "So lost and alone... my sister and I will help you.",        
+
         SEAFARING_PROTOTYPER =
         {
             GENERIC = "Thinking on the waves makes me nauseous.",
@@ -3136,6 +3149,7 @@ return{
 		KELP_DRIED = "We took it out of the ocean, then took the ocean out of it.",
 
 		GESTALT = "I can feel their fear and loneliness.",
+        GESTALT_GUARD = "I don't think they want us here.",
 
 		COOKIECUTTER = "Their faces are twisted with hunger.",
 		COOKIECUTTERSHELL = "All that remains of its former occupant.",
@@ -3513,6 +3527,95 @@ return{
         LEAFYMEATBURGER = "It's drab and flavorless...",
         LEAFYMEATSOUFFLE = "Oh. I thought it was dessert...",
         MEATYSALAD = "This salad tastes strange...",
+
+        -- GROTTO
+
+		MOLEBAT = "Nature has played a cruel joke on this creature.",
+        MOLEBATHILL = "Abigail keeps daring me to touch it...",
+
+        BATNOSE = "It won't be bothering us anymore.",
+        BATNOSE_COOKED = "It doesn't look more appetizing now.",
+        BATNOSEHAT = "This feels silly.",
+
+        MUSHGNOME = "It's so... bouncy.",
+
+        SPORE_MOON = "Pop goes the weaselly little thing.",
+
+        MOON_CAP = "It took nourishment from dead things, now its death will nourish me.",
+        MOON_CAP_COOKED = "All is malleable.",
+
+        MUSHTREE_MOON = "Curiouser and curiouser.",
+
+        LIGHTFLIER = "A small spot of light in the darkness... waiting to be snuffed out.",
+
+        GROTTO_POOL_BIG = "A rare bit of beauty in this dark, dreary place.",
+        GROTTO_POOL_SMALL = "A rare bit of beauty in this dark, dreary place.",
+
+        DUSTMOTH = "They seem to live only to clean. What a tiresome life.",
+
+        DUSTMOTHDEN = "Poor things, their home is no longer safe from us.",
+
+        ARCHIVE_LOCKBOX = "How am I to get it open? Perhaps the key is nearby.",
+        ARCHIVE_CENTIPEDE = "I suppose I'm to be crushed by a bug... an ironic end.",
+        ARCHIVE_CENTIPEDE_HUSK = "It's dead.",
+
+        ARCHIVE_COOKPOT =
+        {
+            COOKING_LONG = "Whatever's in there isn't dead yet.",
+            COOKING_SHORT = "It needs to boil.",
+            DONE = "Finally, food.",
+            EMPTY = "It's covered in dust.",
+            BURNT = "Burnt to a crisp.",
+        },
+
+        ARCHIVE_MOON_STATUE = "This place feels rather like a tomb.",
+        ARCHIVE_RUNE_STATUE = 
+        {
+            LINE_1 = "Words of a dead language.",
+            LINE_2 = "It was important enough to carve into stone, but we'll never know the meaning.",
+            LINE_3 = "What a pity.",
+            LINE_4 = "It was important enough to carve into stone, but we'll never know the meaning.",
+            LINE_5 = "What a pity.",
+        },        
+
+        ARCHIVE_RESONATOR = "All paths lead to suffering.",
+        ARCHIVE_RESONATOR_ITEM = "The ones who designed it are long dead.",
+
+        ARCHIVE_LOCKBOX_DISPENCER = {
+          POWEROFF = "Devoid of life. Like everything in this place.",
+          GENERIC =  "All the knowledge in the world won't bring Abigail back.",
+        },
+
+        ARCHIVE_SECURITY_DESK = {
+            POWEROFF = "There's no life in it.",
+            GENERIC = "How sad... there's nobody left to guard.",
+        },
+
+        ARCHIVE_SECURITY_PULSE = "Where are you going?",
+
+        ARCHIVE_SWITCH = {
+            VALID = "It already has its treasure.",
+            GEMS = "It's not yet whole.",
+        },
+
+        ARCHIVE_PORTAL = {
+            POWEROFF = "It's long dead.",
+            GENERIC = "Not everything can come back so easily.",
+        },
+
+        WALL_STONE_2 = "What will protect me from what's inside?",
+        WALL_RUINS_2 = "These didn't protect the ancients, now did they!", 
+
+        REFINED_DUST = "Dust to... somewhat denser dust.",
+        DUSTMERINGUE = "A treat devoid of sweetness...",
+
+        SHROOMCAKE = "Will it make me grow? Or shrink perhaps? Mushrooms are funny things.",
+
+        NIGHTMAREGROWTH = "Something wicked this way comes.",
+
+        TURFCRAFTINGSTATION = "We can change the very earth beneath our feet, but not the past.",
+
+        MOON_ALTAR_LINK = "Is something hiding in there?",
     },
 
     DESCRIBE_GENERIC = "Sigh... I don't know.",

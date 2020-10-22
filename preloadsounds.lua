@@ -85,6 +85,10 @@ local MainSounds =
     "dangerous_sea.fev",
     "dangerous_sea.fsb",
 
+    "grotto.fev",
+    "grotto_sfx.fsb",
+    "grotto_amb.fsb",
+
     "warly.fsb",
 	"wendy.fsb",
 	"wickerbottom.fsb",

@@ -1,12 +1,16 @@
 local FISH_DATA = require("prefabs/oceanfishdef")
 
 local function AddMember(inst, member)
-    inst:ListenForEvent("entitysleep", function() inst.checkforremoval(inst) end, member)
+    member._schoolherd_entitysleep = function() inst.checkforremoval(inst) end
+    inst:ListenForEvent("entitysleep", member._schoolherd_entitysleep, member)
 end
 
 
 local function RemoveMember(inst, member)
-    inst:RemoveEventCallback("entitysleep", function() inst.checkforremoval(inst) end, member)
+    if member._schoolherd_entitysleep then
+        inst:RemoveEventCallback("entitysleep", member._schoolherd_entitysleep, member)
+        member._schoolherd_entitysleep = nil
+    end
 end
 
 local function _OnUpdate(inst, self)

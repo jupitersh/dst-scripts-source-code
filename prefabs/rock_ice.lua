@@ -139,7 +139,7 @@ local function SetStage(inst, stage, source, snap_to_stage)
 
 	if STAGES[targetstage].isdriedup then
 		if inst.remove_on_dryup then
-			inst.presists = false
+			inst.persists = false
 			if inst:IsAsleep() then
 				inst:Remove()
 			else

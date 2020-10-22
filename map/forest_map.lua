@@ -11,6 +11,7 @@ end
 require "map/terrain"
 require "map/ocean_gen"
 require "map/bunch_spawner"
+require "map/archive_worldgen"
 
 local function pickspawnprefab(items_in, ground_type)
 --	if ground_type == GROUND.ROAD then
@@ -385,6 +386,7 @@ local function Generate(prefab, map_width, map_height, tasks, level, level_type)
 		has_ocean = current_gen_params.has_ocean,
     }
     topology_save.root:SaveEncode({width=map_width, height=map_height}, save.map.topology)
+	WorldSim:CreateNodeIdTileMap(save.map.topology.ids)
     print("Encoding... DONE")
 
     -- TODO: Double check that each of the rooms has enough space (minimimum # tiles generated) - maybe countprefabs + %
@@ -495,7 +497,7 @@ local function Generate(prefab, map_width, map_height, tasks, level, level_type)
    		for task, nodes in pairs(topology_save.GlobalTags["Maze"]) do
 			local maze_tile_size = topology_save.root:GetNodeById(task).maze_tile_size or 8
 	 		local xs, ys, types = WorldSim:GetPointsForMetaMaze(maze_tile_size, nodes)
-			
+
 			if xs ~= nil and #xs >0 then
 				local choices = topology_save.root:GetNodeById(task).maze_tiles
 				local c_x, c_y = WorldSim:GetSiteCentroid(topology_save.GlobalTags["MazeEntrance"][task][1])
@@ -506,8 +508,84 @@ local function Generate(prefab, map_width, map_height, tasks, level, level_type)
 					table.insert(distances, {idx=idx, dist=(centroid - Vector3(xs[idx], ys[idx], 0)):LengthSq()})
 				end
 				table.sort(distances, function(a,b) return a.dist < b.dist end)
+
+				if choices.archive ~= nil then
 				
-				if choices.special ~= nil then
+					local ends = {}
+					for _,d in ipairs(distances) do
+						local maze_room = math.abs(types[d.idx])
+						if maze_room == 1 or maze_room == 2 or maze_room == 4 or maze_room == 8 then
+							table.insert(ends, d.idx)
+						end
+					end
+
+					local choice = math.random(1,#ends)
+					local endidx = ends[choice]
+					table.remove(ends,choice)
+					obj_layout.Place({xs[endidx], ys[endidx]}, MAZE_CELL_EXITS_INV[math.abs(types[endidx])], add_fn, choices.special.finish)
+					
+					choice = math.random(1,#ends)
+					local startidx = ends[choice]
+					obj_layout.Place({xs[startidx], ys[startidx]}, MAZE_CELL_EXITS_INV[math.abs(types[startidx])], add_fn, choices.special.start)
+					
+					local reservedindex = math.random(1,#xs)
+					while reservedindex == endidx or reservedindex == startidx do
+						reservedindex = math.random(1,#xs)
+					end
+
+					for idx = 1,#xs do
+						if idx ~= reservedindex and idx ~= endidx and idx ~= startidx then
+							if types[idx] > 0 then
+								obj_layout.Place({xs[idx], ys[idx]}, MAZE_CELL_EXITS_INV[types[idx] ], add_fn, choices.rooms)
+							else
+								obj_layout.Place({xs[idx], ys[idx]}, MAZE_CELL_EXITS_INV[-types[idx] ], add_fn, choices.bosses)													
+							end
+						end
+					end
+					if choices.archive.keyroom then
+						obj_layout.Place({xs[reservedindex], ys[reservedindex]}, "SINGLE_NORTH", add_fn, choices.archive.keyroom)
+					end
+
+					local closest_index = distances[1].idx
+					local x, y = xs[closest_index], ys[closest_index]
+					local s_x, s_y = WorldSim:GetSite(topology_save.GlobalTags["MazeEntrance"][task][1])
+
+					WorldSim:DrawGroundLine( x, y, s_x, s_y, GROUND.DIRT, true, true) 
+					WorldSim:DrawGroundLine( x+2, y+2, x-2, y-2, GROUND.DIRT, true, true) 
+					WorldSim:DrawGroundLine( x-2, y+2, x+2, y-2, GROUND.DIRT, true, true) 
+
+ 					-- ARCHIVE SEALS 
+					local x_diff = s_x - x
+					local y_diff = s_y - y
+					local incx = (x_diff/2) *TILE_SCALE
+					local incz = (y_diff/2) *TILE_SCALE
+
+					local newx = x
+					local newz = y
+
+					newx = (newx - map_width/2.0)*TILE_SCALE --gjans: note the +1.5 instead of +0.5... RunMaze points are in a strange position.
+					newz = (newz - map_height/2.0)*TILE_SCALE
+
+					if not entities["rubble1"] then
+						entities["rubble1"] = {}
+					end
+					if not entities["rubble2"] then
+						entities["rubble2"] = {}
+					end		
+
+					newx = newx + incx/2 -- /10
+					newz = newz + incz/2 -- /10								
+					table.insert(entities["rubble1"],{ x = newx, z = newz })
+					table.insert(entities["rubble2"],{ x = newx, z = newz })
+--[[
+					--for i=1,10 do
+						newx = newx + incx -- /10
+						newz = newz + incz -- /10
+						table.insert(entities["rubble1"],{ x = newx, z = newz })
+						table.insert(entities["rubble2"],{ x = newx, z = newz })
+					--end				
+	]]				
+				elseif choices.special ~= nil then
 					local ends = {}
 					for _,d in ipairs(distances) do
 						local maze_room = math.abs(types[d.idx])
@@ -530,7 +608,6 @@ local function Generate(prefab, map_width, map_height, tasks, level, level_type)
 					obj_layout.Place({xs[idx], ys[idx]}, MAZE_CELL_EXITS_INV[math.abs(types[idx])], add_fn, choices.special.start)
 					idx = ends[#ends]
 					obj_layout.Place({xs[idx], ys[idx]}, MAZE_CELL_EXITS_INV[math.abs(types[idx])], add_fn, choices.special.finish)
-
 				else
 					types[distances[1].idx] = MAZE_CELL_EXITS.FOUR_WAY
 					for idx = 1,#xs do
@@ -639,6 +716,8 @@ local function Generate(prefab, map_width, map_height, tasks, level, level_type)
   	BunchSpawnerInit(entities, map_width, map_height)
 	BunchSpawnerRun(WorldSim)
 
+	AncientArchivePass(entities, map_width, map_height, WorldSim)
+
     local double_check = {}
     for i, prefab in ipairs(level.required_prefabs or {}) do
         if double_check[prefab] == nil then
@@ -681,7 +760,7 @@ local function Generate(prefab, map_width, map_height, tasks, level, level_type)
 
     save.ents = entities
 
-    save.map.tiles, save.map.nav, save.map.adj = WorldSim:GetEncodedMap(join_islands)
+    save.map.tiles, save.map.nav, save.map.adj, save.map.nodeidtilemap = WorldSim:GetEncodedMap(join_islands)
 
     save.map.topology.overrides = runtime_overrides
     if save.map.topology.overrides == nil then
@@ -750,3 +829,5 @@ return {
 	MULTIPLY = MULTIPLY,
 	TRANSLATE_AND_OVERRIDE = TRANSLATE_AND_OVERRIDE,
 }
+
+

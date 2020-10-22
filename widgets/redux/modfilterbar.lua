@@ -160,6 +160,8 @@ function ModFilterBar:AddSearch()
     searchbox.textbox:EnableScrollEditWindow(true)
     searchbox.textbox:SetHelpTextEdit("")
     searchbox.textbox:SetHelpTextApply(STRINGS.UI.MODSSCREEN.SEARCH)
+    searchbox.textbox:SetTextPrompt(STRINGS.UI.MODSSCREEN.SEARCH, UICOLOURS.GREY)
+    searchbox.textbox.prompt:SetHAlign(ANCHOR_MIDDLE)
     searchbox.textbox.OnTextInputted = function()
         if not self.no_refresh_modstab then
             self.modstab:RefreshModFilter(self:_ConstructFilter())

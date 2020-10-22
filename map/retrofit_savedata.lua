@@ -151,6 +151,14 @@ local function FixNoBrinePools(savedata, world_map)
 	
 end
 
+local function RepopulateNodeIdTileMap(world_map, savedata)
+	for i = 1, #savedata.map.topology.nodes do
+		local node = savedata.map.topology.nodes[i]
+		world_map:RepopulateNodeIdTileMap(i, node.x, node.y, node.poly)
+	end
+	
+	print ("Retrofitting for Return of Them: Forgotten Knowledge - Added Node Id's to the world.")
+end
 
 
 
@@ -186,8 +194,21 @@ local function DoRetrofitting(savedata, world_map)
 		dirty = true
 	end
 
+	if savedata.retrofit_nodeidtilemap then
+		savedata.retrofit_nodeidtilemap = nil
+		RepopulateNodeIdTileMap(world_map, savedata)
+		dirty = true
+	end
+
+	if savedata.retrofit_acientarchives then
+		savedata.retrofit_acientarchives = nil
+		require("map/caves_retrofit_land").ReturnOfThemRetrofitting_AcientArchives(TheWorld.Map, savedata)
+		dirty = true
+	end
+	
 	if dirty then
         savedata.map.tiles = world_map:GetStringEncode()
+		savedata.map.nodeidtilemap = world_map:GetNodeIdTileMapStringEncode()
 
 		-- if we could trigger a save here then we would not need to rest after
 	end

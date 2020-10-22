@@ -746,6 +746,7 @@ STRINGS =
         BEGIN_QUEST = "Assist",
         ABANDON_QUEST = "Abandon",
 
+
         -- Wigfrid
         SING = "Sing",
         QUOTE = "Recite",
@@ -941,6 +942,8 @@ STRINGS =
         TURF_FUNGUS = "Fungal Turf",
         TURF_FUNGUS_RED = "Fungal Turf",
         TURF_FUNGUS_GREEN = "Fungal Turf",
+		TURF_FUNGUS_MOON = "Mutated Fungal Turf",
+		TURF_ARCHIVE = "Ancient Stonework",
         TURF_SINKHOLE = "Slimy Turf",
         TURF_UNDERROCK = "Cave Rock Turf",
         TURF_MUD = "Mud Turf",
@@ -2455,6 +2458,11 @@ STRINGS =
         MOON_ALTAR_COSMIC = "Celestial Tribute",
         MOON_ALTAR_CROWN = "Inactive Celestial Tribute",
 
+        MOON_ALTAR_ASTRAL_WIP = "Partially Assembled Sanctum",
+        MOON_ALTAR_ASTRAL = "Celestial Sanctum",
+        MOON_ALTAR_ICON = "Celestial Sanctum Icon",
+        MOON_ALTAR_WARD = "Celestial Sanctum Ward",
+
         MOON_ALTAR_ROCK_IDOL = "Inviting Formation",
         MOON_ALTAR_ROCK_GLASS = "Inviting Formation",
         MOON_ALTAR_ROCK_SEED = "Inviting Formation",
@@ -2467,6 +2475,7 @@ STRINGS =
         MINIFLARE = "Flare",
 
 		GESTALT = "Gestalt",
+		GESTALT_GUARD = "Greater Gestalt",
 
         CARRAT = "Carrat",
         CARRAT_PLANTED = "Carrot",
@@ -2726,6 +2735,59 @@ STRINGS =
         LEAFYMEATBURGER = "Veggie Burger",
         LEAFYMEATSOUFFLE = "Jelly Salad",
         MEATYSALAD = "Beefy Greens",
+
+        -- GROTTO
+        MOLEBAT = "Naked Mole Bat",
+        MOLEBATHILL = "Naked Mole Bat Burrow",
+        BATNOSE = "Naked Nostrils",
+        BATNOSE_COOKED = "Charred Nostrils",
+        BATNOSEHAT = "Milkmade Hat",
+
+        MUSHGNOME = "Mush Gnome",
+
+        MOON_CAP = "Moon Shroom",
+        MOON_CAP_COOKED = "Cooked Moon Shroom",
+
+        MUSHTREE_MOON = "Lunar Mushtree",
+        SPORE_MOON = "Lunar Spore",
+
+        ARCHIVE_LOCKBOX = "Distilled Knowledge",
+
+        ARCHIVE_CENTIPEDE = "Ancient Sentrypede",
+        ARCHIVE_CENTIPEDE_HUSK = "Sentrypede Husk",
+
+        DUSTMOTH = "Dust Moth",
+        DUSTMOTHDEN = "Tidy Hidey-Hole",
+        LIGHTFLIER = "Bulbous Lightbug",
+
+        ARCHIVE_MOON_STATUE = "Ancient Moon Statue",
+        ARCHIVE_RUNE_STATUE = "Ancient Lunarune Stone",
+
+        ARCHIVE_RESONATOR = "Astral Detector",
+        ARCHIVE_RESONATOR_ITEM = "Astral Detector",    
+
+        GROTTO_POOL_BIG = "Vitreoasis",
+        GROTTO_POOL_SMALL = "Small Vitreoasis",
+
+        REFINED_DUST = "Collected Dust",
+        DUSTMERINGUE = "Amberosia",
+
+        SHROOMCAKE = "Mushy Cake",
+
+        ARCHIVE_LOCKBOX_DISPENCER = "Fountain of Knowledge",
+        ARCHIVE_PORTAL = "Sealed Portal",
+        ARCHIVE_COOKPOT = "Ancient Kiln",
+        ARCHIVE_SWITCH = "Ornate Pedestal",
+        ARCHIVE_SECURITY_DESK = "Ancient Guard Post",
+
+        WALL_STONE_2 = "Archival Stone Wall",
+        WALL_RUINS_2 = "Archival Thulecite Wall",
+
+        NIGHTMAREGROWTH = "Nightmare Rampart",
+
+        TURFCRAFTINGSTATION = "Terra Firma Tamper",
+
+        MOON_ALTAR_LINK = "Mysterious Energy",
 	},
 
     NAME_DETAIL_EXTENTION =
@@ -2925,6 +2987,7 @@ STRINGS =
         TURF_WOODFLOOR = "High-quality laminate floorboards.",
         TURF_CHECKERFLOOR = "Nicely checkered marble tiles.",
         TURF_METEOR = "The cratered surface of the moon.",
+        TURF_FUNGUS_MOON = "The mutated fungal floor of a cave.",
         TURF_SHELLBEACH = "A patch of seashell seashore.",
         TURF_CARPETFLOOR = "Super soft. Smells like Beefalo.",
         TURF_ROAD = "Build your own road to nowhere.",
@@ -3305,7 +3368,31 @@ STRINGS =
         MASTUPGRADE_LAMP_ITEM = "An illuminating mast attachment.",
         MASTUPGRADE_LIGHTNINGROD_ITEM = "An electrifying addition to your mast.",
         WATERPUMP = "Water, water everywhere!",
-	},
+
+        ARCHIVE_RESONATOR_ITEM = "What secrets will it unearth?",
+    
+        REFINED_DUST = "A key ingredient for an ancient treat.",
+
+        TURFCRAFTINGSTATION = "Change the world one piece at a time.",
+
+        TURF_FOREST = "A chunk of forest floor.",
+        TURF_GRASS = "A patch of grass.",
+        TURF_SAVANNA = "A patch of Savanna grass.",
+        TURF_PEBBLEBEACH = "A patch of pebbled beach.",
+        
+        TURF_CAVE = "The cold stone of a cave floor.",
+        TURF_FUNGUS = "A cave floor overgrown with fungus.",
+        TURF_FUNGUS_RED = "A cave floor covered in red fungus.",
+        TURF_FUNGUS_GREEN = "A cave floor covered in green fungus.",
+
+        TURF_DECIDUOUS = "A chunk of deciduous forest floor.",
+        TURF_DESERTDIRT = "A dry patch of sand.",
+
+        TURF_ROCKY = "A chunk of rocky ground.",
+        TURF_UNDERROCK = "The craggy stone floor of a cave.",
+        TURF_SINKHOLE = "A chunk of wet, muddy grass.",
+        TURF_MUD = "A patch of muddy ground.",
+    },
 
     -- MAXWELL_TEST = {"Say pal, you don't look so good.", "You better find something to eat before night comes!"},
 
@@ -4467,7 +4554,8 @@ STRINGS =
 		FISHING = "Fishing",
 		WINTERSFEASTCOOKING = "Feast",
         HERMITCRABSHOP = "Bottle Exchange",
-		SLINGSHOTAMMO = "Slingshot Ammo",
+        SLINGSHOTAMMO = "Slingshot Ammo",
+        TURFCRAFTING = "Landscaping",
     },
     GREENAMULET_TOOLTIP = "Reduced Material Cost",
 }
@@ -5447,6 +5535,9 @@ STRINGS.UI =
 		FOOD_EFFECTS_ELECTRIC_ATTACK = "Attacks deal electric damage",
 		FOOD_EFFECTS_GLOW = "Gives off a healthy glow",
 		FOOD_EFFECTS_DRY = "Dissipates moisture",
+        FOOD_EFFECTS_SLEEP_RESISTANCE = "Wards off sleep",
+        FOOD_EFFECTS_HUNGER_REGEN = "Restores hunger over time",
+        FOOD_EFFECTS_DUST_MOTH_FOOD = "Thulecite's secret ingredient",
 
 		FOOD_TYPE_TITLE = "Type",
 		FOOD_TYPE_UNKNOWN = "?",
@@ -5478,6 +5569,8 @@ STRINGS.UI =
 		FILTER_MEAT = "Meats",
 		FILTER_VEGGIE = "Veggies",
 		FILTER_OTHER = "Other", 
+		FILTER_SIDE_EFFECTS = "Side Effects",
+		FILTER_INCOMPLETE = "Incomplete",
 	},
 
 	FOOD_TYPES = 
@@ -6505,10 +6598,10 @@ STRINGS.UI =
                 "The Caves",                 -- Caves content in DST
                 "Caves Plus",                -- harder caves
 
-            SURVIVAL_TOGETHER = "Default",
+            SURVIVAL_TOGETHER = "Standard Forest",
             SURVIVAL_TOGETHER_PS4 = "Generic Forest",
             SURVIVAL_TOGETHER_CLASSIC = "No Giants Here",
-            SURVIVAL_DEFAULT_PLUS = "Together Plus",
+            SURVIVAL_DEFAULT_PLUS = "Forest Plus",
             COMPLETE_DARKNESS = "Lights Out",
             DST_CAVE = "The Caves",
             DST_CAVE_PS4 = "Standard Caves",
@@ -6960,10 +7053,13 @@ STRINGS.UI =
         FULLSLOTSTITLE = "No Slots Available",
         FULLSLOTSBODY = "All of your server slots are currently full. You must either select a slot to load from, or delete a slot and start a new world.",
         OK = "OK",
+        SAVECHANGES = "Save Changes",
+        DISCARDCHANGES = "Discard Changes",
         NONAMEGAME = "[No Name]",
         NEWGAME = "New World",
         NEWGAME_SUFFIX = "'s World", --legacy for mods
         NEWGAME_FMT = "{name}'s World",
+        CREATENEWGAME = "Create New World",
         DELETE = "Delete",
         SLOT = "Server Slot",
         SURE = "Are you sure?",
@@ -6973,6 +7069,7 @@ STRINGS.UI =
         SERVERDAY_NEW = "A Whole New World",
         SELECT_SLOT = "Select Slot",
         SNAPSHOTS = "Rollback",
+        VIEWBANS = "View Bans",
         BANS = "Bans",
         TOOLTIP_BANS = "See which players you've blocked from joining your servers",
         HOST_GAME = "Host Game",
@@ -6984,8 +7081,8 @@ STRINGS.UI =
         MODSOUTOFDATEWARNINGTITLE = "WARNING - Mods Out of Date",
         MODSOUTOFDATEWARNINGBODY = "Some enabled mods are out of date, which could cause issues. Continue?",
         CONTINUE = "Continue",
-        CANCEL_TITLE = "Lose Changes?",
-        CANCEL_BODY = "Do you want to abandon your changes?",
+        CANCEL_TITLE = "Save Changes?",
+        CANCEL_BODY = "Do you want to save your changes?",
         INVALIDSERVERNAME_TITLE = "Missing Server Name",
         INVALIDSERVERNAME_BODY = "No one will be able to find you if you don't have a name!",
         INVALIDPASSWORD_TITLE = "Bad Password",
@@ -7000,6 +7097,12 @@ STRINGS.UI =
         UGC_BLOCKED_DESCRIPTION_POSTFIX = "'s World\" with a blank description.",
         UGC_BLOCKED_DESCRIPTION_PREFIX_SPLITSCREEN = "Use of user-generated media is not allowed for the signed in accounts.\nOnline players will see your server name as \"",
         OFFLINE_WORLD = "Offline",
+        OPENSAVEFOLDER = "Open {folder}",
+        CLUSTERSLOT = "Save Folder",
+        SORT_MODE_FMT = "Sort Mode: {mode}",
+        SORT_LASTPLAYED = "Last Played",
+        SORT_MOSTDAYS = "Days Played",
+        SEARCH = "Search",
     },
 
     CLOUDSERVERCREATIONSCREEN =
@@ -9531,6 +9634,7 @@ STRINGS.UI =
         ADDLEVEL = "Add %s",
         AUTOADDLEVEL = "Always Add %s",
         ADDLEVEL_WARNING = "This requires running multiple servers at the same time.\nIs your computer up to the task?",
+        ADDLEVEL_EXISTINGWARNING = "This change is permanent and cannot be undone. Are you sure you want to continue?",
 
         REMOVELEVEL = "Remove %s",
         REMOVELEVEL_WARNING = "Do you want to remove %s from this server?",

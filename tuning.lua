@@ -31,7 +31,7 @@ function Tune(overrides)
     local wilson_sanity = 200
     local calories_per_day = 75
 
-    local wilson_attack_period = .1
+    local wilson_attack_period = 0.4 --prevents players
     
     -----------------------
 
@@ -1186,6 +1186,10 @@ function Tune(overrides)
             HERMITCRABSHOP_L4 = TechTree.Create({
                 HERMITCRABSHOP = 7,
             }),
+
+            TURFCRAFTING = TechTree.Create({
+                TURFCRAFTING = 1,
+            }),
 		},
 
         RABBIT_HEALTH = 25 * multiplayer_attack_modifier,
@@ -1278,6 +1282,7 @@ function Tune(overrides)
         CRAWLINGHORROR_ATTACK_PERIOD= 2.5,
 
         SHADOWCREATURE_TARGET_DIST = 20,
+		SHADOWCREATURE_TARGET_DIST_SQ = 20*20,
 
         SHADOW_CHESSPIECE_EPICSCARE_RANGE = 10,
         SHADOW_CHESSPIECE_DESPAWN_TIME = 30,
@@ -3270,10 +3275,20 @@ function Tune(overrides)
 			},
 		},
 
-		BRIGHTMARE_MELTY =
-		{
-			WALK_SPEED = 3,
-		},
+		--GESTALT GUARD
+		GESTALTGUARD_WALK_SPEED = 4,
+		GESTALTGUARD_HEALTH = 200,
+		GESTALTGUARD_DAMAGE = 180,
+		GESTALTGUARD_ATTACK_RANGE = 3.5,
+		GESTALTGUARD_WATCHING_RANGE = 6,
+		GESTALTGUARD_AGGRESSIVE_RANGE = 18,
+		GESTALTGUARD_MAX_DISTSQ_FROM_SPAWN_PT = 36*36,
+
+		GROTTOWAR_NIGHTMARE_TARGET_PLAYER_CHANCE = 0.25,
+		GROTTOWAR_POPULATION_DIST = 35,
+		GROTTOWAR_NUM_BRIGHTMARES_PRE_NIGHTMARE = 1.5,
+		GROTTOWAR_MAX_NIGHTMARES = 5,
+		GROTTOWAR_NUM_AMBIENT_BRIGHTMARES = 2,
 
         MAX_FISH_SCHOOL_SIZE = 2,
 
@@ -3299,6 +3314,8 @@ function Tune(overrides)
         },
 
         MOON_ALTAR_COMPLETE_WORK = 3,
+        MOON_ALTAR_ASTRAL_COMPLETE_WORK = 2,
+        MOON_ALTAR_ESTABLISH_LINK_RADIUS = 20,
 
 		MOONALTAR_ROCKS_MINE = 20,
 
@@ -4322,6 +4339,16 @@ function Tune(overrides)
 
         SINGINGSHELL_TRIGGER_RANGE = 4,
 
+        -- GROTTO
+        MOONSPORE =
+        {
+            PERISH_TIME = seg_time * 0.25,
+            MIN_FOLLOW = 2.0,
+            EXPLOSION_DISTANCE = 2.5,
+            MAX_FOLLOW = 4.0,
+        },
+
+
         WATERPLANT =
         {
             DAMAGE = wilson_attack * 2,
@@ -4354,7 +4381,7 @@ function Tune(overrides)
             },
         },
 
-        WAVEYJONES = 
+        WAVEYJONES =
         {
             HAND = 
             {
@@ -4401,7 +4428,123 @@ function Tune(overrides)
         WATERPUMP =
         {
             MAXRANGE = 7.5,
-        }
+        },
+
+        -- GROTTO
+        MOONSPORE =
+        {
+            PERISH_TIME = seg_time * 0.25,
+            MIN_FOLLOW = 1.0,
+            EXPLOSION_DISTANCE = 1.5,
+            MAX_FOLLOW = 3.5,
+        },
+
+        SLEEPRESISTBUFF_TIME = total_day_time,
+        SLEEPRESISTBUFF_VALUE = 10,
+
+        MOON_MUSHROOM_SLEEPTIME = 3,
+
+        MOLEBAT =
+        {
+            TARGET_DIST = 5,
+            WALK_SPEED = 5,
+            ATTACK_PERIOD = 2,
+            ATTACK_RANGE = 2,
+            HEALTH = 150,
+            DAMAGE = 30,
+            MAX_CHASE_DSQ = 225,
+            ALLY_COOLDOWN = total_day_time * 2,
+            NAP_COOLDOWN = seg_time * 9,
+            NAP_LENGTH = seg_time * 4,
+        },
+
+        BATNOSEHAT_PERISHTIME = 0.5*total_day_time*perish_warp,
+        HUNGERREGEN_TICK_RATE = 5,
+        HUNGERREGEN_TICK_VALUE = 5 * (calories_per_day*2.5) / (0.5*total_day_time*perish_warp), -- Ensure that this matches the properties above!
+
+        LIGHTFLIER =
+        {
+            HEALTH = 25 * multiplayer_attack_modifier,
+            WALK_SPEED = 3.5,
+            ON_ATTACKED_ALERT_DURATION = 4,
+            ON_ATTACKED_ALERT_DURATION_VARIANCE = 1,
+            STARVE_TIME = total_day_time*2,
+        },
+
+        LIGHTFLIER_FLOWER =
+        {
+            REGROW_TIME = total_day_time*12, -- this refers to regrow after picked, not duration for regrowthmanager
+            LIGHT_TIME = 140,
+            LIGHT_TIME_VARIANCE = 50,
+            RECHARGE_TIME = 110,
+            TARGET_NUM_CHILDREN_OUTSIDE = 1,
+
+            RECALL_DELAY = 60,
+            RECALL_DELAY_VARIANCE = 60,
+
+            REGROWTH =
+            {
+                TIME = total_day_time*5,
+                TIME_MULT = 1,
+            },
+        },
+
+        MUSHGNOME_HEALTH = 600,
+        MUSHGNOME_SPORESPAWN_MIN = 2,
+        MUSHGNOME_SPORESPAWN_MAX = 4,
+        MUSHGNOME_ATTACK_PERIOD = 8,
+        MUSHGNOME_SPAWN_RADIUSSQ = 400,
+
+        MOONSPORE_ATTACK_RANGE = 3,
+        MOONSPORE_ATTACK_PROXIMITY = 3.5,
+        MOONSPORE_DAMAGE = 10,
+
+        GROTTO_POOL_BIG_RADIUS = 5.5,
+        GROTTO_POOL_SMALL_RADIUS = 2.0,
+        GROTTO_MOONGLASS_REGROW_CHANCE = 0.10,
+
+        ARCHIVE_CENTIPEDE =
+        {
+            DAMAGE = 40,
+            AOE_DAMAGE = 20,
+            HEALTH = 400 * 3,
+            WALK_SPEED = 4,
+            ATTACK_PERIOD = 5,
+            HUSK_HEALTH = 300,
+            AOE_RANGE = 5,
+            TARGET_DIST = 12,
+        },
+
+        ARCHIVE_SECURITY = 
+        {
+            REGEN_TIME = seg_time * 4,
+            RELEASE_TIME = seg_time, 
+            WALK_SPEED = 5,
+        },
+        DUSTMOTH =
+        {
+            HEALTH = 200,
+            HEALTH_REGEN = 4,
+            WALK_SPEED = 2.6,
+            DUSTABLE_RESET_TIME = seg_time * 2,
+            DUSTABLE_RESET_TIME_VARIANCE = seg_time,
+            DUSTOFF_COOLDOWN = 4,
+            DUSTOFF_COOLDOWN_VARIANCE = 6,
+            SEARCH_ANIM_COOLDOWN = 12,
+        },
+        DUSTMOTHDEN =
+        {
+            REPAIR_TIME = total_day_time * 0.75,
+            REGEN_TIME = total_day_time * 10,
+            RELEASE_TIME = seg_time,
+            MAXWORK = 5,
+        },
+        
+        ARCHIVE_RESONATOR =
+        {
+            USES = 10,
+        },
+
     }
 end
 

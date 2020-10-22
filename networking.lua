@@ -280,7 +280,17 @@ function SerializeUserSession(player, isnewspawn)
         --we don't care about references for player saves
         local playerinfo--[[, refs]] = player:GetSaveRecord()
         local data = DataDumper(playerinfo, nil, BRANCH ~= "dev")
-        TheNet:SerializeUserSession(player.userid, data, isnewspawn == true, player.player_classified ~= nil and player.player_classified.entity or nil)
+
+        local metadataStr = ""
+        
+        if TheNet:GetIsServer() then
+            local metadata = {
+                character = player.prefab,
+            }
+            metadataStr = DataDumper(metadata, nil, BRANCH ~= "dev")
+        end
+
+        TheNet:SerializeUserSession(player.userid, data, isnewspawn == true, player.player_classified ~= nil and player.player_classified.entity or nil, metadataStr)
     end
 end
 
@@ -290,8 +300,8 @@ function DeleteUserSession(player)
     end
 end
 
-function SerializeWorldSession(data, session_identifier, callback)
-    TheNet:SerializeWorldSession(data, session_identifier, ENCODE_SAVES, callback)
+function SerializeWorldSession(data, session_identifier, callback, metadataStr)
+    TheNet:SerializeWorldSession(data, session_identifier, ENCODE_SAVES, callback, metadataStr or "")
 end
 
 function ReportAction( userid, items, item_counts, users, cb )
@@ -680,7 +690,7 @@ end
 local function DoReset()
     StartNextInstance({
         reset_action = RESET_ACTION.LOAD_SLOT,
-        save_slot = SaveGameIndex:GetCurrentSaveSlot()
+        save_slot = ShardGameIndex:GetSlot()
     })
 end
 
@@ -688,8 +698,7 @@ function WorldResetFromSim()
     if TheWorld ~= nil and TheWorld.ismastersim then
         print("Received world reset request")
         TheWorld:PushEvent("ms_worldreset")
-        SaveGameIndex:DeleteSlot(
-            SaveGameIndex:GetCurrentSaveSlot(),
+        ShardGameIndex:Delete(
             DoReset,
             true -- true causes world gen options to be preserved
         )
@@ -735,8 +744,8 @@ function UpdateServerTagsString()
         table.insert(tagsTable, STRINGS.TAGS.CLAN)
     end
 
-    local worldoptions = SaveGameIndex:GetSlotGenOptions()
-    local worlddata = worldoptions ~= nil and worldoptions[1] or nil
+    local worldoptions = ShardGameIndex:GetGenOptions()
+    local worlddata = worldoptions or nil
     if worlddata ~= nil and worlddata.location ~= nil then
         local locationtag = STRINGS.TAGS.LOCATION[string.upper(worlddata.location)]
         if locationtag ~= nil then
@@ -749,8 +758,8 @@ end
 
 function UpdateServerWorldGenDataString()
     local clusteroptions = {}
-    local worldoptions = SaveGameIndex:GetSlotGenOptions()
-    table.insert(clusteroptions, worldoptions ~= nil and worldoptions[1] or {})
+    local worldoptions = ShardGameIndex:GetGenOptions()
+    table.insert(clusteroptions, worldoptions or {})
 
     if TheShard:IsMaster() then
         -- Merge secondary shard worldgen data
@@ -793,7 +802,7 @@ function GetDefaultServerData()
         game_mode = TheNet:GetDefaultGameMode(),
         online_mode = TheNet:IsOnlineMode(),
         encode_user_path = TheNet:GetDefaultEncodeUserPath(),
-        use_cluster_path = true,
+        use_legacy_session_path = nil,
         max_players = TheNet:GetDefaultMaxPlayers(),
         name = TheNet:GetDefaultServerName(),
         password = TheNet:GetDefaultServerPassword(),
@@ -823,7 +832,7 @@ function StartDedicatedServer()
         --V2C: From now on, we want to actually write data into
         --     a slot before initiating LOAD_SLOT action on it!
 
-        local slot = SaveGameIndex:GetCurrentSaveSlot()
+        local slot = ShardGameIndex:GetSlot()
         local serverdata = GetDefaultServerData()
 
         local function onsaved()
@@ -832,18 +841,18 @@ function StartDedicatedServer()
             StartNextInstance({ reset_action = RESET_ACTION.LOAD_SLOT, save_slot = slot })
         end
 
-        if SaveGameIndex:IsSlotEmpty(slot) then
-            SaveGameIndex:StartSurvivalMode(slot, nil, serverdata, onsaved)
+        if ShardGameIndex:IsEmpty() then
+            ShardGameIndex:SetServerShardData(nil, serverdata, onsaved)
         else
             if TheNet:GetServerIsClientHosted() then
-                local slot_server_data = SaveGameIndex:GetSlotServerData(slot)
+                local slot_server_data = ShardGameIndex:GetServerData(slot)
                 --V2C: new flags added, with backward compatibility
-                if not serverdata.encode_user_path and slot_server_data ~= nil and slot_server_data.encode_user_path then
+                if not serverdata.encode_user_path and slot_server_data.encode_user_path then
                     serverdata.encode_user_path = TheNet:TryDefaultEncodeUserPath()
                 end
-                serverdata.use_cluster_path = slot_server_data ~= nil and slot_server_data.use_cluster_path
+                serverdata.use_legacy_session_path = slot_server_data.use_legacy_session_path
             end
-            SaveGameIndex:UpdateServerData(slot, serverdata, onsaved)
+            ShardGameIndex:SetServerShardData(nil, serverdata, onsaved)
         end
     end
 end

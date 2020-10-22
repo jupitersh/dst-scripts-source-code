@@ -431,8 +431,9 @@ function ChildSpawner:DoSpawnChild(target, prefab, radius)
 			spawn_radius = 0.5
 		end
 	end
-	
-	if self.wateronly then
+	if self.overridespawnlocation then
+      offset =  self.overridespawnlocation(self.inst)
+    elseif self.wateronly then
 		offset = FindSwimmableOffset(Vector3(x, 0, z), math.random() * PI * 2, spawn_radius + self.inst:GetPhysicsRadius(0), 8, false, true, NoHoles)
 	else
 		offset = FindWalkableOffset(Vector3(x, 0, z), math.random() * PI * 2, spawn_radius + self.inst:GetPhysicsRadius(0), 8, false, true, NoHoles, self.allowwater, self.allowboats)

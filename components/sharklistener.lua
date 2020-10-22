@@ -57,7 +57,7 @@ local function processsharks()
                 player.killtask:Cancel()
                 player.killtask = nil
             end
-            local param = Remap(math.max(10*10,closest), 0, DIST*DIST, 1,0 )            
+            local param = Remap(math.max(10*10,closest), 0, DIST*DIST, 1,0 )
             player._sharksoundparam:set(param)
         else
             player.killtask = player:DoTaskInTime(3,function()

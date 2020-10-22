@@ -921,18 +921,103 @@ for k, v in orderedPairs(RPC) do
     RPC_HANDLERS[k] = nil
 end
 
+local CLIENT_RPC_HANDLERS =
+{
+}
+
+CLIENT_RPC = {}
+
+--Generate RPC codes from table of handlers
+i = 1
+for k, v in orderedPairs(CLIENT_RPC_HANDLERS) do
+    CLIENT_RPC[k] = i
+    i = i + 1
+end
+i = nil
+
+--Switch handler keys from code name to code value
+for k, v in orderedPairs(CLIENT_RPC) do
+    CLIENT_RPC_HANDLERS[v] = CLIENT_RPC_HANDLERS[k]
+    CLIENT_RPC_HANDLERS[k] = nil
+end
+
+local SHARD_RPC_HANDLERS =
+{
+}
+
+SHARD_RPC = {}
+
+--Generate RPC codes from table of handlers
+i = 1
+for k, v in orderedPairs(SHARD_RPC_HANDLERS) do
+    SHARD_RPC[k] = i
+    i = i + 1
+end
+i = nil
+
+--Switch handler keys from code name to code value
+for k, v in orderedPairs(SHARD_RPC) do
+    SHARD_RPC_HANDLERS[v] = SHARD_RPC_HANDLERS[k]
+    SHARD_RPC_HANDLERS[k] = nil
+end
+
 function SendRPCToServer(code, ...)
     assert(RPC_HANDLERS[code] ~= nil)
     TheNet:SendRPCToServer(code, ...)
 end
 
+--SendRPCToClient(CLIENT_RPC.RPCNAME, users, ...)
+--users is either:
+--nil == all connected clients
+--userid == send to that userid
+--table == list of userids to send to
+--all users must be connected to the shard this command originated from
+function SendRPCToClient(code, ...)
+    assert(CLIENT_RPC_HANDLERS[code] ~= nil)
+    TheNet:SendRPCToClient(code, ...)
+end
+
+--SendRPCToShard(SHARD_RPC.RPCNAME, shards, ...)
+--shards is either:
+--nil == all connected shards
+--shardid == send to that shard
+--table == list of shards to send to
+function SendRPCToShard(code, ...)
+    assert(SHARD_RPC_HANDLERS[code] ~= nil)
+    TheNet:SendRPCToShard(code, ...)
+end
+
 local RPC_Queue = {}
 local RPC_Timeline = {}
+
+local RPC_Client_Queue = {}
+local RPC_Client_Timeline
+
+local RPC_Shard_Queue = {}
+local RPC_Shard_Timeline = {}
 
 function HandleRPC(sender, tick, code, data)
     local fn = RPC_HANDLERS[code]
     if fn ~= nil then
         table.insert(RPC_Queue, { fn, sender, data, tick })
+    else
+        print("Invalid RPC code: "..tostring(code))
+    end
+end
+
+function HandleClientRPC(tick, code, data)
+    local fn = CLIENT_RPC_HANDLERS[code]
+    if fn ~= nil then
+        table.insert(RPC_Client_Queue, { fn, data, tick })
+    else
+        print("Invalid RPC code: "..tostring(code))
+    end
+end
+
+function HandleShardRPC(sender, tick, code, data)
+    local fn = SHARD_RPC_HANDLERS[code]
+    if fn ~= nil then
+        table.insert(RPC_Shard_Queue, { fn, sender, data, tick })
     else
         print("Invalid RPC code: "..tostring(code))
     end
@@ -955,10 +1040,40 @@ function HandleRPCQueue()
             i = i + 1
         end
     end
+    i = 1
+    while i <= #RPC_Client_Queue do
+        local fn, data, tick = unpack(RPC_Client_Queue[i])
+        if RPC_Client_Timeline == nil or RPC_Client_Timeline == tick then
+            table.remove(RPC_Client_Queue, i)
+            if TheNet:CallClientRPC(fn, data) then
+                RPC_Client_Timeline = tick
+            end
+        else
+            RPC_Client_Timeline = 0
+            i = i + 1
+        end
+    end
+    i = 1
+    while i <= #RPC_Shard_Queue do
+        local fn, sender, data, tick = unpack(RPC_Shard_Queue[i])
+        if not Shard_IsWorldAvailable(tostring(sender)) and tostring(sender) ~= TheShard:GetShardId() then
+            table.remove(RPC_Shard_Queue, i)
+        elseif RPC_Shard_Timeline[sender] == nil or RPC_Shard_Timeline[sender] == tick then
+            table.remove(RPC_Shard_Queue, i)
+            if TheNet:CallShardRPC(fn, sender, data) then
+                RPC_Shard_Timeline[sender] = tick
+            end
+        else
+            RPC_Shard_Timeline[sender] = 0
+            i = i + 1
+        end
+    end
 end
 
 function TickRPCQueue()
     RPC_Timeline = {}
+    RPC_Client_Timeline = nil
+    RPC_Shard_Timeline = {}
 end
 
 local function __index_lower(t, k)
@@ -976,8 +1091,20 @@ end
 MOD_RPC = {}
 MOD_RPC_HANDLERS = {}
 
+CLIENT_MOD_RPC = {}
+CLIENT_MOD_RPC_HANDLERS = {}
+
+SHARD_MOD_RPC = {}
+SHARD_MOD_RPC_HANDLERS = {}
+
 setmetadata(MOD_RPC)
 setmetadata(MOD_RPC_HANDLERS)
+
+setmetadata(CLIENT_MOD_RPC)
+setmetadata(CLIENT_MOD_RPC_HANDLERS)
+
+setmetadata(SHARD_MOD_RPC)
+setmetadata(SHARD_MOD_RPC_HANDLERS)
 
 function AddModRPCHandler(namespace, name, fn)
     if MOD_RPC[namespace] == nil then
@@ -994,9 +1121,49 @@ function AddModRPCHandler(namespace, name, fn)
     setmetadata(MOD_RPC[namespace][name])
 end
 
+function AddClientModRPCHandler(namespace, name, fn)
+    if CLIENT_MOD_RPC[namespace] == nil then
+        CLIENT_MOD_RPC[namespace] = {}
+        CLIENT_MOD_RPC_HANDLERS[namespace] = {}
+
+        setmetadata(CLIENT_MOD_RPC[namespace])
+        setmetadata(CLIENT_MOD_RPC_HANDLERS[namespace])
+    end
+
+    table.insert(CLIENT_MOD_RPC_HANDLERS[namespace], fn)
+    CLIENT_MOD_RPC[namespace][name] = { namespace = namespace, id = #CLIENT_MOD_RPC_HANDLERS[namespace] }
+
+    setmetadata(CLIENT_MOD_RPC[namespace][name])
+end
+
+function AddShardModRPCHandler(namespace, name, fn)
+    if SHARD_MOD_RPC[namespace] == nil then
+        SHARD_MOD_RPC[namespace] = {}
+        SHARD_MOD_RPC_HANDLERS[namespace] = {}
+
+        setmetadata(SHARD_MOD_RPC[namespace])
+        setmetadata(SHARD_MOD_RPC_HANDLERS[namespace])
+    end
+
+    table.insert(SHARD_MOD_RPC_HANDLERS[namespace], fn)
+    SHARD_MOD_RPC[namespace][name] = { namespace = namespace, id = #SHARD_MOD_RPC_HANDLERS[namespace] }
+
+    setmetadata(SHARD_MOD_RPC[namespace][name])
+end
+
 function SendModRPCToServer(id_table, ...)
     assert(id_table.namespace ~= nil and MOD_RPC_HANDLERS[id_table.namespace] ~= nil and MOD_RPC_HANDLERS[id_table.namespace][id_table.id] ~= nil)
     TheNet:SendModRPCToServer(id_table.namespace, id_table.id, ...)
+end
+
+function SendModRPCToClient(id_table, ...)
+    assert(id_table.namespace ~= nil and CLIENT_MOD_RPC_HANDLERS[id_table.namespace] ~= nil and CLIENT_MOD_RPC_HANDLERS[id_table.namespace][id_table.id] ~= nil)
+    TheNet:SendModRPCToClient(id_table.namespace, id_table.id, ...)
+end
+
+function SendModRPCToShard(id_table, ...)
+    assert(id_table.namespace ~= nil and SHARD_MOD_RPC_HANDLERS[id_table.namespace] ~= nil and SHARD_MOD_RPC_HANDLERS[id_table.namespace][id_table.id] ~= nil)
+    TheNet:SendModRPCToShard(id_table.namespace, id_table.id, ...)
 end
 
 function HandleModRPC(sender, tick, namespace, code, data)
@@ -1012,12 +1179,54 @@ function HandleModRPC(sender, tick, namespace, code, data)
     end
 end
 
+function HandleClientModRPC(tick, namespace, code, data)
+    if CLIENT_MOD_RPC_HANDLERS[namespace] ~= nil then
+        local fn = CLIENT_MOD_RPC_HANDLERS[namespace][code]
+        if fn ~= nil then
+            table.insert(RPC_Client_Queue, { fn, data, tick })
+        else
+            print("Invalid RPC code: ", namespace, code)
+        end
+    else
+        print("Invalid RPC namespace: ", namespace, code)
+    end
+end
+
+function HandleShardModRPC(sender, tick, namespace, code, data)
+    if SHARD_MOD_RPC_HANDLERS[namespace] ~= nil then
+        local fn = SHARD_MOD_RPC_HANDLERS[namespace][code]
+        if fn ~= nil then
+            table.insert(RPC_Shard_Queue, { fn, sender, data, tick })
+        else
+            print("Invalid RPC code: ", namespace, code)
+        end
+    else
+        print("Invalid RPC namespace: ", namespace, code)
+    end
+end
+
 function GetModRPCHandler(namespace, name)
     return MOD_RPC_HANDLERS[namespace][MOD_RPC[namespace][name].id]
 end
 
+function GetClientModRPCHandler(namespace, name)
+    return CLIENT_MOD_RPC_HANDLERS[namespace][CLIENT_MOD_RPC[namespace][name].id]
+end
+
+function GetShardModRPCHandler(namespace, name)
+    return SHARD_MOD_RPC_HANDLERS[namespace][SHARD_MOD_RPC[namespace][name].id]
+end
+
 function GetModRPC(namespace, name)
     return MOD_RPC[namespace][name]
+end
+
+function GetClientModRPC(namespace, name)
+    return CLIENT_MOD_RPC[namespace][name]
+end
+
+function GetShardModRPC(namespace, name)
+    return SHARD_MOD_RPC[namespace][name]
 end
 
 --For gamelogic to deactivate world on a client when
@@ -1025,4 +1234,8 @@ end
 function DisableRPCSending()
     SendRPCToServer = function() end
     SendModRPCToServer = SendRPCToServer
+    SendRPCToClient = function() end
+    SendModRPCToClient = SendRPCToClient
+    SendRPCToShard = function() end
+    SendModRPCToShard = SendRPCToShard
 end

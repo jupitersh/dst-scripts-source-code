@@ -2,7 +2,7 @@
 AddRoom("BGMarsh", {
 					colour={r=.6,g=.2,b=.8,a=.50},
 					value = GROUND.MARSH,
-					tags = {"ExitPiece", "Chester_Eyebone"},
+					tags = {"ExitPiece", "Chester_Eyebone", "Astral_1"},
 					contents =  {
 									countstaticlayouts={["MushroomRingMedium"] = function()  
 																				if math.random(0,1000) > 985 then 
@@ -31,7 +31,7 @@ AddRoom("BGMarsh", {
 AddRoom("Marsh", {
 					colour={r=.45,g=.75,b=.45,a=.50},
 					value = GROUND.MARSH,
-					tags = {"ExitPiece", "Chester_Eyebone"},
+					tags = {"ExitPiece", "Chester_Eyebone", "Astral_2"},
 					contents =  {
 									countstaticlayouts={["MushroomRingMedium"]=function()  
 																				if math.random(0,1000) > 985 then 
@@ -57,7 +57,7 @@ AddRoom("Marsh", {
 AddRoom("SpiderMarsh", {
 					colour={r=.45,g=.75,b=.45,a=.50},
 					value = GROUND.MARSH,
-					tags = {"ExitPiece", "Chester_Eyebone"},
+					tags = {"ExitPiece", "Chester_Eyebone", "Astral_1"},
 					contents =  {
 					                distributepercent = .1,
 					                distributeprefabs=

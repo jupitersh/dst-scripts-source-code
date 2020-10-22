@@ -1,7 +1,7 @@
 AddRoom("BGChessRocky", {
 					colour={r=.66,g=.66,b=.66,a=.50},
 					value = GROUND.ROCKY,
-					tags = {"ExitPiece", "Chester_Eyebone"},
+					tags = {"ExitPiece", "Chester_Eyebone", "Astral_1"},
 					contents =  {
 									countstaticlayouts = {
 										["ChessSpot1"] = function() return math.random(0,3) end,
@@ -22,7 +22,7 @@ AddRoom("BGChessRocky", {
 AddRoom("BGRocky", {
 					colour={r=.66,g=.66,b=.66,a=.50},
 					value = GROUND.ROCKY,
-					tags = {"ExitPiece", "Chester_Eyebone"},
+					tags = {"ExitPiece", "Chester_Eyebone", "Astral_2"},
 					contents =  {
 					                distributepercent = .1,
 					                distributeprefabs=
@@ -40,7 +40,7 @@ AddRoom("BGRocky", {
 AddRoom("Rocky", {
 					colour={r=.55,g=.75,b=.75,a=.50},
 					value = GROUND.DIRT,
-					tags = {"ExitPiece", "Chester_Eyebone"},
+					tags = {"ExitPiece", "Chester_Eyebone", "Astral_1"},
 					contents =  {
 									countprefabs=
 									{
@@ -64,7 +64,7 @@ AddRoom("Rocky", {
 AddRoom("RockyBuzzards", {
 					colour={r=.55,g=.75,b=.75,a=.50},
 					value = GROUND.ROCKY,
-					tags = {"ExitPiece", "Chester_Eyebone"},
+					tags = {"ExitPiece", "Chester_Eyebone", "Astral_2"},
 					contents =  {
 					                distributepercent = .1,
 					                distributeprefabs=
@@ -80,7 +80,7 @@ AddRoom("RockyBuzzards", {
 AddRoom("GenericRockyNoThreat", {
 					colour={r=.55,g=.75,b=.75,a=.50},
 					value = GROUND.ROCKY,
-					tags = {"ExitPiece", "Chester_Eyebone"},
+					tags = {"ExitPiece", "Chester_Eyebone", "Astral_1"},
 					contents =  {
 					                distributepercent = .1,
 					                distributeprefabs=

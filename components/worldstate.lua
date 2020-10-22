@@ -65,6 +65,8 @@ local function OnCavePhaseChanged(src, phase)
     SetVariable("iscaveday", phase == "day", "caveday")
     SetVariable("iscavedusk", phase == "dusk", "cavedusk")
     SetVariable("iscavenight", phase == "night", "cavenight")
+    SetVariable("iscavefullmoon", phase == "night" and self.data.cavemoonphase == "full", "fullmoon")
+    SetVariable("iscavenewmoon", phase == "night" and self.data.cavemoonphase == "new", "newmoon")
 end
 
 local function OnPhaseChanged(src, phase)
@@ -77,11 +79,19 @@ local function OnPhaseChanged(src, phase)
     OnCavePhaseChanged(src, phase)
 end
 
+local function OnCaveMoonPhaseChanged2(src, data)
+    SetVariable("iscavewaxingmoon", data.waxing)
+    SetVariable("cavemoonphase", data.moonphase)
+    SetVariable("iscavefullmoon", self.data.iscavenight and data.moonphase == "full", "fullmoon")
+    SetVariable("iscavenewmoon", self.data.iscavenight and data.moonphase == "new", "newmoon")
+end
+
 local function OnMoonPhaseChanged2(src, data)
     SetVariable("iswaxingmoon", data.waxing)
     SetVariable("moonphase", data.moonphase)
     SetVariable("isfullmoon", self.data.isnight and data.moonphase == "full", "fullmoon")
     SetVariable("isnewmoon", self.data.isnight and data.moonphase == "new", "newmoon")
+    OnCaveMoonPhaseChanged2(src, data)
 end
 
 local function OnNightmareClockTick(src, data)
@@ -178,13 +188,15 @@ self.data.cavephase = "day"
 self.data.iscaveday = true
 self.data.iscavedusk = false
 self.data.iscavenight = false
+self.data.iscavewaxingmoon = false
+self.data.cavemoonphase = "new"
+self.data.iscavefullmoon = false
+self.data.iscavenewmoon = false
 
 inst:ListenForEvent("clocktick", OnClockTick)
 inst:ListenForEvent("cycleschanged", OnCyclesChanged)
 inst:ListenForEvent("phasechanged", _iscave and OnCavePhaseChanged or OnPhaseChanged)
-if not _iscave then
-    inst:ListenForEvent("moonphasechanged2", OnMoonPhaseChanged2)
-end
+inst:ListenForEvent("moonphasechanged2", _iscave and OnCaveMoonPhaseChanged2 or OnMoonPhaseChanged2)
 
 --Nightmareclock
 self.data.nightmarephase = "none" -- note, this phase doesn't "exist", but if there is no nightmare clock, this is what you'll see.
