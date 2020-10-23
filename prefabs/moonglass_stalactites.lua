@@ -15,6 +15,8 @@ local function stalactite(num)
         inst.AnimState:SetBuild("moonglass_bigwaterfall")
         inst.AnimState:PlayAnimation("stalactite"..tostring(num), true)
 
+        inst:AddTag("NOBLOCK")
+
         inst.entity:SetPristine()
         if not TheWorld.ismastersim then
             return inst

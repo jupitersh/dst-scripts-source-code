@@ -250,8 +250,8 @@ function Trap:DoSpring()
             end
             self.numsouls = nil
             self.starvednumsouls = wortox_soul_common.HasSoul(self.target) and wortox_soul_common.GetNumSouls(self.target) or nil
-        else
-            self.lootprefabs = self.target.components.lootdropper ~= nil and self.target.components.lootdropper.trappable and self.target.components.lootdropper:GenerateLoot() or nil
+        elseif self.target.components.lootdropper ~= nil and self.target.components.lootdropper.trappable then
+            self.lootprefabs = self.target.components.lootdropper:GenerateLoot() or nil
             self.numsouls = wortox_soul_common.HasSoul(self.target) and wortox_soul_common.GetNumSouls(self.target) or nil
             self.starvednumsouls = nil
         end
