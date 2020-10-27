@@ -77,8 +77,7 @@ end
 
 local states =
 {
-    State
-    {
+    State{
         name = "enter",
         tags = { "busy" },
         onenter = function(inst)
@@ -96,8 +95,7 @@ local states =
         },
     },
 
-    State
-    {
+    State{
         name = "peek",
         tags = { "busy" },
         onenter = function(inst)
@@ -125,8 +123,7 @@ local states =
         },
     },
 
-    State
-    {
+    State{
         name = "steal_pre_under",
         tags = { "busy" },
         onenter = function(inst, data)
@@ -161,8 +158,7 @@ local states =
         end,
     },
 
-    State
-    {
+    State{
         name = "steal_pre_above",
         tags = { "busy" },
         onenter = function(inst, data)
@@ -194,8 +190,7 @@ local states =
         end,
     },
 
-    State
-    {
+    State{
         name = "steal",
         tags = { "busy", "canrotate" },
         onenter = function(inst, playanim)
@@ -229,8 +224,7 @@ local states =
         end,
     },
 
-    State
-    {
+    State{
         name = "exit",
         tags = { "busy" },
         onenter = function(inst)
@@ -260,8 +254,7 @@ local states =
         },
     },
 
-    State
-    {
+    State{
         name = "idle",
         tags = { "idle", "canrotate" },
         onenter = function(inst, playanim)
@@ -289,8 +282,7 @@ local states =
         },
     },
 
-    State
-    {
+    State{
         name = "walk_pre",
         tags = { "moving", "canrotate", "noattack" },
 
@@ -311,8 +303,7 @@ local states =
         }
     },
 
-    State
-    {
+    State{
         name = "walk",
         tags = { "moving", "canrotate", "noattack" },
 
@@ -340,8 +331,7 @@ local states =
         }
     },
 
-    State
-    {
+    State{
         name = "walk_pst",
         tags = { "canrotate", "noattack" },
 
@@ -367,8 +357,7 @@ local states =
         },
     },
 
-    State
-    {
+    State{
         name = "gohome",
         tags = { "canrotate" },
 
@@ -391,8 +380,7 @@ local states =
         },
     },
 
-    State
-    {
+    State{
         name = "make_molehill",
         tags = { "busy", "noattack" },
 
@@ -423,8 +411,7 @@ local states =
         },
     },
 
-    State
-    {
+    State{
         name = "death",
         tags = { "busy" },
 
@@ -441,8 +428,7 @@ local states =
         end,
     },
 
-    State
-    {
+    State{
         name = "fall",
         tags = { "busy" },
         onenter = function(inst)
@@ -471,8 +457,7 @@ local states =
         end,
     },
 
-    State
-    {
+    State{
         name = "stunned",
         tags = { "busy", "noattack" },
 
@@ -523,8 +508,7 @@ local states =
         end,
     },
 
-    State
-    {
+    State{
         name = "stunned_pst",
         tags = { "busy" },
         onenter = function(inst)
@@ -546,8 +530,7 @@ local states =
         },
     },
 
-    State
-    {
+    State{
         name = "hit",
         tags = { "busy" },
 
@@ -565,8 +548,7 @@ local states =
         },
     },
 
-    State
-    {
+    State{
         name = "sleep",
         tags = { "busy", "sleeping" },
         
@@ -601,8 +583,7 @@ local states =
         },
     },
 
-    State
-    {
+    State{
         name = "sleeping",
         tags = { "busy", "sleeping" },
         onenter = function(inst)
@@ -633,8 +614,7 @@ local states =
         },
     },
 
-    State
-    {
+    State{
         name = "wake",
         tags = { "busy", "waking" },
         

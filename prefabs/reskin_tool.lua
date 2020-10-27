@@ -219,6 +219,7 @@ local function tool_fn()
 
     inst:AddComponent("spellcaster")
     inst.components.spellcaster.canuseontargets = true
+    inst.components.spellcaster.canuseondead = true
     inst.components.spellcaster.veryquickcast = true
     inst.components.spellcaster.canusefrominventory  = true
     inst.components.spellcaster:SetSpellFn(spellCB)

@@ -155,8 +155,7 @@ end
 
 --------------------------------------------------------------------------
 ShadowChess.States.AddIdle = function(states, idle_anim)
-    table.insert(states, State
-    {
+    table.insert(states, State{
         name = "idle",
         tags = { "idle", "canrotate" },
 
@@ -178,8 +177,7 @@ end
 
 --------------------------------------------------------------------------
 ShadowChess.States.AddLevelUp = function(states, anim, sound_frame, transition_frame, busyover_frame)
-    table.insert(states, State
-    {
+    table.insert(states, State{
         name = "levelup",
         tags = { "busy", "levelup" },
 
@@ -212,8 +210,7 @@ end
 
 --------------------------------------------------------------------------
 ShadowChess.States.AddTaunt = function(states, anim, sound_frame, action_frame, busyover_frame)
-    table.insert(states, State
-    {
+    table.insert(states, State{
         name = "taunt",
         tags = { "taunt", "busy" },
 
@@ -243,8 +240,7 @@ end
 
 --------------------------------------------------------------------------
 ShadowChess.States.AddHit = function(states, anim, sound_frame, busyover_frame)
-    table.insert(states, State
-    {
+    table.insert(states, State{
         name = "hit",
         tags = { "busy", "hit" },
 
@@ -324,8 +320,7 @@ ShadowChess.States.AddDeath = function(states, anim, action_frame, timeline)
     table.insert(timeline, ExtendedSoundTimelineEvent(0, "disappear"))
     table.insert(timeline, LevelUpAlliesTimelineEvent(action_frame))
 
-    table.insert(states, State
-    {
+    table.insert(states, State{
         name = "death",
         tags = { "busy" },
 
@@ -355,8 +350,7 @@ ShadowChess.States.AddEvolvedDeath = function(states, anim, action_frame, timeli
     table.insert(timeline, ExtendedSoundTimelineEvent(0, "die"))
     table.insert(timeline, LevelUpAlliesTimelineEvent(action_frame))
 
-    table.insert(states, State
-    {
+    table.insert(states, State{
         name = "evolved_death",
         tags = { "busy" },
 
@@ -385,8 +379,7 @@ ShadowChess.States.AddDespawn = function(states, anim, timeline)
     timeline = timeline or {}
     table.insert(timeline, ExtendedSoundTimelineEvent(0, "disappear"))
 
-    table.insert(states, State
-    {
+    table.insert(states, State{
         name = "despawn",
         tags = { "busy", "noattack" },
 
@@ -416,8 +409,7 @@ ShadowChess.States.AddAppear = function(states, anim, timeline)
     timeline = timeline or {}
     table.insert(timeline, ExtendedSoundTimelineEvent(0, "disappear"))
 	
-    table.insert(states, State
-    {
+    table.insert(states, State{
         name = "appear",
         tags = { "busy" },
 

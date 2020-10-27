@@ -468,7 +468,7 @@ local function PopulateWorld(savedata, profile)
         assert(savedata.map.topology.ids, "[MALFORMED SAVE DATA] Map missing topology information. This save file is too old, and is missing neccessary information.")
 
 		if savedata.meta ~= nil then
-			print("World generated on version " .. tostring(savedata.meta.build_version) .. ", using seed: " .. tostring(savedata.meta.seed))
+			print("World generated on build " .. tostring(savedata.meta.build_version) .. " with save version: " .. tostring(savedata.meta.generated_on_saveversion) .. ", using seed: " .. tostring(savedata.meta.seed))
 		end
 
         for i,node in ipairs(world.topology.nodes) do

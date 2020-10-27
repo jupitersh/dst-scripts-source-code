@@ -1,9 +1,10 @@
-local SHARDINDEX_VERSION = 1
+local SHARDINDEX_VERSION = 2
 
 ShardIndex = Class(function(self)
     self.ismaster = false
     self.slot = nil
     self.shard = nil
+    self.version = SHARDINDEX_VERSION
 
     self.world = {options = {}}
     self.server = {}
@@ -22,6 +23,7 @@ function ShardIndex:Save(callback)
             server = self.server,
             session_id = self.session_id,
             enabled_mods = self.enabled_mods,
+            version = self.version,
         }, nil, false)
 
         local filename = self:GetShardIndexName()
@@ -48,16 +50,15 @@ function ShardIndex:WriteTimeFile(callback)
     end
 end
 
-local function UpgradeShardIndexData(savedata)
+local function UpgradeShardIndexData(self)
     local savefileupgrades = require "savefileupgrades"
     local upgraded = false
     
-    --[[
-    if savedata.version == nil or savedata.version == 1 then
-        savefileupgrades.utilities.UpgradeShardIndexFromV1toV2(savedata)
+    if self.version == nil or self.version == 1 then
+        savefileupgrades.utilities.UpgradeShardIndexFromV1toV2(self)
         upgraded = true
     end
-    --]]
+    
     return upgraded
 end
 
@@ -73,15 +74,16 @@ local function OnLoad(self, slot, shard, callback, str)
         self.valid = true
         self.isdirty = false
 
-        local was_upgraded = false
-        if self.version ~= SHARDINDEX_VERSION then
-            was_upgraded = UpgradeShardIndexData(savedata)
-        end
-
         self.world = savedata.world
         self.server = savedata.server
         self.session_id = savedata.session_id
         self.enabled_mods = savedata.enabled_mods
+        self.version = savedata.version
+
+        local was_upgraded = false
+        if self.version ~= SHARDINDEX_VERSION then
+            was_upgraded = UpgradeShardIndexData(self)
+        end
 
         local filename = self:GetShardIndexName()
         if was_upgraded then
@@ -452,7 +454,11 @@ function ShardIndex:SetServerShardData(customoptions, serverdata, onsavedcb)
             print("Overwriting savedata with level data file.")
             self.world.options = leveldata
         else
-            self.world.options = (customoptions ~= nil and not IsTableEmpty(customoptions) and customoptions) or GetDefaultWorldOptions(GetLevelType(serverdata.game_mode or DEFAULT_GAME_MODE))
+            local defaultoptions = GetDefaultWorldOptions(GetLevelType(serverdata.game_mode or DEFAULT_GAME_MODE))
+            self.world.options = (customoptions ~= nil and not IsTableEmpty(customoptions) and customoptions) or defaultoptions
+            if self.world.options.overrides == nil or IsTableEmpty(self.world.options.overrides) then
+                self.world.options.overrides = defaultoptions.overrides
+            end
         end
 
         GetWorldgenOverride(slot, shard, function(overridedata, frompreset)

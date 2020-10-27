@@ -458,8 +458,7 @@ local states =
         end,
     },
 
-    State
-    {
+    State{
         name = "reanimatestatue",
         tags = { "busy", "noattack", "statue" },
 
@@ -506,8 +505,7 @@ local states =
         end,
     },
 
-    State
-    {
+    State{
         name = "transformstatue",
         tags = { "busy", "noattack", "statue" },
 

@@ -143,8 +143,7 @@ local events =
 
 local states =
 {
-    State
-    {
+    State{
         name = "idle",
         tags = { "idle" },
 
@@ -173,8 +172,7 @@ local states =
         },
     },
 
-    State
-    {
+    State{
         name = "idle_unhappy",
         tags = { "idle" },
 
@@ -197,8 +195,7 @@ local states =
         },
     },
 
-    State
-    {
+    State{
         name = "rocktribute",
         tags = { "busy", "nosleep", "nofreeze" },
 
@@ -227,8 +224,7 @@ local states =
         },
     },
 
-    State
-    {
+    State{
         name = "hightributeresponse",
         tags = { "busy" },
 
@@ -262,8 +258,7 @@ local states =
         },
     },
 
-    State
-    {
+    State{
         name = "refusetribute",
         tags = { "busy", "nosleep", "nofreeze" },
 
@@ -287,8 +282,7 @@ local states =
         },
     },
 
-    State
-    {
+    State{
         name = "trinkettribute",
         tags = { "busy", "nosleep", "nofreeze" },
 
@@ -345,8 +339,7 @@ local states =
         },
     },
 
-    State
-    {
+    State{
         name = "enterworld",
         tags = { "busy", "nosleep", "nofreeze" },
 
@@ -409,8 +402,7 @@ local states =
         end,
     },
 
-    State
-    {
+    State{
         name = "leaveworld",
         tags = { "busy", "nosleep", "nofreeze" },
 
@@ -441,8 +433,7 @@ local states =
         end,
     },
 
-    State
-    {
+    State{
         name = "sinkhole_pre",
         tags = { "busy", "attack", "nosleep", "nofreeze" },
 
@@ -468,8 +459,7 @@ local states =
         },
     },
 
-    State
-    {
+    State{
         name = "sinkhole_loop",
         tags = { "busy", "attack", "nosleep", "nofreeze" },
 
@@ -506,8 +496,7 @@ local states =
         },
     },
 
-    State
-    {
+    State{
         name = "sinkhole_pst",
         tags = { "busy", "attack", "nosleep", "nofreeze" },
 

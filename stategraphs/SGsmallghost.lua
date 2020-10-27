@@ -37,8 +37,7 @@ end
 
 local states =
 {
-    State
-    {
+    State{
         name = "idle",
         tags = { "idle", "canrotate", "canslide" },
 
@@ -47,8 +46,7 @@ local states =
         end,
     },
 
-    State
-    {
+    State{
         name = "idle_to_sad",
         tags = {"busy"},
 
@@ -62,8 +60,7 @@ local states =
         },
     },
 
-    State
-    {
+    State{
         name = "appear",
         tags = {"busy", "nointerrupt"},
 
@@ -89,8 +86,7 @@ local states =
         },
     },
 
-    State
-    {
+    State{
         name = "disappear",
         tags = { "busy", "nointerrupt" },
 
@@ -115,8 +111,7 @@ local states =
         },
     },
 
-    State
-    {
+    State{
         name = "dissipate",
         tags = { "busy", "noattack", "nointerrupt" },
 
@@ -141,8 +136,7 @@ local states =
         },
     },
 
-    State
-    {
+    State{
         name = "pickup",
         tags = {"busy"},
 
@@ -174,8 +168,7 @@ local states =
         },
     },
 
-    State
-    {
+    State{
         name = "quest_begin",
         tags = { "busy", "noattack", "nointerrupt" },
 
@@ -196,8 +189,7 @@ local states =
         },
     },
 
-    State
-    {
+    State{
         name = "quest_abandoned",
         tags = { "busy", "noattack", "nointerrupt" },
 
@@ -212,8 +204,7 @@ local states =
         },
     },
 
-    State
-    {
+    State{
         name = "quest_finished",
         tags = {"busy"},
 
@@ -238,8 +229,7 @@ local states =
         },
     },
 
-    State
-    {
+    State{
         name = "hint",
         tags = {"busy"},
 

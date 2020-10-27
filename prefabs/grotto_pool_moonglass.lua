@@ -94,6 +94,8 @@ local function mineable_glass(name, anim)
 
         inst:AddTag("moonglass")
 
+        inst:SetPrefabNameOverride("moonglass_rock")
+
         inst.entity:SetPristine()
         if not TheWorld.ismastersim then
             return inst

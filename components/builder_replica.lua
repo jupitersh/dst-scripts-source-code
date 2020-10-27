@@ -55,9 +55,11 @@ function Builder:GetTechBonuses()
 end
 
 function Builder:SetTechBonus(tech, bonus)
-    local netvar = self.classified[string.lower(tech).."bonus"]
-	if netvar ~= nil then
-		netvar:set(bonus)
+	if self.classified ~= nil  then
+		local netvar = self.classified[string.lower(tech).."bonus"]
+		if netvar ~= nil then
+			netvar:set(bonus)
+		end
 	end
 end
 

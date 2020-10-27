@@ -458,8 +458,7 @@ local states =
         },
     },
 
-    State
-    {
+    State{
         name = "eat",
         tags = { "busy", "caninterrupt" },
 

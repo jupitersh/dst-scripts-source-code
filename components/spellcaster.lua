@@ -99,6 +99,7 @@ local SpellCaster = Class(function(self, inst)
     self.onspellcast = nil
     self.canusefrominventory = false
     self.canuseontargets = false
+    self.canuseondead = false
     self.canonlyuseonrecipes = false
     self.canonlyuseonlocomotors = false
     self.canonlyuseonlocomotorspvp = false
@@ -186,7 +187,7 @@ function SpellCaster:CanCast(doer, target, pos)
         end
     elseif target:IsInLimbo()
         or not target.entity:IsVisible()
-        or (target.components.health ~= nil and target.components.health:IsDead())
+        or (target.components.health ~= nil and target.components.health:IsDead() and not self.canuseondead)
         or (target.sg ~= nil and (
                 target.sg.currentstate.name == "death" or
                 target.sg:HasStateTag("flight") or

@@ -118,8 +118,7 @@ end
 
 local states =
 {
-    State
-    {
+    State{
         name = "idle",
         tags = { "idle" },
 
@@ -139,8 +138,7 @@ local states =
         },
     },
 
-    State
-    {
+    State{
         name = "howl",
         tags = { "busy", "howling" },
 
@@ -176,8 +174,7 @@ local states =
     },
 
 	--Gingerbread warg
-    State
-    {
+    State{
         name = "attack_icing",
         tags = { "attack", "busy" },
 
@@ -215,8 +212,7 @@ local states =
         },
     },
 
-    State
-    {
+    State{
         name = "gingerbread_intro",
         tags = { "intro_state" },
 
@@ -253,8 +249,7 @@ local states =
     },
 
     --Clay warg
-    State
-    {
+    State{
         name = "statue",
         tags = { "busy", "noattack", "statue" },
 
@@ -280,8 +275,7 @@ local states =
         end,
     },
 
-    State
-    {
+    State{
         name = "reanimatestatue",
         tags = { "busy", "noattack", "statue" },
 
@@ -328,8 +322,7 @@ local states =
         end,
     },
 
-    State
-    {
+    State{
         name = "transformstatue",
         tags = { "busy", "noattack", "statue" },
 

@@ -31,8 +31,7 @@ local events =
 
 local states = 
 {
-    State
-    {
+    State{
         name = "idle",
         tags = { "idle", "canrotate" },
 
@@ -69,8 +68,7 @@ local states =
         end,
     },
 
-    State
-    {
+    State{
         name = "run",
         tags = { "moving", "running", "canrotate" },
         
@@ -86,8 +84,7 @@ local states =
         end,
     },
 
-    State
-    {
+    State{
         name = "remoteresurrect",
         tags = { "doing", "busy" },
 
@@ -118,8 +115,7 @@ local states =
         end,
     },
 
-    State
-    {
+    State{
         name = "haunt_pre",
         tags = { "doing", "busy" },
 
@@ -150,8 +146,7 @@ local states =
         end,
     },
 
-    State
-    {
+    State{
         name = "jumpin",
         tags = { "doing", "busy", "canrotate" },
 
@@ -182,8 +177,7 @@ local states =
         end,
     },
 
-    State
-    {
+    State{
         name = "migrate",
         tags = { "doing", "busy", "canrotate" },
 

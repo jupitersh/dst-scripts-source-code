@@ -685,8 +685,7 @@ local states=
         },
     },
    
-    State
-    {
+    State{
         name = "run_start",
         tags = { "moving", "running", "canrotate" },
 
@@ -704,8 +703,7 @@ local states=
         },
     },
    
-    State
-    {
+    State{
         name = "run",
         tags = { "moving", "running", "canrotate" },
 
@@ -726,8 +724,7 @@ local states=
         end,
     },
    
-    State
-    {
+    State{
         name = "run_stop",
         tags = { "idle" },
 

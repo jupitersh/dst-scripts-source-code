@@ -18,8 +18,7 @@ local events=
 
 local states =
 {
-    State
-    {
+    State{
         name = "raised",
         onenter = function(inst)
             inst.AnimState:PlayAnimation("untethered_idle_loop", true)
@@ -45,8 +44,7 @@ local states =
         },
     },
 
-    State
-    {
+    State{
         name = "lowered",
         onenter = function(inst)
             local depth = inst.components.anchor.raiseunits
@@ -90,8 +88,7 @@ local states =
         },
     },
 
-    State
-    {
+    State{
         name = "lowered_land",
         onenter = function(inst)
         
@@ -110,8 +107,7 @@ local states =
         },
     },
 
-    State
-    {
+    State{
         name = "raising",
         onenter = function(inst)
             inst.sg.statemem.depth = TUNING.ANCHOR_DEPTH_TIMES.VERY_DEEP
@@ -176,8 +172,7 @@ local states =
         },
     },
 
-    State
-    {
+    State{
         name = "raising_pst",
         onenter = function(inst)
             inst.AnimState:PlayAnimation("untethering_pst_full")
@@ -207,8 +202,7 @@ local states =
         },
     },
 
-    State
-    {
+    State{
         name = "raising_land",
         onenter = function(inst)
             inst.AnimState:PlayAnimation("tether_land_pst")
@@ -229,8 +223,7 @@ local states =
         },
     },
 
-    State
-    {
+    State{
         name = "lowering_land",
         onenter = function(inst)
             inst.AnimState:PlayAnimation("tether_land_pre")
@@ -249,8 +242,7 @@ local states =
         }
     },
 
-    State
-    {
+    State{
         name = "lowering",
 
         onenter = function(inst)
@@ -310,8 +302,7 @@ local states =
         },
     },
 
-    State
-    {
+    State{
         name = "lowering_pst",
         onenter = function(inst)
 

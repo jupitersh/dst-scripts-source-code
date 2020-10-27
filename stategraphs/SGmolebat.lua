@@ -30,8 +30,7 @@ end
 
 local states =
 {
-     State
-     {
+     State{
         name = "idle",
         tags = {"idle", "canrotate"},
         onenter = function(inst, playanim)
@@ -55,8 +54,7 @@ local states =
         },
     },
 
-    State
-    {
+    State{
         name = "sniff_idle",
         tags = {"idle", "canrotate"},
 
@@ -74,8 +72,7 @@ local states =
         },
     },
 
-    State
-    {
+    State{
         name = "startnap",
         tags = {"idle", "canrotate"},
 
@@ -99,8 +96,7 @@ local states =
         end,
     },
 
-    State
-    {
+    State{
         name = "taunt",
         tags = {"busy"},
 
@@ -120,8 +116,7 @@ local states =
         },
     },
 
-    State
-    {
+    State{
         name = "summon_ally",
         tags = {"busy"},
         
@@ -155,8 +150,7 @@ local states =
         },
     },
 
-    State
-    {
+    State{
         name = "fall",
         tags = { "busy", "noattack" },
 
@@ -194,8 +188,7 @@ local states =
         end,
     },
 
-    State
-    {
+    State{
         name = "eat_start",
         tags = {"busy"},
 
@@ -225,8 +218,7 @@ local states =
         },
     },
 
-    State
-    {
+    State{
         name = "make_molehill",
         tags = { "busy" },
 
@@ -257,8 +249,7 @@ local states =
         end,
     },
 
-    State
-    {
+    State{
         name = "break_molehill",
         tags = { "busy" },
 

@@ -99,7 +99,7 @@ function Combat:GetCooldown()
 end
 
 function Combat:ResetCooldown()
-    self.laststartattacktime = 0
+    self.laststartattacktime = nil
 end
 
 function Combat:RestartCooldown()
@@ -589,7 +589,7 @@ function Combat:StartAttack()
 end
 
 function Combat:CancelAttack()
-    self.laststartattacktime = 0
+    self.laststartattacktime = nil
 end
 
 function Combat:CanTarget(target)
@@ -606,9 +606,7 @@ function Combat:CanAttack(target)
     end
 
     return self.canattack
-        and (   self.laststartattacktime == nil or
-                GetTime() - self.laststartattacktime >= self.min_attack_period
-            )
+        and not self:InCooldown()
         and (   self.inst.sg == nil or
                 not self.inst.sg:HasStateTag("busy") or
                 self.inst.sg:HasStateTag("hit")
@@ -636,9 +634,7 @@ function Combat:LocomotorCanAttack(reached_dest, target)
         (self.ignorehitrange or distsq(target:GetPosition(), self.inst:GetPosition()) <= self:CalcAttackRangeSq(target))
 
     local valid = self.canattack
-        and (   self.laststartattacktime == nil or
-                GetTime() - self.laststartattacktime >= self.min_attack_period
-            )
+        and not self:InCooldown()
         and (   self.inst.sg == nil or
                 not self.inst.sg:HasStateTag("busy") or
                 self.inst.sg:HasStateTag("hit")

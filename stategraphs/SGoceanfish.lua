@@ -314,8 +314,7 @@ local states=
         end,
     },  
 
-    State
-    {
+    State{
         name = "shoot",
         tags = {"busy", "shooting", "jumping"},
 

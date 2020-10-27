@@ -803,8 +803,7 @@ local states =
         end,
     },
 
-    State
-    {
+    State{
         name = "fall",
         tags = {"busy", "stunned"},
 

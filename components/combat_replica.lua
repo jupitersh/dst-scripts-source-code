@@ -32,7 +32,7 @@ function Combat:AttachClassified(classified)
     self.classified = classified
     self.ondetachclassified = function() self:DetachClassified() end
     self.inst:ListenForEvent("onremove", self.ondetachclassified, classified)
-    self._laststartattacktime = 0
+    self._laststartattacktime = nil
 end
 
 function Combat:DetachClassified()
@@ -136,7 +136,7 @@ function Combat:CancelAttack()
     if self.inst.components.combat ~= nil then
         self.inst.components.combat:CancelAttack()
     elseif self.classified ~= nil then
-        self._laststartattacktime = 0
+        self._laststartattacktime = nil
     end
 end
 
@@ -156,8 +156,7 @@ function Combat:CanAttack(target)
         if not self:IsValidTarget(target) then
             return false, true
         elseif not self.classified.canattack:value()
-            or (self._laststartattacktime ~= nil and
-                GetTime() - self._laststartattacktime < self.classified.minattackperiod:value())
+            or self:InCooldown()
             or (self.inst.sg ~= nil and
                 self.inst.sg:HasStateTag("busy") or
                 self.inst:HasTag("busy"))
@@ -197,9 +196,7 @@ function Combat:LocomotorCanAttack(reached_dest, target)
         reached_dest = reached_dest or distsq(target:GetPosition(), self.inst:GetPosition()) <= range * range
 
         local valid = self.classified.canattack:value()
-            and (   self._laststartattacktime == nil or
-                    GetTime() - self._laststartattacktime >= self.classified.minattackperiod:value()
-                )
+            and not self:InCooldown()
             and (   self.inst.sg == nil or
                     not self.inst.sg:HasStateTag("busy") or
                     self.inst.sg:HasStateTag("hit")

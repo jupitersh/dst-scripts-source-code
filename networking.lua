@@ -758,7 +758,7 @@ end
 
 function UpdateServerWorldGenDataString()
     local clusteroptions = {}
-    local worldoptions = ShardGameIndex:GetGenOptions()
+    local worldoptions = deepcopy(ShardGameIndex:GetGenOptions())
     table.insert(clusteroptions, worldoptions or {})
 
     if TheShard:IsMaster() then

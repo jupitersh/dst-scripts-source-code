@@ -108,6 +108,33 @@ local function onremove(inst)
     OnIsPathFindingDirty(inst)
 end
 
+local PLAYER_TAGS = { "player" }
+local function ValidRepairFn(inst)
+    if inst.Physics:IsActive() then
+        return true
+    end
+
+    local x, y, z = inst.Transform:GetWorldPosition()
+    if TheWorld.Map:IsAboveGroundAtPoint(x, y, z) then
+        return true
+    end
+
+    if TheWorld.Map:IsVisualGroundAtPoint(x,y,z) then
+        for i, v in ipairs(TheSim:FindEntities(x, 0, z, 1, PLAYER_TAGS)) do
+            if v ~= inst and
+            v.entity:IsVisible() and
+            v.components.placer == nil and
+            v.entity:GetParent() == nil then
+                local px, _, pz = v.Transform:GetWorldPosition()
+                if math.floor(x) == math.floor(px) and math.floor(z) == math.floor(pz) then
+                    return false
+                end
+            end
+        end
+    end
+    return true
+end
+
 function MakeWallType(data)
     local assets =
     {
@@ -287,6 +314,7 @@ function MakeWallType(data)
         inst:AddComponent("repairable")
         inst.components.repairable.repairmaterial = data.name == "ruins" and MATERIALS.THULECITE or data.name
         inst.components.repairable.onrepaired = onrepaired
+        inst.components.repairable.testvalidrepairfn = ValidRepairFn
 
         if data.name == "ruins_2" then
             inst.components.repairable.repairmaterial = MATERIALS.THULECITE

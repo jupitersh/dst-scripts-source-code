@@ -255,9 +255,10 @@ local function OnDead(inst)
 end
 
 local function OnEntitySleep(inst)
-    inst.components.health:SetMaxHealth(200000)
-    inst.components.health.currenthealth = inst.components.health.maxhealth
+    inst.components.health:DoDelta(inst.components.health.maxhealth - inst.components.health.currenthealth)
     if not inst.sg:HasStateTag("inert") then
+        inst.components.health:SetMaxHealth(200000)
+        inst.components.health.currenthealth = inst.components.health.maxhealth
         inst.spawnstacks(inst)
         inst.dropgems(inst)
         inst.sg:GoToState("inert")
@@ -315,6 +316,8 @@ local function OnSave(inst, data)
         end
     end
 
+    data.healthpercent = inst.components.health:GetPercent()
+
     return ents
 end
 
@@ -342,6 +345,9 @@ local function OnLoadPostPass(inst, newents, data)
                 end
             end
         end
+        if data.healthpercent then
+            inst.components.health:SetPercent(data.healthpercent)
+        end        
     end
 end
 
@@ -399,7 +405,7 @@ local function endcastspell(inst, lastwasfreeze)
     local ents = TheSim:FindEntities(x, y, z, 25, nil, nil, CRABKING_SPELLGENERATOR_TAGS)
     if #ents > 0 then
         for i,ent in pairs(ents)do
-            if not inst.components.freezable:IsFrozen() and not inst.components.health:IsDead() then
+            if (not inst.components.freezable or not inst.components.freezable:IsFrozen()) and not inst.components.health:IsDead() then
                 ent:PushEvent("endspell")
             else
                 ent:Remove()

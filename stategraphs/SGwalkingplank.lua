@@ -5,8 +5,7 @@ local events =
 
 local states =
 {
-    State
-    {
+    State{
         name = "retracted",
 
         onenter = function(inst)
@@ -22,8 +21,7 @@ local states =
     },
 
 
-    State
-    {
+    State{
         name = "retracting",
         
         onenter = function(inst)
@@ -44,8 +42,7 @@ local states =
         },          
     },   
 
-    State
-    {
+    State{
         name = "extended",
         
         onenter = function(inst)
@@ -62,8 +59,7 @@ local states =
         },         
     },   
 
-    State
-    {
+    State{
         name = "mounted",
         
         onenter = function(inst)
@@ -77,8 +73,7 @@ local states =
         },         
     },      
 
-    State
-    {
+    State{
         name = "extending",
         onenter = function(inst)
             inst.AnimState:PlayAnimation("plank_activate")
@@ -98,8 +93,7 @@ local states =
         },        
     },  
 
-    State
-    {
+    State{
         name = "abandon_ship",
 
         onenter = function(inst)

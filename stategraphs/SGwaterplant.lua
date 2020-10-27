@@ -59,8 +59,7 @@ end
 
 local states =
 {
-    State
-    {
+    State{
         name = "idle",
         tags = {"idle", "canrotate"},
 
@@ -79,8 +78,7 @@ local states =
         },
     },
 
-    State
-    {
+    State{
         name = "barnacle_grow",
         tags = {"idle", "canrotate"},
 
@@ -93,8 +91,7 @@ local states =
         ontimeout = return_to_idle,
     },
 
-    State
-    {
+    State{
         name = "death",
         tags = {"busy"},
 
@@ -135,8 +132,7 @@ local states =
         }
     },
 
-    State
-    {
+    State{
         name = "attack",
         tags = {"attack", "canrotate"},
 
@@ -160,8 +156,7 @@ local states =
         },
     },
 
-    State
-    {
+    State{
         name = "switch_to_flower",
         tags = {"busy"},
 
@@ -183,8 +178,7 @@ local states =
         },
     },
 
-    State
-    {
+    State{
         name = "switch_to_bud",
         tags = {"busy"},
 
@@ -206,8 +200,7 @@ local states =
         },
     },
 
-    State
-    {
+    State{
         name = "hit",
         tags = {"busy"},
 
@@ -228,8 +221,7 @@ local states =
         },
     },
 
-    State
-    {
+    State{
         name = "sleep",
         tags = {"busy", "sleeping", "nowake"},
 
@@ -254,8 +246,7 @@ local states =
         end,
     },
 
-    State
-    {
+    State{
         name = "sleeping",
         tags = { "busy", "sleeping" },
 
@@ -287,8 +278,7 @@ local states =
         end,
     },
 
-    State
-    {
+    State{
         name = "wake",
         tags = { "busy", "waking", "nosleep" },
 
@@ -320,8 +310,7 @@ local states =
         },
     },
 
-    State
-    {
+    State{
         name = "taunt",
         tags = {"busy", "canrotate"},
 
@@ -340,8 +329,7 @@ local states =
         },
     },
 
-    State
-    {
+    State{
         name = "frozen",
         tags = { "busy", "frozen" },
 
@@ -377,8 +365,7 @@ local states =
         end,
     },
 
-    State
-    {
+    State{
         name = "thaw",
         tags = { "busy", "thawing" },
 
@@ -413,8 +400,7 @@ local states =
         end,
     },
 
-    State
-    {
+    State{
         name = "cloud",
         tags = { "canrotate", "spraying" },
 

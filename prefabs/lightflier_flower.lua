@@ -156,7 +156,9 @@ local function TurnOn(inst)
     inst._lighttime:set(tween_time - LIGHT_MIN_TIME)
     OnLightDirty(inst)
 
-    inst.components.timer:StartTimer("turnoff", TUNING.LIGHTFLIER_FLOWER.LIGHT_TIME + tween_time + (math.random() * TUNING.LIGHTFLIER_FLOWER.LIGHT_TIME_VARIANCE))
+    if not inst.components.timer:TimerExists("turnoff") then
+        inst.components.timer:StartTimer("turnoff", TUNING.LIGHTFLIER_FLOWER.LIGHT_TIME + tween_time + (math.random() * TUNING.LIGHTFLIER_FLOWER.LIGHT_TIME_VARIANCE))
+    end
 end
 
 local function Recharge(inst)

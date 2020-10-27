@@ -51,8 +51,7 @@ end
 
 local states =
 {
-    State
-    {
+    State{
         name = "idle",
         tags = { "idle", "canrotate", "canslide" },
 
@@ -65,8 +64,7 @@ local states =
         end,
     },
 
-    State
-    {
+    State{
         name = "appear",
 
         onenter = function(inst)

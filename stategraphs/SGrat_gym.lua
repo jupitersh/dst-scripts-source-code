@@ -44,8 +44,7 @@ local events=
 
 local states =
 {
-    State
-    {
+    State{
         name = "idle",
         onenter = function(inst)
             if inst.components.gym and inst.components.gym.trainee then
@@ -68,16 +67,14 @@ local states =
         },
     },
 
-    State
-    {
+    State{
         name = "burnt",
         onenter = function(inst)
             inst.AnimState:PlayAnimation("burnt")
         end,
     },    
 
-    State
-    {
+    State{
         name = "idle2",
         onenter = function(inst)
             inst.AnimState:PlayAnimation("idle_rat2")
@@ -96,8 +93,7 @@ local states =
         },
     },
 
-    State
-    {
+    State{
         name = "place",
         onenter = function(inst)
             inst.AnimState:PlayAnimation("place")
@@ -123,8 +119,7 @@ local states =
         },
     },
 
-    State
-    {
+    State{
         name = "active_pre",
         tags = {"active"},
         onenter = function(inst)
@@ -148,8 +143,7 @@ local states =
         },
     },
 
-    State
-    {
+    State{
         name = "active_loop",
         tags = {"active"},
         onenter = function(inst)
@@ -181,8 +175,7 @@ local states =
             EventHandler("animover", function(inst) inst.sg:GoToState("active_loop") end),
         },
     },  
-    State
-    {
+    State{
         name = "active_pst",
         onenter = function(inst)
             inst.AnimState:PlayAnimation("active_pst")
@@ -207,8 +200,7 @@ local states =
             EventHandler("animover", function(inst) inst.sg:GoToState("idle") end),
         },
     },
-    State
-    {
+    State{
         name = "hit",
         tags = {"hit"},
         onenter = function(inst)
@@ -226,8 +218,7 @@ local states =
         },
     },    
 
-    State
-    {
+    State{
         name = "sleep_pre",
         tags = {"sleep"},
         onenter = function(inst)
@@ -250,8 +241,7 @@ local states =
         },
     },
 
-    State
-    {
+    State{
         name = "sleep",
         tags = {"sleep"},
         onenter = function(inst)
@@ -268,8 +258,7 @@ local states =
             EventHandler("animover", function(inst) inst.sg:GoToState("sleep") end),
         },
     },
-    State
-    {
+    State{
         name = "sleep_pst",
         tags = {},
         onenter = function(inst)

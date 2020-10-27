@@ -28,8 +28,10 @@ local function releaseclamp(inst, immediate)
 			inst.boat.components.boatphysics:RemoveBoatDrag(inst)
 		end
 
-        inst:RemoveEventCallback("onremove", inst._releaseclamp, inst.boat)  
-        inst._releaseclamp = nil
+        if inst._releaseclamp then
+            inst:RemoveEventCallback("onremove", inst._releaseclamp, inst.boat)  
+            inst._releaseclamp = nil
+        end
     end  
     inst.boat = nil
     inst:PushEvent("releaseclamp", {immediate = immediate} )

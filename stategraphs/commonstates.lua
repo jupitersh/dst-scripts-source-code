@@ -136,8 +136,7 @@ end
 
 --------------------------------------------------------------------------
 CommonStates.AddIdle = function(states, funny_idle_state, anim_override, timeline)
-    table.insert(states, State
-    {
+    table.insert(states, State{
         name = "idle",
         tags = { "idle", "canrotate" },
 
@@ -177,8 +176,7 @@ end
 
 --------------------------------------------------------------------------
 CommonStates.AddSimpleState = function(states, name, anim, tags, finishstate)
-    table.insert(states, State
-    {
+    table.insert(states, State{
         name = name,
         tags = tags or {},
 
@@ -207,8 +205,7 @@ end
 
 --------------------------------------------------------------------------
 CommonStates.AddSimpleActionState = function(states, name, anim, time, tags, finishstate)
-    table.insert(states, State
-    {
+    table.insert(states, State{
         name = name,
         tags = tags or {},
 
@@ -237,8 +234,7 @@ end
 
 --------------------------------------------------------------------------
 CommonStates.AddShortAction = function(states, name, anim, timeout, finishstate)
-    table.insert(states, State
-    {
+    table.insert(states, State{
         name = "name",
         tags = { "doing" },
 
@@ -289,8 +285,7 @@ local function runontimeout(inst)
 end
 
 CommonStates.AddRunStates = function(states, timelines, anims, softstop, delaystart, fns)
-    table.insert(states, State
-    {
+    table.insert(states, State{
         name = "run_start",
         tags = { "moving", "running", "canrotate" },
 
@@ -319,8 +314,7 @@ CommonStates.AddRunStates = function(states, timelines, anims, softstop, delayst
         },
     })
 
-    table.insert(states, State
-    {
+    table.insert(states, State{
         name = "run",
         tags = { "moving", "running", "canrotate" },
 
@@ -343,8 +337,7 @@ CommonStates.AddRunStates = function(states, timelines, anims, softstop, delayst
         ontimeout = runontimeout,
     })
 
-    table.insert(states, State
-    {
+    table.insert(states, State{
         name = "run_stop",
         tags = { "idle" },
 
@@ -393,8 +386,7 @@ local function walkontimeout(inst)
 end
 
 CommonStates.AddWalkStates = function(states, timelines, anims, softstop, delaystart, fns)
-    table.insert(states, State
-    {
+    table.insert(states, State{
         name = "walk_start",
         tags = { "moving", "canrotate" },
 
@@ -420,8 +412,7 @@ CommonStates.AddWalkStates = function(states, timelines, anims, softstop, delays
         },
     })
 
-    table.insert(states, State
-    {
+    table.insert(states, State{
         name = "walk",
         tags = { "moving", "canrotate" },
 
@@ -443,8 +434,7 @@ CommonStates.AddWalkStates = function(states, timelines, anims, softstop, delays
         ontimeout = walkontimeout,
     })
 
-    table.insert(states, State
-    {
+    table.insert(states, State{
         name = "walk_stop",
         tags = { "canrotate" },
 
@@ -501,8 +491,7 @@ CommonStates.AddHopStates = function(states, wait_for_pre, anims, timelines, lan
     timelines = timelines or {}
 	data = data or {}
 
-    table.insert(states, State
-    {
+    table.insert(states, State{
         name = "hop_pre",
         tags = { "doing", "nointerrupt", "busy", "jumping", "autopredict", "nomorph", "nosleep" },
 
@@ -555,8 +544,7 @@ CommonStates.AddHopStates = function(states, wait_for_pre, anims, timelines, lan
 		end,
     })
 
-    table.insert(states, State
-    {
+    table.insert(states, State{
         name = "hop_loop",
         tags = { "doing", "nointerrupt", "busy", "jumping", "autopredict", "nomorph", "nosleep" },
 
@@ -600,8 +588,7 @@ CommonStates.AddHopStates = function(states, wait_for_pre, anims, timelines, lan
 		end,
     })
 
-    table.insert(states, State
-    {
+    table.insert(states, State{
         name = "hop_pst",
         tags = { "doing", "nointerrupt", "jumping", "autopredict", "nomorph", "nosleep" },
 
@@ -650,8 +637,7 @@ CommonStates.AddHopStates = function(states, wait_for_pre, anims, timelines, lan
 		end
     })  
 
-    table.insert(states, State
-    {
+    table.insert(states, State{
         name = "hop_pst_complete",
         tags = {"autopredict", "nomorph", "nosleep" },
 
@@ -687,8 +673,7 @@ CommonStates.AddAmphibiousCreatureHopStates = function(states, config, anims, ti
 	}
 	timelines.hop_pre = timelines.hop_pre == nil and base_hop_pre_timeline or JoinArrays(timelines.hop_pre, base_hop_pre_timeline)
 
-    table.insert(states, State
-	{
+    table.insert(states, State{
         name = "hop_pre",
         tags = { "doing", "busy", "jumping", "canrotate" },
 
@@ -776,8 +761,7 @@ CommonStates.AddAmphibiousCreatureHopStates = function(states, config, anims, ti
 		end,
     })
 
-    table.insert(states, State
-	{
+    table.insert(states, State{
         name = "hop_pst",
         tags = { "busy", "jumping" },
 
@@ -813,8 +797,7 @@ CommonStates.AddAmphibiousCreatureHopStates = function(states, config, anims, ti
 		end,
     })
 
-    table.insert(states, State
-    {
+    table.insert(states, State{
         name = "hop_antic",
         tags = { "doing", "busy", "jumping", "canrotate" },
 
@@ -862,8 +845,7 @@ local function onentersleeping(inst)
 end
 
 CommonStates.AddSleepStates = function(states, timelines, fns)
-    table.insert(states, State
-    {
+    table.insert(states, State{
         name = "sleep",
         tags = { "busy", "sleeping" },
 
@@ -886,8 +868,7 @@ CommonStates.AddSleepStates = function(states, timelines, fns)
         },
     })
 
-    table.insert(states, State
-    {
+    table.insert(states, State{
         name = "sleeping",
         tags = { "busy", "sleeping" },
 
@@ -902,8 +883,7 @@ CommonStates.AddSleepStates = function(states, timelines, fns)
         },
     })
 
-    table.insert(states, State
-    {
+    table.insert(states, State{
         name = "wake",
         tags = { "busy", "waking" },
 
@@ -1000,8 +980,7 @@ local function onexitthaw(inst)
 end
 
 CommonStates.AddFrozenStates = function(states, onoverridesymbols, onclearsymbols)
-    table.insert(states, State
-    {
+    table.insert(states, State{
         name = "frozen",
         tags = { "busy", "frozen" },
 
@@ -1023,8 +1002,7 @@ CommonStates.AddFrozenStates = function(states, onoverridesymbols, onclearsymbol
         end or onexitfrozen,
     })
 
-    table.insert(states, State
-    {
+    table.insert(states, State{
         name = "thaw",
         tags = { "busy", "thawing" },
 
@@ -1048,8 +1026,7 @@ end
 
 --------------------------------------------------------------------------
 CommonStates.AddCombatStates = function(states, timelines, anims, fns)
-    table.insert(states, State
-    {
+    table.insert(states, State{
         name = "hit",
         tags = { "hit", "busy" },
 
@@ -1077,8 +1054,7 @@ CommonStates.AddCombatStates = function(states, timelines, anims, fns)
         },
     })
 
-    table.insert(states, State
-    {
+    table.insert(states, State{
         name = "attack",
         tags = { "attack", "busy" },
 
@@ -1108,8 +1084,7 @@ CommonStates.AddCombatStates = function(states, timelines, anims, fns)
         },
     })
 
-    table.insert(states, State
-    {
+    table.insert(states, State{
         name = "death",
         tags = { "busy" },
 
@@ -1128,8 +1103,7 @@ end
 
 --------------------------------------------------------------------------
 CommonStates.AddHitState = function(states, timeline, anim)
-    table.insert(states, State
-    {
+    table.insert(states, State{
         name = "hit",
         tags = { "hit", "busy" },
 
@@ -1161,8 +1135,7 @@ end
 
 --------------------------------------------------------------------------
 CommonStates.AddDeathState = function(states, timeline, anim)
-    table.insert(states, State
-    {
+    table.insert(states, State{
         name = "death",
         tags = { "busy" },
 
@@ -1256,8 +1229,7 @@ local function wakeexonanimover(inst)
 end
 
 CommonStates.AddSleepExStates = function(states, timelines, fns)
-    table.insert(states, State
-    {
+    table.insert(states, State{
         name = "sleep",
         tags = { "busy", "sleeping", "nowake" },
 
@@ -1288,8 +1260,7 @@ CommonStates.AddSleepExStates = function(states, timelines, fns)
         end,
     })
 
-    table.insert(states, State
-    {
+    table.insert(states, State{
         name = "sleeping",
         tags = { "busy", "sleeping" },
 
@@ -1317,8 +1288,7 @@ CommonStates.AddSleepExStates = function(states, timelines, fns)
         end,
     })
 
-    table.insert(states, State
-    {
+    table.insert(states, State{
         name = "wake",
         tags = { "busy", "waking", "nosleep" },
 
@@ -1349,8 +1319,7 @@ end
 --------------------------------------------------------------------------
 
 CommonStates.AddFossilizedStates = function(states, timelines, fns)
-    table.insert(states, State
-    {
+    table.insert(states, State{
         name = "fossilized",
         tags = { "busy", "fossilized", "caninterrupt" },
 
@@ -1391,8 +1360,7 @@ CommonStates.AddFossilizedStates = function(states, timelines, fns)
         end,
     })
 
-    table.insert(states, State
-    {
+    table.insert(states, State{
         name = "unfossilizing",
         tags = { "busy", "caninterrupt" },
 
@@ -1426,8 +1394,7 @@ CommonStates.AddFossilizedStates = function(states, timelines, fns)
         end,
     })
 
-    table.insert(states, State
-    {
+    table.insert(states, State{
         name = "unfossilized",
         tags = { "busy", "caninterrupt" },
 
@@ -1457,8 +1424,7 @@ end
 --------------------------------------------------------------------------
 
 CommonStates.AddRowStates = function(states, is_client)
-    table.insert(states, State
-    {
+    table.insert(states, State{
         name = "row",
         tags = { "rowing", "doing" },
 
@@ -1600,8 +1566,7 @@ CommonStates.AddRowStates = function(states, is_client)
         end,        
     })
 
-    table.insert(states, State
-    {
+    table.insert(states, State{
         name = "row_fail",
         tags = { "busy", "row_fail" },
 
@@ -1654,8 +1619,7 @@ CommonStates.AddRowStates = function(states, is_client)
     })
 
 
-    table.insert(states, State
-    {
+    table.insert(states, State{
         name = "row_idle",
 
         onenter = function(inst)
@@ -1700,8 +1664,7 @@ CommonStates.AddSinkAndWashAsoreStates = function(states, anims, timelines, fns)
 	timelines = timelines or {}
 	fns = fns or {}
 
-    table.insert(states, State
-    {
+    table.insert(states, State{
         name = "sink",
         tags = { "busy", "nopredict", "nomorph", "drowning", "nointerrupt", "nowake" },
 
@@ -1783,8 +1746,7 @@ CommonStates.AddSinkAndWashAsoreStates = function(states, anims, timelines, fns)
         end,
     })
 
-	table.insert(states, State
-    {
+	table.insert(states, State{
 		name = "washed_ashore",
         tags = { "doing", "busy", "nopredict", "silentmorph" },
 

@@ -376,6 +376,7 @@ local function securitywaypointfn()
     inst.entity:AddTransform()
     inst.entity:AddNetwork()
 
+    inst:AddTag("NOBLOCK")
     inst:AddTag("archive_waypoint")
 
     inst.entity:SetPristine()
@@ -746,6 +747,7 @@ local function switchfn()
     inst.AnimState:PlayAnimation("idle_empty")
 
     inst:AddTag("gemsocket")
+    inst:AddTag("outofreach") --to prevent things from stealing the gem.
     inst:AddTag("archive_switch")
 
     --trader (from trader component) added to pristine state for optimization

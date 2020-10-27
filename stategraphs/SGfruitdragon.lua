@@ -114,8 +114,7 @@ local states=
         },
     },
 
-	State
-    {
+	State{
         name = "attack",
         tags = { "attack", "busy" },
 
@@ -141,8 +140,7 @@ local states=
         },
     },
 
-	State
-    {
+	State{
         name = "attack_fire",
         tags = { "attack", "busy" },
 

@@ -121,9 +121,9 @@ local function makestafflight(name, is_hot, anim, colour, idles, is_fx)
 
             inst:AddTag("daylight")
 
-            inst.SoundEmitter:PlaySound("dontstarve/common/staff_star_LP", "staff_star_loop")
+            inst.SoundEmitter:PlaySound("dontstarve/common/staff_star_LP", "staff_star_loop", nil, not inst._ismastersim)
         else
-            inst.SoundEmitter:PlaySound("dontstarve/common/staff_coldlight_LP", "staff_star_loop")
+            inst.SoundEmitter:PlaySound("dontstarve/common/staff_coldlight_LP", "staff_star_loop", nil, not inst._ismastersim)
         end
 
         inst.entity:SetPristine()

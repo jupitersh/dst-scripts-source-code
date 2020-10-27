@@ -29,7 +29,14 @@ function Map:IsPassableAtPoint(x, y, z, allow_water, exclude_boats)
 end
 
 function Map:IsPassableAtPointWithPlatformRadiusBias(x, y, z, allow_water, exclude_boats, platform_radius_bias, ignore_land_overhang)
-	local valid_tile = self:IsAboveGroundAtPoint(x, y, z, allow_water) or ((not ignore_land_overhang) and self:IsVisualGroundAtPoint(x,y,z) or false)
+    local valid_tile = self:IsAboveGroundAtPoint(x, y, z, allow_water)
+    local is_overhang = false
+    if not valid_tile then
+        valid_tile = ((not ignore_land_overhang) and self:IsVisualGroundAtPoint(x,y,z) or false)
+        if valid_tile then
+            is_overhang = true
+        end
+    end
     if not allow_water and not valid_tile then
         if not exclude_boats then
             local entities = TheSim:FindEntities(x, 0, z, TUNING.MAX_WALKABLE_PLATFORM_RADIUS + platform_radius_bias, WALKABLE_PLATFORM_TAGS)
@@ -44,7 +51,7 @@ function Map:IsPassableAtPointWithPlatformRadiusBias(x, y, z, allow_water, exclu
         end
 		return false
     end
-	return valid_tile
+	return valid_tile, is_overhang
 end
 
 function Map:IsAboveGroundAtPoint(x, y, z, allow_water)
@@ -109,6 +116,7 @@ function Map:CanPlantAtPoint(x, y, z)
 end
 
 local DEPLOY_IGNORE_TAGS = { "NOBLOCK", "player", "FX", "INLIMBO", "DECOR", "WALKABLEPLATFORM" }
+local DEPLOY_IGNORE_TAGS_NOPLAYER = { "NOBLOCK", "FX", "INLIMBO", "DECOR", "WALKABLEPLATFORM" }
 local HOLE_TAGS = { "groundhole" }
 local BLOCKED_ONEOF_TAGS = { "groundtargetblocker", "groundhole" }
 function Map:IsPointNearHole(pt, range)
@@ -138,10 +146,10 @@ local function IsNearOther(other, pt, min_spacing_sq)
     return other:GetDistanceSqToPoint(pt.x, 0, pt.z) < (other.deploy_extra_spacing ~= nil and math.max(other.deploy_extra_spacing * other.deploy_extra_spacing, min_spacing_sq) or min_spacing_sq)
 end
 
-function Map:IsDeployPointClear(pt, inst, min_spacing, min_spacing_sq_fn, near_other_fn)
+function Map:IsDeployPointClear(pt, inst, min_spacing, min_spacing_sq_fn, near_other_fn, check_player)
     local min_spacing_sq = min_spacing ~= nil and min_spacing * min_spacing or nil
     near_other_fn = near_other_fn or IsNearOther
-    for i, v in ipairs(TheSim:FindEntities(pt.x, 0, pt.z, math.max(DEPLOY_EXTRA_SPACING, min_spacing), nil, DEPLOY_IGNORE_TAGS)) do
+    for i, v in ipairs(TheSim:FindEntities(pt.x, 0, pt.z, math.max(DEPLOY_EXTRA_SPACING, min_spacing), nil, check_player and DEPLOY_IGNORE_TAGS_NOPLAYER or DEPLOY_IGNORE_TAGS)) do
         if v ~= inst and
             v.entity:IsVisible() and
             v.components.placer == nil and
@@ -165,8 +173,8 @@ function Map:CanDeployPlantAtPoint(pt, inst)
         and self:IsDeployPointClear(pt, inst, inst.replica.inventoryitem ~= nil and inst.replica.inventoryitem:DeploySpacingRadius() or DEPLOYSPACING_RADIUS[DEPLOYSPACING.DEFAULT])
 end
 
-local function IsNearOtherWall(other, pt, min_spacing_sq)
-    if other:HasTag("wall") then
+local function IsNearOtherWallOrPlayer(other, pt, min_spacing_sq)
+    if other:HasTag("wall") or other:HasTag("player") then
         local x, y, z = other.Transform:GetWorldPosition()
         return math.floor(x) == math.floor(pt.x) and math.floor(z) == math.floor(pt.z)
     end
@@ -178,8 +186,8 @@ function Map:CanDeployWallAtPoint(pt, inst)
     pt = Vector3(math.floor(pt.x) + 0.5, pt.y, math.floor(pt.z) + 0.5)
 
     local x,y,z = pt:Get()
-    return self:IsPassableAtPointWithPlatformRadiusBias(x,y,z, false, false, TUNING.BOAT.NO_BUILD_BORDER_RADIUS, true)
-        and self:IsDeployPointClear(pt, inst, 1, nil, IsNearOtherWall)
+    local ispassable, is_overhang = self:IsPassableAtPointWithPlatformRadiusBias(x,y,z, false, false, TUNING.BOAT.NO_BUILD_BORDER_RADIUS, false)
+    return ispassable and self:IsDeployPointClear(pt, inst, 1, nil, IsNearOtherWallOrPlayer, is_overhang)
 end
 
 function Map:CanDeployAtPointInWater(pt, inst, mouseover, data)

@@ -599,40 +599,46 @@ local function AstralMarkers()
         end
     end
 
-	if #potential == 0 then
-		print("Retrofitting: for Return of Them: Forgotten Knowledge: No Astral Markers Added")
-	else
-		local moon_altar_astral_marker_1 = false
-		
-		while moon_altar_astral_marker_1 == false do
-			local rand = math.random(1,#potential) 
-			local testnode = potential[rand]
+	local potential_count = #potential
 
-			if TheWorld.Map:IsVisualGroundAtPoint(testnode.cent[1], 0, testnode.cent[2]) then
-				local marker = SpawnPrefab("moon_altar_astral_marker_1")
-				marker.Transform:SetPosition(testnode.cent[1], 0, testnode.cent[2])
-				moon_altar_astral_marker_1 = true
-				print("Retrofitting: for Return of Them: Forgotten Knowledge - Astral Marker added ", testnode.cent[1], 0, testnode.cent[2])
-			end
+	local moon_altar_astral_marker_1 = false
+	while moon_altar_astral_marker_1 == false do
+		if potential_count == 0 then
+			print("Retrofitting: for Return of Them: Forgotten Knowledge: No Astral Markers Added")
+			return
+		end
+		local rand = potential_count == 1 and 1 or math.random(1,potential_count) 
+		local testnode = potential[rand]
 
-			table.remove(potential,rand)
+		if TheWorld.Map:IsVisualGroundAtPoint(testnode.cent[1], 0, testnode.cent[2]) then
+			local marker = SpawnPrefab("moon_altar_astral_marker_1")
+			marker.Transform:SetPosition(testnode.cent[1], 0, testnode.cent[2])
+			moon_altar_astral_marker_1 = true
+			print("Retrofitting: for Return of Them: Forgotten Knowledge - Astral Marker added ", testnode.cent[1], 0, testnode.cent[2])
 		end
 
-		local  moon_altar_astral_marker_2 = false
+		table.remove(potential,rand)
+		potential_count = potential_count - 1
+	end
 
-		while moon_altar_astral_marker_2 == false do
-			local rand = math.random(1,#potential) 
-			local testnode = potential[rand]
-
-			if TheWorld.Map:IsVisualGroundAtPoint(testnode.cent[1], 0, testnode.cent[2]) then
-				local marker = SpawnPrefab("moon_altar_astral_marker_2")
-				marker.Transform:SetPosition(testnode.cent[1], 0, testnode.cent[2])
-				moon_altar_astral_marker_2 = true
-				print("Retrofitting: for Return of Them: Forgotten Knowledge - Astral Marker added ", testnode.cent[1], 0, testnode.cent[2])
-			end
-
-			table.remove(potential,rand)
+	local moon_altar_astral_marker_2 = false
+	while moon_altar_astral_marker_2 == false do
+		if potential_count == 0 then
+			print("Retrofitting: for Return of Them: Forgotten Knowledge: Second Astral Marker Not Added")
+			return
 		end
+		local rand = potential_count == 1 and 1 or math.random(1,potential_count) 
+		local testnode = potential[rand]
+
+		if TheWorld.Map:IsVisualGroundAtPoint(testnode.cent[1], 0, testnode.cent[2]) then
+			local marker = SpawnPrefab("moon_altar_astral_marker_2")
+			marker.Transform:SetPosition(testnode.cent[1], 0, testnode.cent[2])
+			moon_altar_astral_marker_2 = true
+			print("Retrofitting: for Return of Them: Forgotten Knowledge - Astral Marker added ", testnode.cent[1], 0, testnode.cent[2])
+		end
+
+		table.remove(potential,rand)
+		potential_count = potential_count - 1
 	end
 end
 
@@ -1055,6 +1061,16 @@ function self:OnPostInit()
 		AstralMarkers()
 	end
 
+	if self.retrofit_nodeidtilemap_secondpass then
+		for i, node in ipairs(TheWorld.topology.nodes) do
+			if table.contains(node.tags, "lunacyarea") then
+				TheWorld.Map:RepopulateNodeIdTileMap(i, node.x, node.y, node.poly, 10000, 2.1)
+			end
+		end
+	
+		print ("Retrofitting for Return of Them: Forgotten Knowledge - Repaired tile node ids for lunar island.")
+		self.requiresreset = true
+	end
 
 	---------------------------------------------------------------------------
 	if self.requiresreset then
@@ -1101,6 +1117,7 @@ function self:OnLoad(data)
 		self.retrofit_inaccessibleunderwaterobjects = data.retrofit_inaccessibleunderwaterobjects or false
 		self.retrofit_moonfissures = data.retrofit_moonfissures or false
 		self.retrofit_astralmarkers = data.retrofit_astralmarkers or false
+		self.retrofit_nodeidtilemap_secondpass = data.retrofit_nodeidtilemap_secondpass or false
     end
 end
 

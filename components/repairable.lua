@@ -12,6 +12,7 @@ local Repairable = Class(function(self, inst)
     self.repairmaterial = nil
     self.noannounce = nil
     self.checkmaterialfn = nil
+    self.testvalidrepairfn = nil
 end,
 nil,
 {
@@ -38,7 +39,9 @@ function Repairable:NeedsRepairs()
 end
 
 function Repairable:Repair(doer, repair_item)
-    if repair_item.components.repairer == nil or self.repairmaterial ~= repair_item.components.repairer.repairmaterial then
+    if self.testvalidrepairfn == nil or not self.testvalidrepairfn(self.inst, repair_item) then
+        return false
+    elseif repair_item.components.repairer == nil or self.repairmaterial ~= repair_item.components.repairer.repairmaterial then
         --wrong material
         return false
     elseif self.checkmaterialfn ~= nil then

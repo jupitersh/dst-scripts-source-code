@@ -18,8 +18,7 @@ local events =
 
 local states =
 {
-    State
-    {
+    State{
         name = "bitehook_pre",
         tags = { "busy" },
 
@@ -45,8 +44,7 @@ local states =
         },
     },
 
-    State
-    {
+    State{
         name = "bitehook_loop",
         tags = { "busy" },
 
@@ -79,8 +77,7 @@ local states =
         end,
     },
 
-    State
-    {
+    State{
         name = "bitehook_escape",
         tags = { "busy", "jumping" },
         
@@ -148,8 +145,7 @@ local states =
         end,
     },
 
-    State
-    {
+    State{
         name = "launched_out_of_water",
         tags = { "busy", "jumping" },
 
@@ -162,8 +158,7 @@ local states =
         end,
     },
 
-    State
-    {
+    State{
         name = "hop_pst",
         tags = {"busy", "jumping"},
 
@@ -188,8 +183,7 @@ local states =
         },
     },
 
-    State
-    {
+    State{
         name = "spawn_in",
         tags = {"busy"},
 

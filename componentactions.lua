@@ -806,7 +806,7 @@ local COMPONENT_ACTIONS =
         end,
 
         moonrelic = function(inst, doer, target, actions)
-            if target:HasTag("moontrader") then
+            if target:HasTag("moontrader") and not (doer.replica.rider ~= nil and doer.replica.rider:IsRiding()) then
                 table.insert(actions, ACTIONS.GIVE)
             end
         end,

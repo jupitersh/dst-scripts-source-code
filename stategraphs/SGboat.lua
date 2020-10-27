@@ -23,8 +23,7 @@ end
 
 local states =
 {
-    State
-    {
+    State{
         name = "place",
         onenter = function(inst)
             inst.SoundEmitter:PlaySound("turnoftides/common/together/boat/place")
@@ -38,8 +37,7 @@ local states =
         },
     },
 
-    State
-    {
+    State{
         name = "idle",
         onenter = function(inst)
             inst.AnimState:PlayAnimation("idle_full", true)
@@ -51,8 +49,7 @@ local states =
         },
     },
 
-    State
-    {
+    State{
         name = "ready_to_snap",
         onenter = function(inst)
             inst.sg:SetTimeout(0.75)
@@ -64,8 +61,7 @@ local states =
     },
 
 
-    State
-    {
+    State{
         name = "snapping",
         onenter = function(inst)
             local fx_boat_crackle = SpawnPrefab("fx_boat_crackle")
@@ -124,8 +120,7 @@ local states =
         },
     },
 
-    State
-    {
+    State{
         name = "popping",
         onenter = function(inst)
             local fx_boat_crackle = SpawnPrefab("fx_boat_pop")

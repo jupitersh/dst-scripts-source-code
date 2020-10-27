@@ -16,8 +16,7 @@ end
 
 local states=
 {
-    State
-    {
+    State{
         name = "pre_pop",
         tags = {"busy"},
 
@@ -32,8 +31,7 @@ local states=
         end,
     },
 
-    State
-    {
+    State{
         name = "pop",
         tags = {"busy"},
 
@@ -73,8 +71,7 @@ local states=
         ontimeout = return_to_idle,
     },
 
-    State
-    {
+    State{
         name = "takeoff",
         tags = {"busy"},
 

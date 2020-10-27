@@ -1871,11 +1871,20 @@ LEVELTYPE = {
     CUSTOM = "CUSTOM",
 }
 
-SERVER_LEVEL_LOCATIONS =
-{
-    "forest",
-    "cave",
-}
+if BRANCH == "dev" then
+    SERVER_LEVEL_LOCATIONS =
+    {
+        "forest",
+        "cave",
+    }
+else
+    SERVER_LEVEL_LOCATIONS =
+    {
+        "forest",
+        "cave",
+    }
+    assert(SERVER_LEVEL_LOCATIONS[1] == "forest", "Invalid server start level location.")
+end
 
 EVENTSERVER_LEVEL_LOCATIONS =
 {

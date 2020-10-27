@@ -597,8 +597,7 @@ local states =
     },
 
     -- WALK
-    State
-    {
+    State{
         name = "walk_start",
         tags = { "moving", "canrotate" },
 
@@ -625,8 +624,7 @@ local states =
         },
     },
 
-    State
-    {
+    State{
         name = "walk",
         tags = { "moving", "canrotate" },
 
@@ -649,8 +647,7 @@ local states =
         end,
     },
 
-    State
-    {
+    State{
         name = "walk_stop",
         tags = { "canrotate" },
 
@@ -778,8 +775,7 @@ local states =
     },
 
     -- HIT
-    State
-    {
+    State{
         name = "hit",
         tags = { "hit", "busy" },
 

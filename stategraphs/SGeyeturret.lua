@@ -61,8 +61,7 @@ local states=
         },
     },
 
-    State
-    {
+    State{
         name = "attack",
         tags = {"attack", "canrotate"},
         onenter = function(inst)

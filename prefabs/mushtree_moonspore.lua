@@ -46,7 +46,7 @@ local function checkforcrowding(inst)
     end
 end
 
-local AREAATTACK_EXCLUDETAGS = { "leif", "spore", "INLIMBO", "notarget", "noattack", "flight", "invisible", "playerghost" }
+local AREAATTACK_EXCLUDETAGS = { "leif", "spore", "INLIMBO", "notarget", "noattack", "flight", "invisible", "playerghost", "shadow", "brightmare" }
 local function onpopped(inst)
     inst.SoundEmitter:PlaySound("dontstarve/common/balloon_pop")
     inst.components.combat:DoAreaAttack(inst, TUNING.MOONSPORE_ATTACK_RANGE, nil, nil, nil, AREAATTACK_EXCLUDETAGS)
@@ -131,7 +131,7 @@ local function fn()
     inst.components.workable:SetOnFinishCallback(onworked)
 
     inst:AddComponent("perishable")
-    inst.components.perishable:SetPerishTime(TUNING.MOONSPORE.PERISH_TIME)
+    inst.components.perishable:SetPerishTime(TUNING.MOONSPORE_PERISH_TIME)
     inst.components.perishable:StartPerishing()
     inst.components.perishable:SetOnPerishFn(depleted)
 

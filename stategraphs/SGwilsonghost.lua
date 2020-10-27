@@ -72,8 +72,7 @@ local events =
 
 local states =
 {
-    State
-    {
+    State{
         name = "idle",
         tags = { "idle", "canrotate" },
         onenter = function(inst)
@@ -86,8 +85,7 @@ local states =
         end,
     },
 
-    State
-    {
+    State{
         name = "run",
         tags = { "moving", "running", "canrotate", "autopredict" },
 
@@ -103,8 +101,7 @@ local states =
         end,
     },
 
-    State
-    {
+    State{
         name = "appear",
         tags = { "nopredict" },
 
@@ -134,8 +131,7 @@ local states =
         },
     },
 
-    State
-    {
+    State{
         name = "remoteresurrect",
         tags = { "doing", "busy" },
 
@@ -183,8 +179,7 @@ local states =
         end,
     },
 
-    State
-    {
+    State{
         name = "haunt_pre",
         tags = { "doing", "busy" },
 
@@ -211,8 +206,7 @@ local states =
         },
     },
 
-    State
-    {
+    State{
         name = "haunt",
         tags = { "doing", "busy", "nopredict" },
 
@@ -231,8 +225,7 @@ local states =
         },
     },
 
-    State
-    {
+    State{
         name = "hit",
         tags = { "busy", "pausepredict" },
 
@@ -276,8 +269,7 @@ local states =
         },
     },
 
-    State
-    {
+    State{
         name = "dissipate",
         tags = { "busy", "pausepredict" },
 
@@ -311,8 +303,7 @@ local states =
         },
     },
 
-    State
-    {
+    State{
         name = "talk",
         tags = { "idle", "talking" },
 
@@ -338,8 +329,7 @@ local states =
         onexit = StopTalkSound,
     },
 
-    State
-    {
+    State{
         name = "mime",
         tags = { "idle", "talking" },
 
@@ -389,8 +379,7 @@ local states =
         },
     },
 
-    State
-    {
+    State{
         name = "jumpin",
         tags = { "doing", "busy", "canrotate" },
 
@@ -424,8 +413,7 @@ local states =
         end,
     },
 
-    State
-    {
+    State{
         name = "jumpout",
         tags = { "doing", "busy", "canrotate", "nopredict" },
 
@@ -444,8 +432,7 @@ local states =
         },
     },
 
-    State
-    {
+    State{
         name = "forcetele",
         tags = { "busy", "nopredict" },
 
@@ -478,8 +465,7 @@ local states =
         end,
     },
 
-    State
-    {
+    State{
         name = "migrate",
         tags = { "doing", "busy", "canrotate" },
 

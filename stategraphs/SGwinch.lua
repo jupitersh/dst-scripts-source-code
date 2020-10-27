@@ -21,8 +21,7 @@ local events =
 
 local states =
 {
-    State
-    {
+    State{
         name = "raised",
         onenter = function(inst)
             inst.AnimState:PlayAnimation("idle", true)
@@ -42,8 +41,7 @@ local states =
         },
     },
 
-    State
-    {
+    State{
         name = "lowered_ground",
         tags  = { "lowered_ground" },
         onenter = function(inst)
@@ -67,8 +65,7 @@ local states =
         },
     },
     
-    State
-    {
+    State{
         name = "raising_ground",
         onenter = function(inst)
             inst.AnimState:PlayAnimation("drop_ground_pst")
@@ -84,8 +81,7 @@ local states =
         },
     },
 
-    State
-    {
+    State{
         name = "lowered",
         onenter = function(inst)
             inst.AnimState:PlayAnimation("idle_dropped", true)
@@ -100,8 +96,7 @@ local states =
         },
     },
 
-    State
-    {
+    State{
         name = "raising",
         onenter = function(inst)
             local item = inst.components.inventory:GetItemInSlot(1)
@@ -126,8 +121,7 @@ local states =
         },
     },
 
-    State
-    {
+    State{
         name = "raising_pst",
         onenter = function(inst)
             inst.AnimState:PlayAnimation("pull_pst")
@@ -160,8 +154,7 @@ local states =
         },
     },
 
-    State
-    {
+    State{
         name = "lowering",
 
         onenter = function(inst)
@@ -179,8 +172,7 @@ local states =
         },
     },
 
-    State
-    {
+    State{
         name = "lowering_pst",
         onenter = function(inst)
             inst.AnimState:PlayAnimation(inst.components.inventory:GetItemInSlot(1) ~= nil

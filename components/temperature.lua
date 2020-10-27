@@ -264,7 +264,7 @@ function Temperature:OnUpdate(dt, applyhealthdelta)
 
     if self.settemp ~= nil or
         self.inst.is_teleporting or
-        (self.inst.components.health ~= nil and self.inst.components.health.invincible) then
+        (self.inst.components.health ~= nil and self.inst.components.health:IsInvincible()) then
         return
     end
 

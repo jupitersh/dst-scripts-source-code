@@ -68,8 +68,7 @@ local events =
 
 local states =
 {
-    State
-    {
+    State{
         name = "idle",
         tags = { "idle", "canrotate" },
 
@@ -98,8 +97,7 @@ local states =
 
     },
 
-    State
-    {
+    State{
         name = "attack_start",
         tags = { "busy", "canrotate" },
 

@@ -116,6 +116,13 @@ function ShardSaveIndex:ForceRetryLegacyPathConversion(slot)
     RetryLegacyPathConversion(self, slot)
 end
 
+function ShardSaveIndex:RerunSlotConversion(slot)
+    local savefileupgrades = require "savefileupgrades"
+    if SaveGameIndex and SaveGameIndex.loaded_from_file then
+        savefileupgrades.utilities.ConvertSaveIndexSlotToShardIndexSlots(SaveGameIndex, self, slot, self:IsSlotMultiLevel(slot))
+    end
+end
+
 local function OnLoad(self, callback, str)
     local success, savedata = RunInSandbox(str)
 
@@ -124,7 +131,7 @@ local function OnLoad(self, callback, str)
     if success and string.len(str) > 0 and type(savedata) == "table" then
         
         local was_upgraded = false
-        if self.version ~= SHARDSAVEINDEX_VERSION then
+        if savedata.version ~= SHARDSAVEINDEX_VERSION then
             was_upgraded = UpgradeShardSaveIndexData(savedata)
         end
 
@@ -326,8 +333,12 @@ function ShardSaveIndex:GetSlotCharacter(slot)
                 if shard and snapshot then
                     if shard ~= "Master" then
                         local secondaryShardIndex = self:GetShardIndex(slot, shard)
-                        session_id = secondaryShardIndex:GetSession()
-                        encode_user_path = secondaryShardIndex:GetServerData().encode_user_path
+                        if secondaryShardIndex then
+                            session_id = secondaryShardIndex:GetSession()
+                            encode_user_path = secondaryShardIndex:GetServerData().encode_user_path == true
+                        else
+                            session_id = nil
+                        end
                     end
                     if session_id then
                         local file = TheNet:GetUserSessionFileInClusterSlot(slot, shard, session_id, snapshot, online_mode, encode_user_path)

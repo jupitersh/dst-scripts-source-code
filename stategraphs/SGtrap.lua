@@ -87,7 +87,7 @@ local states =
 
 		onexit = function(inst)
 			if inst.components.inventoryitem ~= nil then
-				inst.components.inventoryitem.canbepickedup = false
+				inst.components.inventoryitem.canbepickedup = true
 			end
 		end,
     },

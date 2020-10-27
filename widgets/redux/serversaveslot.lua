@@ -46,7 +46,11 @@ local ServerSaveSlot = Class(Widget, function(self, serverslotscreen, isservercr
         if not self.slot or not ShardSaveGameIndex:IsSlotEmpty(self.slot) then
             TheFrontEnd:GetSound():PlaySound("dontstarve/HUD/click_move")
             self.last_focus_widget = TheFrontEnd:GetFocusWidget()
-            TheFrontEnd:Fade(FADE_OUT, SCREEN_FADE_TIME, function()                
+            self.privacy:OnLoseFocus()
+            self.intention:OnLoseFocus()
+            self.pvp:OnLoseFocus()
+            self.mods:OnLoseFocus()
+            TheFrontEnd:Fade(FADE_OUT, SCREEN_FADE_TIME, function()
                 TheFrontEnd:PushScreen(ServerCreationScreen(self.serverslotscreen, self.slot))
                 TheFrontEnd:Fade(FADE_IN, SCREEN_FADE_TIME)
             end)

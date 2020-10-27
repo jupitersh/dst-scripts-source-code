@@ -105,7 +105,7 @@ end
 local function ChangeToItem(inst)
     local item = SpawnPrefab("archive_resonator_item")
     item.Transform:SetPosition(inst.Transform:GetWorldPosition())
-    item.SoundEmitter:PlaySound("dontstarve/common/together/portable/cookpot/collapse")
+    -- 
     item.components.finiteuses:SetPercent(inst.components.finiteuses:GetPercent())
     return item
 end
@@ -114,8 +114,11 @@ local MOON_ALTAR_ASTRAL_MARKER_MUST_TAG =  {"moon_altar_astral_marker"}
 local function scanfordevice(inst)
 	local ent = FindEntity(inst, 9999, nil, MOON_ALTAR_ASTRAL_MARKER_MUST_TAG)
 	if ent then        
-		if ent:GetDistanceSqToInst(inst) < 4*4 then            
+		if ent:GetDistanceSqToInst(inst) < 4*4 then
+            inst.SoundEmitter:KillSound("locating")
             inst.AnimState:PlayAnimation("drill")
+            inst.SoundEmitter:PlaySound("grotto/common/archive_resonator/drill")
+            
             local swap = "swap_altar_wardpiece"
             if ent.product == "moon_altar_icon" then
                 swap = "swap_altar_iconpiece"
@@ -125,7 +128,7 @@ local function scanfordevice(inst)
             inst:ListenForEvent("animover", function()
                 if inst.AnimState:IsCurrentAnimation("drill") then
                     local artifact = SpawnPrefab(ent.product)
-                    artifact.Transform:SetPosition(inst.Transform:GetWorldPosition())                                        
+                    artifact.Transform:SetPosition(inst.Transform:GetWorldPosition())
                     ent:Remove()
                     local item = ChangeToItem(inst)
                     local pt = Vector3(inst.Transform:GetWorldPosition())
@@ -152,6 +155,8 @@ local function scanfordevice(inst)
 			    base.Transform:SetRotation(angle+90)
                 base.AnimState:PlayAnimation("beam_marker")
                 base.AnimState:PushAnimation("idle_marker",true)
+
+                inst.SoundEmitter:PlaySound("grotto/common/archive_resonator/beam")
             end)
             inst:DoTaskInTime(20/30, function()
                 copyparams( inst._endlight, light_params.beam)
@@ -164,9 +169,11 @@ local function scanfordevice(inst)
             end)
             inst.Transform:SetRotation(angle+180)
             inst.AnimState:PlayAnimation("beam")
+            inst.SoundEmitter:KillSound("locating")
 		end
     else
         inst:DoTaskInTime(4, function()
+            inst.SoundEmitter:KillSound("locating")
             inst.AnimState:PlayAnimation("idle_loop",true)
             --inst.OnDismantle(inst)
             --inst.components.finiteuses:Use(1)
@@ -193,7 +200,16 @@ local function ondeploy(inst, pt, deployer)
         at.Physics:SetCollides(true)
         at.AnimState:PlayAnimation("place")
         at.AnimState:PushAnimation("locating", true)
-        at.SoundEmitter:PlaySound("dontstarve/common/place_structure_stone")
+        at.SoundEmitter:PlaySound("grotto/common/archive_resonator/place")
+
+        at.SoundEmitter:PlaySound("grotto/common/archive_resonator/idle_LP", "idle_loop")
+
+        at:ListenForEvent("animover", function()
+            if at.AnimState:IsCurrentAnimation("place") then
+                at.SoundEmitter:PlaySound("grotto/common/archive_resonator/locating_LP", "locating")
+            end
+        end)
+
         at:DoTaskInTime(83/30,function()    
                 copyparams( at._endlight, light_params.on)
                 beginfade(at)
@@ -207,10 +223,13 @@ local function ondeploy(inst, pt, deployer)
 end
 
 local function OnDismantle(inst)--, doer)
+    inst.SoundEmitter:KillSound("idle_loop")
     inst.AnimState:PlayAnimation("pack")
+    inst.SoundEmitter:PlaySound("grotto/common/archive_resonator/pack")
     copyparams( inst._endlight, light_params.off)
     beginfade(inst)
     inst:ListenForEvent("animover", function()
+    -- inst.SoundEmitter:PlaySound("grotto/common/archive_resonator/pack") Jason (doesn't work)
         if inst.AnimState:IsCurrentAnimation("pack") then
             ChangeToItem(inst)
             inst:Remove()

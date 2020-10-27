@@ -4339,16 +4339,6 @@ function Tune(overrides)
 
         SINGINGSHELL_TRIGGER_RANGE = 4,
 
-        -- GROTTO
-        MOONSPORE =
-        {
-            PERISH_TIME = seg_time * 0.25,
-            MIN_FOLLOW = 2.0,
-            EXPLOSION_DISTANCE = 2.5,
-            MAX_FOLLOW = 4.0,
-        },
-
-
         WATERPLANT =
         {
             DAMAGE = wilson_attack * 2,
@@ -4431,13 +4421,6 @@ function Tune(overrides)
         },
 
         -- GROTTO
-        MOONSPORE =
-        {
-            PERISH_TIME = seg_time * 0.25,
-            MIN_FOLLOW = 1.0,
-            EXPLOSION_DISTANCE = 1.5,
-            MAX_FOLLOW = 3.5,
-        },
 
         SLEEPRESISTBUFF_TIME = total_day_time,
         SLEEPRESISTBUFF_VALUE = 10,
@@ -4498,6 +4481,7 @@ function Tune(overrides)
         MOONSPORE_ATTACK_RANGE = 3,
         MOONSPORE_ATTACK_PROXIMITY = 3.5,
         MOONSPORE_DAMAGE = 10,
+        MOONSPORE_PERISH_TIME = seg_time * 0.25,
 
         GROTTO_POOL_BIG_RADIUS = 5.5,
         GROTTO_POOL_SMALL_RADIUS = 2.0,

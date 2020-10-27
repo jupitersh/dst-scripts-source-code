@@ -814,6 +814,12 @@ function self:OnPostInit()
 		ArchiveDispencerFixup()
 	end
 
+	if self.retrofit_archives_navmesh then
+		TheWorld.Map:RetrofitNavGrid()
+		print("Retrofitting for Return of Them: Forgotten Knowledge - Updated Nav Grid.")
+		self.requiresreset = true
+	end
+	
 	---------------------------------------------------------------------------
 	if self.requiresreset then
 		print ("Retrofitting: Worldgen retrofitting requires the server to save and restart to fully take effect.")
@@ -854,6 +860,7 @@ function self:OnLoad(data)
 		self.retrofit_acientarchives = data.retrofit_acientarchives
 		self.retrofit_acientarchives_fixes = data.retrofit_acientarchives_fixes
 		self.retrofit_dispencer_fixes = data.retrofit_dispencer_fixes
+		self.retrofit_archives_navmesh = data.retrofit_archives_navmesh
 		
     end
 end

@@ -25,8 +25,7 @@ end
 
 --------------------------------------------------------------------------
 SGCritterStates.AddIdle = function(states, num_emotes, timeline, idle_anim_fn)
-    table.insert(states, State
-    {
+    table.insert(states, State{
         name = "idle",
         tags = { "idle", "canrotate" },
 
@@ -101,8 +100,7 @@ end
 
 --------------------------------------------------------------------------
 SGCritterStates.AddEat = function(states, timeline, fns)
-    table.insert(states, State
-    {
+    table.insert(states, State{
         name = "eat",
         tags = { "busy" },
 
@@ -139,8 +137,7 @@ end
 
 --------------------------------------------------------------------------
 SGCritterStates.AddHungry = function(states, timeline)
-    table.insert(states, State
-    {
+    table.insert(states, State{
         name = "hungry",
         tags = {"idle"},
         
@@ -165,8 +162,7 @@ end
 SGCritterStates.AddNuzzle = function(states, actionhandlers, timeline, fns)
     table.insert(actionhandlers, ActionHandler(ACTIONS.NUZZLE, "nuzzle"))
 
-    table.insert(states, State
-    {
+    table.insert(states, State{
 		name = "nuzzle",
 		tags = {"busy"},
 
@@ -208,8 +204,7 @@ end
 --------------------------------------------------------------------------
 SGCritterStates.AddRandomEmotes = function(states, emotes)
 	for i,v in ipairs(emotes) do
-		table.insert(states, State
-		{
+		table.insert(states, State{
 			name = "emote_"..i,
 			tags = { "busy", "canrotate" },
 
@@ -243,8 +238,7 @@ end
 
 --------------------------------------------------------------------------
 SGCritterStates.AddEmote = function(states, name, timeline)
-    table.insert(states, State
-    {
+    table.insert(states, State{
 		name = "emote_"..name,
 		tags = {"busy"},
 
@@ -267,8 +261,7 @@ end
 
 --------------------------------------------------------------------------
 SGCritterStates.AddPetEmote = function(states, timeline, onexit)
-    table.insert(states, State
-    {
+    table.insert(states, State{
 		name = "emote_pet",
 		tags = {"busy"},
 
@@ -294,8 +287,7 @@ end
 
 --------------------------------------------------------------------------
 SGCritterStates.AddCombatEmote = function(states, timelines)
-    table.insert(states, State
-    {
+    table.insert(states, State{
 		name = "combat_pre",
 		tags = {"busy"},
 
@@ -319,8 +311,7 @@ SGCritterStates.AddCombatEmote = function(states, timelines)
 		},
     })
 
-    table.insert(states, State
-    {
+    table.insert(states, State{
 		name = "combat_loop",
 		tags = {"busy"},
 
@@ -342,8 +333,7 @@ SGCritterStates.AddCombatEmote = function(states, timelines)
 		},
     })
 
-    table.insert(states, State
-    {
+    table.insert(states, State{
 		name = "combat_pst",
 		tags = {"busy"},
 
@@ -390,8 +380,7 @@ SGCritterStates.AddPlayWithOtherCritter = function(states, events, timeline, one
 	end))
 	
 
-    table.insert(states, State
-    {
+    table.insert(states, State{
 		name = "playful",
 		tags = {"busy", "canrotate", "playful"},
 
@@ -431,8 +420,7 @@ SGCritterStates.AddPlayWithOtherCritter = function(states, events, timeline, one
 		},
     })
     
-    table.insert(states, State
-    {
+    table.insert(states, State{
 		name = "playful2",
 		tags = {"busy", "canrotate", "playful"},
 
@@ -462,8 +450,7 @@ local function walkontimeout(inst)
 end
 
 SGCritterStates.AddWalkStates = function(states, timelines, softstop)
-    table.insert(states, State
-    {
+    table.insert(states, State{
         name = "walk_start",
         tags = { "moving", "canrotate", "softstop" },
 
@@ -484,8 +471,7 @@ SGCritterStates.AddWalkStates = function(states, timelines, softstop)
         },
     })
 
-    table.insert(states, State
-    {
+    table.insert(states, State{
         name = "walk",
         tags = { "moving", "canrotate", "softstop" },
 
@@ -500,8 +486,7 @@ SGCritterStates.AddWalkStates = function(states, timelines, softstop)
         ontimeout = walkontimeout,
     })
 
-    table.insert(states, State
-    {
+    table.insert(states, State{
         name = "walk_stop",
         tags = { "canrotate", "softstop" },
 

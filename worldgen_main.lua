@@ -447,6 +447,7 @@ function GenerateNew(debug, world_gen_data)
 						seed = SEED,
 						level_id = level.id,
 						session_identifier = WorldSim:GenerateSessionIdentifier(),
+                        generated_on_saveversion = savefileupgrades.VERSION,
                         saveversion = savefileupgrades.VERSION,
 					}
 

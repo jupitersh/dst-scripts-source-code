@@ -3204,7 +3204,7 @@ CLOTHING =
 		type = "body",
 		skin_tags = { "HALLOWED", "CLOTHING_BODY", "CLOTHING", },
 		symbol_overrides = { "foot", "leg", "skirt", "torso", "torso_pelvis", },
-		symbol_overrides_powerup = { arm_lower = "arm_lower_powerup", arm_upper_skin = "arm_upper_skin_powerup", torso = "torso_powerup", },
+		symbol_overrides_powerup = { foot = "foot_powerup", leg = "leg_powerup", skirt = "skirt_powerup", torso = "torso_powerup", torso_pelvis = "torso_pelvis_powerup", },
 		symbol_hides = { "arm_upper", },
 		torso_tuck = "untucked",
 		rarity = "Distinguished",

@@ -5,8 +5,7 @@ local events =
 
 local states =
 {
-    State
-    {
+    State{
         name = "idle",
         onenter = function(inst)
             inst.AnimState:PlayAnimation("caught_idle_loop", true)
@@ -18,8 +17,7 @@ local states =
         },                        
     },
 
-    State
-    {
+    State{
         name = "caught_in_net",
         onenter = function(inst)
             inst.AnimState:PlayAnimation("catch_loop", true)
@@ -31,8 +29,7 @@ local states =
         },                        
     },
 
-    State
-    {
+    State{
         name = "released_from_net",
         onenter = function(inst)
             inst.AnimState:PlayAnimation("caught_idle_pre", false)

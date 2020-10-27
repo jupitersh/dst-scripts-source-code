@@ -29,8 +29,7 @@ end
 
 local states=
 {
-	State
-	{
+	State{
 		name = "idle",
 		tags = {"idle"},
 
@@ -64,8 +63,7 @@ local states=
 		},
 	},
 
-	State
-	{
+	State{
 		name = "goo",
 		tags = {"busy"},
 
@@ -97,8 +95,7 @@ local states=
 		},
 	},
 
-	State
-	{
+	State{
 		name = "bored",
 		tags = {"busy"},
 

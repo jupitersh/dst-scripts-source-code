@@ -154,7 +154,7 @@ end
 function Health:DoFireDamage(amount, doer, instant)
     --V2C: "not instant" generally means that we are burning or being set on fire at the same time
     local mult = self:GetFireDamageScale()
-    if not self.invincible and (not instant or mult > 0) then
+    if not self:IsInvincible() and (not instant or mult > 0) then
         local time = GetTime()
         if not self.takingfiredamage then
             self.takingfiredamage = true
@@ -283,7 +283,7 @@ function Health:GetPercentWithPenalty()
 end
 
 function Health:IsInvincible()
-    return self.invincible
+    return self.invincible or (self.inst.sg and self.inst.sg:HasStateTag("temp_invincible"))
 end
 
 function Health:GetDebugString()
@@ -373,7 +373,7 @@ end
 function Health:DoDelta(amount, overtime, cause, ignore_invincible, afflicter, ignore_absorb)
     if self.redirect ~= nil and self.redirect(self.inst, amount, overtime, cause, ignore_invincible, afflicter, ignore_absorb) then
         return 0
-    elseif not ignore_invincible and (self.invincible or self.inst.is_teleporting) then
+    elseif not ignore_invincible and (self:IsInvincible() or self.inst.is_teleporting) then
         return 0
     elseif amount < 0 and not ignore_absorb then
         amount = amount * math.clamp(1 - (self.playerabsorb ~= 0 and afflicter ~= nil and afflicter:HasTag("player") and self.playerabsorb + self.absorb or self.absorb), 0, 1) * math.clamp(1 - self.externalabsorbmodifiers:Get(), 0, 1)

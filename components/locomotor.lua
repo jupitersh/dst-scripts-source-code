@@ -846,6 +846,7 @@ function LocoMotor:GetHopDistance(speed_mult)
 	return self.hop_distance_fn ~= nil and self.hop_distance_fn(self.inst, speed_mult or 1) or self.hop_distance
 end
 
+local WALL_TAGS = { "wall" }
 function LocoMotor:ScanForPlatformInDir(my_platform, map, my_x, my_z, dir_x, dir_z, steps, step_size)
     local is_at_edge = self:IsAtEdge(my_platform, map, my_x, my_z, dir_x, dir_z)
     local is_first_hop_point = true
@@ -857,6 +858,18 @@ function LocoMotor:ScanForPlatformInDir(my_platform, map, my_x, my_z, dir_x, dir
         -- you would sometimes turn around and jump right back
         if not (self.last_platform_visited == platform) then
             local is_water = not map:IsVisualGroundAtPoint(pt_x, 0, pt_z)
+            if not is_water then
+                --search for nearby walls and fences with active physics.
+                for _, v in ipairs(TheSim:FindEntities(math.floor(pt_x), 0, math.floor(pt_z), 1, WALL_TAGS)) do
+                    if v ~= self.inst and
+                    v.entity:IsVisible() and
+                    v.components.placer == nil and
+                    v.entity:GetParent() == nil and
+                    v.Physics:IsActive() then
+                        return false, 0, 0, nil
+                    end
+                end
+            end
             --print(i, is_at_edge, my_platform, platform, pt_x - my_x, pt_z - my_z, is_water, step_size)
             if is_at_edge and platform ~= my_platform then            
                 if platform ~= nil or not is_water then

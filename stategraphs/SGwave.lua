@@ -9,8 +9,7 @@ end
 local states=
 {
 
-	State
-	{
+	State{
 		name = "rise",
 		tags = {"rising"},
 
@@ -35,8 +34,7 @@ local states=
 		},
 	},
 
-    State
-    {
+    State{
         name = "instant_rise",
 		tags = {"rising"},
 
@@ -60,8 +58,7 @@ local states=
 		},
     },
 
-	State
-	{
+	State{
 		name = "idle",
 		tags = {"idle"},
 
@@ -76,8 +73,7 @@ local states=
 		end,
 	},
 
-	State
-	{
+	State{
 		name = "lower",
 		tags = {"lowering"},
 

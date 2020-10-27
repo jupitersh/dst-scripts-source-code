@@ -52,8 +52,7 @@ end
 
 local states =
 {
-    State
-    {
+    State{
         name = "stunned",
         tags = {"busy", "stunned"},
 
@@ -84,8 +83,7 @@ local states =
         end,
     },
 
-    State
-    {
+    State{
         name = "hop",
         tags = { "autopredict", "busy", "doing", "jumping", "nointerrupt", "nomorph", "nosleep" },
 
@@ -137,8 +135,7 @@ local states =
         end,
     },
 
-    State
-    {
+    State{
         name = "hop_pst",
         tags = { "autopredict", "busy", "doing", "jumping", "nointerrupt", "nomorph", "nosleep" },
 
@@ -152,8 +149,7 @@ local states =
         },
     },
 
-    State
-    {
+    State{
         name = "death",
         tags = {"busy"},
 

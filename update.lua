@@ -35,6 +35,11 @@ function WallUpdate(dt)
         SpawnSecondInstance()
     end
 
+    if IsSimPaused() then
+        TickRPCQueue()
+    end
+
+
     --TheSim:ProfilerPush("LuaWallUpdate")
 
     TheSim:ProfilerPush("RPC queue")

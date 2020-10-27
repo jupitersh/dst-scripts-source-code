@@ -5,8 +5,7 @@ local events =
 
 local states =
 {
-    State
-    {
+    State{
         name = "casting",
         onenter = function(inst)
             inst.AnimState:PlayAnimation("throw_pre", false)
@@ -27,8 +26,7 @@ local states =
          
     },
 
-    State
-    {
+    State{
         name = "opening",
 
         onenter = function(inst)
@@ -59,8 +57,7 @@ local states =
         end,    
     },    
 
-    State
-    {
+    State{
         name = "retrieving",
         onenter = function(inst)
             inst.components.fishingnetvisualizer:BeginRetrieving()
@@ -78,8 +75,7 @@ local states =
         },         
     },  
 
-    State
-    {
+    State{
         name = "final_pickup",
         onenter = function(inst)
             inst.components.fishingnetvisualizer:BeginFinalPickup()

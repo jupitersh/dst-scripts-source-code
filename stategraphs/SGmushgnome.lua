@@ -85,8 +85,7 @@ end
 
 local states =
 {
-    State
-    {
+    State{
         name = "death",
         tags = {"busy"},
         
@@ -109,16 +108,14 @@ local states =
         },
     },
     
-    State
-    {
+    State{
         name = "tree",
         onenter = function(inst)
             inst.AnimState:PlayAnimation("tree_idle", true)
         end,
     },   
 
-    State
-    {
+    State{
         name = "panic",
         tags = {"busy"},
         onenter = function(inst)
@@ -135,8 +132,7 @@ local states =
         end,
     },
 
-    State
-    {
+    State{
         name = "flaunt",
         tags = {"busy"},
 
@@ -159,8 +155,7 @@ local states =
         },
     },
 
-    State
-    {
+    State{
         name = "attack_pre",
         tags = {"attack", "busy"},
 
@@ -183,8 +178,7 @@ local states =
         },
     },
 
-    State
-    {
+    State{
         name = "attack",
         tags = {"attack", "busy"},
 
@@ -254,8 +248,7 @@ local states =
         end,
     },
 
-    State
-    {
+    State{
         name = "attack_pst",
         tags = {"attack", "busy"},
 
@@ -276,8 +269,7 @@ local states =
         },
     },
 
-    State
-    {
+    State{
         name = "hit",
         tags = {"hit", "busy"},
         
@@ -300,8 +292,7 @@ local states =
         },
     },
 
-    State
-    {
+    State{
         name = "spawn",
         tags = {"waking", "busy", "noattack"},
         

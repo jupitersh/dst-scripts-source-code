@@ -25,8 +25,7 @@ local events=
 
 local states=
 {
-    State
-    {
+    State{
         name = "spawn",
         tags = {"busy"},
 
@@ -44,8 +43,7 @@ local states=
 
     },
 
-    State
-    {        
+    State{        
         name = "idle",
         tags = {"idle", "canrotate"},
         onenter = function(inst)
@@ -56,8 +54,7 @@ local states=
 
     },
 
-    State
-    {        
+    State{        
         name = "action",
         tags = {"idle", "canrotate"},
         onenter = function(inst, playanim)
@@ -70,8 +67,7 @@ local states=
         },
     },
 
-    State
-    {
+    State{
         
         name = "alert",
         tags = {"idle", "canrotate"},
@@ -89,8 +85,7 @@ local states=
         },
     },
 
-    State
-    {
+    State{
         name = "hit",
         tags = {"busy", "hit"},
         
@@ -105,8 +100,7 @@ local states=
         
     },  
 
-    State
-    { 
+    State{ 
         name = "attack",
         tags = {"attack", "canrotate"},
         onenter = function(inst)
@@ -138,8 +132,7 @@ local states=
         },
     },
 
-    State
-    {
+    State{
         name = "death",
         tags = {"busy"},
         
@@ -151,8 +144,7 @@ local states=
         end,        
     },
 
-    State
-    {
+    State{
         name = "eat_enter",
         tags = {"busy", "canrotate"},
 
@@ -178,8 +170,7 @@ local states=
         },
     },
 
-    State
-    {
+    State{
         name = "eat_loop",
         tags = {"busy"},
 
@@ -200,8 +191,7 @@ local states=
         },
     },
 
-    State
-    {
+    State{
 
         name = "walk_start",
         tags = {"idle", "canrotate"},

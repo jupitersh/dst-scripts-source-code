@@ -6,8 +6,7 @@ local events =
 
 local states =
 {
-    State
-    {
+    State{
         name = "open",
         onenter = function(inst)
             inst.widget.backing:Show()
@@ -21,8 +20,7 @@ local states =
         end,
     },
 
-    State
-    {
+    State{
         name = "open_pre",
         onenter = function(inst)
             inst.widget.anim:GetAnimState():PlayAnimation("open_pre")
@@ -34,8 +32,7 @@ local states =
         },
     },
 
-    State
-    {
+    State{
         name = "open_pst",
         onenter = function(inst)
             inst.widget.anim:GetAnimState():PlayAnimation("open_pst")
@@ -51,8 +48,7 @@ local states =
         },
     },
 
-    State
-    {
+    State{
         name = "close_pre",
         onenter = function(inst)
             inst.widget.anim:GetAnimState():PlayAnimation("close_pre")
@@ -64,8 +60,7 @@ local states =
         },
     },
 
-    State
-    {
+    State{
         name = "close_pst",
         onenter = function(inst)
             inst.widget.anim:GetAnimState():PlayAnimation("close_pst")
@@ -81,8 +76,7 @@ local states =
         },
     },
 
-    State
-    {
+    State{
         name = "closed",
         onenter = function(inst)
             inst.widget.backing:Hide()

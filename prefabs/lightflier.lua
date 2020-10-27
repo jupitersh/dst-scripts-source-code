@@ -142,7 +142,7 @@ end
 
 local function OnLeaveFormation(inst, leader)
     if inst.components.homeseeker ~= nil then
-        local homepos = inst.components.homeseeker:GetHomePos()
+        local homepos = inst.components.homeseeker:GetHomePos() or inst.components.knownlocations:GetLocation("home") or nil
 
         if homepos ~= nil then
             local x, y, z = inst.Transform:GetWorldPosition()
@@ -154,10 +154,14 @@ local function OnLeaveFormation(inst, leader)
         end
     end
 
+    inst.components.locomotor.walkspeed = TUNING.LIGHTFLIER.WALK_SPEED
+
     inst:RemoveTag("NOBLOCK")
 end
 
 local function OnEnterFormation(inst, leader)
+    inst.components.locomotor:Stop()
+
     inst:AddTag("NOBLOCK")
 end
 
