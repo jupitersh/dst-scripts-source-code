@@ -730,7 +730,7 @@ function MultiplayerMainScreen:MakeSubMenu()
 		end
 
         if TheFrontEnd:GetAccountManager():HasSteamTicket() then
-            table.insert(submenuitems, {widget = TEMPLATES.IconButton("images/button_icons.xml", "profile.tex", STRINGS.UI.SERVERCREATIONSCREEN.MANAGE_ACCOUNT, false, true, function() VisitURL( TheFrontEnd:GetAccountManager():GetAccountURL(), true ) end, {font=NEWFONT_OUTLINE})})
+            table.insert(submenuitems, {widget = TEMPLATES.IconButton("images/button_icons.xml", "profile.tex", STRINGS.UI.SERVERCREATIONSCREEN.MANAGE_ACCOUNT, false, true, function() TheFrontEnd:GetAccountManager():VisitAccountPage() end, {font=NEWFONT_OUTLINE})})
         end
 
 		if not IsRail() then

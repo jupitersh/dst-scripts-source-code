@@ -1204,7 +1204,7 @@ table.insert(prefs, CreatePrefabSkin("dragonling_batp",
 	build_name_override = "dragonling_bat",
 	rarity = "Elegant",
 	rarity_modifier = "Woven",
-	init_fn = function(inst) pet_init_fn(inst, "dragonling_batp", "dragonling_build" ) end,
+	init_fn = function(inst) pet_init_fn(inst, "dragonling_bat", "dragonling_build" ) end,
 	skin_tags = { "PET", "COSTUME", "CRAFTABLE", },
 	release_group = 105,
 }))

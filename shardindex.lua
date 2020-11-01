@@ -80,6 +80,10 @@ local function OnLoad(self, slot, shard, callback, str)
         self.enabled_mods = savedata.enabled_mods
         self.version = savedata.version
 
+        if self.world and self.world.options and self.world.options.overrides == nil then
+            self.world.options.overrides = {}
+        end
+
         local was_upgraded = false
         if self.version ~= SHARDINDEX_VERSION then
             was_upgraded = UpgradeShardIndexData(self)

@@ -832,7 +832,7 @@ function MultiplayerMainScreen:MakeSubMenu()
 
         if TheFrontEnd:GetAccountManager():HasSteamTicket() then
 
-            local manage_account_button = TEMPLATES.IconButton("images/button_icons.xml", "profile.tex", STRINGS.UI.SERVERCREATIONSCREEN.MANAGE_ACCOUNT, false, true, function() VisitURL(TheFrontEnd:GetAccountManager():GetAccountURL(), true ) end, {font=NEWFONT_OUTLINE, focus_colour={1,1,1,1}})
+            local manage_account_button = TEMPLATES.IconButton("images/button_icons.xml", "profile.tex", STRINGS.UI.SERVERCREATIONSCREEN.MANAGE_ACCOUNT, false, true, function() TheFrontEnd:GetAccountManager():VisitAccountPage() end, {font=NEWFONT_OUTLINE, focus_colour={1,1,1,1}})
 
 			local online = TheNet:IsOnlineMode() and not TheFrontEnd:GetIsOfflineMode()
 			if online then

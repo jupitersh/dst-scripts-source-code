@@ -623,6 +623,7 @@ Recipe("yotc_carrat_gym_stamina",		{Ingredient("lucky_goldnugget", 4)},nil, TECH
 Recipe("yotc_carrat_scale",			    {Ingredient("lucky_goldnugget", 1)}, nil, TECH.LOST, nil, nil, true)
 Recipe("wall_ruins_2_item",              {Ingredient("thulecite", 1)},       nil, TECH.LOST, nil, nil, true)
 Recipe("wall_stone_2_item",              {Ingredient("cutstone", 2)},        nil, TECH.LOST, nil, nil, true)
+Recipe("archive_resonator",              {Ingredient("moonrocknugget", 1), Ingredient("thulecite_pieces", 2)},        nil, TECH.LOST, nil, nil, true)
 
 ----CONSTRUCTION PLANS----
 CONSTRUCTION_PLANS =

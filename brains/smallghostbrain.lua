@@ -141,7 +141,7 @@ local function _avoidtargetfn(self, target)
     -- Are owner and target both in any combat?
     local t = GetTime()
     return  (   (owner_combat:IsRecentTarget(target) or target_combat:HasTarget()) and
-                math.max(owner_combat.laststartattacktime, owner_combat.lastdoattacktime or 0) + COMBAT_TIMEOUT > t
+                math.max(owner_combat.laststartattacktime or 0, owner_combat.lastdoattacktime or 0) + COMBAT_TIMEOUT > t
             ) or
             (   owner_combat.lastattacker == target and
                 owner_combat:GetLastAttackedTime() + COMBAT_TIMEOUT > t

@@ -228,7 +228,7 @@ local function OnAttacked(inst, data)
         if not (target ~= nil and
                 target:IsNear(inst, TUNING.ANTLION_CAST_RANGE) and
                 target.components.combat:IsRecentTarget(inst) and
-                target.components.combat.laststartattacktime + 3 >= GetTime()) then
+                (target.components.combat.laststartattacktime or 0) + 3 >= GetTime()) then
             inst.components.combat:SetTarget(data.attacker)
         end
     end

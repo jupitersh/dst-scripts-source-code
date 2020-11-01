@@ -39,7 +39,7 @@ function Repairable:NeedsRepairs()
 end
 
 function Repairable:Repair(doer, repair_item)
-    if self.testvalidrepairfn == nil or not self.testvalidrepairfn(self.inst, repair_item) then
+    if self.testvalidrepairfn and not self.testvalidrepairfn(self.inst, repair_item) then
         return false
     elseif repair_item.components.repairer == nil or self.repairmaterial ~= repair_item.components.repairer.repairmaterial then
         --wrong material

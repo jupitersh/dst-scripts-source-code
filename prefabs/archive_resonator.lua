@@ -149,7 +149,7 @@ local function scanfordevice(inst)
             local radius = -3
             local theta = (angle)*DEGREES
             local offset = Vector3(radius * math.cos( theta ), 0, -radius * math.sin( theta ))
-            inst:DoTaskInTime(30/30, function()
+            inst.task3 = inst:DoTaskInTime(30/30, function()
                 local base = SpawnPrefab("archive_resonator_base")
                 base.Transform:SetPosition(x+offset.x,y,z+offset.z)
 			    base.Transform:SetRotation(angle+90)
@@ -158,12 +158,12 @@ local function scanfordevice(inst)
 
                 inst.SoundEmitter:PlaySound("grotto/common/archive_resonator/beam")
             end)
-            inst:DoTaskInTime(20/30, function()
+            inst.task4 = inst:DoTaskInTime(20/30, function()
                 copyparams( inst._endlight, light_params.beam)
                 beginfade(inst)
             end)
 
-            inst:DoTaskInTime(44/30, function()
+            inst.task5 = inst:DoTaskInTime(44/30, function()
                 copyparams( inst._endlight, light_params.on)
                 beginfade(inst)
             end)
@@ -172,7 +172,7 @@ local function scanfordevice(inst)
             inst.SoundEmitter:KillSound("locating")
 		end
     else
-        inst:DoTaskInTime(4, function()
+        inst.task3 = inst:DoTaskInTime(4, function()
             inst.SoundEmitter:KillSound("locating")
             inst.AnimState:PlayAnimation("idle_loop",true)
             --inst.OnDismantle(inst)
@@ -199,22 +199,22 @@ local function ondeploy(inst, pt, deployer)
         at.Physics:Teleport(pt.x, 0, pt.z)
         at.Physics:SetCollides(true)
         at.AnimState:PlayAnimation("place")
-        at.AnimState:PushAnimation("locating", true)
+    
         at.SoundEmitter:PlaySound("grotto/common/archive_resonator/place")
-
         at.SoundEmitter:PlaySound("grotto/common/archive_resonator/idle_LP", "idle_loop")
 
         at:ListenForEvent("animover", function()
             if at.AnimState:IsCurrentAnimation("place") then
+                at.AnimState:PlayAnimation("locating", true)
                 at.SoundEmitter:PlaySound("grotto/common/archive_resonator/locating_LP", "locating")
             end
         end)
 
-        at:DoTaskInTime(83/30,function()    
+        at.task1 = at:DoTaskInTime(83/30,function()    
                 copyparams( at._endlight, light_params.on)
                 beginfade(at)
             end)
-        at:DoTaskInTime(5,function()
+        at.task2 = at:DoTaskInTime(5,function()
         		scanfordevice(at)
     		end)
         at.components.finiteuses:SetPercent(inst.components.finiteuses:GetPercent())
@@ -242,6 +242,46 @@ local function onfinisheduses(inst)
     fx.Transform:SetPosition(inst.Transform:GetWorldPosition())
     fx:SetMaterial("stone")
     inst:Remove()
+end
+
+local function onhammered(inst)
+   
+    inst.components.lootdropper:DropLoot()
+    --close it
+    local fx = SpawnPrefab("collapse_big")
+    fx.Transform:SetPosition(inst.Transform:GetWorldPosition())
+    fx:SetMaterial("stone")
+
+    if inst.task1 then
+        inst.task1:Cancel()
+        inst.task1 = nil
+    end
+
+    if inst.task2 then
+        inst.task2:Cancel()
+        inst.task2 = nil
+    end
+
+    if inst.task3 then
+        inst.task3:Cancel()
+        inst.task3 = nil
+    end
+
+    if inst.task4 then
+        inst.task4:Cancel()
+        inst.task4 = nil
+    end
+
+    if inst.task5 then
+        inst.task5:Cancel()
+        inst.task5 = nil
+    end
+
+    inst:Remove()
+end
+
+local function onhit(inst)    
+    inst.SoundEmitter:PlaySound("dontstarve/common/destroy_stone")
 end
 
 local function mainfn()
@@ -302,6 +342,12 @@ local function mainfn()
     inst.components.finiteuses:SetMaxUses(TUNING.ARCHIVE_RESONATOR.USES)
     inst.components.finiteuses:SetUses(TUNING.ARCHIVE_RESONATOR.USES)
     inst.OnDismantle = OnDismantle
+
+    inst:AddComponent("workable")
+    inst.components.workable:SetWorkAction(ACTIONS.HAMMER)
+    inst.components.workable:SetWorkLeft(3)
+    inst.components.workable:SetOnFinishCallback(onhammered)
+    inst.components.workable:SetOnWorkCallback(onhit)    
 
     inst:AddComponent("portablestructure")
     inst.components.portablestructure:SetOnDismantleFn(OnDismantle)
