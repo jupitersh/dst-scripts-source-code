@@ -1311,6 +1311,11 @@ function OnNetworkDisconnect( message, should_reset, force_immediate_reset, deta
         TheSystemService:StopDedicatedServers()
     end
 
+    local accounts_link = nil
+    if IsRail() or TheNet:IsNetOverlayEnabled() then
+        accounts_link = {text=STRINGS.UI.NETWORKDISCONNECT.ACCOUNTS, cb = function() TheFrontEnd:GetAccountManager():VisitAccountPage() end}
+    end
+
     local title = STRINGS.UI.NETWORKDISCONNECT.TITLE[message] or STRINGS.UI.NETWORKDISCONNECT.TITLE.DEFAULT 
     message = STRINGS.UI.NETWORKDISCONNECT.BODY[message] or STRINGS.UI.NETWORKDISCONNECT.BODY.DEFAULT
 
@@ -1360,7 +1365,7 @@ function OnNetworkDisconnect( message, should_reset, force_immediate_reset, deta
             local cb = TheFrontEnd.fadecb
             TheFrontEnd.fadecb = function()
                 if cb then cb() end
-                TheFrontEnd:PushScreen( PopupDialogScreen(title, message, { {text=STRINGS.UI.NETWORKDISCONNECT.OK, cb = function() doquit( should_reset ) end}  }) )
+                TheFrontEnd:PushScreen( PopupDialogScreen(title, message, { {text=STRINGS.UI.NETWORKDISCONNECT.OK, cb = function() doquit( should_reset ) end}, accounts_link }) )
                 local screen = TheFrontEnd:GetActiveScreen()
                 if screen then
                     screen:Enable()
@@ -1368,7 +1373,7 @@ function OnNetworkDisconnect( message, should_reset, force_immediate_reset, deta
                 TheFrontEnd:Fade(FADE_IN, screen_fade_time)
             end
         else
-            TheFrontEnd:PushScreen( PopupDialogScreen(title, message, { {text=STRINGS.UI.NETWORKDISCONNECT.OK, cb = function() doquit( should_reset ) end}  }) )
+            TheFrontEnd:PushScreen( PopupDialogScreen(title, message, { {text=STRINGS.UI.NETWORKDISCONNECT.OK, cb = function() doquit( should_reset ) end}, accounts_link  }) )
             local screen = TheFrontEnd:GetActiveScreen()
             if screen then
                 screen:Enable()
@@ -1377,7 +1382,7 @@ function OnNetworkDisconnect( message, should_reset, force_immediate_reset, deta
         end
     else
         -- TheFrontEnd:Fade(FADE_OUT, screen_fade_time, function()
-            TheFrontEnd:PushScreen( PopupDialogScreen(title, message, { {text=STRINGS.UI.NETWORKDISCONNECT.OK, cb = function() doquit( should_reset ) end}  }) )
+            TheFrontEnd:PushScreen( PopupDialogScreen(title, message, { {text=STRINGS.UI.NETWORKDISCONNECT.OK, cb = function() doquit( should_reset ) end}, accounts_link  }) )
             local screen = TheFrontEnd:GetActiveScreen()
             if screen then
                 screen:Enable()

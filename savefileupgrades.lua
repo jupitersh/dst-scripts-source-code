@@ -226,19 +226,21 @@ t = {
             local shard = shardindex:GetShard()
             local session_id = shardindex:GetSession()
 
-            if slot and shard and not shardindex:GetServerData().use_legacy_session_path then
-                local file = TheNet:GetWorldSessionFileInClusterSlot(slot, shard, session_id)
-                if file ~= nil then
-                    TheSim:GetPersistentStringInClusterSlot(slot, shard, file, function(success, str)
-                        onreadworldfile(success, str)
-                    end)
-                end
-            else
-                local file = TheNet:GetWorldSessionFile(session_id)
-                if file ~= nil then
-                    TheSim:GetPersistentString(file, function(success, str)
-                        onreadworldfile(success, str)
-                    end)
+            if session_id then
+                if slot and shard and not shardindex:GetServerData().use_legacy_session_path then
+                    local file = TheNet:GetWorldSessionFileInClusterSlot(slot, shard, session_id)
+                    if file ~= nil then
+                        TheSim:GetPersistentStringInClusterSlot(slot, shard, file, function(success, str)
+                            onreadworldfile(success, str)
+                        end)
+                    end
+                else
+                    local file = TheNet:GetWorldSessionFile(session_id)
+                    if file ~= nil then
+                        TheSim:GetPersistentString(file, function(success, str)
+                            onreadworldfile(success, str)
+                        end)
+                    end
                 end
             end
 
@@ -1008,6 +1010,31 @@ t = {
                             savedata.map.persistdata.retrofitcavemap_anr = {}
                         end
                         savedata.map.persistdata.retrofitcavemap_anr.retrofit_archives_navmesh = true
+                    end
+                end
+            end,
+        },
+		
+        {
+            version = 5.064, -- RoT: Forgotten Knowledge - fix converting the hermit crab's island to lunacy from retrofit_nodeidtilemap_secondpass 
+            fn = function(savedata)
+                if savedata ~= nil and savedata.map ~= nil then
+                    if savedata.map.persistdata == nil then
+                        savedata.map.persistdata = {}
+                    end
+
+                    if savedata.map.prefab == "forest" then
+                        if savedata.map.persistdata.retrofitforestmap_anr == nil then
+                            savedata.map.persistdata.retrofitforestmap_anr = {}
+                        end
+                        savedata.map.persistdata.retrofitforestmap_anr.retrofit_nodeidtilemap_thirdpass = true
+                    end
+
+                    if savedata.map.prefab == "cave" then
+                        if savedata.map.persistdata.retrofitcavemap_anr == nil then
+                            savedata.map.persistdata.retrofitcavemap_anr = {}
+                        end
+                        savedata.map.persistdata.retrofitcavemap_anr.retrofit_nodeidtilemap_atriummaze = true
                     end
                 end
             end,

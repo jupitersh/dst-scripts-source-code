@@ -22,6 +22,7 @@ local function makepiece(name, socket_product)
         owner.AnimState:OverrideSymbol("swap_body", "swap_altar_"..name.."piece", "swap_body")
     end
 
+
     local function fn()
         local inst = CreateEntity()
 
@@ -81,6 +82,10 @@ local function makepiece(name, socket_product)
 
         inst:AddComponent("hauntable")
         inst.components.hauntable:SetHauntValue(TUNING.HAUNT_TINY)
+
+        inst:ListenForEvent("calling_moon_relics", function(theworld,data)
+            data.caller:RegisterDevice(inst)
+        end, TheWorld)
 
         return inst
     end
@@ -175,6 +180,10 @@ local function makerockpiece(name, socket_product)
 
 		MakeSnowCovered(inst)
 		MakeHauntableWork(inst)
+
+        inst:ListenForEvent("calling_moon_relics", function(theworld,data)
+            data.caller:RegisterDevice(inst)
+        end, TheWorld)
 
         return inst
     end

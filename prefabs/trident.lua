@@ -79,6 +79,32 @@ local function do_water_explosion_effect(inst, affected_entity, owner, position)
         else
             launch_away(projectile, position)
         end
+    elseif affected_entity.prefab == "bullkelp_plant" then
+        local ae_x, ae_y, ae_z = affected_entity.Transform:GetWorldPosition()
+
+        if affected_entity.components.pickable and affected_entity.components.pickable:CanBePicked() then
+            local product = affected_entity.components.pickable.product
+            local loot = SpawnPrefab(product)
+            if loot ~= nil then
+                loot.Transform:SetPosition(ae_x, ae_y, ae_z)
+                if loot.components.inventoryitem ~= nil then
+                    loot.components.inventoryitem:InheritMoisture(TheWorld.state.wetness, TheWorld.state.iswet)
+                end
+                if loot.components.stackable ~= nil
+                        and affected_entity.components.pickable.numtoharvest > 1 then
+                    loot.components.stackable:SetStackSize(affected_entity.components.pickable.numtoharvest)
+                end
+                launch_away(loot, position)
+            end
+        end
+
+        local uprooted_kelp_plant = SpawnPrefab("bullkelp_root")
+        if uprooted_kelp_plant ~= nil then
+            uprooted_kelp_plant.Transform:SetPosition(ae_x, ae_y, ae_z)
+            launch_away(uprooted_kelp_plant, position + Vector3(0.5*math.random(), 0, 0.5*math.random()))
+        end
+
+        affected_entity:Remove()
     elseif affected_entity.components.inventoryitem ~= nil then
         launch_away(affected_entity, position)
         affected_entity.components.inventoryitem:SetLanded(false, true)

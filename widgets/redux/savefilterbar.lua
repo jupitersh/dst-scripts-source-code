@@ -41,6 +41,7 @@ function SaveFilterBar:AddSorter()
     local modes = {
         SORT_LASTPLAYED = "sort_lastplayed.tex",
         SORT_MOSTDAYS = "sort_mostdays.tex",
+        SORT_DATECREATED = "sort_datecreated.tex"
     }
 
     local btn = TEMPLATES.IconButton("images/button_icons2.xml", modes["SORT_LASTPLAYED"])
@@ -59,7 +60,7 @@ function SaveFilterBar:AddSorter()
 
         sort_mode = next(modes, sort_mode)
         if sort_mode == nil then
-            sort_mode = "SORT_MOSTDAYS"
+            sort_mode = "SORT_LASTPLAYED"
         end
         
         Profile:SetServerSortMode(sort_mode)

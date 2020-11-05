@@ -6202,7 +6202,7 @@ STRINGS.UI =
             ID_INCOMPATIBLE_PROTOCOL_VERSION = "The server has a different version than you do. Please check that your game version is up-to-date.",
             ID_DST_INCOMPATIBLE_PROTOCOL_VERSION = "The server has a different version than you do. Please check that your game version is up-to-date.",
             FORCE_DISCONNECTION = "The connection has been forcibly closed by the engine.",
-            E_BANNED = "Your account has been banned for violating the terms of use.",
+            E_BANNED = "Your account has been banned for violating the terms of use. Please visit accounts.klei.com to review this issue.",
             E_DELETED = "Your account has been marked for deletion and cannot be used anymore.",
             E_UPGRADE = "A new version is available.\nPlease update Don't Starve Together.",
             INVALID_CLIENT_TOKEN = "A token error occurred. Please try again.",
@@ -6233,6 +6233,7 @@ STRINGS.UI =
             ID_DST_SAVE_FILE_DAMAGED = "Your world is damaged and cannot be loaded.",
         },
         OK = "OK",
+        ACCOUNTS = "Account Page",
     },
 
     PAUSEMENU =
@@ -7102,6 +7103,7 @@ STRINGS.UI =
         SORT_MODE_FMT = "Sort Mode: {mode}",
         SORT_LASTPLAYED = "Last Played",
         SORT_MOSTDAYS = "Days Played",
+        SORT_DATECREATED = "Date Created",
         SEARCH = "Search",
     },
 

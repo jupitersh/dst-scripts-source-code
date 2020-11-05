@@ -41,12 +41,30 @@ function ShardIndex:Save(callback)
 end
 
 function ShardIndex:WriteTimeFile(callback)
-    local data = DataDumper(os.time(), nil, false)
     local filename = self:GetShardIndexName().."_time"
+    local function onreadtimefile(load_success, str)
+        local date_created = os.time()
+        if load_success == true then
+            local success, data = RunInSandboxSafe(str)
+            if success and string.len(str) > 0 then
+                if type(data) == "table" then
+                    date_created = data.created
+                else
+                    date_created = 0
+                end
+            end
+        end
+        local data = DataDumper({saved = os.time(), created = date_created}, nil, false)
+        if self.slot and self.shard then
+            TheSim:SetPersistentStringInClusterSlot(self.slot, self.shard, filename, data, false, callback)
+        else
+            TheSim:SetPersistentString(filename, data, false, callback)
+        end
+    end
     if self.slot and self.shard then
-        TheSim:SetPersistentStringInClusterSlot(self.slot, self.shard, filename, data, false, callback)
+        TheSim:GetPersistentStringInClusterSlot(self.slot, self.shard, filename, onreadtimefile)
     else
-        TheSim:SetPersistentString(filename, data, false, callback)
+        TheSim:GetPersistentString(filename, onreadtimefile)
     end
 end
 
@@ -291,7 +309,10 @@ function ShardIndex:OnGenerateNewWorld(savedata, metadataStr, session_identifier
         self.session_id = session_identifier
         self.server.encode_user_path = TheNet:TryDefaultEncodeUserPath()
 
-        self:Save(cb)
+        local function onsaved()
+            ShardGameIndex:WriteTimeFile(cb)
+        end
+        self:Save(onsaved)
     end
 
     SerializeWorldSession(savedata, session_identifier, onsavedatasaved, metadataStr)
@@ -460,6 +481,7 @@ function ShardIndex:SetServerShardData(customoptions, serverdata, onsavedcb)
         else
             local defaultoptions = GetDefaultWorldOptions(GetLevelType(serverdata.game_mode or DEFAULT_GAME_MODE))
             self.world.options = (customoptions ~= nil and not IsTableEmpty(customoptions) and customoptions) or defaultoptions
+            assert(self.world.options, "no world options defined")
             if self.world.options.overrides == nil or IsTableEmpty(self.world.options.overrides) then
                 self.world.options.overrides = defaultoptions.overrides
             end

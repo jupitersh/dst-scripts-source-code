@@ -1072,6 +1072,21 @@ function self:OnPostInit()
 		self.requiresreset = true
 	end
 
+	if self.retrofit_nodeidtilemap_thirdpass then
+		local num_tiles_repaired = 0
+		for i, id in ipairs(TheWorld.topology.ids) do
+			if id == "StaticLayoutIsland:HermitcrabIsland" then
+				local node = TheWorld.topology.nodes[i]
+				num_tiles_repaired = TheWorld.Map:RepopulateNodeIdTileMap(i, node.x, node.y, node.poly)
+				break
+			end
+		end
+	
+		print ("Retrofitting for Return of Them: Forgotten Knowledge - Repaired " .. tostring(num_tiles_repaired) .. " tile node ids for hermit island.")
+		self.requiresreset = self.requiresreset or num_tiles_repaired > 0
+	end
+
+
 	---------------------------------------------------------------------------
 	if self.requiresreset then
 		print ("Retrofitting: Worldgen retrofitting requires the server to save and restart to fully take effect.")
@@ -1118,6 +1133,7 @@ function self:OnLoad(data)
 		self.retrofit_moonfissures = data.retrofit_moonfissures or false
 		self.retrofit_astralmarkers = data.retrofit_astralmarkers or false
 		self.retrofit_nodeidtilemap_secondpass = data.retrofit_nodeidtilemap_secondpass or false
+		self.retrofit_nodeidtilemap_thirdpass = data.retrofit_nodeidtilemap_thirdpass or false
     end
 end
 

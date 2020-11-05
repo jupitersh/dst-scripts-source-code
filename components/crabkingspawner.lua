@@ -1,5 +1,5 @@
 --------------------------------------------------------------------------
---[[ ToadstoolSpawner class definition ]]
+--[[ crabkingspawner class definition ]]
 --------------------------------------------------------------------------
 
 return Class(function(self, inst)

@@ -3,6 +3,7 @@ local function fn()
 
 	inst.entity:AddTransform()
 
+	inst:AddTag("NOCLICK")
 	inst:AddTag("NOBLOCK")
 	inst:AddTag("formationleader")
 	inst:AddComponent("formationleader")

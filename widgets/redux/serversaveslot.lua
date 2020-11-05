@@ -261,7 +261,7 @@ end
 
 function ServerSaveSlot:OnDeleteButton()
     local dialog_items = { 
-        { text=STRINGS.UI.SERVERCREATIONSCREEN.DELETE, cb = function() ShardSaveGameIndex:DeleteSlot(self.slot, function() self.serverslotscreen:UpdateSaveFiles() TheFrontEnd:PopScreen() end) end },
+        { text=STRINGS.UI.SERVERCREATIONSCREEN.DELETE, cb = function() ShardSaveGameIndex:DeleteSlot(self.slot, function() self.serverslotscreen:ClearSlotCache(self.slot) self.serverslotscreen:UpdateSaveFiles() TheFrontEnd:PopScreen() end) end },
         { text=STRINGS.UI.SERVERCREATIONSCREEN.CANCEL, cb = function() TheFrontEnd:PopScreen() end },
     }
     TheFrontEnd:PushScreen(PopupDialogScreen(STRINGS.UI.SERVERCREATIONSCREEN.DELETE.." "..STRINGS.UI.SERVERCREATIONSCREEN.SLOT.." "..self.slot, STRINGS.UI.SERVERCREATIONSCREEN.SURE, dialog_items ) )

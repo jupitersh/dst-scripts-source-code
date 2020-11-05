@@ -85,7 +85,6 @@ local function OnUpdateLight(inst, dt)
         inst._lighttask:Cancel()
         inst._lighttask = nil
     end
-
     lerpparams(inst._currentlight, inst._startlight, inst._endlight, inst._endlight.time > 0 and inst._currentlight.time / inst._endlight.time or 1)
     pushparams(inst, inst._currentlight)
     inst.AnimState:SetLightOverride(Remap(inst._currentlight.intensity, light_params.off.intensity,light_params.beam.intensity, 0,1))    
@@ -99,7 +98,6 @@ local function beginfade(inst)
     if inst._lighttask == nil then
         inst._lighttask = inst:DoPeriodicTask(FRAMES, OnUpdateLight, nil, FRAMES)
     end    
-
 end
 
 local function ChangeToItem(inst)
@@ -111,8 +109,50 @@ local function ChangeToItem(inst)
 end
 
 local MOON_ALTAR_ASTRAL_MARKER_MUST_TAG =  {"moon_altar_astral_marker"}
+local MOON_RELIC_MUST_TAG =  {"moon_relic"}
+local CRAB_KING_MUST_TAG =  {"crabking"}
 local function scanfordevice(inst)
 	local ent = FindEntity(inst, 9999, nil, MOON_ALTAR_ASTRAL_MARKER_MUST_TAG)
+
+    if not ent then
+            
+        inst.registered_devices = {} -- clear, then populate via calling_all_devices
+        TheWorld:PushEvent("calling_moon_relics", {caller = inst})
+
+        local ents = inst.registered_devices --TheSim:FindEntities(x, y, z, 9999, MOON_RELIC_MUST_TAG)
+
+        for i,thisent in ipairs(ents) do
+            -- find items in water
+            if thisent:HasTag("INLIMBO") and thisent.components.submersible and thisent.components.submersible:GetUnderwaterObject() then                
+                ent = thisent
+                break
+            end
+            -- find the rocks
+            if thisent:HasTag("boulder") then
+                ent = thisent
+                break
+            end
+        end
+    end
+
+    if not ent then
+        local crown = false
+        inst.registered_devices = {} -- clear, then populate via calling_all_devices
+        TheWorld:PushEvent("calling_moon_relics", {caller = inst})
+        local ents = inst.registered_devices
+        for i, thisent in ipairs(ents)do
+            if thisent.prefab == "moon_altar_crown" or thisent.prefab == "moon_altar_cosmic" then
+                crown = true
+                break
+            end
+        end
+
+        if not crown then
+            ent = FindEntity(inst, 9999, nil, CRAB_KING_MUST_TAG)
+        end
+    end
+
+
 	if ent then        
 		if ent:GetDistanceSqToInst(inst) < 4*4 then
             inst.SoundEmitter:KillSound("locating")
@@ -209,8 +249,13 @@ local function ondeploy(inst, pt, deployer)
                 at.SoundEmitter:PlaySound("grotto/common/archive_resonator/locating_LP", "locating")
             end
         end)
-
-        at.task1 = at:DoTaskInTime(83/30,function()    
+        if at._lighttask then
+            at._lighttask:Cancel()
+            at._lighttask = nil
+        end
+        copyparams(at._currentlight, light_params.off)
+        pushparams(at, at._currentlight)
+        at.task1 = at:DoTaskInTime(83/30,function()
                 copyparams( at._endlight, light_params.on)
                 beginfade(at)
             end)
@@ -284,6 +329,10 @@ local function onhit(inst)
     inst.SoundEmitter:PlaySound("dontstarve/common/destroy_stone")
 end
 
+local function RegisterDevice(inst,device)
+    table.insert(inst.registered_devices,device)
+end
+
 local function mainfn()
     local inst = CreateEntity()
 
@@ -294,14 +343,16 @@ local function mainfn()
     inst.entity:AddDynamicShadow()
     inst.entity:AddLight()
 
-    inst.Light:SetFalloff(0.7)
-    inst.Light:SetIntensity(.5)
-    inst.Light:SetRadius(0.5)
+    inst.Light:SetFalloff(0.6)
+    inst.Light:SetIntensity(.4)
+    inst.Light:SetRadius(2)
     inst.Light:SetColour(237/255, 237/255, 209/255)
-    inst.Light:Enable(false)
+    inst.Light:Enable(true)
+
 
     inst.widthscale = 1
-    inst._endlight = light_params.off
+    inst._endlight = {}
+    copyparams(inst._endlight, light_params.on)
 
     inst._startlight = {}
     inst._currentlight = {}
@@ -358,6 +409,7 @@ local function mainfn()
     end
 
     inst:AddComponent("lootdropper")
+    inst.RegisterDevice = RegisterDevice
 
     return inst
 end

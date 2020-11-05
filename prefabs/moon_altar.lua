@@ -462,7 +462,6 @@ local function moon_altar_astral_master_postinit(inst)
     inst.OnLoad = moon_altar_on_load
 end
 
-
 local function MakeAltar(name, bank, build, anim, common_postinit, master_postinit, prefabs, work)
     local assets =
     {
@@ -541,6 +540,9 @@ local function MakeAltar(name, bank, build, anim, common_postinit, master_postin
         inst.OnEntityWake = OnEntityWake
 
         inst:ListenForEvent("on_fissure_socket", OnFissureSocket)
+        inst:ListenForEvent("calling_moon_relics", function(theworld,data)
+            data.caller:RegisterDevice(inst)
+        end, TheWorld)
 
         if master_postinit ~= nil then
             master_postinit(inst)

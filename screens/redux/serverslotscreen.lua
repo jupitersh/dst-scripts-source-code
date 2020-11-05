@@ -86,9 +86,25 @@ local function sortdays(a, b)
     local bday = mostdays[bslot] or 0
 
     if aday == bday then
-        return aslot < bslot--sorttime(a, b)
+        return aslot < bslot
     end
     return aday > bday
+end
+
+local datecreated = {}
+local function sortcreated(a, b)
+    local aslot = a.server_slot
+    local bslot = b.server_slot
+    datecreated[aslot] = datecreated[aslot] or ShardSaveGameIndex:GetSlotDateCreated(aslot)
+    datecreated[bslot] = datecreated[bslot] or ShardSaveGameIndex:GetSlotDateCreated(bslot)
+
+    local acreated = datecreated[aslot] or 0
+    local bcreated = datecreated[bslot] or 0
+
+    if acreated == bcreated then
+        return aslot < bslot
+    end
+    return acreated < bcreated
 end
 
 function ServerSlotScreen:_CancelTasks()
@@ -138,6 +154,8 @@ function ServerSlotScreen:UpdateSaveFiles(force_update)
         sort_fn = sorttime
     elseif sort_type == "SORT_MOSTDAYS" then
         sort_fn = sortdays
+    elseif sort_type == "SORT_DATECREATED" then
+        sort_fn = sortcreated
     end
     table.sort(savefilescrollitems, sort_fn)
 

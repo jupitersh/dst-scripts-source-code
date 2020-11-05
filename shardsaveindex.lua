@@ -243,8 +243,12 @@ function ShardSaveIndex:GetSlotLastTimePlayed(slot)
     local function ontimefileloaded(load_success, str)
         local success, timedata = RunInSandbox(str)
     
-        if success and string.len(str) > 0 and type(timedata) == "number" then
-            time = timedata
+        if success and string.len(str) > 0 then
+            if type(timedata) == "number" then
+                time = timedata
+            elseif type(timedata) == "table" then
+                time = timedata.saved
+            end
         end
     end
     local filename = ShardIndex:GetShardIndexName().."_time"
@@ -254,6 +258,28 @@ function ShardSaveIndex:GetSlotLastTimePlayed(slot)
         TheSim:SetPersistentString(filename, ontimefileloaded)
     end
     return time
+end
+
+function ShardSaveIndex:GetSlotDateCreated(slot)
+    local created = 0
+    local function ontimefileloaded(load_success, str)
+        if load_success then
+            local success, timedata = RunInSandbox(str)
+        
+            if success and string.len(str) > 0 then
+                if type(timedata) == "table" then
+                    created = timedata.created
+                end
+            end
+        end
+    end
+    local filename = ShardIndex:GetShardIndexName().."_time"
+    if slot then
+        TheSim:GetPersistentStringInClusterSlot(slot, "Master", filename, ontimefileloaded)
+    else
+        TheSim:SetPersistentString(filename, ontimefileloaded)
+    end
+    return created
 end
 
 function ShardSaveIndex:GetSlotServerData(slot)

@@ -161,6 +161,10 @@ local function OnRemoveEntity(inst)
 		inst:RemoveEventCallback("onremove", inst._woby_onremove, inst.woby)
 		inst.woby:Remove()
 	end
+
+	if inst._story_proxy ~= nil and inst._story_proxy:IsValid() then
+		inst._story_proxy:Remove()
+	end
 end
 
 local function OnDespawn(inst)

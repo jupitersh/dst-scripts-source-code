@@ -815,11 +815,29 @@ function self:OnPostInit()
 	end
 
 	if self.retrofit_archives_navmesh then
+		self.retrofit_archives_navmesh = nil
+
 		TheWorld.Map:RetrofitNavGrid()
 		print("Retrofitting for Return of Them: Forgotten Knowledge - Updated Nav Grid.")
 		self.requiresreset = true
 	end
 	
+	if self.retrofit_nodeidtilemap_atriummaze then
+		self.retrofit_nodeidtilemap_atriummaze = nil
+
+		local num_tiles_repaired = 0
+		for i, id in ipairs(TheWorld.topology.ids) do
+			if id == "AtriumMaze:0:AtriumMazeRooms" then
+				local node = TheWorld.topology.nodes[i]
+				num_tiles_repaired = TheWorld.Map:RepopulateNodeIdTileMap(i, node.x, node.y, node.poly, 500)
+				break
+			end
+		end
+	
+		print ("Retrofitting for Return of Them: Forgotten Knowledge - Repaired " .. tostring(num_tiles_repaired) .. " tile node ids for Atrium.")
+		self.requiresreset = self.requiresreset or num_tiles_repaired > 0
+	end
+
 	---------------------------------------------------------------------------
 	if self.requiresreset then
 		print ("Retrofitting: Worldgen retrofitting requires the server to save and restart to fully take effect.")
@@ -861,6 +879,7 @@ function self:OnLoad(data)
 		self.retrofit_acientarchives_fixes = data.retrofit_acientarchives_fixes
 		self.retrofit_dispencer_fixes = data.retrofit_dispencer_fixes
 		self.retrofit_archives_navmesh = data.retrofit_archives_navmesh
+		self.retrofit_nodeidtilemap_atriummaze = data.retrofit_nodeidtilemap_atriummaze
 		
     end
 end
