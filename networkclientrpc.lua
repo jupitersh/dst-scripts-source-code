@@ -411,7 +411,7 @@ local RPC_HANDLERS =
             end
             if action ~= nil then
                 local container = target ~= nil and target.components.container or nil
-                if container == nil or container.opener == player then
+                if container ~= nil and container.opener == player then
                     BufferedAction(player, target, action):Do()
                 end
             end

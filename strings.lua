@@ -494,6 +494,7 @@ STRINGS =
             TURRET = "Place",
             WATER = "Launch",
             PORTABLE = "Place",
+            DEPLOY = "Deploy",
         },
 
         PLAY = "Play",

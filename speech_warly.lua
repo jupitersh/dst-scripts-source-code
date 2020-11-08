@@ -3574,7 +3574,11 @@ return{
             LINE_5 = "I'm afraid its meaning is lost on me.",
         },        
 
-        ARCHIVE_RESONATOR = "Let's see where this takes us, non?",
+        ARCHIVE_RESONATOR = {
+            GENERIC = "Let's see where this takes us, non?",
+            IDLE = "C'est fini.",
+        },
+        
         ARCHIVE_RESONATOR_ITEM = "I cooked it up with a dash of ancient knowledge.",
 
         ARCHIVE_LOCKBOX_DISPENCER = {

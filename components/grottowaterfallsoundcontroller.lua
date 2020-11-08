@@ -41,7 +41,7 @@ local _soundemitters = {}
 --------------------------------------------------------------------------
 
 local function pool_sortfn(pool1, pool2)
-    return pool1[2] <= pool2[2]
+    return pool1[2] < pool2[2]
 end
 
 -- Generate a list of every pool (both big and small), sorted by dsq to ThePlayer.

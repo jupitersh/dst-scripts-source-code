@@ -39,6 +39,15 @@ local light_params =
         colour = { 237/255, 237/255, 209/255 },
         time = 0.4,
     },
+    
+    idle =
+    {
+        radius = 1,
+        intensity = .4,
+        falloff = .6,
+        colour = {237/255, 237/255, 209/255},
+        time = 0.2,
+    },     
 }
 
 local function pushparams(inst, params)
@@ -153,8 +162,8 @@ local function scanfordevice(inst)
     end
 
 
-	if ent then        
-		if ent:GetDistanceSqToInst(inst) < 4*4 then
+	if ent then
+		if ent:GetDistanceSqToInst(inst) < 4*4 and ent:HasTag("moon_altar_astral_marker") then
             inst.SoundEmitter:KillSound("locating")
             inst.AnimState:PlayAnimation("drill")
             inst.SoundEmitter:PlaySound("grotto/common/archive_resonator/drill")
@@ -163,13 +172,16 @@ local function scanfordevice(inst)
             if ent.product == "moon_altar_icon" then
                 swap = "swap_altar_iconpiece"
             end
+            
             inst.AnimState:OverrideSymbol("swap_body", swap, "swap_body")
-            -- NEED TO DO SYMBOL SWAP
+            inst.product = ent.product
+            ent:Remove()
             inst:ListenForEvent("animover", function()
                 if inst.AnimState:IsCurrentAnimation("drill") then
-                    local artifact = SpawnPrefab(ent.product)
+                    local artifact = SpawnPrefab(inst.product)
+                    inst.product = nil
                     artifact.Transform:SetPosition(inst.Transform:GetWorldPosition())
-                    ent:Remove()
+                    inst.components.finiteuses:Use(1)    
                     local item = ChangeToItem(inst)
                     local pt = Vector3(inst.Transform:GetWorldPosition())
                     pt.y = pt.y + 3
@@ -177,12 +189,6 @@ local function scanfordevice(inst)
                     inst:Remove()
                 end
             end)
-            --[[
-			local artifact = SpawnPrefab(ent.product)
-			artifact.Transform:SetPosition(inst.Transform:GetWorldPosition())
-			inst:Remove()
-			ent:Remove()
-            ]]
 		else
 			local x,y,z = inst.Transform:GetWorldPosition()
 			local angle = ent:GetAngleToPoint(x,y,z)
@@ -214,9 +220,11 @@ local function scanfordevice(inst)
     else
         inst.task3 = inst:DoTaskInTime(4, function()
             inst.SoundEmitter:KillSound("locating")
-            inst.AnimState:PlayAnimation("idle_loop",true)
-            --inst.OnDismantle(inst)
-            --inst.components.finiteuses:Use(1)
+            inst.AnimState:PlayAnimation("idle_pre")
+            copyparams( inst._endlight, light_params.idle)
+            beginfade(inst)
+            inst.AnimState:PushAnimation("idle_loop",true)
+            inst.components.finiteuses:Use(1)
         end)
 	end
 
@@ -225,9 +233,6 @@ local function scanfordevice(inst)
         if inst.AnimState:IsCurrentAnimation("beam") then
             inst.OnDismantle(inst)
              inst.components.finiteuses:Use(1)
-        end        
-        if inst.AnimState:IsCurrentAnimation("drill") then
-            inst.components.finiteuses:Use(1)
         end
     end)
 end
@@ -333,6 +338,23 @@ local function RegisterDevice(inst,device)
     table.insert(inst.registered_devices,device)
 end
 
+local function getstatus(inst)
+    return inst.AnimState:IsCurrentAnimation("idle_loop") and "IDLE"
+        or nil
+end
+
+local function onsave_main(inst, data)
+   data.product = inst.product
+end
+
+local function onloadpostpass_main(inst, ents, data)
+    if data and data.product then
+        local artifact = SpawnPrefab(data.product)
+        artifact.Transform:SetPosition(inst.Transform:GetWorldPosition())
+        inst.components.finiteuses:Use(1)
+    end
+end
+
 local function mainfn()
     local inst = CreateEntity()
 
@@ -347,12 +369,11 @@ local function mainfn()
     inst.Light:SetIntensity(.4)
     inst.Light:SetRadius(2)
     inst.Light:SetColour(237/255, 237/255, 209/255)
-    inst.Light:Enable(true)
-
+    inst.Light:Enable(false)
 
     inst.widthscale = 1
     inst._endlight = {}
-    copyparams(inst._endlight, light_params.on)
+    copyparams(inst._endlight, light_params.idle)
 
     inst._startlight = {}
     inst._currentlight = {}
@@ -388,6 +409,9 @@ local function mainfn()
         return inst
     end
 
+    inst:AddComponent("inspectable")
+    inst.components.inspectable.getstatus = getstatus
+
 	inst:AddComponent("finiteuses")
     inst.components.finiteuses:SetOnFinished(onfinisheduses)
     inst.components.finiteuses:SetMaxUses(TUNING.ARCHIVE_RESONATOR.USES)
@@ -407,6 +431,9 @@ local function mainfn()
             return true
         end
     end
+
+    inst.OnSave = onsave_main
+    inst.OnLoadPostPass = onloadpostpass_main
 
     inst:AddComponent("lootdropper")
     inst.RegisterDevice = RegisterDevice
@@ -430,7 +457,7 @@ local function onload(inst, data, newents)
     if data ~= nil then
         if data.rotation then
            inst.Transform:SetRotation(data.rotation)
-        end        
+        end
     end
 end
 
@@ -504,6 +531,7 @@ local function itemfn()
 
     inst:AddComponent("deployable")
     inst.components.deployable.ondeploy = ondeploy
+    inst.components.deployable.deploystring = "deploy"
 
 	inst:AddComponent("finiteuses")
     inst.components.finiteuses:SetOnFinished(inst.Remove)

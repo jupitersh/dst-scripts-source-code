@@ -3578,7 +3578,11 @@ return{
             LINE_5 = "Skritch scratches",
         },        
 
-        ARCHIVE_RESONATOR = "That way",
+        ARCHIVE_RESONATOR = {
+            GENERIC = "That way",
+            IDLE = "Done",
+        },
+        
         ARCHIVE_RESONATOR_ITEM = "Hmmmm",
 
         ARCHIVE_LOCKBOX_DISPENCER = {

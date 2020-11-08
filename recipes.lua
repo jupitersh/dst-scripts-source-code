@@ -89,7 +89,7 @@ Recipe("ruinsrelic_table", {Ingredient("cutstone", 4)}, RECIPETABS.TOWN, TECH.LO
 Recipe("dragonflychest", {Ingredient("dragon_scales", 1), Ingredient("boards", 4), Ingredient("goldnugget", 10)}, RECIPETABS.TOWN, TECH.SCIENCE_TWO, "dragonflychest_placer", 1.5)
 Recipe("dragonflyfurnace", {Ingredient("dragon_scales", 1), Ingredient("redgem", 2), Ingredient("charcoal", 10)}, RECIPETABS.TOWN, TECH.LOST, "dragonflyfurnace_placer")
 
-Recipe("archive_resonator_item", {Ingredient("moonrocknugget", 1), Ingredient("thulecite_pieces", 2)}, RECIPETABS.TOWN, TECH.LOST)
+Recipe("archive_resonator_item", {Ingredient("moonrocknugget", 1), Ingredient("thulecite", 1)}, RECIPETABS.TOWN, TECH.LOST)
 
 --FARM
 Recipe("slow_farmplot", {Ingredient("cutgrass", 8),Ingredient("poop", 4),Ingredient("log", 4)}, RECIPETABS.FARM,  TECH.SCIENCE_ONE, "slow_farmplot_placer")
@@ -623,7 +623,7 @@ Recipe("yotc_carrat_gym_stamina",		{Ingredient("lucky_goldnugget", 4)},nil, TECH
 Recipe("yotc_carrat_scale",			    {Ingredient("lucky_goldnugget", 1)}, nil, TECH.LOST, nil, nil, true)
 Recipe("wall_ruins_2_item",              {Ingredient("thulecite", 1)},       nil, TECH.LOST, nil, nil, true)
 Recipe("wall_stone_2_item",              {Ingredient("cutstone", 2)},        nil, TECH.LOST, nil, nil, true)
-Recipe("archive_resonator",              {Ingredient("moonrocknugget", 1), Ingredient("thulecite_pieces", 2)},        nil, TECH.LOST, nil, nil, true)
+Recipe("archive_resonator",              {Ingredient("moonrocknugget", 1), Ingredient("thulecite", 1)},        nil, TECH.LOST, nil, nil, true)
 
 ----CONSTRUCTION PLANS----
 CONSTRUCTION_PLANS =

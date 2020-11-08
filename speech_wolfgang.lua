@@ -3575,7 +3575,11 @@ return{
             LINE_5 = "Is nice statue, but is covered in scribblemarks.",
         },        
 
-        ARCHIVE_RESONATOR = "Will show the way to... something.",
+        ARCHIVE_RESONATOR = {
+            GENERIC = "Will show the way to... something.",
+            IDLE = "Is pointing way no more.",
+        },
+        
         ARCHIVE_RESONATOR_ITEM = "Is magic or science, Wolfgang not picky.",
 
         ARCHIVE_LOCKBOX_DISPENCER = {

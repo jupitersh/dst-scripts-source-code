@@ -3580,7 +3580,11 @@ return{
             LINE_5 = "I can't make heads or tails of it.",
         },        
 
-        ARCHIVE_RESONATOR = "Might as well see where the trail leads.",
+        ARCHIVE_RESONATOR = {
+            GENERIC = "Might as well see where the trail leads.",
+            IDLE = "Guess we got 'em all!",
+        },
+        
         ARCHIVE_RESONATOR_ITEM = "They sure knew how to build 'em back in the day.",
 
         ARCHIVE_LOCKBOX_DISPENCER = {

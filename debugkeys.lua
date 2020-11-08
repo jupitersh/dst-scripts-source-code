@@ -227,7 +227,6 @@ AddGameDebugKey(KEY_F4, function()
     ConsoleCommandPlayer().components.inventory:Equip( c_spawn("axe") )
     ConsoleCommandPlayer().components.inventory:Equip( c_spawn("flowerhat") )
     local invitems = {
-        meat = 10,
         carrot = 20,
         berries = 20,
         twigs = 20,

@@ -3574,7 +3574,11 @@ return{
             LINE_5 = "This will need further study.",
         },        
 
-        ARCHIVE_RESONATOR = "The path to discovery awaits.",
+        ARCHIVE_RESONATOR = {
+            GENERIC = "The path to discovery awaits.",
+            IDLE = "It appears there are no more artifacts to find.",
+        },
+        
         ARCHIVE_RESONATOR_ITEM = "How exciting! This technology most likely hasn't been used in hundreds of years!",
 
         ARCHIVE_LOCKBOX_DISPENCER = {

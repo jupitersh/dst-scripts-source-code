@@ -3574,7 +3574,11 @@ return{
             LINE_5 = "Glorph... it too hard to read.",
         },        
 
-        ARCHIVE_RESONATOR = "Glorph! What it doing?!",
+        ARCHIVE_RESONATOR = {
+            GENERIC = "Glorph! What it doing?!",
+            IDLE = "It not point way anymore.",
+        },
+        
         ARCHIVE_RESONATOR_ITEM = "Wonder why it so important, florp?",
 
         ARCHIVE_LOCKBOX_DISPENCER = {

@@ -3574,7 +3574,11 @@ return{
             LINE_5 = "\"Alter\"?",
         },        
 
-        ARCHIVE_RESONATOR = "It's leading us to something...",
+        ARCHIVE_RESONATOR = {
+            GENERIC = "It's leading us to something...",
+            IDLE = "It fulfilled its purpose.",
+        },
+        
         ARCHIVE_RESONATOR_ITEM = "I have many questions.",
 
         ARCHIVE_LOCKBOX_DISPENCER = {

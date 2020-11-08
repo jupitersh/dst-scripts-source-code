@@ -3578,7 +3578,11 @@ return{
             LINE_5 = "What a pity.",
         },        
 
-        ARCHIVE_RESONATOR = "All paths lead to suffering.",
+        ARCHIVE_RESONATOR = {
+            GENERIC = "All paths lead to suffering.",
+            IDLE = "There's nothing left to look for.",
+        },
+        
         ARCHIVE_RESONATOR_ITEM = "The ones who designed it are long dead.",
 
         ARCHIVE_LOCKBOX_DISPENCER = {
@@ -3604,7 +3608,7 @@ return{
         },
 
         WALL_STONE_2 = "What will protect me from what's inside?",
-        WALL_RUINS_2 = "These didn't protect the ancients, now did they!", 
+        WALL_RUINS_2 = "These didn't protect the ancients, now did they!",
 
         REFINED_DUST = "Dust to... somewhat denser dust.",
         DUSTMERINGUE = "A treat devoid of sweetness...",

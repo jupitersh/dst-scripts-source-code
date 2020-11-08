@@ -3575,7 +3575,11 @@ return{
             LINE_5 = "Now that's a head scratcher.",
         },        
 
-        ARCHIVE_RESONATOR = "Not sure where it's leading me, but might as well find out.",
+        ARCHIVE_RESONATOR = {
+            GENERIC = "Not sure where it's leading me, but I might as well find out.",
+            IDLE = "Nothin' left to point us to.",
+        },
+        
         ARCHIVE_RESONATOR_ITEM = "It's humming with some kinda energy.",
 
         ARCHIVE_LOCKBOX_DISPENCER = {
@@ -3602,7 +3606,7 @@ return{
 
         WALL_STONE_2 = "Safe and secure, eh?",
         WALL_RUINS_2 = "Crumbling, but still secure, eh?",
-        
+
         REFINED_DUST = "Looks kind of like maple sugar. Don't think I wanna eat it, though.",
         DUSTMERINGUE = "Tastes terrible. And that's speakin' as someone who's eaten raw lumber.",
 

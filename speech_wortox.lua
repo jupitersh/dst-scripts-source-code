@@ -3580,7 +3580,11 @@ return{
             LINE_5 = "Hyuyu, I shouldn't spoil the surprise!",
         },        
 
-        ARCHIVE_RESONATOR = "There's something hidden that it seeks.",
+        ARCHIVE_RESONATOR = {
+            GENERIC = "There's something hidden that it seeks.",
+            IDLE = "We've finished the deed, nowhere left to lead.",
+        },
+        
         ARCHIVE_RESONATOR_ITEM = "What a curious contraption!",
 
         ARCHIVE_LOCKBOX_DISPENCER = {

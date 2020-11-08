@@ -3581,7 +3581,11 @@ return{
             LINE_5 = "A bunch of old mumbo jumbo.",
         },        
 
-        ARCHIVE_RESONATOR = "Point the way!",
+        ARCHIVE_RESONATOR = {
+            GENERIC = "Point the way!",
+            IDLE = "Nothing left to find, I guess.",
+        },
+        
         ARCHIVE_RESONATOR_ITEM = "It's humming to itself.",
 
         ARCHIVE_LOCKBOX_DISPENCER = {

@@ -3583,7 +3583,11 @@ return {
             LINE_5 = "So much knowledge, if only I could read it!",
         },        
 
-        ARCHIVE_RESONATOR = "Why use a map when you could use a mind-bogglingly complex piece of machinery?",
+        ARCHIVE_RESONATOR = {
+            GENERIC = "Why use a map when you could use a mind-bogglingly complex piece of machinery?",
+            IDLE = "It seems to have found everything worth finding.",
+        },
+        
         ARCHIVE_RESONATOR_ITEM = "Aha! I used the secret knowledge to build a device! Why does this feel familiar...",
 
         ARCHIVE_LOCKBOX_DISPENCER = {

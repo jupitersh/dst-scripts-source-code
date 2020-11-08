@@ -3574,7 +3574,11 @@ return{
             LINE_5 = "These runes are foreign to me.",
         },        
 
-        ARCHIVE_RESONATOR = "It calls down a sign from Mani himself!",
+        ARCHIVE_RESONATOR = {
+            GENERIC = "It calls down a sign from Mani himself!",
+            IDLE = "Its quest is complete.",
+        },
+        
         ARCHIVE_RESONATOR_ITEM = "Tis the machine from my vision.",
 
         ARCHIVE_LOCKBOX_DISPENCER = {

@@ -822,6 +822,7 @@ ACTIONS.DEPLOY.strfn = function(act)
                 (act.invobject:HasTag("portableitem") and "PORTABLE") or
                 (act.invobject:HasTag("boatbuilder") and "WATER") or
                 (act.invobject:HasTag("deploykititem") and "TURRET") or
+                (act.invobject.components.deployable and act.invobject.components.deployable.deploystring == "deploy" and "DEPLOY") or
                 (act.invobject:HasTag("eyeturret") and "TURRET")    )
         or nil
 end

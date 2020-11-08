@@ -1597,6 +1597,7 @@ local states =
         end,
 
         onexit = function(inst)
+            inst.SoundEmitter:KillSound("splash")
             if not inst.sg.statemem.continue then
                 inst.stopfishing(inst)
             end
@@ -1609,10 +1610,6 @@ local states =
                 inst.sg:GoToState("fishing_strain") 
             end),
         },
-
-        onexit = function(inst)
-            inst.SoundEmitter:KillSound("splash")
-        end,
     },
 
     State{
@@ -1672,6 +1669,7 @@ local states =
         },
 
         onexit = function(inst)
+            inst.AnimState:ClearOverrideSymbol("fish01")
             if not inst.sg.statemem.continue then
                 inst.stopfishing(inst)
             end            
@@ -1686,10 +1684,6 @@ local states =
                 end
             end),
         },
-
-        onexit = function(inst)
-            inst.AnimState:ClearOverrideSymbol("fish01")
-        end,
     },
 
     State{

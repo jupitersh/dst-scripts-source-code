@@ -3574,7 +3574,11 @@ return{
             LINE_5 = "We sure wish we knew what it says!",
         },        
 
-        ARCHIVE_RESONATOR = "It's taking us on a treasure hunt!",
+        ARCHIVE_RESONATOR = {
+            GENERIC = "It's taking us on a treasure hunt!",
+            IDLE = "Aw, I guess we found them all.",
+        },
+        
         ARCHIVE_RESONATOR_ITEM = "We think it's for finding something.",
 
         ARCHIVE_LOCKBOX_DISPENCER = {

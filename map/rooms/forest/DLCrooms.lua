@@ -195,8 +195,6 @@ AddRoom("MagicalDeciduous", {
 					                    grass = .03,
 					                    sapling=1,
 					                    twiggytree=0.4,
-					                    berrybush=1,
-					                    berrybush_juicy = 0.05,
 
 					                    red_mushroom = 2,
 					                    blue_mushroom = 2,

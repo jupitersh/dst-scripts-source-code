@@ -3574,7 +3574,11 @@ return{
             LINE_5 = "I sure wish I could read it.",
         },        
 
-        ARCHIVE_RESONATOR = "I guess it's kind of like a compass.",
+        ARCHIVE_RESONATOR = {
+            GENERIC = "I guess it's kind of like a compass.",
+            IDLE = "We must've found them all!",
+        },
+        
         ARCHIVE_RESONATOR_ITEM = "It must do something important.",
 
         ARCHIVE_LOCKBOX_DISPENCER = {
