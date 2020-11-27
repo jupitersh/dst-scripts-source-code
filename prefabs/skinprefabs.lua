@@ -2940,6 +2940,38 @@ table.insert(prefs, CreatePrefabSkin("rainometer_circus",
 	release_group = 48,
 }))
 
+table.insert(prefs, CreatePrefabSkin("razor_scissors",
+{
+	base_prefab = "razor",
+	type = "item",
+	rarity = "Distinguished",
+	rarity_modifier = "Woven",
+	init_fn = function(inst) razor_init_fn(inst, "razor_scissors") end,
+	skin_tags = { "RAZOR", "CRAFTABLE", },
+	release_group = 107,
+}))
+
+table.insert(prefs, CreatePrefabSkin("razor_straight",
+{
+	base_prefab = "razor",
+	type = "item",
+	rarity = "Distinguished",
+	rarity_modifier = "Woven",
+	init_fn = function(inst) razor_init_fn(inst, "razor_straight") end,
+	skin_tags = { "RAZOR", "CRAFTABLE", },
+	release_group = 107,
+}))
+
+table.insert(prefs, CreatePrefabSkin("researchlab2_crystal",
+{
+	base_prefab = "researchlab2",
+	type = "item",
+	rarity = "Loyal",
+	init_fn = function(inst) researchlab2_init_fn(inst, "researchlab2_crystal") end,
+	skin_tags = { "CRYSTAL", "ALCHEMY", "CRAFTABLE", },
+	release_group = 107,
+}))
+
 table.insert(prefs, CreatePrefabSkin("researchlab2_pod",
 {
 	base_prefab = "researchlab2",

@@ -815,14 +815,14 @@ end
 
 ACTIONS.DEPLOY.strfn = function(act)
     return act.invobject ~= nil
-        and (   (act.invobject:HasTag("groundtile") and "GROUNDTILE") or
+        and (   (act.invobject:HasTag("usedeploystring") and "DEPLOY") or
+                (act.invobject:HasTag("groundtile") and "GROUNDTILE") or
                 (act.invobject:HasTag("wallbuilder") and "WALL") or
                 (act.invobject:HasTag("fencebuilder") and "FENCE") or
                 (act.invobject:HasTag("gatebuilder") and "GATE") or
                 (act.invobject:HasTag("portableitem") and "PORTABLE") or
                 (act.invobject:HasTag("boatbuilder") and "WATER") or
                 (act.invobject:HasTag("deploykititem") and "TURRET") or
-                (act.invobject.components.deployable and act.invobject.components.deployable.deploystring == "deploy" and "DEPLOY") or
                 (act.invobject:HasTag("eyeturret") and "TURRET")    )
         or nil
 end

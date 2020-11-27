@@ -4111,6 +4111,13 @@ MISC_ITEMS =
 		rarity = "Loyal",
 		release_group = 48,
 	},
+	playerportrait_bg_researchlab2crystal =
+	{
+		type = "playerportrait",
+		skin_tags = { "CRYSTAL", "PLAYERPORTRAIT", },
+		rarity = "Loyal",
+		release_group = 107,
+	},
 	playerportrait_bg_researchlab3crystal =
 	{
 		type = "playerportrait",
@@ -5215,6 +5222,13 @@ MISC_ITEMS =
 		rarity = "Common",
 		rarity_modifier = "Woven",
 		release_group = 56,
+	},
+	profileflair_researchlab2_crystal =
+	{
+		type = "profileflair",
+		skin_tags = { "CRYSTAL", "PROFILEFLAIR", },
+		rarity = "Loyal",
+		release_group = 107,
 	},
 	profileflair_researchlab3_crystal =
 	{

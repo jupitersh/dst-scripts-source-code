@@ -528,12 +528,18 @@ PREFAB_SKINS = {
 	{
 		"rainometer_circus",
 	},
+	razor = 
+	{
+		"razor_scissors",
+		"razor_straight",
+	},
 	researchlab = 
 	{
 		"researchlab_green",
 	},
 	researchlab2 = 
 	{
+		"researchlab2_crystal",
 		"researchlab2_pod",
 	},
 	researchlab3 = 

@@ -513,6 +513,8 @@ local function itemfn()
 
     MakeInventoryPhysics(inst)
 
+    inst:AddTag("usedeploystring")
+
     inst.AnimState:SetBank("archive_resonator")
     inst.AnimState:SetBuild("archive_resonator")
     inst.AnimState:PlayAnimation("pack_loop")
@@ -531,7 +533,6 @@ local function itemfn()
 
     inst:AddComponent("deployable")
     inst.components.deployable.ondeploy = ondeploy
-    inst.components.deployable.deploystring = "deploy"
 
 	inst:AddComponent("finiteuses")
     inst.components.finiteuses:SetOnFinished(inst.Remove)

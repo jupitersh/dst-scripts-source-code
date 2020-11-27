@@ -882,7 +882,7 @@ local function DoInitGame(savedata, profile)
 	if TheNet:GetIsServer() then
 	    NotifyLoadingState( LoadingStates.DoneLoading )
 	end
-    
+    ShardGameIndex:WriteTimeFile()
 end
 
 local function UpgradeSaveFile(savedata)

@@ -6555,7 +6555,8 @@ CLOTHING =
 		symbol_hides = { "skirt", },
 		rarity = "Spiffy",
 		rarity_modifier = "Woven",
-		legs_cuff_size = 3,
+		legs_cuff_size = 2,
+		feet_cuff_size = 2,
 		release_group = 106,
 	},
 	legs_woodie_gladiator =
