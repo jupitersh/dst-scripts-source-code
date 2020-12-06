@@ -80,12 +80,12 @@ function MakeBanner(self)
         anim:GetAnimState():PlayAnimation("loop", true)
         anim:SetScale(.667)
 	elseif IsSpecialEventActive(SPECIAL_EVENTS.WINTERS_FEAST) then
-        anim:GetAnimState():SetBuild("dst_menu_inker_winter")
-        anim:GetAnimState():SetBank("dst_menu_inker_winter")
-        anim:GetAnimState():PlayAnimation("loop", true)
-        anim:SetScale(.667)
+--        anim:GetAnimState():SetBuild("dst_menu_inker_winter")
+--        anim:GetAnimState():SetBank("dst_menu_inker_winter")
+--        anim:GetAnimState():PlayAnimation("loop", true)
+--        anim:SetScale(.667)
 
---[[	local anim_bg = baner_root:AddChild(UIAnim())
+	    local anim_bg = baner_root:AddChild(UIAnim())
 		anim_bg:GetAnimState():SetBuild("dst_menu_feast_bg")
 		anim_bg:GetAnimState():SetBank("dst_menu_bg")
 		anim_bg:SetScale(0.7)
@@ -97,7 +97,6 @@ function MakeBanner(self)
 		anim:GetAnimState():SetBank("dst_menu")
 		anim:SetScale(0.7)
 		anim:GetAnimState():PlayAnimation("loop", true)
-]]
 
 	elseif IsSpecialEventActive(SPECIAL_EVENTS.YOTC) then
 		local anim_bg = baner_root:AddChild(UIAnim())

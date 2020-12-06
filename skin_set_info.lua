@@ -42,6 +42,36 @@ return
 			"legs_wolfgang_ice",
 			"feet_wolfgang_ice",
 		},
+		{
+			"walter_ice",
+			"body_walter_ice",
+			"hand_walter_ice",
+			"legs_walter_ice",
+			"walterhat_ice",
+		},
+		{
+			"warly_ice",
+			"body_warly_ice",
+			"feet_warly_ice",
+			"legs_warly_ice",
+		},
+		{
+			"wortox_ice",
+			"body_wortox_ice",
+			"legs_wortox_ice",
+		},
+		{
+			"wx78_ice",
+			"body_wx78_ice",
+			"feet_wx78_ice",
+			"hand_wx78_ice",
+			"legs_wx78_ice",
+		},
+		{
+			"winona_ice",
+			"body_winona_ice",
+			"hand_winona_ice",
+		},
 	},
 	emote_fistshake =
 	{

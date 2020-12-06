@@ -702,6 +702,7 @@ PREFAB_SKINS = {
 	{
 		"walter_detective",
 		"walter_formal",
+		"walter_ice",
 		"walter_none",
 		"walter_survivor",
 		"walter_ventriloquist",
@@ -710,6 +711,7 @@ PREFAB_SKINS = {
 	{
 		"walterhat_detective",
 		"walterhat_formal",
+		"walterhat_ice",
 		"walterhat_survivor",
 		"walterhat_ventriloquist",
 	},
@@ -724,6 +726,7 @@ PREFAB_SKINS = {
 		"warly_candyman",
 		"warly_chef",
 		"warly_fisherman",
+		"warly_ice",
 		"warly_none",
 		"warly_rose",
 		"warly_victorian",
@@ -942,6 +945,7 @@ PREFAB_SKINS = {
 		"winona_grassgecko",
 		"winona_grassgecko_d",
 		"winona_grassgecko_p",
+		"winona_ice",
 		"winona_magma",
 		"winona_nature",
 		"winona_none",
@@ -1024,6 +1028,7 @@ PREFAB_SKINS = {
 	wortox = 
 	{
 		"wortox_dragon",
+		"wortox_ice",
 		"wortox_minotaur",
 		"wortox_none",
 		"wortox_original",
@@ -1044,6 +1049,7 @@ PREFAB_SKINS = {
 		"wx78_cook",
 		"wx78_formal",
 		"wx78_gladiator",
+		"wx78_ice",
 		"wx78_magma",
 		"wx78_nature",
 		"wx78_none",
