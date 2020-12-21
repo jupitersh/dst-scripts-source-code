@@ -4011,6 +4011,16 @@ table.insert(prefs, CreatePrefabSkin("wardrobe_heart",
 	release_group = 56,
 }))
 
+table.insert(prefs, CreatePrefabSkin("wardrobe_yule",
+{
+	base_prefab = "wardrobe",
+	type = "item",
+	rarity = "Loyal",
+	init_fn = function(inst) wardrobe_init_fn(inst, "wardrobe_yule") end,
+	skin_tags = { "WARDROBE", "YULE", "CRAFTABLE", },
+	release_group = 110,
+}))
+
 table.insert(prefs, CreatePrefabSkin("warly_candyman",
 {
 	base_prefab = "warly",
@@ -4770,6 +4780,7 @@ table.insert(prefs, CreatePrefabSkin("webber_victorian",
 	skins = { ghost_skin = "ghost_webber_build", normal_skin = "webber_victorian", },
 	torso_tuck_builds = { "webber_victorian", },
 	has_alternate_for_body = { "webber_victorian", },
+	linked_beard = "webber_beard_victorian",
 	release_group = 43,
 }))
 

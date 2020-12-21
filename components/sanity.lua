@@ -390,7 +390,7 @@ function Sanity:Recalc(dt)
 		for k, v in pairs(self.inst.components.inventory.equipslots) do
 			local equippable = v.components.equippable
 			if equippable ~= nil and (not self.only_magic_dapperness or equippable.is_magic_dapperness) then
-				total_dapperness = total_dapperness + equippable:GetDapperness(self.inst)
+				total_dapperness = total_dapperness + equippable:GetDapperness(self.inst, self.no_moisture_penalty)
 			end
 		end
 
@@ -398,7 +398,7 @@ function Sanity:Recalc(dt)
 		dapper_delta = total_dapperness * TUNING.SANITY_DAPPERNESS
 	end
 
-    local moisture_delta = easing.inSine(self.inst.components.moisture:GetMoisture(), 0, TUNING.MOISTURE_SANITY_PENALTY_MAX, self.inst.components.moisture:GetMaxMoisture())
+    local moisture_delta = self.no_moisture_penalty and 0 or easing.inSine(self.inst.components.moisture:GetMoisture(), 0, TUNING.MOISTURE_SANITY_PENALTY_MAX, self.inst.components.moisture:GetMaxMoisture())
 
     local light_sanity_drain = LIGHT_SANITY_DRAINS[self.mode]
 	local light_delta = 0

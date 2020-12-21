@@ -720,6 +720,7 @@ PREFAB_SKINS = {
 		"wardrobe_armoire",
 		"wardrobe_crystal",
 		"wardrobe_heart",
+		"wardrobe_yule",
 	},
 	warly = 
 	{
@@ -814,6 +815,7 @@ PREFAB_SKINS = {
 		"webber_beard_rose",
 		"webber_beard_shadow",
 		"webber_beard_survivor",
+		"webber_beard_victorian",
 		"webber_beard_wrestler",
 	},
 	wendy = 

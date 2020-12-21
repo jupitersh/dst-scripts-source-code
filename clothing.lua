@@ -1061,6 +1061,94 @@ CLOTHING =
 		marketable = true,
 		release_group = 0,
 	},
+	body_ugly_chester =
+	{
+		type = "body",
+		skin_tags = { "CLOTHING_BODY", "CLOTHING", },
+		symbol_overrides = { "torso", "arm_upper", "arm_upper_skin", "arm_lower", },
+		torso_tuck = "untucked",
+		rarity = "Distinguished",
+		rarity_modifier = "Woven",
+		release_group = 110,
+	},
+	body_ugly_deerclops =
+	{
+		type = "body",
+		skin_tags = { "CLOTHING_BODY", "CLOTHING", },
+		symbol_overrides = { "torso", "arm_upper", "arm_upper_skin", "arm_lower", },
+		torso_tuck = "untucked",
+		rarity = "Distinguished",
+		rarity_modifier = "Woven",
+		release_group = 110,
+	},
+	body_ugly_gemdeer =
+	{
+		type = "body",
+		skin_tags = { "CLOTHING_BODY", "CLOTHING", },
+		symbol_overrides = { "torso", "arm_upper", "arm_upper_skin", "arm_lower", },
+		torso_tuck = "untucked",
+		rarity = "Distinguished",
+		rarity_modifier = "Woven",
+		release_group = 110,
+	},
+	body_ugly_gingerpig =
+	{
+		type = "body",
+		skin_tags = { "CLOTHING_BODY", "CLOTHING", },
+		symbol_overrides = { "torso", "arm_upper", "arm_upper_skin", "arm_lower", },
+		torso_tuck = "untucked",
+		rarity = "Distinguished",
+		rarity_modifier = "Woven",
+		release_group = 110,
+	},
+	body_ugly_klaus =
+	{
+		type = "body",
+		skin_tags = { "CLOTHING_BODY", "CLOTHING", },
+		symbol_overrides = { "torso", "arm_upper", "arm_upper_skin", "arm_lower", },
+		torso_tuck = "untucked",
+		rarity = "Distinguished",
+		rarity_modifier = "Woven",
+		release_group = 110,
+	},
+	body_ugly_treeguard =
+	{
+		type = "body",
+		skin_tags = { "CLOTHING_BODY", "CLOTHING", },
+		symbol_overrides = { "torso", "arm_upper", "arm_upper_skin", "arm_lower", },
+		torso_tuck = "untucked",
+		rarity = "Distinguished",
+		rarity_modifier = "Woven",
+		release_group = 110,
+	},
+	body_ugly_winterhat =
+	{
+		type = "body",
+		skin_tags = { "CLOTHING_BODY", "CLOTHING", },
+		symbol_overrides = { "torso", "arm_upper", "arm_upper_skin", "arm_lower", },
+		torso_tuck = "untucked",
+		rarity = "Distinguished",
+		rarity_modifier = "Woven",
+		release_group = 110,
+	},
+	body_ugly_winterhat_black_davys =
+	{
+		type = "body",
+		skin_tags = { "CLOTHING_BODY", "CLOTHING", "BLACK", },
+		symbol_overrides = { "torso", "arm_upper", "arm_upper_skin", "arm_lower", },
+		torso_tuck = "untucked",
+		rarity = "ProofOfPurchase",
+		release_group = 110,
+	},
+	body_ugly_winterhat_pink_hibiscus =
+	{
+		type = "body",
+		skin_tags = { "CLOTHING_BODY", "CLOTHING", "PINK", },
+		symbol_overrides = { "torso", "arm_upper", "arm_upper_skin", "arm_lower", },
+		torso_tuck = "untucked",
+		rarity = "ProofOfPurchase",
+		release_group = 110,
+	},
 	body_walter_detective =
 	{
 		type = "body",

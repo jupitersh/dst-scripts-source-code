@@ -34,6 +34,7 @@ local SHOW_DST_DEBUG_HOST_JOIN = BRANCH == "dev"
 local SHOW_QUICKJOIN = false
 
 local IS_BETA = BRANCH == "staging"
+local IS_DEV_BUILD = BRANCH == "dev"
 
 local function PlayBannerSound(inst, self, sound)
     if self.bannersoundsenabled then
@@ -51,18 +52,21 @@ function MakeBanner(self)
 	local anim = baner_root:AddChild(UIAnim())
 
 	if IS_BETA then
+		title_str = STRINGS.UI.MAINSCREEN.MAINBANNER_BETA_TITLE
+
         --local anim = baner_root:AddChild(UIAnim())
-        anim:GetAnimState():SetBuild("dst_menu_grotto")
-        anim:GetAnimState():SetBank ("dst_menu_grotto")
+        anim:GetAnimState():SetBuild("dst_menu_farming")
+        anim:GetAnimState():SetBank ("dst_menu_farming")
         anim:GetAnimState():PlayAnimation("loop", true)
         anim:SetScale(.667)
         anim:SetPosition(0, 0)
+
+  --       title_str = STRINGS.UI.MAINSCREEN.MAINBANNER_ROT_BETA_TITLE
   --       anim:GetAnimState():SetBuild("dst_menu_wathgrithr")
   --       anim:GetAnimState():SetBank("dst_menu_wathgrithr")
   --       anim:SetScale(.667)
   --       anim:GetAnimState():PlayAnimation("loop", true)
   --       anim:MoveToBack()
-		-- title_str = STRINGS.UI.MAINSCREEN.MAINBANNER_ROT_BETA_TITLE
 	elseif IsFestivalEventActive(FESTIVAL_EVENTS.LAVAARENA) then
 		anim:GetAnimState():SetBuild("dst_menu_lavaarena_s2")
 		anim:GetAnimState():SetBank("dst_menu_lavaarena_s2")
@@ -80,12 +84,12 @@ function MakeBanner(self)
         anim:GetAnimState():PlayAnimation("loop", true)
         anim:SetScale(.667)
 	elseif IsSpecialEventActive(SPECIAL_EVENTS.WINTERS_FEAST) then
---        anim:GetAnimState():SetBuild("dst_menu_inker_winter")
---        anim:GetAnimState():SetBank("dst_menu_inker_winter")
---        anim:GetAnimState():PlayAnimation("loop", true)
---        anim:SetScale(.667)
+        --anim:GetAnimState():SetBuild("dst_menu_inker_winter")
+        --anim:GetAnimState():SetBank("dst_menu_inker_winter")
+        --anim:GetAnimState():PlayAnimation("loop", true)
+        --anim:SetScale(.667)
 
-	    local anim_bg = baner_root:AddChild(UIAnim())
+    	--[[local anim_bg = baner_root:AddChild(UIAnim())
 		anim_bg:GetAnimState():SetBuild("dst_menu_feast_bg")
 		anim_bg:GetAnimState():SetBank("dst_menu_bg")
 		anim_bg:SetScale(0.7)
@@ -96,7 +100,15 @@ function MakeBanner(self)
 		anim:GetAnimState():SetBuild("dst_menu_feast")
 		anim:GetAnimState():SetBank("dst_menu")
 		anim:SetScale(0.7)
-		anim:GetAnimState():PlayAnimation("loop", true)
+		anim:GetAnimState():PlayAnimation("loop", true)]]
+
+		title_str = STRINGS.UI.MAINSCREEN.MAINBANNER_TITLE_REAPWHATYOUSOW
+        anim:GetAnimState():SetBuild("dst_menu_farming_winter")
+        anim:GetAnimState():SetBank ("dst_menu_farming_winter")
+        anim:GetAnimState():PlayAnimation("loop", true)
+        anim:SetScale(.667)
+        anim:SetPosition(0, 0)
+
 
 	elseif IsSpecialEventActive(SPECIAL_EVENTS.YOTC) then
 		local anim_bg = baner_root:AddChild(UIAnim())
@@ -185,6 +197,16 @@ function MakeBanner(self)
   --       anim:GetAnimState():Show(c1)
   --       anim:GetAnimState():Show(c2)
   --       anim:GetAnimState():Show(c3)
+
+		title_str = STRINGS.UI.MAINSCREEN.MAINBANNER_TITLE_REAPWHATYOUSOW
+        anim:GetAnimState():SetBuild("dst_menu_farming")
+        anim:GetAnimState():SetBank ("dst_menu_farming")
+        anim:GetAnimState():PlayAnimation("loop", true)
+        anim:SetScale(.667)
+        anim:SetPosition(0, 0)
+
+
+
 --[[ 
         local anim = baner_root:AddChild(UIAnim())
         anim:GetAnimState():SetBuild("dst_menu_wathgrithr")
@@ -192,14 +214,14 @@ function MakeBanner(self)
         anim:GetAnimState():PlayAnimation("loop", true)
         anim:SetScale(.667)
         anim:SetPosition(0, 0)
-]]
+
         local anim = baner_root:AddChild(UIAnim())
         anim:GetAnimState():SetBuild("dst_menu_grotto")
         anim:GetAnimState():SetBank ("dst_menu_grotto")
         anim:GetAnimState():PlayAnimation("loop", true)
         anim:SetScale(.667)
         anim:SetPosition(0, 0)
---[[	
+	
         local anim = baner_root:AddChild(UIAnim())
 		anim:GetAnimState():SetBuild("dst_menu_walter")
         anim:GetAnimState():SetBank("dst_menu_walter")
@@ -782,15 +804,17 @@ function MultiplayerMainScreen:OnBecomeActive()
 	end
 
     --delay for a frame to allow the screen to finish building, then check the entity count for leaks
-    self.inst:DoTaskInTime(0, function()
-        if self.cached_entity_count ~= nil and self.cached_entity_count ~= TheSim:GetNumberOfEntities() then
-            print("### Error: Leaked entities in the frontend.", self.cached_entity_count)
-            for k, v in pairs(Ents) do if v.widget and (not v:IsValid() or v.widget.parent == nil) then
-                print(k, v.widget.name, v:IsValid(), v.widget.parent ~= nil, v) end
-            end
-        end
-        self.cached_entity_count = TheSim:GetNumberOfEntities()
-    end)
+	if IS_DEV_BUILD then
+		self.inst:DoTaskInTime(0, function()
+			if self.cached_entity_count ~= nil and self.cached_entity_count ~= TheSim:GetNumberOfEntities() then
+				print("### Error: Leaked entities in the frontend.", self.cached_entity_count, TheSim:GetNumberOfEntities())
+				for k, v in pairs(Ents) do if v.widget and (not v:IsValid() or v.widget.parent == nil) then
+					print(k, v.widget.name, v:IsValid(), v.widget.parent ~= nil, v) end
+				end
+			end
+			self.cached_entity_count = TheSim:GetNumberOfEntities()
+		end)
+	end
 end
 
 function MultiplayerMainScreen:FinishedFadeIn()

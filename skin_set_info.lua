@@ -2,6 +2,18 @@
 
 return 
 {
+	body_ugly_winterhat_black_davys =
+	{
+		{
+			"winterhat_black_davys",
+		},
+	},
+	body_ugly_winterhat_pink_hibiscus =
+	{
+		{
+			"winterhat_pink_hibiscus",
+		},
+	},
 	emote_carol =
 	{
 		{

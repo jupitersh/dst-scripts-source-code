@@ -6,18 +6,6 @@ local function findentities(inst, range)
 	return TheSim:FindEntities(x, y, z, range, SHELL_MUST_TAGS, SHELL_CANT_TAGS)
 end
 
-local function cleanup(inst, cmp)
-	if cmp ~= nil then
-		for k, v in pairs(cmp.overlapping) do
-			cmp.overlapping[k] = nil
-		end
-	else
-		for k, v in pairs(inst.components.singingshelltrigger.overlapping) do
-			inst.components.singingshelltrigger.overlapping[k] = nil
-		end
-	end
-end
-
 local function ondeath(inst)
 	inst.components.singingshelltrigger:StopUpdating()
 end
@@ -41,7 +29,6 @@ local SingingShellTrigger = Class(function(self, inst)
 
 	self.inst:AddTag("singingshelltrigger")
 
-	self.inst:ListenForEvent("onremove", cleanup)
 
 	self.inst:ListenForEvent("death", ondeath)
 	self.inst:ListenForEvent("respawnfromghost", onresurrect)
@@ -50,9 +37,8 @@ end)
 function SingingShellTrigger:OnRemoveFromEntity()
 	self.inst:RemoveTag("singingshelltrigger")
 
-	self.inst:RemoveEventCallback("onremove", cleanup)
-	
-	cleanup(self.inst, self)
+	self.inst:RemoveEventCallback("death", ondeath)
+	self.inst:RemoveEventCallback("respawnfromghost", onresurrect)
 end
 
 function SingingShellTrigger:StartUpdating()
@@ -65,7 +51,6 @@ end
 function SingingShellTrigger:StopUpdating()
 	if self.updating then
 		self.inst:StopUpdatingComponent(self)
-		cleanup(self.inst)
 		self.updating = false
 	end
 end
@@ -79,11 +64,10 @@ function SingingShellTrigger:OnUpdate()
 		end
 	end
 
-	local x, y, z = self.inst.Transform:GetWorldPosition()
-	for i, v in ipairs(TheSim:FindEntities(x, y, z, self.trigger_range, SHELL_MUST_TAGS, SHELL_CANT_TAGS)) do
+	for i, v in ipairs(self.findentitiesfn(self.inst, self.trigger_range)) do
 		if self.overlapping[v] == nil then
 			self.overlapping[v] = true
-			v:_activatefn()
+			v._activatefn(v, self.inst)
 		elseif self.overlapping[v] == false then
 			self.overlapping[v] = true
 		end
