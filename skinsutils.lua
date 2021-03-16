@@ -834,13 +834,7 @@ function GetSkinName(item)
 	if SKIN_DEBUGGING then
 		return item
 	else
-	    item = _ItemStringRedirect(item)
-		local nameStr = STRINGS.SKIN_NAMES[item] or STRINGS.SKIN_NAMES["missing"]
-		local alt = STRINGS.SKIN_NAMES[item.."_alt"]
-		if alt then
-			nameStr = GetRandomItem({nameStr, alt})
-		end
-		return nameStr
+		return STRINGS.SKIN_NAMES[_ItemStringRedirect(item)] or STRINGS.SKIN_NAMES["missing"]
 	end
 end
 
@@ -1639,24 +1633,6 @@ function DisplayCharacterUnownedPopup(character, skins_subscreener)
         {text=STRINGS.UI.LOBBYSCREEN.VISIT_SHOP, cb = function()
             TheFrontEnd:PopScreen()
             skins_subscreener.sub_screens["base"].picker:DoShopForDefaultItem(character.."_none")
-        end},
-        {text=STRINGS.UI.POPUPDIALOG.OK, cb = function()
-            TheFrontEnd:PopScreen()
-        end},
-    })
-    TheFrontEnd:PushScreen(unowned_popup)
-end
-
-function DisplayCharacterUnownedPopupPurchase(character, purchase_screen)
-	local PopupDialogScreen = require "screens/redux/popupdialog"
-	local body_str = subfmt(STRINGS.UI.PURCHASEPACKSCREEN.UNOWNED_CHARACTER_BODY, {character = STRINGS.CHARACTER_NAMES[character] })
-	local button_txt = subfmt(STRINGS.UI.PURCHASEPACKSCREEN.VIEW_REQUIRED, {character = STRINGS.CHARACTER_NAMES[character] })
-	
-	local unowned_popup = PopupDialogScreen(STRINGS.UI.LOBBYSCREEN.UNOWNED_CHARACTER_TITLE, body_str,
-    {
-        {text=button_txt, cb = function()
-			purchase_screen:UpdateFilterToItem(character.."_none")
-			TheFrontEnd:PopScreen()
         end},
         {text=STRINGS.UI.POPUPDIALOG.OK, cb = function()
             TheFrontEnd:PopScreen()

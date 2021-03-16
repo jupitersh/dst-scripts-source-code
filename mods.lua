@@ -24,6 +24,7 @@ AddModReleaseID( "R11_ROT_SHESELLSSEASHELLS" )
 AddModReleaseID( "R12_ROT_TROUBLEDWATERS" )
 AddModReleaseID( "R13_ROT_FORGOTTENKNOWLEDGE" )
 AddModReleaseID( "R14_FARMING_REAPWHATYOUSOW" )
+AddModReleaseID( "R15_QOL_WORLDSETTINGS" )
 
 -----------------------------------------------------------------------------------------------
 
@@ -105,6 +106,7 @@ function GetEnabledModNamesDetailed() --just used for callstack reporting
 end
 
 function GetModVersion(mod_name, mod_info_use)
+	KnownModIndex:TryLoadMod(mod_name)
 	if mod_info_use == "update_mod_info" then
 		KnownModIndex:UpdateSingleModInfo(mod_name)
 	end
@@ -264,10 +266,10 @@ function ModWrangler:GetModRecords()
 	return self.records
 end
 
-function CreateEnvironment(modname, isworldgen)
+function CreateEnvironment(modname, isworldgen, isfrontend)
 
 	local modutil = require("modutil")
-    require("map/lockandkey")
+	require("map/lockandkey")
 
 	local env = 
 	{
@@ -284,9 +286,10 @@ function CreateEnvironment(modname, isworldgen)
 		Class = Class,
 
         -- runtime
-        TUNING=TUNING,
+		TUNING=TUNING,
 
         -- worldgen
+		LEVELCATEGORY = LEVELCATEGORY,
         GROUND = GROUND,
         LOCKS = LOCKS,
         KEYS = KEYS,
@@ -321,7 +324,7 @@ function CreateEnvironment(modname, isworldgen)
         end
 	end
 
-	modutil.InsertPostInitFunctions(env, isworldgen)
+	modutil.InsertPostInitFunctions(env, isworldgen, isfrontend)
 
 	return env
 end
@@ -389,27 +392,34 @@ function ModWrangler:FrontendLoadMod(modname)
     KnownModIndex:LoadModConfigurationOptions(modname, false)
 
     local initenv = KnownModIndex:GetModInfo(modname)
-    local env = CreateEnvironment(modname,  self.worldgen)
-    env.modinfo = initenv
+	local env = CreateEnvironment(modname,  self.worldgen)
+	local frontend_env = CreateEnvironment(modname,  self.worldgen, true)
 
-    local loadmsg = "Fontend-Loading mod: "..ModInfoname(modname).." Version:"..tostring(env.modinfo.version)
+	env.modinfo = deepcopy(initenv)
+	frontend_env.modinfo = initenv
+
+    local loadmsg = "Fontend-Loading mod: "..ModInfoname(modname).." Version:"..tostring(initenv.version)
     if initenv.modinfo_message and initenv.modinfo_message ~= "" then
         loadmsg = loadmsg .. " ("..initenv.modinfo_message..")"
     end
     print(loadmsg)
 
     local oldpath = package.path
-    package.path = MODS_ROOT..env.modname.."\\scripts\\?.lua;"..package.path
-    self.currentlyloadingmod = env.modname
+	package.path = MODS_ROOT..modname.."\\scripts\\?.lua;"..package.path
+	self.currentlyloadingmod = modname
+	
     -- Only worldgenmain, to populate the presets panel etc.
-    self:InitializeModMain(env.modname, env, "modworldgenmain.lua", true)
+	self:InitializeModMain(modname, env, "modworldgenmain.lua", true)
+	self:InitializeModMain(modname, frontend_env, "modservercreationmain.lua", true)
+
     self.currentlyloadingmod = nil
     package.path = oldpath
 end
 
 function ModWrangler:FrontendUnloadMod(modname)
     print(string.format("Frontend-Unloading mod '%s'.", modname or "all"))
-    local Levels = require"map/levels"
+	local Levels = require"map/levels"
+	local Customize = require"map/customize"
     local TaskSets = require"map/tasksets"
     local Tasks = require"map/tasks"
     local Rooms = require"map/rooms"
@@ -418,8 +428,10 @@ function ModWrangler:FrontendUnloadMod(modname)
     TaskSets.ClearModData(modname)
     Tasks.ClearModData(modname)
     Rooms.ClearModData(modname)
-    StartLocations.ClearModData(modname)
+	StartLocations.ClearModData(modname)
+	Customize.ClearModData(modname)
 	KnownModIndex:ClearModDependencies(modname)
+	ModUnloadFrontEndAssets(modname)
 end
 
 function ModWrangler:LoadMods(worldgen)	
@@ -607,17 +619,17 @@ function ModWrangler:RegisterPrefabs()
 		mod.RegisterPrefabs = RegisterPrefabs
 		mod.Prefabs = {}
 
-		print("Mod: "..ModInfoname(mod.modname), "Registering prefabs")
+		print("Mod: "..ModInfoname(modname), "Registering prefabs")
 
 		-- We initialize the prefabs in the sandbox and collect all the created prefabs back
 		-- into the main world.
 		if mod.PrefabFiles then
-			for i,prefab_path in ipairs(mod.PrefabFiles) do
-				print("Mod: "..ModInfoname(mod.modname), "  Registering prefab file: prefabs/"..prefab_path)
-				local ret = runmodfn( mod.LoadPrefabFile, mod, "LoadPrefabFile" )("prefabs/"..prefab_path)
+			for _, prefab_path in ipairs(mod.PrefabFiles) do
+				print("Mod: "..ModInfoname(modname), "  Registering prefab file: prefabs/"..prefab_path)
+				local ret = runmodfn( mod.LoadPrefabFile, mod, "LoadPrefabFile" )("prefabs/"..prefab_path, nil, MODS_ROOT..modname.."/")
 				if ret then
-					for i,prefab in ipairs(ret) do
-						print("Mod: "..ModInfoname(mod.modname), "    "..prefab.name)
+					for _, prefab in ipairs(ret) do
+						print("Mod: "..ModInfoname(modname), "    "..prefab.name)
 						mod.Prefabs[prefab.name] = prefab
 					end
 				end
@@ -630,16 +642,18 @@ function ModWrangler:RegisterPrefabs()
 			Prefabs[name] = prefab -- copy the prefabs back into the main environment
 		end
 
-		print("Mod: "..ModInfoname(mod.modname), "  Registering default mod prefab")
+		print("Mod: "..ModInfoname(modname), "  Registering default mod prefab")
 
         if PLATFORM == "PS4" then
-            package.path = MODS_ROOT..mod.modname..package.path
-        end            
-		RegisterPrefabs( Prefab("MOD_"..mod.modname, nil, mod.Assets, prefabnames, true) )
+            package.path = MODS_ROOT..modname..package.path
+		end
 
-		local modname = "MOD_"..mod.modname
-		TheSim:LoadPrefabs({modname})
-		table.insert(self.loadedprefabs, modname)
+		local pref = Prefab("MOD_"..modname, nil, mod.Assets, prefabnames, true)
+		pref.search_asset_first_path = MODS_ROOT..modname.."/"
+		RegisterPrefabs(pref)
+
+		TheSim:LoadPrefabs({pref.name})
+		table.insert(self.loadedprefabs, pref.name)
 	end
 end
 
