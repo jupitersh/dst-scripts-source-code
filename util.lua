@@ -569,7 +569,7 @@ local function softresolvefilepath_internal(filepath, force_path_search, search_
     --sometimes from context we can know the most likely path for an asset, this can result in less time spent searching the tons of mod search paths.
     if search_first_path then
         local filename = search_first_path..filepath
-		if filename then
+        if not kleifileexists or kleifileexists(filename) then
             return filename
         end
     end
