@@ -34,18 +34,24 @@ local CHILDSPAWNER_REGENPERIOD_TIMERNAME = "ChildSpawner_RegenPeriod"
 local function On_ChildSpawner_SpawnPeriod_TimerFinished(inst)
     local childspawner = inst.components.childspawner
 
-    if childspawner and childspawner.spawning and childspawner.childreninside > 0 then
-        inst.components.worldsettingstimer:StartTimer(CHILDSPAWNER_SPAWNPERIOD_TIMERNAME, childspawner:GetTimeToNextSpawn())
-        childspawner:SpawnChild()
+    if childspawner then
+        local dospawn = childspawner.spawning and childspawner.childreninside > 0
+        if dospawn then
+            childspawner:SpawnChild()
+        end
+        inst.components.worldsettingstimer:StartTimer(CHILDSPAWNER_SPAWNPERIOD_TIMERNAME, childspawner:GetTimeToNextSpawn(), dospawn)
     end
 end
 
 local function On_ChildSpawner_RegenPeriod_TimerFinished(inst)
     local childspawner = inst.components.childspawner
 
-    if childspawner and childspawner.regening and not (childspawner:IsFull() and childspawner:IsEmergencyFull()) then
-        inst.components.worldsettingstimer:StartTimer(CHILDSPAWNER_REGENPERIOD_TIMERNAME, childspawner:GetTimeToNextRegen())
-        childspawner:DoRegen()
+    if childspawner then
+        local doregen = childspawner.regening and not (childspawner:IsFull() and childspawner:IsEmergencyFull())
+        if doregen then
+            childspawner:DoRegen()
+        end
+        inst.components.worldsettingstimer:StartTimer(CHILDSPAWNER_REGENPERIOD_TIMERNAME, childspawner:GetTimeToNextRegen(), doregen)
     end
 end
 
