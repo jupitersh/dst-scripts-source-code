@@ -1022,6 +1022,30 @@ table.insert(prefs, CreatePrefabSkin("bugnet_spider_white",
 	release_group = 59,
 }))
 
+table.insert(prefs, CreatePrefabSkin("bundle_vintage",
+{
+	base_prefab = "bundle",
+	type = "item",
+	rarity = "Elegant",
+	rarity_modifier = "Woven",
+	init_fn = function(inst) bundle_init_fn(inst, "bundle_vintage") end,
+	skin_tags = { "BUNDLE", "COTTAGE", "CRAFTABLE", },
+	release_group = 118,
+	granted_items = { "bundlewrap_vintage", },
+}))
+
+table.insert(prefs, CreatePrefabSkin("bundlewrap_vintage",
+{
+	base_prefab = "bundlewrap",
+	type = "item",
+	build_name_override = "bundle_vintage",
+	rarity = "Elegant",
+	rarity_modifier = "Woven",
+	init_fn = function(inst) bundlewrap_init_fn(inst, "bundle_vintage") end,
+	skin_tags = { },
+	release_group = 118,
+}))
+
 table.insert(prefs, CreatePrefabSkin("campfire_cabin",
 {
 	base_prefab = "campfire",
@@ -1122,6 +1146,30 @@ table.insert(prefs, CreatePrefabSkin("catcoonhat_trapperup_rooster",
 	skin_tags = { "CATCOONHAT", "LUNAR", "CRAFTABLE", },
 	marketable = true,
 	release_group = 23,
+}))
+
+table.insert(prefs, CreatePrefabSkin("chester_eyebone_lamb",
+{
+	base_prefab = "chester_eyebone",
+	type = "item",
+	build_name_override = "chester_lamb",
+	rarity = "Elegant",
+	rarity_modifier = "Woven",
+	init_fn = function(inst) chester_eyebone_init_fn(inst, "chester_lamb") end,
+	skin_tags = { },
+	release_group = 118,
+}))
+
+table.insert(prefs, CreatePrefabSkin("chester_lamb",
+{
+	base_prefab = "chester",
+	type = "item",
+	rarity = "Elegant",
+	rarity_modifier = "Woven",
+	init_fn = function(inst) chester_init_fn(inst, "chester_lamb") end,
+	skin_tags = { "CHESTER", "COTTAGE", "CRAFTABLE", },
+	release_group = 118,
+	granted_items = { "chester_eyebone_lamb", },
 }))
 
 table.insert(prefs, CreatePrefabSkin("coldfirepit_flower",
@@ -2590,6 +2638,18 @@ table.insert(prefs, CreatePrefabSkin("lantern_crystal",
 	skin_tags = { "LANTERN", "CRYSTAL", "CRAFTABLE", },
 	fx_prefab = { "lantern_crystal_fx_held", "lantern_crystal_fx_ground", },
 	release_group = 95,
+}))
+
+table.insert(prefs, CreatePrefabSkin("lantern_flower",
+{
+	base_prefab = "lantern",
+	type = "item",
+	rarity = "Loyal",
+	prefabs = { "lantern_flower_fx_held", "lantern_flower_fx_ground", },
+	init_fn = function(inst) lantern_init_fn(inst, "lantern_flower", { "petal" }, Vector3(67, -7, 0)) end,
+	skin_tags = { "LANTERN", "CRAFTABLE", },
+	fx_prefab = { "lantern_flower_fx_held", "lantern_flower_fx_ground", },
+	release_group = 118,
 }))
 
 table.insert(prefs, CreatePrefabSkin("lantern_mummy",
@@ -4281,6 +4341,17 @@ table.insert(prefs, CreatePrefabSkin("treasurechest_traveltrunk",
 	release_group = 19,
 }))
 
+table.insert(prefs, CreatePrefabSkin("treasurechest_vintage",
+{
+	base_prefab = "treasurechest",
+	type = "item",
+	rarity = "Elegant",
+	rarity_modifier = "Woven",
+	init_fn = function(inst) treasurechest_init_fn(inst, "treasurechest_vintage") end,
+	skin_tags = { "COTTAGE", "CHEST", "CRAFTABLE", },
+	release_group = 118,
+}))
+
 table.insert(prefs, CreatePrefabSkin("umbrella_circus",
 {
 	base_prefab = "umbrella",
@@ -5246,6 +5317,7 @@ table.insert(prefs, CreatePrefabSkin("webber_combatant",
 	rarity = "Event",
 	skin_tags = { "LAVA", "BASE", "WEBBER", },
 	skins = { ghost_skin = "ghost_webber_build", normal_skin = "webber_combatant", },
+	torso_tuck_builds = { "webber_combatant", },
 	has_alternate_for_body = { "webber_combatant", },
 	release_group = 32,
 }))
@@ -5283,6 +5355,7 @@ table.insert(prefs, CreatePrefabSkin("webber_gladiator",
 	skin_tags = { "LAVA", "BASE", "WEBBER", },
 	bigportrait = { build = "bigportraits/webber_gladiator.xml", symbol = "webber_gladiator_oval.tex"},
 	skins = { ghost_skin = "ghost_webber_build", normal_skin = "webber_gladiator", },
+	torso_tuck_builds = { "webber_gladiator", },
 	has_alternate_for_body = { "webber_gladiator", },
 	linked_beard = "webber_beard_gladiator",
 	release_group = 32,
@@ -5312,6 +5385,7 @@ table.insert(prefs, CreatePrefabSkin("webber_magma",
 	skin_tags = { "LAVA", "BASE", "WEBBER", },
 	bigportrait = { build = "bigportraits/webber_magma.xml", symbol = "webber_magma_oval.tex"},
 	skins = { ghost_skin = "ghost_webber_build", normal_skin = "webber_magma", },
+	torso_tuck_builds = { "webber_magma", },
 	has_alternate_for_body = { "webber_magma", },
 	linked_beard = "webber_beard_magma",
 	release_group = 51,
@@ -5325,6 +5399,7 @@ table.insert(prefs, CreatePrefabSkin("webber_none",
 	rarity = "Character",
 	skin_tags = { "BASE", "WEBBER", },
 	skins = { ghost_skin = "ghost_webber_build", normal_skin = "webber", },
+	torso_tuck_builds = { "webber", },
 	has_alternate_for_body = { "webber", },
 	release_group = 0,
 }))
@@ -5338,6 +5413,7 @@ table.insert(prefs, CreatePrefabSkin("webber_punk",
 	skin_tags = { "HALLOWED", "BASE", "WEBBER", },
 	bigportrait = { build = "bigportraits/webber_punk.xml", symbol = "webber_punk_oval.tex"},
 	skins = { ghost_skin = "ghost_webber_build", normal_skin = "webber_punk", },
+	torso_tuck_builds = { "webber_punk", },
 	has_alternate_for_body = { "webber_punk", },
 	linked_beard = "webber_beard_punk",
 	release_group = 106,

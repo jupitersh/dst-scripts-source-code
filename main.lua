@@ -26,6 +26,10 @@ function IsSteam()
 	return PLATFORM == "WIN32_STEAM" or PLATFORM == "LINUX_STEAM" or PLATFORM == "OSX_STEAM"
 end
 
+function IsWin32()
+	return PLATFORM == "WIN32_STEAM" or PLATFORM == "WIN32_RAIL"
+end
+
 function IsLinux()
 	return PLATFORM == "LINUX_STEAM"
 end
@@ -381,10 +385,17 @@ local function ModSafeStartup()
 	EnvelopeManager = TheGlobalInstance.entity:AddEnvelopeManager()
 
 	PostProcessor = TheGlobalInstance.entity:AddPostProcessor()
-	local IDENTITY_COLOURCUBE = "images/colour_cubes/identity_colourcube.tex"
-	PostProcessor:SetColourCubeData( 0, IDENTITY_COLOURCUBE, IDENTITY_COLOURCUBE )
-	PostProcessor:SetColourCubeData( 1, IDENTITY_COLOURCUBE, IDENTITY_COLOURCUBE )
-	PostProcessor:SetColourCubeData( 2, IDENTITY_COLOURCUBE, IDENTITY_COLOURCUBE )
+	require("postprocesseffects")
+	if not TheNet:IsDedicated() then
+		BuildColourCubeShader()
+		BuildZoomBlurShader()
+		BuildBloomShader()
+		BuildDistortShader()
+		BuildLunacyShader()
+		BuildMoonPulseShader()
+		BuildModShaders()
+		SortAndEnableShaders()
+	end
 
 	FontManager = TheGlobalInstance.entity:AddFontManager()
 	MapLayerManager = TheGlobalInstance.entity:AddMapLayerManager()

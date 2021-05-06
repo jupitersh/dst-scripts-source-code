@@ -1019,6 +1019,7 @@ return{
 			NIGHT_WANE = "The moon is waning.",
 			CAVE = "It doesn't seem very useful down here.",
 --fallback to speech_wilson.lua 			WEREBEAVER = "only_used_by_woodie", --woodie specific
+			GLASSED = "Mon dieu, the water has turned to glass!",
         },
 		THULECITE = "Thule-... thulec-... it rolls off the tongue, does it not?",
 		ARMORRUINS = "Ancient armor.",
@@ -1222,6 +1223,8 @@ return{
 		TURF_FUNGUS_GREEN = "It's like an ingredient for the ground.",
 		TURF_FUNGUS_RED = "It's like an ingredient for the ground.",
 		TURF_DRAGONFLY = "It's like an ingredient for the ground.",
+
+        TURF_SHELLBEACH = "It's like an ingredient for the ground.",
 
 		POWCAKE = "I would not feed this to my worst enemies. Or would I...",
         CAVE_ENTRANCE = "I wonder what is underneath that?",
@@ -1517,7 +1520,10 @@ return{
         CHESSPIECE_STALKER = "If only I could use those bones in a broth.",
         CHESSPIECE_KLAUS = "A table centerpiece fit for a holiday feast.",
         CHESSPIECE_BEEQUEEN = "Muse for my new honey glaze!",
-        CHESSPIECE_ANTLION = "I do like him better like this.",
+        CHESSPIECE_ANTLION = "I do like her better like this.",
+        CHESSPIECE_BEEFALO = "What a beautifully marbled steak.",
+        CHESSPIECE_GUARDIANPHASE3 = "A three course fight I won't soon forget.",
+
         CHESSJUNK1 = "Broken chess pieces?",
         CHESSJUNK2 = "More broken chess pieces?",
         CHESSJUNK3 = "And yet more broken chess pieces?",
@@ -3152,6 +3158,7 @@ return{
 			EMPTY = "An empty basin.",
         },
         MOONGLASS = "My, that's sharp!",
+        MOONGLASS_CHARGED = "It's still warm.",
         MOONGLASS_ROCK = "That's quite a bit of glass.",
         BATHBOMB = "A bath would be nice.",
         TRAP_STARFISH =
@@ -3875,7 +3882,6 @@ return{
             YOTB = "Perhaps I should show it to the judge, to get a measure of his taste.",
         },
 
-
         WAR_BLUEPRINT = "Dressing for some rather tough beef!",
         DOLL_BLUEPRINT = "Tres mignon!",
         FESTIVE_BLUEPRINT = "Just the right thing for a celebration.",
@@ -3887,6 +3893,53 @@ return{
         BEAST_BLUEPRINT = "The beefalo who will wear this is lucky indeed!",
 
         BEEF_BELL = "It is not a dinner bell?",
+
+        -- Moon Storm
+        ALTERGUARDIAN_PHASE1 = {
+            GENERIC = "It looks rather irritated...",
+            DEAD = "Au revoir.",
+        },
+        ALTERGUARDIAN_PHASE2 = {
+            GENERIC = "Mon dieu, a second course!",
+            DEAD = "At last, it's finished. Or is it...",
+        },
+        ALTERGUARDIAN_PHASE2SPIKE = "I will not be skewered by the likes of you!",
+        ALTERGUARDIAN_PHASE3 = "I'd rather not be fried by that fiery gaze!",
+        ALTERGUARDIAN_PHASE3TRAP = "Best to keep far away from those, non?",
+        ALTERGUARDIAN_PHASE3DEADORB = "Is there more yet in store for us?",
+        ALTERGUARDIAN_PHASE3DEAD = "Finalement, it's over.",
+
+        ALTERGUARDIANHAT = "It makes me hear such sweet whispers...",
+        ALTERGUARDIANHATSHARD = "It's been broken down to its basic ingredients.",
+
+        MOONSTORM_GLASS = {
+            GENERIC = "En glace.",
+            INFUSED = "Freshly made."
+        },
+
+        MOONSTORM_STATIC = "That seems to be a key ingredient for whatever he's working on.",
+        MOONSTORM_STATIC_ITEM = "What will we be cooking up with this, I wonder?",
+        MOONSTORM_SPARK = "It definitely has a kick to it.",
+
+        BIRD_MUTANT = "That bird is looking a bit odd.",
+        BIRD_MUTANT_SPITTER = "Something is definitely amiss here.",
+
+        WAGSTAFF_NPC = "Bonjour! Are you in need of assistance?",
+        ALTERGUARDIAN_CONTAINED = "It's gobbling up all the energy!",
+
+        WAGSTAFF_TOOL_1 = "This must be what I'm looking for!",
+        WAGSTAFF_TOOL_2 = "Surely this must be the tool he wants?",
+        WAGSTAFF_TOOL_3 = "That certainly looks like a scientific tool of some sort!",
+        WAGSTAFF_TOOL_4 = "Perhaps that is what he is looking for?",
+        WAGSTAFF_TOOL_5 = "It's a tool of some sort, hopefully the one I'm looking for.",
+
+        MOONSTORM_GOGGLESHAT = "Mon dieu, I can think of much better uses for a potato.",
+
+        MOON_DEVICE = {
+            GENERIC = "Ah, some kind of light fixture perhaps?",
+            CONSTRUCTION1 = "Some kind of platter for the ground?",
+            CONSTRUCTION2 = "Only a few more ingredients left.",
+        }
     },
 
     DESCRIBE_GENERIC = "It is what it is...",

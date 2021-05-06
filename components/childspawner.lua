@@ -67,6 +67,7 @@ local ChildSpawner = Class(function(self, inst)
     self.ongohome = nil
 
     self.spawning = false
+    self.queued_spawn = false
     self.timetonextspawn = 0
     self.spawnperiod = 20
     self.spawnvariance = 2
@@ -92,6 +93,7 @@ local ChildSpawner = Class(function(self, inst)
     self.emergencychildrenoutside = {}
     self.numemergencychildrenoutside = 0
 
+    self._doqueuedspawn = function() self:DoQueuedSpawn() end
     self._onchildkilled = function(child) self:OnChildKilled(child) end
 
     self.useexternaltimer = false
@@ -196,12 +198,16 @@ function ChildSpawner:OnUpdate(dt)
         end
     end
 
-    if not self.useexternaltimer and self.spawning then
+    if not self.useexternaltimer and self.spawning and not self.queued_spawn then
         if self.childreninside > 0 then
             self.timetonextspawn = self.timetonextspawn - dt
             if self.timetonextspawn < 0 then
                 self.timetonextspawn = self:GetTimeToNextSpawn()
-                self:SpawnChild()
+                if self:CanSpawnOffscreenOrAwake() then
+                    self:SpawnChild()
+                else
+                    self:QueueSpawnChild()
+                end
             end
         else
             self.timetonextspawn = 0
@@ -216,12 +222,12 @@ local function _OnUpdate(inst, self, dt)
 end
 
 function ChildSpawner:ShouldUpdate()
-    return (self.spawning and self.childreninside > 0) or (self.regening and not (self:IsFull() and self:IsEmergencyFull()))
+    return (self.spawning and not self.queued_spawn and self.childreninside > 0) or (self.regening and not (self:IsFull() and self:IsEmergencyFull()))
 end
 
 function ChildSpawner:StartUpdate()
     if self.useexternaltimer then
-        if self.spawning and self.childreninside > 0 then
+        if self.spawning and not self.queued_spawn and self.childreninside > 0 then
             self.spawntimerstart(self.inst)
         end
         if self.regening and not (self:IsFull() and self:IsEmergencyFull()) then
@@ -345,6 +351,7 @@ function ChildSpawner:OnSave()
 
     data.spawning = self.spawning
     data.regening = self.regening
+    data.queued_spawn = self.queued_spawn
     data.timetonextregen = math.floor(self.timetonextregen)
     data.timetonextspawn = math.floor(self.timetonextspawn)
 
@@ -401,6 +408,7 @@ function ChildSpawner:OnLoad(data)
 
     self.spawning = data.spawning or self.spawning
     self.regening = data.regening or self.regening
+    self.queued_spawn = data.queued_spawn or self.queued_spawn
     self.timetonextregen = data.timetonextregen or self.timetonextregen
     self.timetonextspawn = data.timetonextspawn or self.timetonextspawn
 
@@ -511,12 +519,29 @@ function ChildSpawner:DoSpawnChild(target, prefab, radius)
     return child
 end
 
+function ChildSpawner:QueueSpawnChild()
+    self.queued_spawn = true
+    self:TryStopUpdate()
+end
+
+function ChildSpawner:OnEntityWake()
+    if self.queued_spawn then
+        self.inst:DoTaskInTime(0, self._doqueuedspawn)
+    end
+end
+
+function ChildSpawner:DoQueuedSpawn()
+    self.queued_spawn = false
+    if self.spawning then
+        self:SpawnChild()
+    end
+    self:StartUpdate()
+end
+
 function ChildSpawner:SpawnChild(target, prefab, radius)
     if not self:CanSpawn() then
         return
     end
-
-    --print(self.inst, "ChildSpawner:SpawnChild")
 
     local child = self:DoSpawnChild(target, prefab or self.childname, radius)
     if child ~= nil then
@@ -533,8 +558,6 @@ function ChildSpawner:SpawnEmergencyChild(target, prefab, radius)
     if not self:CanEmergencySpawn() then
         return
     end
-
-    --print(self.inst, "ChildSpawner:SpawnEmergencyChild")
 
     local child = self:DoSpawnChild(target, prefab or self.emergencychildname, radius)
     if child ~= nil then
@@ -587,10 +610,14 @@ function ChildSpawner:GoHome( child )
     end
 end
 
+function ChildSpawner:CanSpawnOffscreenOrAwake()
+    return self.spawnoffscreen or not self.inst:IsAsleep()
+end
+
 function ChildSpawner:CanSpawn()
     return self.inst:IsValid() --V2C: This valid check probably hid a lot of bugs that we could've caught and fixed =(
         and self.childreninside > 0
-        and (self.spawnoffscreen or not self.inst:IsAsleep())
+        and (self:CanSpawnOffscreenOrAwake())
         and (self.inst.components.health == nil or not self.inst.components.health:IsDead())
         and (self.canspawnfn == nil or self.canspawnfn(self.inst))
 end
@@ -601,7 +628,7 @@ function ChildSpawner:CanEmergencySpawn()
         and self.emergencychildreninside > 0
         -- the num inside means 'comitted' is both outside and dead
         and self.maxemergencychildren - self.emergencychildreninside < self.maxemergencycommit
-        and (self.spawnoffscreen or not self.inst:IsAsleep())
+        and (self:CanSpawnOffscreenOrAwake())
         and (self.inst.components.health == nil or not self.inst.components.health:IsDead())
 end
 
@@ -662,9 +689,7 @@ function ChildSpawner:AddEmergencyChildrenInside(count)
 end
 
 function ChildSpawner:LongUpdate(dt)
-    if self.spawning then
-        self:OnUpdate(dt)
-    end
+    self:OnUpdate(dt)
 end
 
 return ChildSpawner

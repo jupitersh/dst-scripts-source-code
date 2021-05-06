@@ -1025,6 +1025,7 @@ return{
 			NIGHT_WANE = "It's waning.",
 			CAVE = "It was impractical to build this here.",
 --fallback to speech_wilson.lua 			WEREBEAVER = "only_used_by_woodie", --woodie specific
+			GLASSED = "Why do I get the feeling something's watchin' me...",
         },
 		THULECITE = "I love working with new materials.",
 		ARMORRUINS = "Not a bad piece of work.",
@@ -1228,6 +1229,8 @@ return{
 		TURF_FUNGUS_GREEN = "That's a chunk of weird ground.",
 		TURF_FUNGUS_RED = "That's a chunk of weird ground.",
 		TURF_DRAGONFLY = "That's a chunk of fancy ground.",
+
+        TURF_SHELLBEACH = "That's a chunk of sandy ground.",
 
 		POWCAKE = "Gotta eat what you can around here.",
         CAVE_ENTRANCE = "Into the depths!",
@@ -1524,6 +1527,9 @@ return{
         CHESSPIECE_KLAUS = "Kinda makes me nostalgic.",
         CHESSPIECE_BEEQUEEN = "I wonder if I could sculpt a hat like that.",
         CHESSPIECE_ANTLION = "Looks so real, I can almost feel the earth rumblin'.",
+        CHESSPIECE_BEEFALO = "Aw, it looks just like my beefalo.",
+        CHESSPIECE_GUARDIANPHASE3 = "A little too lifelike for my comfort.",
+
         CHESSJUNK1 = "A heap of spare parts.",
         CHESSJUNK2 = "A heap of spare parts.",
         CHESSJUNK3 = "A heap of spare parts.",
@@ -3158,6 +3164,7 @@ return{
 			EMPTY = "Dry as a bone.",
         },
         MOONGLASS = "Can't wait to try this out.",
+        MOONGLASS_CHARGED = "I'd better hustle, the energy's not gonna last long.",
         MOONGLASS_ROCK = "Wonder if it's got any special properties.",
         BATHBOMB = "I'm not really the frou-frou type.",
         TRAP_STARFISH =
@@ -3881,7 +3888,6 @@ return{
             YOTB = "Wait until the judge get's a load of you!",
         },
 
-
         WAR_BLUEPRINT = "I don't know if I want to encourage my beefalo's ornery side.",
         DOLL_BLUEPRINT = "That's a lot of ruffles to sew on...",
         FESTIVE_BLUEPRINT = "Sure is a cheery looking design!",
@@ -3893,6 +3899,53 @@ return{
         BEAST_BLUEPRINT = "Hope it gives me some luck in the contest.",
 
         BEEF_BELL = "The beefalo sure do like that bell!",
+
+        -- Moon Storm
+        ALTERGUARDIAN_PHASE1 = {
+            GENERIC = "That thing went and busted up all our hard work!",
+            DEAD = "Well, glad that's done with.",
+        },
+        ALTERGUARDIAN_PHASE2 = {
+            GENERIC = "Uh-oh, the gloves are really comin' off now.",
+            DEAD = "Yeesh, this thing doesn't know when to quit!",
+        },
+        ALTERGUARDIAN_PHASE2SPIKE = "Some pretty slap-dash construction work, if you ask me.",
+        ALTERGUARDIAN_PHASE3 = "Next time I see the bossman I'm asking for extra hazard pay...",
+        ALTERGUARDIAN_PHASE3TRAP = "Nice try, you won't catch me sleeping on the job!",
+        ALTERGUARDIAN_PHASE3DEADORB = "Mr. Wagstaff... did you plan for this?",
+        ALTERGUARDIAN_PHASE3DEAD = "Might as well salvage what we can from what's left.",
+
+        ALTERGUARDIANHAT = "It's a pretty heady experience havin' that much power. Ha...",
+        ALTERGUARDIANHATSHARD = "There's still a heck of a lot of power left in this one little piece.",
+
+        MOONSTORM_GLASS = {
+            GENERIC = "That's some good, workable material there.",
+            INFUSED = "It's been powered up."
+        },
+
+        MOONSTORM_STATIC = "Looks like an electrical fire waiting to happen.",
+        MOONSTORM_STATIC_ITEM = "The boss really does have a gadget for everything.",
+        MOONSTORM_SPARK = "Not quite electricity, but it could still work...",
+
+        BIRD_MUTANT = "That bird gives me the creeps.",
+        BIRD_MUTANT_SPITTER = "There's something... off about it.",
+
+        WAGSTAFF_NPC = "Mr. Wagstaff! Is that really you?",
+        ALTERGUARDIAN_CONTAINED = "The machine's sucking up all the energy from that thing...",
+
+        WAGSTAFF_TOOL_1 = "Found the Reticulating Buffer! Better get it back to the bossman.",
+        WAGSTAFF_TOOL_2 = "There's the boss' Widget Deflubber!",
+        WAGSTAFF_TOOL_3 = "Hey, that looks like a Grommet Scriber!",
+        WAGSTAFF_TOOL_4 = "Ha! Found you, you sneaky old Conceptual Scrubber!",
+        WAGSTAFF_TOOL_5 = "There's the Calibrated Perceiver! Almost missed it.",
+
+        MOONSTORM_GOGGLESHAT = "You work with the materials you've got out here.",
+
+        MOON_DEVICE = {
+            GENERIC = "Wonder what the boss is gonna use all this energy for?",
+            CONSTRUCTION1 = "Feels kinda like old times back at the factory.",
+            CONSTRUCTION2 = "Well, it's not shaping up to be a portal. I was hopin' the boss had figured out a way back...",
+        }
     },
 
     DESCRIBE_GENERIC = "Incredible! I have no idea what that is.",

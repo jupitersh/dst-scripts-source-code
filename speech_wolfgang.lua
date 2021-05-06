@@ -1020,6 +1020,7 @@ return{
 			NIGHT_WANE = "Moon is get sleepy.",
 			CAVE = "Moon is shy in cave!",
 --fallback to speech_wilson.lua 			WEREBEAVER = "only_used_by_woodie", --woodie specific
+			GLASSED = "M-maybe is not good night for looking up at sky.",
         },
 		THULECITE = "Is pretty rock.",
 		ARMORRUINS = "Protect me? I don't need it!",
@@ -1223,6 +1224,8 @@ return{
 		TURF_FUNGUS_GREEN = "Step stones.",
 		TURF_FUNGUS_RED = "Step stones.",
 		TURF_DRAGONFLY = "Hot step stones.",
+
+        TURF_SHELLBEACH = "Step stones.",
 
 		POWCAKE = "Is made of nothings!",
         CAVE_ENTRANCE = "Even I am not that mighty.",
@@ -1519,6 +1522,9 @@ return{
         CHESSPIECE_KLAUS = "Is that time of year already?",
         CHESSPIECE_BEEQUEEN = "Mighty statue stays mighty still.",
         CHESSPIECE_ANTLION = "Wolfgang will not battle it in staring contest.",
+        CHESSPIECE_BEEFALO = "Is look almost like real hair-cow.",
+        CHESSPIECE_GUARDIANPHASE3 = "Wolfgang glad is just statue.",
+
         CHESSJUNK1 = "Metal junk.",
         CHESSJUNK2 = "Metal junk.",
         CHESSJUNK3 = "Metal junk.",
@@ -3153,6 +3159,7 @@ return{
 			EMPTY = "Is just dirt hole now.",
         },
         MOONGLASS = "Is clear green sharp-stuff.",
+        MOONGLASS_CHARGED = "Sharp and glowy stuff.",
         MOONGLASS_ROCK = "Sharp stuff that fell from sky cheese.",
         BATHBOMB = "Is for prettifying little hotbath.",
         TRAP_STARFISH =
@@ -3876,7 +3883,6 @@ return{
             YOTB = "Wolfgang should show to judge.",
         },
 
-
         WAR_BLUEPRINT = "Yes, will make hairy cow fearsome!",
         DOLL_BLUEPRINT = "Will make hairy cow so cute!",
         FESTIVE_BLUEPRINT = "Is made from brightest of colors!",
@@ -3888,6 +3894,53 @@ return{
         BEAST_BLUEPRINT = "Hope beast gives Wolfgang luck in contest!",
 
         BEEF_BELL = "Ringy ding!",
+
+        -- Moon Storm
+        ALTERGUARDIAN_PHASE1 = {
+            GENERIC = "Ha! Wolfgang's punches are mighty enough to shatter stone!",
+            DEAD = "Is dead so quickly!",
+        },
+        ALTERGUARDIAN_PHASE2 = {
+            GENERIC = "Sky stone is back from dead!",
+            DEAD = "Wolfgang has bad feeling...",
+        },
+        ALTERGUARDIAN_PHASE2SPIKE = "Spiky wall can't stop Wolfgang!",
+        ALTERGUARDIAN_PHASE3 = "Sky stone is very mad!",
+        ALTERGUARDIAN_PHASE3TRAP = "Wolfgang will smash sleepy stones!",
+        ALTERGUARDIAN_PHASE3DEADORB = "Old man should be careful, sky stone might wake up!",
+        ALTERGUARDIAN_PHASE3DEAD = "Hmm... Wolfgang will smash it, just to be sure.",
+
+        ALTERGUARDIANHAT = "Is good hat, except for creepy whisperings...",
+        ALTERGUARDIANHATSHARD = "Hat broke apart into tiny bits.",
+
+        MOONSTORM_GLASS = {
+            GENERIC = "Can see reflection of Wolfgang's big muscles in it!",
+            INFUSED = "Is strange and glowy."
+        },
+
+        MOONSTORM_STATIC = "Is tiny jumpy spark-thing.",
+        MOONSTORM_STATIC_ITEM = "Ha! Tiny spark is too weak to break out!",
+        MOONSTORM_SPARK = "Makes Wolfgang's moustache hairs bristle!",
+
+        BIRD_MUTANT = "Creepy bird.",
+        BIRD_MUTANT_SPITTER = "Something wrong with that bird.",
+
+        WAGSTAFF_NPC = "Do not worry, Wolfgang is here to help flickery science man.",
+        ALTERGUARDIAN_CONTAINED = "Old man brought big fancy thingamobob with him!",
+
+        WAGSTAFF_TOOL_1 = "Wolfgang found thing for funny old man!",
+        WAGSTAFF_TOOL_2 = "Funny old man is looking for this, maybe?",
+        WAGSTAFF_TOOL_3 = "Is maybe belonging to funny old man?",
+        WAGSTAFF_TOOL_4 = "Ha! Found you!",
+        WAGSTAFF_TOOL_5 = "Old man will be so happy Wolfgang found it!",
+
+        MOONSTORM_GOGGLESHAT = "Is fueled by potato, like Wolfgang!",
+
+        MOON_DEVICE = {
+            GENERIC = "Wolfgang understand, is giant night light!",
+            CONSTRUCTION1 = "Is nice floor for light ball.",
+            CONSTRUCTION2 = "Wolfgang just follow instructions.",
+        }
     },
 
     DESCRIBE_GENERIC = "What is this thing?",
