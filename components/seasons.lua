@@ -146,7 +146,7 @@ local PushSeasonClockSegs = _ismastersim and function()
     local toseason = p < .5 and GetPrevSeason() or GetNextSeason()
     local tosegs = _segs[toseason]
     local segs = tosegs
-    
+
     if _season:value() ~= toseason then
         local fromsegs = _segs[_season:value()]
         p = .5 - math.sin(PI * p) * .5
@@ -298,7 +298,8 @@ local OnAdvanceSeason = _ismastersim and function()
             _remainingdaysinseason:set(math.max(_remainingdaysinseason:value() - 1, ENDLESS_RAMP_DAYS))
         end
     else
-        return
+		-- we always need to refersh the clock incase something else changed the segs
+		--return
     end
 
     PushSeasonClockSegs()
@@ -387,7 +388,7 @@ end or nil
 local OnSetSeasonLength = _ismastersim and function(src, data)
 	local season = SEASONS[data.season]
     local length = data.length
-    
+
     if data.random == true and _israndom[data.season] == true then
         return
     end
