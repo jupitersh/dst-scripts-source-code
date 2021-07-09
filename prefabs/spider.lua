@@ -1,7 +1,7 @@
 local assets =
 {
     Asset("ANIM", "anim/ds_spider_basic.zip"),
-    Asset("ANIM", "anim/spider_build_2.zip"),
+    Asset("ANIM", "anim/spider_build.zip"),
     Asset("ANIM", "anim/ds_spider_boat_jump.zip"),
     Asset("SOUND", "sound/spider.fsb"),
 }
@@ -33,8 +33,8 @@ local spitterassets =
 local dropperassets =
 {
     Asset("ANIM", "anim/ds_spider_basic.zip"),
-    Asset("ANIM", "anim/ds_spider_warrior_2.zip"),
-    Asset("ANIM", "anim/spider_white_2.zip"),
+    Asset("ANIM", "anim/ds_spider_warrior.zip"),
+    Asset("ANIM", "anim/spider_white.zip"),
     Asset("SOUND", "sound/spider.fsb"),
 }
 
@@ -72,8 +72,8 @@ local brain = require "brains/spiderbrain"
 local function ShouldAcceptItem(inst, item, giver)
 
     local in_inventory = inst.components.inventoryitem.owner ~= nil
-    if in_inventory then
-        return false, "BUSY"
+    if in_inventory and not inst.components.eater:CanEat(item) then
+        return false, "SPIDERNOHAT"
     end
 
     return (giver:HasTag("spiderwhisperer") and inst.components.eater:CanEat(item)) or
@@ -85,13 +85,29 @@ local SPIDER_IGNORE_TAGS = { "FX", "NOCLICK", "DECOR", "INLIMBO" }
 local function GetOtherSpiders(inst, radius, tags)
     tags = tags or SPIDER_TAGS
     local x, y, z = inst.Transform:GetWorldPosition()
-    return TheSim:FindEntities(x, y, z, radius, SPIDER_TAGS, SPIDER_IGNORE_TAGS)
+    
+    local spiders = TheSim:FindEntities(x, y, z, radius, nil, SPIDER_IGNORE_TAGS, tags)
+    local valid_spiders = {}
+
+    for _, spider in ipairs(spiders) do
+        if spider:IsValid() and not spider.components.health:IsDead() and not spider:HasTag("playerghost") then
+            table.insert(valid_spiders, spider)
+        end
+    end
+
+    return valid_spiders
 end
 
 local function OnGetItemFromPlayer(inst, giver, item)
+
     if inst.components.eater:CanEat(item) then
-        inst.sg:GoToState("eat", true)
-        item:Remove()
+        inst.components.eater:Eat(item)
+
+        if inst.components.inventoryitem.owner ~= nil then
+            inst.sg:GoToState("idle")
+        else
+            inst.sg:GoToState("eat", true)
+        end
 
         local playedfriendsfx = false
         if inst.components.combat.target == giver then
@@ -107,29 +123,38 @@ local function OnGetItemFromPlayer(inst, giver, item)
         end
 
         if giver.components.leader ~= nil then
-            local spiders = GetOtherSpiders(inst, 15)
+            local spiders = GetOtherSpiders(inst, 15) --note: also returns the calling instance of the spider in the list
             local maxSpiders = TUNING.SPIDER_FOLLOWER_COUNT
 
             for i, v in ipairs(spiders) do
-                if maxSpiders <= 0 then
-                    break
-                end
-
-                if v.components.combat.target == giver then
-                    v.components.combat:SetTarget(nil)
-                elseif giver.components.leader ~= nil and
-                    v.components.follower ~= nil and
-                    v.components.follower.leader == nil then
-                    if not playedfriendsfx then
-                        giver:PushEvent("makefriend")
-                        playedfriendsfx = true
+                if v ~= inst then
+                    if maxSpiders <= 0 then
+                        break
                     end
-                    giver.components.leader:AddFollower(v)
-                end
-                maxSpiders = maxSpiders - 1
 
-                if v.components.sleeper:IsAsleep() then
-                    v.components.sleeper:WakeUp()
+                    local effectdone = true
+
+                    if v.components.combat.target == giver then
+                        v.components.combat:SetTarget(nil)
+                    elseif giver.components.leader ~= nil and
+                        v.components.follower ~= nil and
+                        v.components.follower.leader == nil then
+                        if not playedfriendsfx then
+                            giver:PushEvent("makefriend")
+                            playedfriendsfx = true
+                        end
+                        giver.components.leader:AddFollower(v)
+                    else
+                        effectdone = false
+                    end
+
+                    if effectdone then
+                        maxSpiders = maxSpiders - 1
+    
+                        if v.components.sleeper:IsAsleep() then
+                            v.components.sleeper:WakeUp()
+                        end
+                    end
                 end
             end
         end
@@ -196,6 +221,8 @@ local function FindTarget(inst, radius)
                     and inst.components.combat:CanTarget(guy)
                     and not (inst.components.follower ~= nil and inst.components.follower.leader == guy)
                     and not HasFriendlyLeader(inst, guy)
+                    and not (inst.components.follower.leader ~= nil and inst.components.follower.leader:HasTag("player") 
+                        and guy:HasTag("player") and not TheNet:GetPVPEnabled())
             end,
             TARGET_MUST_TAGS,
             TARGET_CANT_TAGS
@@ -310,6 +337,7 @@ end
 
 local function OnStartLeashing(inst, data)
     inst:SetHappyFace(true)
+    inst.components.inventoryitem.canbepickedup = true
 
     if inst.recipe then
         local leader = inst.components.follower.leader
@@ -322,6 +350,7 @@ end
 local function OnStopLeashing(inst, data)
     inst.defensive = false
     inst.no_targeting = false
+    inst.components.inventoryitem.canbepickedup = false
 
     if not inst.bedazzled then
         inst:SetHappyFace(false)
@@ -338,16 +367,31 @@ local function OnEat(inst, data)
     end
 end
 
+local function OnDropped(inst, data)
+    if ShouldWake(inst) then
+        inst.sg:GoToState("idle")
+    elseif ShouldSleep(inst) then
+        inst.sg:GoToState("sleep")
+    end
+end
+
 local function OnGoToSleep(inst)
     inst.components.inventoryitem.canbepickedup = true
 end
 
 local function OnWakeUp(inst)
-    inst.components.inventoryitem.canbepickedup = false
+    if inst.components.follower.leader == nil then
+        inst.components.inventoryitem.canbepickedup = false
+    end
 end
 
 local function CalcSanityAura(inst, observer)
-    return observer:HasTag("spiderwhisperer") and 0 or inst.components.sanityaura.aura
+    if observer:HasTag("spiderwhisperer") or inst.bedazzled or 
+    (inst.components.follower.leader ~= nil and inst.components.follower.leader:HasTag("spiderwhisperer")) then
+        return 0
+    end
+    
+    return inst.components.sanityaura.aura
 end
 
 local function HalloweenMoonMutate(inst, new_inst)
@@ -435,13 +479,33 @@ local function DoHeal(inst)
     SpawnHealFx(inst, "spider_heal_fx", scale)
 
     local other_spiders = GetOtherSpiders(inst, TUNING.SPIDER_HEALING_RADIUS, {"spider", "spiderwhisperer", "spiderqueen"})
+    local leader = inst.components.follower.leader
+
     for i, spider in ipairs(other_spiders) do
-        local heal_amount = spider:HasTag("spiderwhisperer") and TUNING.HEALING_MEDSMALL or TUNING.SPIDER_HEALING_AMOUNT
-        spider.components.health:DoDelta(heal_amount, false, inst.prefab)
-        SpawnHealFx(spider, "spider_heal_target_fx")
+        local target = inst.components.combat.target
+
+        -- Don't heal the spider if it's targetting us, our leader or our leader's other followers
+        local targetting_us = target ~= nil and 
+                             (target == inst or (leader ~= nil and 
+                             (target == leader or leader.components.leader:IsFollower(target))))
+
+        -- Don't heal the spider if we're targetting it, or our leader is targetting it or our leader's other followers
+        local targetted_by_us = inst.components.combat.target == spider or (leader ~= nil and
+                                (leader.components.combat:TargetIs(spider) or
+                                leader.components.leader:IsTargetedByFollowers(spider)))
+
+        if not (targetting_us or targetted_by_us) then
+            local heal_amount = spider:HasTag("spiderwhisperer") and TUNING.HEALING_MEDSMALL or TUNING.SPIDER_HEALING_AMOUNT
+            spider.components.health:DoDelta(heal_amount, false, inst.prefab)
+            SpawnHealFx(spider, "spider_heal_target_fx")
+        end
     end
 
     inst.healtime = GetTime()
+end
+
+local function OnPickup(inst)
+    inst:PushEvent("detachchild")
 end
 
 local function create_common(bank, build, tag, common_init)
@@ -465,8 +529,8 @@ local function create_common(bank, build, tag, common_init)
     inst:AddTag("canbetrapped")
     inst:AddTag("smallcreature")
     inst:AddTag("spider")
-    inst:AddTag("drop_inventory_pickup")
-    inst:AddTag("drop_inventory_murder")
+    inst:AddTag("drop_inventory_onpickup")
+    inst:AddTag("drop_inventory_onmurder")
     
     if tag ~= nil then
         inst:AddTag(tag)
@@ -546,6 +610,7 @@ local function create_common(bank, build, tag, common_init)
     inst.components.eater:SetDiet({ FOODTYPE.MEAT }, { FOODTYPE.MEAT })
     inst.components.eater:SetCanEatHorrible()
     inst.components.eater:SetStrongStomach(true) -- can eat monster meat!
+    inst.components.eater:SetCanEatRawMeat(true)
 
     ------------------
 
@@ -556,6 +621,7 @@ local function create_common(bank, build, tag, common_init)
     inst:AddComponent("inventory")
     inst:AddComponent("trader")
     inst.components.trader:SetAcceptTest(ShouldAcceptItem)
+    inst.components.trader:SetAbleToAcceptTest(ShouldAcceptItem)
     inst.components.trader.onaccept = OnGetItemFromPlayer
     inst.components.trader.onrefuse = OnRefuseItem
     inst.components.trader.deleteitemonaccept = false
@@ -566,6 +632,7 @@ local function create_common(bank, build, tag, common_init)
     inst.components.inventoryitem.nobounce = true
     inst.components.inventoryitem.canbepickedup = false
     inst.components.inventoryitem.canbepickedupalive = true
+    inst.components.inventoryitem:SetSinks(true)
 
     --------------------
 
@@ -589,8 +656,12 @@ local function create_common(bank, build, tag, common_init)
     inst:ListenForEvent("ontrapped", OnTrapped)
     inst:ListenForEvent("oneat", OnEat)
 
+    inst:ListenForEvent("ondropped", OnDropped)
+
     inst:ListenForEvent("gotosleep", OnGoToSleep)
     inst:ListenForEvent("onwakeup", OnWakeUp)
+
+    inst:ListenForEvent("onpickup", OnPickup)
 
     inst:WatchWorldState("iscaveday", OnIsCaveDay)
     OnIsCaveDay(inst, TheWorld.state.iscaveday)
@@ -602,7 +673,7 @@ local function create_common(bank, build, tag, common_init)
 end
 
 local function create_spider()
-    local inst = create_common("spider", "spider_build_2")
+    local inst = create_common("spider", "spider_build")
 
     if not TheWorld.ismastersim then
         return inst
@@ -711,7 +782,7 @@ local function create_spitter()
 end
 
 local function create_dropper()
-    local inst = create_common("spider", "spider_white_2", "spider_warrior")
+    local inst = create_common("spider", "spider_white", "spider_warrior")
 
     if not TheWorld.ismastersim then
         return inst

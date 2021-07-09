@@ -120,6 +120,7 @@ return{
 			PIGKINGGAME_TOOLATE = "It's too close to bedtime to start another game.",
 			CARNIVALGAME_INVALID_ITEM = "Hmm, it doesn't want that.",
 			CARNIVALGAME_ALREADY_PLAYING = "We're playing next!",
+            SPIDERNOHAT = "There's not enough room, we don't want to squish them by accident!",
         },
         GIVETOPLAYER =
         {
@@ -185,6 +186,7 @@ return{
         {
 			RESTRICTION = "We don't want to use that.",
 			INUSE = "Oops. Someone else is using that.",
+            NOTMINE_SPIDER = "Oh! We're sorry, you looked like a friend of ours.",
             NOTMINE_YOTC =
             {
                 "Whoops! Wrong Carrat!",
@@ -3500,6 +3502,8 @@ return{
         SPIDER_WHISTLE = "We can call our spider friends!",
         SPIDERDEN_BEDAZZLER = "We know what'll make our spiderfriends happy, decorating their house!",
         SPIDER_HEALER = "We feel better just having them around!",
+        SPIDER_REPELLENT = "Ms. Wickerbottom said our friends need to go home if they don't behave.",
+        SPIDER_HEALER_ITEM = "It's good for fixing spider booboos.",
 
 		-- Wendy
 		GHOSTLYELIXIR_SLOWREGEN = "Hey, you didn't tell me you were making crafts!",

@@ -21,6 +21,7 @@ SKIN_FX_PREFAB = {}
 --------------------------------------------------------------------------
 --[[ Basic skin functions ]]
 --------------------------------------------------------------------------
+--Note(Peter): If you use basic_init_fn/basic_clear_fn and won't have a default bank, then you'll need to set swap data in MakeInventoryFloatable
 function basic_init_fn( inst, build_name, def_build )
     if inst.components.placer == nil and not TheWorld.ismastersim then
         return
@@ -72,9 +73,6 @@ batbat_clear_fn = function(inst) basic_clear_fn(inst, "batbat" ) end
 
 boomerang_init_fn = function(inst, build_name) basic_init_fn( inst, build_name, "boomerang" ) end
 boomerang_clear_fn = function(inst) basic_clear_fn(inst, "boomerang" ) end
-
-panflute_init_fn = function(inst, build_name) basic_init_fn( inst, build_name, "pan_flute" ) end
-panflute_clear_fn = function(inst) basic_clear_fn(inst, "pan_flute" ) end
 
 hammer_init_fn = function(inst, build_name)
     if string.find( build_name, "_invisible") ~= nil then
@@ -371,16 +369,26 @@ seedpouch_init_fn = function(inst, build_name) basic_init_fn( inst, build_name, 
 seedpouch_clear_fn = function(inst) basic_clear_fn(inst, "seedpouch" ) end
 
 
+seafaring_prototyper_init_fn = function(inst, build_name) basic_init_fn( inst, build_name, "seafaring_prototyper" ) end
+seafaring_prototyper_clear_fn = function(inst) basic_clear_fn(inst, "seafaring_prototyper" ) end
+
+tacklecontainer_init_fn = function(inst, build_name) basic_init_fn( inst, build_name, "tacklecontainer" ) end
+tacklecontainer_clear_fn = function(inst) basic_clear_fn(inst, "tacklecontainer" ) end
+
+supertacklecontainer_init_fn = function(inst, build_name) basic_init_fn( inst, build_name, "supertacklecontainer" ) end
+supertacklecontainer_clear_fn = function(inst) basic_clear_fn(inst, "supertacklecontainer" ) end
+
+
 --------------------------------------------------------------------------
 --[[ Stagehand skin functions ]]
 --------------------------------------------------------------------------
 stagehand_init_fn = function(inst, build_name)
     basic_init_fn( inst, build_name, "stagehand" )
-    --inst.MiniMapEntity:SetIcon(build_name .. ".png")
+    inst.AnimState:OverrideSymbol("stagehand_fingers", "stagehand", "stagehand_fingers")
 end
 stagehand_clear_fn = function(inst)
     basic_clear_fn(inst, "stagehand" )
-    --inst.MiniMapEntity:SetIcon("wormhole.png")
+    inst.AnimState:ClearOverrideSymbol("stagehand_fingers")
 end
 
 
@@ -576,15 +584,13 @@ function bugnet_init_fn(inst, build_name)
         return
     end
 
-    inst.AnimState:SetSkin(build_name, "swap_bugnet")
-    inst.components.inventoryitem:ChangeImageName(inst:GetSkinName())
+    basic_init_fn( inst, build_name, "swap_bugnet" )
 
     local skin_data = GetSkinData(inst:GetSkinName())
     inst.overridebugnetsound = skin_data.skin_sound
 end
 function bugnet_clear_fn(inst)
-    inst.AnimState:SetBuild("swap_bugnet")
-    inst.components.inventoryitem:ChangeImageName()
+    basic_clear_fn(inst, "swap_bugnet" )
     inst.overridebugnetsound = nil
 end
 
@@ -1188,9 +1194,8 @@ function cane_init_fn(inst, build_name)
         return
     end
 
-    inst.AnimState:SetSkin(build_name, "swap_cane")
+    basic_init_fn( inst, build_name, "swap_cane" )
     inst.AnimState:OverrideSymbol("grass", "swap_cane", "grass")
-    inst.components.inventoryitem:ChangeImageName(inst:GetSkinName())
 
     local skin_fx = SKIN_FX_PREFAB[build_name] --build_name is prefab name for canes
     if skin_fx ~= nil then
@@ -1207,9 +1212,8 @@ function cane_init_fn(inst, build_name)
     end
 end
 function cane_clear_fn(inst)
-    inst.AnimState:SetBuild("swap_cane")
+    basic_clear_fn(inst, "swap_cane" )
     inst.AnimState:ClearOverrideSymbol("grass")
-    inst.components.inventoryitem:ChangeImageName()
 
     inst:RemoveEventCallback("equipped", cane_equipped)
     inst:RemoveEventCallback("unequipped", cane_unequipped)
@@ -1240,8 +1244,7 @@ function nightsword_init_fn(inst, build_name)
         return
     end
 
-    inst.AnimState:SetSkin(build_name, "nightmaresword")
-    inst.components.inventoryitem:ChangeImageName(inst:GetSkinName())
+    basic_init_fn( inst, build_name, "nightmaresword" )
 
     local skin_fx = SKIN_FX_PREFAB[build_name] --build_name is prefab name for nightsword
     if skin_fx ~= nil then
@@ -1254,8 +1257,7 @@ function nightsword_init_fn(inst, build_name)
     end
 end
 function nightsword_clear_fn(inst)
-    inst.AnimState:SetBuild("nightmaresword")
-    inst.components.inventoryitem:ChangeImageName()
+    basic_clear_fn(inst, "nightmaresword" )
 
     inst:RemoveEventCallback("equipped", nightsword_equipped)
     inst:RemoveEventCallback("unequipped", nightsword_unequipped)
@@ -1269,14 +1271,12 @@ local function staff_init_fn(inst, build_name)
         return
     end
 
-    inst.AnimState:SetSkin(build_name, "staffs")
+    basic_init_fn( inst, build_name, "staffs" )
     inst.AnimState:OverrideSymbol("grass", "staffs", "grass")
-    inst.components.inventoryitem:ChangeImageName(inst:GetSkinName())
 end
 local function staff_clear_fn(inst)
-    inst.AnimState:SetBuild("staffs")
+    basic_clear_fn(inst, "staffs" )
     inst.AnimState:ClearOverrideSymbol("grass")
-    inst.components.inventoryitem:ChangeImageName()
 end
 
 function orangestaff_init_fn(inst, build_name)
@@ -1486,6 +1486,28 @@ function lantern_clear_fn(inst)
     inst:RemoveEventCallback("unequipped", lantern_off)
     inst:RemoveEventCallback("onremove", lantern_off)
 end
+
+--------------------------------------------------------------------------
+--[[ Pan flute skin functions ]]
+--------------------------------------------------------------------------
+panflute_init_fn = function(inst, build_name)
+    if inst.components.placer == nil and not TheWorld.ismastersim then
+        return
+    end
+
+    inst.AnimState:SetSkin(build_name, "pan_flute")
+    if inst.components.inventoryitem ~= nil then
+        inst.components.inventoryitem:ChangeImageName(inst:GetSkinName())
+    end
+
+end
+panflute_clear_fn = function(inst)    
+    inst.AnimState:SetBuild("pan_flute")
+    if inst.components.inventoryitem ~= nil then
+        inst.components.inventoryitem:ChangeImageName()
+    end
+end
+
 
 --------------------------------------------------------------------------
 --[[ ResearchLab2 skin functions ]]

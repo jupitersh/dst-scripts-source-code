@@ -60,6 +60,14 @@ function Leader:CountFollowers(tag)
 	return count
 end
 
+function Leader:IsTargetedByFollowers(target)
+    for follower, v in pairs(self.followers) do
+        if follower.combat ~= nil and follower.combat:TargetIs(target) then
+            return true
+        end
+    end
+end
+
 function Leader:OnNewTarget(target)
 	if target == nil or (target.components.minigame_participator == nil or (target:HasTag("player") and TheNet:GetPVPEnabled())) then
 		for k,v in pairs(self.followers) do
@@ -132,6 +140,14 @@ function Leader:RemoveAllFollowersOnDeath()
     for k, v in pairs(self.followers) do
         if not (k.components.follower ~= nil and k.components.follower.keepdeadleader) then
             self:RemoveFollower(k)
+        end
+    end
+end
+
+function Leader:HaveFollowersCachePlayerLeader()
+    for k,v in pairs(self.followers) do
+        if k.components.follower then
+            k.components.follower:CachePlayerLeader()
         end
     end
 end

@@ -12,7 +12,6 @@ local prefabs =
 local assets =
 {
     Asset("ANIM", "anim/spider_cocoon.zip"),
-    Asset("ANIM", "anim/spider_cocoon_2.zip"),
     Asset("SOUND", "sound/spider.fsb"),
 	Asset("MINIMAP_IMAGE", "spiderden_1"),
     Asset("MINIMAP_IMAGE", "spiderden_2"),
@@ -128,7 +127,6 @@ local function AddSleepingBag(inst)
     inst.components.sleepingbag.dryingrate = math.max(0, -TUNING.SLEEP_WETNESS_PER_TICK / TUNING.SLEEP_TICK_PERIOD)
     
     inst.components.sleepingbag:SetTemperatureTickFn(temperaturetick)
-    inst.components.sleepingbag:SetSleepPhase("day")
 
     inst:AddTag("tent")
 end
@@ -257,6 +255,10 @@ local function AttemptMakeQueen(inst)
         return
     end
 
+    if inst.components.sleepingbag and inst.components.sleepingbag:InUse() then
+        return
+    end
+
     if not inst:IsNearPlayer(30) then
         inst.components.growable:StartGrowing(60 + math.random(60))
         return
@@ -285,6 +287,9 @@ end
 
 local function onspawnspider(inst, spider)
     spider.sg:GoToState("taunt")
+    if inst:HasTag("bedazzled") then
+        inst.components.bedazzlement:PacifySpiders()
+    end
 end
 
 local function OnKilled(inst)
@@ -401,12 +406,14 @@ local function SummonChildren(inst, data)
             
             local children_released = inst.components.childspawner:ReleaseAllChildren()
 
-            for i,v in ipairs(children_released) do
-                if v.components.debuffable == nil then
-                    v:AddComponent("debuffable")
+            if children_released then
+                for i,v in ipairs(children_released) do
+                    if v.components.debuffable == nil then
+                        v:AddComponent("debuffable")
+                    end
+                    
+                    v.components.debuffable:AddDebuff("spider_summoned_buff", "spider_summoned_buff")
                 end
-                
-                v.components.debuffable:AddDebuff("spider_summoned_buff", "spider_summoned_buff")
             end
 
             if inst:HasTag("bedazzled") then
@@ -429,6 +436,10 @@ local function StopSpawning(inst)
     if inst.components.childspawner ~= nil then
         inst.components.childspawner:StopSpawning()
     end
+end
+
+local function OnExtinguish(inst)
+    inst.SoundEmitter:PlaySound("dontstarve/creatures/spider/spidernest_LP", "loop")
 end
 
 local function OnIgnite(inst)
@@ -527,7 +538,7 @@ local function OnUpgrade(inst, upgrade_doer)
 end
 
 local function CanUpgrade(inst)
-    if inst:HasTag("bedazzled") then
+    if inst:HasTag("bedazzled") and not inst.shaving then
         return false, "BEDAZZLED"
     end
 
@@ -594,13 +605,8 @@ local function OnPreLoad(inst, data)
 end
 
 local function CanShave(inst, shaver, shaving_implement)
-
-    if not shaver:HasTag("spiderwhisperer") then
-        return false
-    end
-
-    -- TODO: check if there's someone sleeping in the den before returning
-    return true
+    return shaver:HasTag("spiderwhisperer") and not inst.components.health:IsDead() and 
+           not inst.components.burnable:IsBurning() and not inst.components.freezable:IsFrozen()
 end
 
 local function OnShaved(inst, shaver, shaving_implement)
@@ -613,6 +619,7 @@ local function OnShaved(inst, shaver, shaving_implement)
         --inst.components.childspawner:ReleaseAllChildren()
         inst.components.health:Kill()
     else
+        inst.shaving = true
         local downgraded_stage = stage - 1
 
         if downgraded_stage < 3 and inst.components.sleepingbag then
@@ -659,7 +666,7 @@ local function MakeSpiderDenFn(den_level)
         inst.MiniMapEntity:SetIcon("spiderden_" .. tostring(den_level) .. ".png")
 
         inst.AnimState:SetBank("spider_cocoon")
-        inst.AnimState:SetBuild("spider_cocoon_2")
+        inst.AnimState:SetBuild("spider_cocoon")
         inst.AnimState:PlayAnimation("cocoon_small", true)
         inst.AnimState:HideSymbol("bedazzled_flare")
 
@@ -668,6 +675,7 @@ local function MakeSpiderDenFn(den_level)
         inst:AddTag("beaverchewable") -- by werebeaver
         inst:AddTag("hostile")
         inst:AddTag("spiderden")
+        inst:AddTag("bedazzleable")
         inst:AddTag("hive")
 
         MakeSnowCoveredPristine(inst)
@@ -718,6 +726,7 @@ local function MakeSpiderDenFn(den_level)
         ---------------------
         MakeMediumBurnable(inst)
         inst.components.burnable:SetOnIgniteFn(OnIgnite)
+        inst.components.burnable:SetOnExtinguishFn(OnExtinguish)
         -------------------
 
         ---------------------
@@ -775,7 +784,7 @@ local function MakeSpiderDenFn(den_level)
         inst:AddComponent("bedazzlement")
 
         inst:DoTaskInTime(0, function()
-            if inst.components.growable:GetStage() == 3 then
+            if inst.components.growable:GetStage() >= 3 then
                 AddSleepingBag(inst)
             end
         end)

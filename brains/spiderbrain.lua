@@ -53,6 +53,13 @@ end
 
 local function GoHomeAction(inst)
     local home = inst.components.homeseeker ~= nil and inst.components.homeseeker.home or nil
+
+    if home ~= nil and ((home.components.burnable ~= nil and home.components.burnable:IsBurning()) or
+                        (home.components.freezable ~= nil and home.components.freezable:IsFrozen()) or
+                        (home.components.health ~= nil and home.components.health:IsDead())) then
+        home = nil
+    end 
+
     return home ~= nil
         and home:IsValid()
         and home.components.childspawner ~= nil
@@ -98,7 +105,9 @@ function SpiderBrain:OnStart()
     })
 
     local attack_nodes = PriorityNode({
-        AttackWall(self.inst),
+        IfNode(function() return not self.inst.bedazzled and self.inst.components.follower.leader == nil end, "AttackWall",
+            AttackWall(self.inst)),
+
         ChaseAndAttack(self.inst, SpringCombatMod(TUNING.SPIDER_AGGRESSIVE_MAX_CHASE_TIME)),
     })
 

@@ -5,7 +5,7 @@ local assets =
 
 local prefabs = 
 {
-    "bedazzler_buff",
+    "bedazzle_buff",
 }
 
 local function fn()
@@ -21,8 +21,6 @@ local function fn()
     inst.AnimState:SetBuild("spiderden_bedazzler")
     inst.AnimState:PlayAnimation("idle", true)
     MakeInventoryPhysics(inst)
-
-    inst.MiniMapEntity:SetIcon("abigail_flower.png")
 
     MakeInventoryFloatable(inst, "small", 0.15, 0.9)
 

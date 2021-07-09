@@ -368,7 +368,7 @@ CHARACTER_VIDEOS =
 	waxwell = {"https://bit.ly/3rF0UD0"},
 	woodie = {"https://bit.ly/3sHhUK1"},
 	wathgrithr = {"https://bit.ly/3rC8YV6"},
---	webber = {},
+	webber = {"https://klei.gg/3zXJrLt"},
 	winona = {"https://bit.ly/3fB6LHb"},
     wortox = {"https://bit.ly/3cBQ10g"},
     wormwood = {"https://bit.ly/3cBilQq"},
@@ -682,7 +682,7 @@ SPECIAL_EVENTS =
     YOTC = "year_of_the_carrat",
     YOTB = "year_of_the_beefalo",
 }
-WORLD_SPECIAL_EVENT = SPECIAL_EVENTS.CARNIVAL
+WORLD_SPECIAL_EVENT = SPECIAL_EVENTS.NONE
 
 FESTIVAL_EVENTS =
 {
@@ -764,8 +764,7 @@ SPECIAL_EVENT_MUSIC =
     [SPECIAL_EVENTS.CARNIVAL] =
     {
         bank = "music_frontend.fsb",
-        --sound = "dontstarve/music/music_FE_summerevent",
-        sound = "dontstarve/music/music_FE_webber", -- RESTORE THIS TO THE SOUND ABOVE ONCE THE EVENT IS OVER
+        sound = "dontstarve/music/music_FE_summerevent",
     },
 }
 

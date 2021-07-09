@@ -120,6 +120,7 @@ return{
 			PIGKINGGAME_TOOLATE = "Aw... too late.",
 			CARNIVALGAME_INVALID_ITEM = "It not want that.",
 			CARNIVALGAME_ALREADY_PLAYING = "Me next, me next!",
+            SPIDERNOHAT = "Spiderfolk no need hat in there.",
         },
         GIVETOPLAYER =
         {
@@ -295,7 +296,7 @@ return{
         {
             TOO_LATE = "Slow down, birdies!",
         },
-		HERD_FOLLOWERS =
+        HERD_FOLLOWERS =
         {
             WEBBERONLY = "Hey! Talking to you! Listen!!",
         },
@@ -625,8 +626,8 @@ return{
         BOOK_TENTACLES =  "This a good one!",
         BOOK_BRIMSTONE = "Flurrgh, wanna know how it ends!",
         BOOK_GARDENING = "So many hard words...",
---fallback to speech_wilson.lua 		BOOK_SILVICULTURE = "only_used_by_wurt",
---fallback to speech_wilson.lua 		BOOK_HORTICULTURE = "only_used_by_wurt",
+        BOOK_SILVICULTURE = "Is whole story about trees? Me know about trees!",
+        BOOK_HORTICULTURE = "So many hard words...",
     },
     ANNOUNCE_WEAK_RAT = "It not look so good...",
 
@@ -3500,6 +3501,8 @@ return{
         SPIDER_WHISTLE = "It tickly!",
         SPIDERDEN_BEDAZZLER = "What you making Webby boy?",
         SPIDER_HEALER = "Glurgh, dusty spider!",
+        SPIDER_REPELLENT = "It goes clicky-clacky-clak!",
+        SPIDER_HEALER_ITEM = "Glurgh, have funny smell.",
 
 		-- Wendy
 		GHOSTLYELIXIR_SLOWREGEN = "Ooooh! Me wanna make some too, florp!",
