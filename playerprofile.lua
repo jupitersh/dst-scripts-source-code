@@ -1211,7 +1211,7 @@ function PlayerProfile:Set(str, callback, minimal_load)
 			PostProcessor:SetBloomEnabled( bloom_enabled )
 			PostProcessor:SetDistortionEnabled( distortion_enabled )
 
-			EnableShadeRenderer( GetValueOrDefault( self.persistdata.dynamic_tree_shadows, true ) )
+			EnableShadeRenderer( self:GetDynamicTreeShadowsEnabled() )
 		end
 
 		-- old save data will not have the controls section so create it

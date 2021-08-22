@@ -971,8 +971,8 @@ function SaveGame(isshutdown, cb)
     end
 
     local data = {}
-    for key,value in pairs(save) do    
-        data[key] = DataDumper(value, key, not PRETTY_PRINT)
+    for key,value in pairs(save) do
+        data[key] = DataDumper(value, nil, not PRETTY_PRINT)
 		
 		for i, corrupt_pattern in ipairs(patterns) do
 			local found = string.find(data[key], corrupt_pattern, 1, true)
@@ -987,7 +987,7 @@ function SaveGame(isshutdown, cb)
 	-- dumping the whole entities table at once as is done for the other parts of the save data
 	data.ents = {}
 	for key, value in pairs(savedata_entities) do
-		data.ents[key] = DataDumper(value, key, not PRETTY_PRINT)
+		data.ents[key] = DataDumper(value, nil, not PRETTY_PRINT)
 
 		for i, corrupt_pattern in ipairs(patterns) do
 			local found = string.find(data.ents[key], corrupt_pattern, 1, true)
@@ -1671,7 +1671,7 @@ local function OnUserPickedCharacter(char, skin_base, clothing_body, clothing_ha
 
         local starting_skins = {}
         --get the starting inventory skins and send those along to the spawn request
-        local inv_item_list = (TUNING.GAMEMODE_STARTING_ITEMS[TheNet:GetServerGameMode()] or TUNING.GAMEMODE_STARTING_ITEMS.DEFAULT)[string.upper(char)]
+        local inv_item_list = (TUNING.GAMEMODE_STARTING_ITEMS[TheNet:GetServerGameMode()] or TUNING.GAMEMODE_STARTING_ITEMS.DEFAULT)[string.upper(char)] or {}
         
         local inv_items, item_count = {}, {}
         for _, v in ipairs(inv_item_list) do
