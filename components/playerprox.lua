@@ -25,7 +25,7 @@ local function AllPlayers(inst, self)
     local farsq = self.far * self.far
     for player in pairs(self.closeplayers) do
         if player:IsValid() then
-            if (self.alivemode == nil or self.alivemode ~= (player.replica.health:IsDead() or player:HasTag("playerghost"))) and
+            if (self.alivemode == nil or self.alivemode ~= IsEntityDeadOrGhost(player)) and
             player.entity:IsVisible() and
             player:GetDistanceSqToPoint(x, y, z) < farsq then
                 closeplayers[player] = true
@@ -187,7 +187,10 @@ function PlayerProx:SetPlayerAliveMode(alivemode)
     self.alivemode = alivemode
 end
 
-function PlayerProx:Schedule()
+function PlayerProx:Schedule(new_period)
+	if new_period ~= nil then
+		self.period = new_period
+	end
     self:Stop()
     self.task = self.inst:DoPeriodicTask(self.period, self.targetmode, nil, self)
 end

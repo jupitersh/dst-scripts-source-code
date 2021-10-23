@@ -20,6 +20,8 @@ local ConsoleScreen = Class(Screen, function(self)
 	self:DoInit()
 
 	self.ctrl_pasting = false
+
+	SetConsoleAutopaused(true)
 end)
 
 function ConsoleScreen:OnBecomeActive()
@@ -39,6 +41,12 @@ function ConsoleScreen:OnBecomeInactive()
         self.runtask:Cancel()
         self.runtask = nil
     end
+end
+
+function ConsoleScreen:OnDestroy()
+	SetConsoleAutopaused(false)
+
+	ConsoleScreen._base.OnDestroy(self)
 end
 
 function ConsoleScreen:OnControl(control, down)
@@ -166,7 +174,7 @@ end
 function ConsoleScreen:OnTextEntered()
     if self.runtask ~= nil then
         self.runtask:Cancel()
-    end
+	end
     self.runtask = self.inst:DoTaskInTime(0, DoRun, self)
 end
 
@@ -237,7 +245,7 @@ function ConsoleScreen:DoInit()
 
 	self.console_edit:EnableWordPrediction({width = 1000, mode=Profile:GetConsoleAutocompleteMode()})
 	self.console_edit:AddWordPredictionDictionary({words = prefab_names, delim = '"', postfix='"', skip_pre_delim_check=true})
-	self.console_edit:AddWordPredictionDictionary({words = prefab_names, delim = "'", postfix='"', skip_pre_delim_check=true})
+	self.console_edit:AddWordPredictionDictionary({words = prefab_names, delim = "'", postfix="'", skip_pre_delim_check=true})
 	local prediction_command = {"spawn", "save", "gonext", "give", "mat", "list", "findnext", "countprefabs", "selectnear", "removeall", "shutdown", "regenerateworld", "reset", "despawn", "godmode", "supergodmode", "armor", "makeboat", "makeboatspiral", "autoteleportplayers", "gatherplayers", "dumpentities", "freecrafting", "selectnext", "sounddebug" }
 	self.console_edit:AddWordPredictionDictionary({words = prediction_command, delim = "c_", num_chars = 0})
 

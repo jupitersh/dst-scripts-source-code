@@ -106,9 +106,14 @@ local function weed_firenettle_bumped(inst, target)
 				apply_toxin_debuff = target.components.combat:GetAttacked(inst, TUNING.WEED_FIRENETTLE_DAMAGE)
 			end
 
-			if apply_toxin_debuff and target.components.debuffable ~= nil then
-				target.components.debuffable:AddDebuff("firenettle_toxin", "firenettle_toxin")
+			if apply_toxin_debuff then
+				target:AddDebuff("firenettle_toxin", "firenettle_toxin")
 			end
+		end
+
+		if inst.components.growable ~= nil then
+			inst.components.growable:SetStage(1)
+			inst.components.growable:StartGrowing()
 		end
 	end
 end
@@ -116,8 +121,9 @@ end
 WEED_DEFS.weed_firenettle.OnMakeFullFn = function(inst, isfull)
 	if isfull and inst.components.playerprox == nil then
 		inst:AddComponent("playerprox")
-		inst.components.playerprox:SetDist(1.5, 2.5)
+		inst.components.playerprox:SetDist(0.5, 2.5)
 		inst.components.playerprox:SetOnPlayerNear(weed_firenettle_bumped)
+		inst.components.playerprox:Schedule(5 * FRAMES)
 
 	elseif not isfull and inst.components.playerprox ~= nil then
 		inst:RemoveComponent("playerprox")

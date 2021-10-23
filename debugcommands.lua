@@ -231,7 +231,7 @@ function d_test_skins_popup(param)
 	TheFrontEnd:PushScreen( SkinsItemPopUp(param or TEST_ITEM_NAME, "Peter", {1.0, 0.2, 0.6, 1.0}) )
 end
 function d_test_skins_announce(param)
-	ThePlayer.HUD.eventannouncer:ShowSkinAnnouncement("Peter", {1.0, 0.2, 0.6, 1.0}, param or TEST_ITEM_NAME)
+	Networking_SkinAnnouncement("Peter", {1.0, 0.2, 0.6, 1.0}, param or TEST_ITEM_NAME)
 end
 function d_test_skins_gift(param)
 	local GiftItemPopUp = require "screens/giftitempopup"
@@ -996,4 +996,53 @@ function d_cookbook()
 			TheCookbook:AddRecipe(prefab, {"twigs", "berries", "ice", "meat"})
 		end
 	end			
+end
+
+function d_statues(material)
+	local mats = 
+	{
+		"marble",
+		"stone",
+		"moonglass",
+	}
+
+	local items = {
+		"pawn",       
+		"rook",       
+		"knight",     
+		"bishop",     
+		"muse",       
+		"formal",     
+		"hornucopia", 
+		"pipe",       
+		"deerclops",  
+		"bearger",    
+		"moosegoose", 
+		"dragonfly",  
+		"clayhound",  
+		"claywarg",   
+		"butterfly",  
+		"anchor",     
+		"moon",       
+		"carrat",     
+		"beefalo",    
+		"crabking",   
+		"malbatross", 
+		"toadstool",	
+		"stalker",	
+		"klaus",		
+		"beequeen",	
+		"antlion",	
+		"minotaur",	
+		"guardianphase3",
+	}
+
+	local material = (type(material) == "string" and table.contains(mats, material)) and material
+					or type(material) == "number" and mats[material]
+					or "marble"
+
+	for i, v in ipairs(items) do
+		items[i] = "chesspiece_".. v .."_" .. (material or "marble")
+	end
+	_spawn_list(items, 5)
 end
