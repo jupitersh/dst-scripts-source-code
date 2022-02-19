@@ -1,3 +1,8 @@
+
+if IsSteamDeck() then
+	return require "widgets/textedit_steamdeck"
+end
+
 local Widget = require "widgets/widget"
 local Text = require "widgets/text"
 local WordPredictionWidget = require "widgets/wordpredictionwidget"
@@ -18,6 +23,7 @@ local TextEdit = Class(Text, function(self, font, size, text, colour)
     self.force_edit = false
     self.pasting = false
     self.pass_controls_to_screen = {}
+	self.ignore_controls = {}
 
     self.idle_text_color = {0,0,0,1}
     self.edit_text_color = {0,0,0,1}--{1,1,1,1}
@@ -324,10 +330,18 @@ function TextEdit:SetPassControlToScreen(control, pass)
     self.pass_controls_to_screen[control] = pass or nil
 end
 
+function TextEdit:SetIgnoreControl(control, ignore)
+    self.ignore_controls[control] = ignore or nil
+end
+
 function TextEdit:OnControl(control, down)
     if not self:IsEnabled() then return end
 	if self.editing and self.prediction_widget ~= nil and self.prediction_widget:OnControl(control, down) then
 		return true
+	end
+
+	if self.ignore_controls[control] then
+		return false
 	end
 
     if TextEdit._base.OnControl(self, control, down) then return true end
