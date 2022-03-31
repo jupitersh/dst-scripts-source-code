@@ -575,7 +575,9 @@ function Inv:CursorNav(dir, same_container_only)
         self.actionstring:Show()
     end
 
-    if self.active_slot == nil or not self.active_slot.inst:IsValid() or self.current_list == nil or self.current_list[1] == nil or not self.current_list[1].inst:IsValid() then
+	local _, current_list_first_slot = next(self.current_list)
+
+    if self.active_slot == nil or not self.active_slot.inst:IsValid() or self.current_list == nil or current_list_first_slot == nil or not current_list_first_slot.inst:IsValid() then
         self.current_list = self.inv
 		self.pin_nav = false
         self:SelectDefaultSlot()
@@ -602,7 +604,7 @@ function Inv:CursorLeft()
     if self:CursorNav(Vector3(-1,0,0), true) then
         TheFrontEnd:GetSound():PlaySound("dontstarve/HUD/click_move")
 	elseif not self.open and not self.pin_nav and self.owner.HUD.controls.craftingmenu.is_left_aligned then
-		self:PinBarNav(self.owner.HUD.controls.craftingmenu:InvNavToPin())
+		self:PinBarNav(self.owner.HUD.controls.craftingmenu:InvNavToPin(self.active_slot, -1, 0))
     end
 end
 
@@ -617,7 +619,7 @@ function Inv:CursorRight()
     if self:CursorNav(Vector3(1,0,0), true) then
         TheFrontEnd:GetSound():PlaySound("dontstarve/HUD/click_move")
 	elseif not self.open and not self.pin_nav and not self.owner.HUD.controls.craftingmenu.is_left_aligned then
-		self:PinBarNav(self.owner.HUD.controls.craftingmenu:InvNavToPin())
+		self:PinBarNav(self.owner.HUD.controls.craftingmenu:InvNavToPin(self.active_slot, 1, 0))
     end
 end
 
@@ -629,7 +631,7 @@ function Inv:CursorUp()
 			TheFrontEnd:GetSound():PlaySound("dontstarve/HUD/click_move")
 		elseif not self.open and (self.current_list == self.inv or self.current_list == self.equip) then
 			-- go into the pin bar if there are no other open containers above the inventory bar
-			self:PinBarNav(self.owner.HUD.controls.craftingmenu:InvNavToPin())
+			self:PinBarNav(self.owner.HUD.controls.craftingmenu:InvNavToPin(self.active_slot, 0, 1))
 		end
     end
 end
