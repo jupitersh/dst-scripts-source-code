@@ -45,7 +45,7 @@ local events=
        end
     end),
     EventHandler("refusedrider", function(inst, data)
-        if not inst.components.health:IsDead() and not inst.sg:HasStateTag("attack") then
+        if not inst.components.health:IsDead() and not inst.sg:HasStateTag("attack") and not inst.sg:HasStateTag("busy") then
             inst.sg:GoToState("matingcall")
         end
     end),
@@ -74,7 +74,7 @@ local events=
         end
     end),
     EventHandler("despawn", function(inst, data)
-        if not inst.sg:HasStateTag("busy") then
+        if not inst.components.health:IsDead() then
             inst.sg:GoToState("despawn")
         end
     end),
@@ -856,6 +856,12 @@ local states=
         onenter = function(inst, pushanim)
             inst.components.locomotor:StopMoving()
             inst.AnimState:PlayAnimation("idle_loop", true)
+			if inst.components.rideable == nil then
+				inst.components.rideable.canride = false
+			end
+			if inst.components.health == nil then
+				inst.components.health:SetInvincible(true)
+			end
         end,
 
         onexit = function(inst)

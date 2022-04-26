@@ -475,16 +475,24 @@ function PlayerController:OnControl(control, down)
 	if not isenabled and not ishudblocking then
 		return
 	end	
-	
+
 	-- actions that can be done while the crafting menu is open go in here
 	if isenabled or ishudblocking then
+        -- Priortize attacking over actions if both are bound to the same button/pressed at the exact same time
 		if control == CONTROL_ACTION then
-			self:DoActionButton()
+            local didattack = false
+            if TheInput:IsControlPressed(CONTROL_ATTACK) then
+                didattack = self:DoAttackButton()
+            end
+            if not didattack then
+                self:DoActionButton()
+            end
+
 		elseif control == CONTROL_ATTACK then
 			if self.ismastersim then
 				self.attack_buffer = CONTROL_ATTACK
 			else
-				self:DoAttackButton()
+                self:DoAttackButton()
 			end
 		end
 	end
@@ -492,7 +500,7 @@ function PlayerController:OnControl(control, down)
 	if not isenabled then
 		return
 	end
-	
+
     if control == CONTROL_PRIMARY then
         self:OnLeftClick(down)
     elseif control == CONTROL_SECONDARY then
@@ -1318,7 +1326,7 @@ function PlayerController:GetAttackTarget(force_attack, force_target, isretarget
         return
     end
 
-    if isretarget and combat:CanHitTarget(force_target) and not IsEntityDead(force_target) and CanEntitySeeTarget(self.inst, force_target) then
+    if isretarget and (combat:CanHitTarget(force_target) or TheInput:IsControlPressed(CONTROL_PRIMARY)) and not IsEntityDead(force_target) and CanEntitySeeTarget(self.inst, force_target) then
         return force_target
     end
 
@@ -1344,7 +1352,7 @@ function PlayerController:GetAttackTarget(force_attack, force_target, isretarget
 
     local reach = self.inst:GetPhysicsRadius(0) + rad + .1
 
-    if force_target ~= nil then
+    if force_target ~= nil and not TheInput:IsControlPressed(CONTROL_PRIMARY) then
         return ValidateAttackTarget(combat, force_target, force_attack, x, z, has_weapon, reach) and force_target or nil
     end
 
@@ -1383,6 +1391,11 @@ function PlayerController:DoAttackButton(retarget)
     --    return
     --end
 
+    -- To handle cases where we click-held to attack, set the forced target to prevent unexpected retargeting due to hold to auto-target attacks
+    if TheInput:IsControlPressed(CONTROL_PRIMARY) and retarget ~= self.lastheldaction then
+        retarget = self.lastheldaction and self.lastheldaction.target or nil
+    end
+
     local force_attack = TheInput:IsControlPressed(CONTROL_FORCE_ATTACK)
     local target = self:GetAttackTarget(force_attack, retarget, retarget ~= nil)
 
@@ -1393,7 +1406,7 @@ function PlayerController:DoAttackButton(retarget)
             self.remote_controls[CONTROL_ATTACK] == nil then
             self:RemoteAttackButton()
         end
-        return --no target
+        return false --no target
     end
 
     if self.ismastersim then
@@ -1407,6 +1420,8 @@ function PlayerController:DoAttackButton(retarget)
         end
         self.locomotor:PreviewAction(buffaction, true)
     end
+
+    return true
 end
 
 function PlayerController:OnRemoteAttackButton(target, force_attack, noforce)
@@ -1893,6 +1908,7 @@ function PlayerController:ClearActionHold(down)
     -- Referenced in entityscript.lua
     if not down then
         self.heldactionfailed = nil
+        self.lastclickedaction = nil
     end
 end
 
@@ -2359,7 +2375,12 @@ function PlayerController:OnUpdate(dt)
         end
         if isidle then
             if TheInput:IsControlPressed(CONTROL_ACTION) then
-                self:OnControl(CONTROL_ACTION, true)
+                -- Priortize attacking over actions if both are bound to the same button/pressed at the exact same time
+                if TheInput:IsControlPressed(CONTROL_ATTACK) and self.locomotor ~= nil and self.locomotor.bufferedaction and self.locomotor.bufferedaction.action == ACTIONS.ATTACK then
+                    self:OnControl(CONTROL_ATTACK, true)
+                else
+                    self:OnControl(CONTROL_ACTION, true)
+                end
             elseif TheInput:IsControlPressed(CONTROL_CONTROLLER_ACTION)
                 and not self:IsDoingOrWorking() then
                 self:OnControl(CONTROL_CONTROLLER_ACTION, true)
@@ -2429,7 +2450,7 @@ function PlayerController:OnUpdate(dt)
                     end
                     if isidle then
                         -- Check for primary control button held down in order to attack other nearby monsters
-                        if attack_control == CONTROL_PRIMARY and self.actionholding and self.lastclickedaction and self.lastclickedaction.action == ACTIONS.ATTACK then
+                        if attack_control == CONTROL_PRIMARY and TheInput:IsControlPressed(CONTROL_PRIMARY) and self.lastclickedaction and self.lastclickedaction.action == ACTIONS.ATTACK then
                             if self.ismastersim then
                                 self.attack_buffer = CONTROL_ATTACK
                             else
@@ -3265,12 +3286,13 @@ function PlayerController:DoCameraControl()
     end
 
     local time = GetStaticTime()
+	local invert_rotation = Profile:GetInvertCameraRotation()
 
     if not self:IsControllerTargetingModifierDown() and (self.lastrottime == nil or time - self.lastrottime > ROT_REPEAT) then
-        if TheInput:IsControlPressed(CONTROL_ROTATE_LEFT) then
+        if TheInput:IsControlPressed(invert_rotation and CONTROL_ROTATE_RIGHT or CONTROL_ROTATE_LEFT) then
             self:RotLeft()
             self.lastrottime = time
-        elseif TheInput:IsControlPressed(CONTROL_ROTATE_RIGHT) then
+        elseif TheInput:IsControlPressed(invert_rotation and CONTROL_ROTATE_LEFT or CONTROL_ROTATE_RIGHT) then
             self:RotRight()
             self.lastrottime = time
         end

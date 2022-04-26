@@ -113,7 +113,9 @@ local COMPONENT_ACTIONS =
         activatable = function(inst, doer, actions, right)
             if inst:HasTag("inactive") then
 				if right or inst.replica.inventoryitem == nil then
-	                table.insert(actions, ACTIONS.ACTIVATE)
+					if not inst:HasTag("smolder") and not inst:HasTag("fire") then
+		                table.insert(actions, ACTIONS.ACTIVATE)
+					end
 				end
             end
         end,

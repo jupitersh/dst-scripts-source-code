@@ -42,8 +42,9 @@ function DoRecipeClick(owner, recipe, skin)
             end
         end
 
-        local knows = owner.replica.builder:KnowsRecipe(recipe)
-        local has_ingredients = owner.replica.builder:HasIngredients(recipe)
+        local buffered = owner.replica.builder:IsBuildBuffered(recipe.name)
+        local knows = buffered or owner.replica.builder:KnowsRecipe(recipe)
+        local has_ingredients = buffered or owner.replica.builder:HasIngredients(recipe)
 
         if not has_ingredients and TheWorld.ismastersim then
             owner:PushEvent("cantbuild", { owner = owner, recipe = recipe })
@@ -51,21 +52,18 @@ function DoRecipeClick(owner, recipe, skin)
             has_ingredients = owner.replica.builder:HasIngredients(recipe)
         end
 
-        local buffered = owner.replica.builder:IsBuildBuffered(recipe.name)
+		if buffered then
+			SetCraftingAutopaused(false)
+			Profile:SetLastUsedSkinForItem(recipe.name, skin)
 
-        if knows or buffered then
-            if buffered then
-                --TheFrontEnd:GetSound():PlaySound("dontstarve/HUD/click_move")
-                --owner.HUD.controls.craftingmenu.tabs:DeselectAll()
-				SetCraftingAutopaused(false)
-				Profile:SetLastUsedSkinForItem(recipe.name, skin)
-
-                if recipe.placer == nil then
-                    owner.replica.builder:MakeRecipeFromMenu(recipe, skin)
-                elseif owner.components.playercontroller ~= nil then
-                    owner.components.playercontroller:StartBuildPlacementMode(recipe, skin)
-                end
-            elseif has_ingredients then
+            if recipe.placer == nil then
+                owner.replica.builder:MakeRecipeFromMenu(recipe, skin)
+            elseif owner.components.playercontroller ~= nil then
+                owner.components.playercontroller:StartBuildPlacementMode(recipe, skin)
+            end
+			return false -- close the crafting menu
+		elseif knows then
+			if has_ingredients then
                 --TheFrontEnd:GetSound():PlaySound("dontstarve/HUD/click_move")
 				SetCraftingAutopaused(false)
 				Profile:SetLastUsedSkinForItem(recipe.name, skin)
@@ -81,39 +79,65 @@ function DoRecipeClick(owner, recipe, skin)
                     end
                     owner.components.playercontroller:StartBuildPlacementMode(recipe, skin)
                 end
-            else
-                return true, "NO_INGREDIENTS"
-            end
-        else
+			else
+				local tech_level = owner.replica.builder:GetTechTrees()
+				for i, ing in ipairs(recipe.ingredients) do
+					local ing_recipe = GetValidRecipe(ing.type)
+					if ing_recipe ~= nil
+						and not owner.replica.inventory:Has(ing.type, math.max(1, RoundBiasedUp(ing.amount * owner.replica.builder:IngredientMod())), true)
+						and (owner.replica.builder:KnowsRecipe(ing_recipe) or CanPrototypeRecipe(ing_recipe.level, tech_level)) and owner.replica.builder:HasIngredients(ing_recipe) then
+						owner.replica.builder:MakeRecipeFromMenu(recipe, skin) -- tell the server to build the current recipe, not the ingredient
+						return true
+					end
+				end
+			
+				return true, "NO_INGREDIENTS"
+			end
+		else
             local tech_level = owner.replica.builder:GetTechTrees()
-            if has_ingredients and CanPrototypeRecipe(recipe.level, tech_level) then
-				SetCraftingAutopaused(false)
-				Profile:SetLastUsedSkinForItem(recipe.name, skin)
+            if CanPrototypeRecipe(recipe.level, tech_level) then
+				if has_ingredients then
+					SetCraftingAutopaused(false)
+					Profile:SetLastUsedSkinForItem(recipe.name, skin)
 
-                if recipe.placer == nil then
-                    owner.replica.builder:MakeRecipeFromMenu(recipe, skin)
-                    if recipe.nounlock then
-                        return true
-                    end
-                elseif owner.components.playercontroller ~= nil then
-                    owner.replica.builder:BufferBuild(recipe.name)
-                    if not owner.replica.builder:IsBuildBuffered(recipe.name) then
-                        return true
-                    end
-                    owner.components.playercontroller:StartBuildPlacementMode(recipe, skin)
-                    if owner.components.builder ~= nil then
-                        owner.components.builder:ActivateCurrentResearchMachine(recipe)
-                        owner.components.builder:UnlockRecipe(recipe.name)
-                    end
-                end
-                if not recipe.nounlock then
-                    if lastsoundtime == nil or GetStaticTime() - lastsoundtime >= 1 then
-                        lastsoundtime = GetStaticTime()
-                        TheFocalPoint.SoundEmitter:PlaySound("dontstarve/HUD/research_unlock")
-                    end
-                end
+					if recipe.placer == nil then
+						owner.replica.builder:MakeRecipeFromMenu(recipe, skin)
+						if recipe.nounlock then
+							return true
+						end
+					elseif owner.components.playercontroller ~= nil then
+						owner.replica.builder:BufferBuild(recipe.name)
+						if not owner.replica.builder:IsBuildBuffered(recipe.name) then
+							return true
+						end
+						owner.components.playercontroller:StartBuildPlacementMode(recipe, skin)
+						if owner.components.builder ~= nil then
+							owner.components.builder:ActivateCurrentResearchMachine(recipe)
+							owner.components.builder:UnlockRecipe(recipe.name)
+						end
+					end
+					if not recipe.nounlock then
+						if lastsoundtime == nil or GetStaticTime() - lastsoundtime >= 1 then
+							lastsoundtime = GetStaticTime()
+							TheFocalPoint.SoundEmitter:PlaySound("dontstarve/HUD/research_unlock")
+						end
+					end
 
-				return recipe.placer == nil -- close the crafting menu if there is a placer
+					return recipe.placer == nil -- close the crafting menu if there is a placer
+				else
+					-- check if we can craft sub ingredients
+					for i, ing in ipairs(recipe.ingredients) do
+						local ing_recipe = GetValidRecipe(ing.type)
+						if ing_recipe ~= nil
+							and not owner.replica.inventory:Has(ing.type, math.max(1, RoundBiasedUp(ing.amount * owner.replica.builder:IngredientMod())), true)
+							and (owner.replica.builder:KnowsRecipe(ing_recipe) or CanPrototypeRecipe(ing_recipe.level, tech_level)) and owner.replica.builder:HasIngredients(ing_recipe) then
+							owner.replica.builder:MakeRecipeFromMenu(recipe, skin) -- tell the server to build the current recipe, not the ingredient
+							return true
+						end
+					end
+
+					return true, "NO_INGREDIENTS"
+				end
             else
                 return true, recipe.nounlock and "NO_STATION" or "NO_TECH"
             end

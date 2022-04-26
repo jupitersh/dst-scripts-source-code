@@ -20,12 +20,13 @@ local CraftingMenuHUD = Class(Widget, function(self, owner, is_left_aligned)
 	self.valid_recipes = {}
 	self:RebuildRecipes()
 
-    if is_left_aligned then
-		self.closed_pos = Vector3(0, 0, 0)
-		self.opened_pos = Vector3(530, 0, 0)
+	local y_offset = IsSplitScreen() and -50 or 0
+	    if is_left_aligned then
+		self.closed_pos = Vector3(0, y_offset, 0)
+		self.opened_pos = Vector3(530, y_offset, 0)
 	else
-		self.closed_pos = Vector3(0, 0, 0)
-		self.opened_pos = Vector3(-530, 0, 0)
+		self.closed_pos = Vector3(0, y_offset, 0)
+		self.opened_pos = Vector3(-530, y_offset, 0)
 	end
 
 	self.ui_root = self:AddChild(Widget("craftingmenu_root"))
@@ -35,15 +36,14 @@ local CraftingMenuHUD = Class(Widget, function(self, owner, is_left_aligned)
 	self.craftingmenu:SetPosition(is_left_aligned and -255 or 255, 0)
 	self.craftingmenu:Disable()
 
+	self.nav_hint = self.craftingmenu.nav_hint
+
 	self.pinbar = self.ui_root:AddChild(CraftingMenuPinBar(owner, self, HEIGHT))
 	self.pinbar:SetPosition(0, 0)
 	self.pinbar:MoveToBack()
 
 	self.openhint = self:AddChild(Text(UIFONT, 30))
-	self.openhint:SetPosition(is_left_aligned and 28 or -28, 34 + HEIGHT/2)
-
-	self.nav_hint = self.craftingmenu:AddChild(Text(BODYTEXTFONT, 26))
-	self.nav_hint:SetPosition(0, -28 - HEIGHT/2)
+	self.openhint:SetPosition(is_left_aligned and 28 or -28, 34 + HEIGHT/2 + y_offset)
 
 	self:RefreshControllers(TheInput:ControllerAttached())
 
@@ -124,7 +124,6 @@ function CraftingMenuHUD:Open(search)
 		return 
 	end
 
-	self.is_open = true
 	TheFrontEnd.crafting_navigation_mode = true
 
 	self.ui_root:Enable() 
@@ -165,6 +164,7 @@ function CraftingMenuHUD:Open(search)
 
 	TheFocalPoint.SoundEmitter:PlaySound("dontstarve/HUD/craft_open")
 
+	self.is_open = true
     SetCraftingAutopaused(true)
 end
 
@@ -222,6 +222,10 @@ function CraftingMenuHUD:Initialize()
 
 	self.needtoupdate = false
 	self.tech_tree_changed = false
+end
+
+function CraftingMenuHUD:NeedsToUpdate()
+	return self.needtoupdate
 end
 
 function CraftingMenuHUD:UpdateRecipes()

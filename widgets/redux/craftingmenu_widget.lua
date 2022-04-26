@@ -46,7 +46,7 @@ local CraftingMenuWidget = Class(Widget, function(self, owner, crafting_hud, hei
 	self.search_delay = 0
 	self.current_recipe_search = nil
 
-	self.frame = self.root:AddChild(self:MakeFrame(500, height, 150))
+	self.frame = self.root:AddChild(self:MakeFrame(500, height))
 
 	if self:UpdateFilterButtons() then
 		self:ApplyFilters()
@@ -240,30 +240,32 @@ function CraftingMenuWidget:UpdateFilterButtons()
 
 	for name, button in pairs(self.filter_buttons) do
 		if button.filter_def.recipes ~= nil then 
-			local state = nil
+			local has_buffered = false
+			local has_prototypeable = false
 			local num_can_build = 0
 			for _, recipe_name in pairs(FunctionOrValue(button.filter_def.recipes)) do
 				local data = self.crafting_hud.valid_recipes[recipe_name]
-				if data ~= nil and data.meta.can_build then
-					num_can_build = num_can_build + 1
-					if data.meta.build_state == "prototype" then
-						state = "prototype"
-						can_prototype = true
-					else
-						state = "can_build"
+				if data ~= nil then
+					if data.meta.can_build then
+						num_can_build = num_can_build + 1
+						if data.meta.build_state == "prototype" then
+							has_prototypeable = true
+							can_prototype = true
+						elseif data.meta.build_state == "buffered" then
+							has_buffered = true
+						end
 					end
 				end
 			end
-			if button.state ~= state then
-				button.bg:SetTexture(atlas, (state ~= nil and "filterslot_bg_highlight.tex" or "filterslot_bg.tex"))
-				if state == "prototype" then
-					button.prototype_icon:Show()
-				else
-					button.prototype_icon:Hide()
-				end
-				button.state = state
+
+			button.bg:SetTexture(atlas, has_buffered and "filterslot_bg_buffered.tex" or num_can_build > 0 and "filterslot_bg_highlight.tex" or "filterslot_bg.tex")
+			if has_prototypeable then
+				button.prototype_icon:Show()
+			else
+				button.prototype_icon:Hide()
 			end
-			if state ~= "prototype" and button.num_can_build == nil or num_can_build > button.num_can_build then
+
+			if button.num_can_build == nil or num_can_build > button.num_can_build then
 				new_recipe_available = true
 			end
 			button.num_can_build = num_can_build
@@ -410,7 +412,7 @@ function CraftingMenuWidget:OnCraftingMenuOpen(set_focus)
 
 			filter = CRAFTING_FILTERS.CRAFTING_STATION.name
 			--recipe_data = nil
-			--recipe_data = nil
+			--skin_name = nil
 		else
 			filter = CRAFTING_FILTERS.CRAFTING_STATION.name
 			recipe_data = self.details_root.data
@@ -418,14 +420,23 @@ function CraftingMenuWidget:OnCraftingMenuOpen(set_focus)
 		end
 	else
 		if self.pre_station_selection ~= nil then
-			filter = self.pre_station_selection.filter
-			recipe_data = self.pre_station_selection.data
-			skin_name = self.pre_station_selection.skin_name
-			--print(" using self.pre_station_selection", filter, recipe_data ~= nil and recipe_data.recipe.name, skin_name)
-
+			if self.details_root.from_filter_name ~= CRAFTING_FILTERS.CRAFTING_STATION.name then
+				filter = self.details_root.from_filter_name
+				recipe_data = self.details_root.data
+				skin_name = self.details_root.skins_spinner ~= nil and self.details_root.skins_spinner:GetItem() or nil
+			else
+				filter = self.pre_station_selection.filter
+				recipe_data = self.pre_station_selection.data
+				skin_name = self.pre_station_selection.skin_name
+			end
+				--print(" using self.pre_station_selection", filter, recipe_data ~= nil and recipe_data.recipe.name, skin_name)
 			self.pre_station_selection = nil
-		else
-			filter = self.details_root.from_filter_name -- nil
+		elseif not self.crafting_hud:IsCraftingOpen() then
+			if TheInput:ControllerAttached() then
+				filter = self.details_root.from_filter_name -- nil
+			else
+				filter = nil
+			end
 			recipe_data = self.details_root.data
 			skin_name = self.details_root.skins_spinner ~= nil and self.details_root.skins_spinner:GetItem() or nil
 		end
@@ -433,12 +444,14 @@ function CraftingMenuWidget:OnCraftingMenuOpen(set_focus)
 
 	--print("OnCraftingMenuOpen", self.recipe_grid.dirty, set_focus, filter, recipe_data ~= nil and recipe_data.recipe.name or nil, skin_name)
 
-	self:SelectFilter(filter or CRAFTING_FILTERS.TOOLS.name, filter ~= CRAFTING_FILTERS.EVERYTHING.name)
+	if filter ~= nil then
+		self:SelectFilter(filter, filter ~= CRAFTING_FILTERS.EVERYTHING.name)
+	end
 	if self.recipe_grid.dirty then
 		self:UpdateRecipeGrid(false)
 	end
 	if set_focus then
-		if recipe_data then
+		if recipe_data or at_crafting_station then
 			local grid_index = self.recipe_grid:FindDataIndex(recipe_data)
 			if grid_index ~= nil then
 				self.recipe_grid:ScrollToDataIndex(grid_index)
@@ -459,33 +472,24 @@ function CraftingMenuWidget:OnCraftingMenuOpen(set_focus)
 					end
 				else
 					if not TheInput:ControllerAttached() then
+						self.filter_buttons[self.current_filter_name]:SetFocus()
 						self.details_root:PopulateRecipeDetailPanel(nil, nil)
 					end
-				end
-			end
-		else
-			self.filter_buttons[self.current_filter_name]:SetFocus()
-			if #self.recipe_grid.items > 0 then
-				if not TheFrontEnd.tracking_mouse then
-					self.recipe_grid:ForceItemFocus(1)
-				end
-				if not TheInput:ControllerAttached() then
-					local data = self.filtered_recipes[1]
-					self:PopulateRecipeDetailPanel(data, data ~= nil and Profile:GetLastUsedSkinForItem(data.recipe.name) or nil)
-				end
-			else
-				if not TheInput:ControllerAttached() then
-					self.details_root:PopulateRecipeDetailPanel(nil, nil)
 				end
 			end
 		end
 	end
 end
 
-function CraftingMenuWidget:MakeFrame(width, height, fileters_height)
+function CraftingMenuWidget:MakeFrame(width, height)
 	local w = Widget("crafting_menu_frame")
 
 	local atlas = resolvefilepath(CRAFTING_ATLAS)
+
+	self.filter_panel = w:AddChild(self:MakeFilterPanel(width))
+	local filters_height = self.filter_panel.panel_height --147
+
+	height = height + math.max(filters_height - 147, 0)
 
 	local fill = w:AddChild(Image(atlas, "backing.tex"))
 	fill:ScaleToSize(width + 10, height + 18)
@@ -493,11 +497,11 @@ function CraftingMenuWidget:MakeFrame(width, height, fileters_height)
 
 	local left = w:AddChild(Image(atlas, "side.tex"))
 	left:SetPosition(-width/2 - 8, 1)
-	left:ScaleToSize(-26, -580)
+	left:ScaleToSize(-26, -(height - 20))
 
 	local right = w:AddChild(Image(atlas, "side.tex"))
 	right:SetPosition(width/2 + 8, 1)
-	right:ScaleToSize(26, 580)
+	right:ScaleToSize(26, height - 20)
 	right:SetClickable(false)
 
 	local top = w:AddChild(Image(atlas, "top.tex"))
@@ -510,31 +514,34 @@ function CraftingMenuWidget:MakeFrame(width, height, fileters_height)
 	bottom:SetClickable(false)
 
 	----------------
-	self.filter_panel = w:AddChild(self:MakeFilterPanel(width, fileters_height))
 	self.filter_panel:SetPosition(0, height/2 - 20)
+	self.filter_panel:MoveToFront()
 
-	self.recipe_grid = w:AddChild(self:MakeRecipeList(width, height - fileters_height))
-	local grid_w, grid_h = self.recipe_grid:GetScrollRegionSize()
-	self.recipe_grid:SetPosition(-2, height/2 - fileters_height - grid_h/2)
+	self.recipe_grid = w:AddChild(self:MakeRecipeList(width, height - filters_height))
+	local grid_w, grid_h = self.recipe_grid:GetScrollRegionSize() -- 231
+	self.recipe_grid:SetPosition(-2, height/2 - filters_height - grid_h/2)
 	
 	self.no_recipes_msg = w:AddChild(Text(UIFONT, 30, STRINGS.UI.CRAFTING_MENU.NO_ITEMS, UICOLOURS.GOLD_UNIMPORTANT))
-	self.no_recipes_msg:SetPosition(-2, height/2 - fileters_height - grid_h/2)
+	self.no_recipes_msg:SetPosition(-2, height/2 - filters_height - grid_h/2)
 	self.no_recipes_msg:Hide()
 
 	----------------
 
 	self.itemlist_split = w:AddChild(Image(atlas, "horizontal_bar.tex"))
-	self.itemlist_split:SetPosition(0, height/2 - fileters_height)
+	self.itemlist_split:SetPosition(0, height/2 - filters_height)
 	self.itemlist_split:ScaleToSize(502, 15)
 
 	self.itemlist_split2 = w:AddChild(Image(atlas, "horizontal_bar.tex"))
-	self.itemlist_split2:SetPosition(0, height/2 - fileters_height - grid_h - 2)
+	self.itemlist_split2:SetPosition(0, height/2 - filters_height - grid_h - 2)
 	self.itemlist_split2:ScaleToSize(502, 15)
 
 	----------------
 
 	self.details_root = w:AddChild(CraftingMenuDetails(self.owner, self, width - 20 * 2, height - 20 * 2))
-	self.details_root:SetPosition(0, height/2 - fileters_height - grid_h - 10)
+	self.details_root:SetPosition(0, height/2 - filters_height - grid_h - 10)
+
+	self.nav_hint = w:AddChild(Text(BODYTEXTFONT, 26))
+	self.nav_hint:SetPosition(0, - height/2 - 30)
 
 	----------------
 
@@ -620,7 +627,7 @@ function CraftingMenuWidget:SelectFilter(name, clear_search_text)
 	--print("SelectFilter", name, clear_search_text, self.current_filter_name)
 
 	if name ~= CRAFTING_FILTERS.CRAFTING_STATION.name then
-		self.pre_station_selection = nil
+		--self.pre_station_selection = nil
 	end
 
 	if clear_search_text then
@@ -737,7 +744,7 @@ function CraftingMenuWidget:AddSorter()
 end
 
 
-function CraftingMenuWidget:MakeFilterPanel(width, height)
+function CraftingMenuWidget:MakeFilterPanel(width)
 	width = width - 40
 	local button_size = 38
 	local grid_button_space = button_size + 5
@@ -815,7 +822,7 @@ function CraftingMenuWidget:MakeFilterPanel(width, height)
 	y = y - line_height
 
 	-- grid
-	y = y - 8
+	y = y - 8 - 17
 	local filter_grid = w:AddChild(Grid())
     filter_grid:SetLooping(false, false)
 
@@ -828,7 +835,9 @@ function CraftingMenuWidget:MakeFilterPanel(width, height)
 		end
 	end
 	filter_grid:FillGrid(grid_buttons_wide, grid_button_space, grid_button_space, widgets)
-	filter_grid:SetPosition(grid_left, y - 17)
+	filter_grid:SetPosition(grid_left, y)
+
+	y = y - grid_button_space * filter_grid.num_rows - 6
 
 	w.filter_grid = filter_grid
 	w.focus_forward = filter_grid
@@ -838,6 +847,8 @@ function CraftingMenuWidget:MakeFilterPanel(width, height)
 			self:PopulateRecipeDetailPanel(nil, nil)
 		end
 	end)
+
+	w.panel_height = math.abs(y)
 
 	return w
 end
@@ -896,14 +907,16 @@ function CraftingMenuWidget:MakeRecipeList(width, height)
 					if error_msg and not TheNet:IsServerPaused() then
 						SendRPCToServer(RPC.CannotBuild, error_msg)
 					end
+
+					if stay_open and not already_buffered then
+						w.cell_root.last_recipe_click = GetTime()
+					end
 				end
 			else
 				self.details_root:PopulateRecipeDetailPanel(w.data, Profile:GetLastUsedSkinForItem(w.data.recipe.name))
-			end
-
-			if w.data.recipe.placer == nil then
 				w.cell_root.last_recipe_click = GetTime()
 			end
+
 			w.cell_root.recipe_held = false
 		end)
 		w.cell_root.OnControl = function(_self, control, down)

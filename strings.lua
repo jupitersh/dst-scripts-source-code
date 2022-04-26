@@ -5996,6 +5996,8 @@ STRINGS.UI =
         BUILD = "Build",
         PROTOTYPE = "Prototype",
         RESEARCH = "Research",
+		CRAFT_INGREDIENT = "Craft Ingredient",
+		PROTOTYPE_INGREDIENT = "Prototype Ingredient",
         GAMEPAUSED = "Unpause the game to craft this.",
         TABACTION =
         {
@@ -6076,7 +6078,7 @@ STRINGS.UI =
         NEEDSCATCOONSHRINE = "Make an offering at the Catcoon Shrine!",
         NEEDSMADSCIENCE = "Brew at the Mad Scientist Lab!",
 		NEEDSWINTERSFEASTCOOKING = "Cook this festive meal in the Masonry Oven!",
-        NEEDSCARNIVAL_PRIZESHOP = "Purcase at the Cawnival's Prize Booth!",
+        NEEDSCARNIVAL_PRIZESHOP = "Purchase at the Cawnival's Prize Booth!",
         NEEDSCARNIVAL_HOSTSHOP_WANDER = "Find Corvus Goodfeather during the Cawnival!",
         NEEDSCARNIVAL_HOSTSHOP_PLAZA = "Decorate a Cawnival Tree during the Cawnival!",
 
@@ -6753,7 +6755,7 @@ STRINGS.UI =
 		ONLINE_DATA_USER_OFFLINE = "Login to retrieve online cookbook data.",
 		ONLINE_DATA_DOWNLOAD_FAILED = "Failed to sync online cookbook data.",
 
-		UNKNOWN_INGREDIENT_NAME = "Unknown Ingredent '{ingredient}'",
+		UNKNOWN_INGREDIENT_NAME = "Unknown Ingredient '{ingredient}'",
 		UNKNOWN_FOOD_NAME = "Unknown '{food}'",
 
 		LOCKED_RECIPE =
@@ -7213,6 +7215,7 @@ STRINGS.UI =
 		DIM = "Dim",
 		DIMMEST = "Dimmest",
 		CRAFTING_HINTALL_ENABLED = "All Recipes",
+		INVERT = "Inverted",
         BACKTITLE = "Lose Changes?",
         BACKBODY = "Do you want to throw out your changes?",
         BACKTITLE_PS4 = "Wait!",
@@ -7269,6 +7272,7 @@ STRINGS.UI =
         THREADEDRENDER = "Threaded Render:",
 		SCREEN_FLASH_INTENSITY = "Screen Flashes:",
         DYNAMIC_TREE_SHADOWS = "Canopy Shadows:",
+		INVERTCAMERAROTATION = "Camera Rotation",
         RESTART_TEXTURE_STREAMING_TITLE = "Restart Required",
         RESTART_TEXTURE_STREAMING_BODY = "For Texture Streaming changes to take effect, you will have to exit and restart the game.",
         RESTART_THREADED_RENDER_TITLE = "Restart Required",
@@ -7358,6 +7362,7 @@ STRINGS.UI =
             SCREEN_FLASH_INTENSITY = "Control the intensity of screen flashes during explosions and lightning strikes.",
             DYNAMIC_TREE_SHADOWS = "Renders the ground shadow while under a canopy.",
 			DISPLAYAREA = "Maximize the screen size on your display.",
+			INVERTCAMERAROTATION = "Flips the camera rotation direction.",
 
             -- Advanced
             MOVEMENTPREDICTION = "Allows the game to predict your movements to compensate for any possible lag.",
@@ -11063,13 +11068,13 @@ STRINGS.UI =
                 [402] = "Shift", -- KEY_SHIFT
 
                 -- Mouse controls
-                [1000] = "Left Mouse Button",
-                [1001] = "Right Mouse Button",
-                [1002] = "Middle Mouse Button",
-                [1003] = "Mouse Scroll Up",
-                [1004] = "Mouse Scroll Down",
-                [1005] = "Mouse Button 4",
-                [1006] = "Mouse Button 5",
+                [1000] = "\238\132\128", --"Left Mouse Button",
+                [1001] = "\238\132\129", --"Right Mouse Button",
+                [1002] = "\238\132\130", --"Middle Mouse Button",
+                [1003] = "\238\132\133", --"Mouse Scroll Up",
+                [1004] = "\238\132\134", --"Mouse Scroll Down",
+                [1005] = "\238\132\131", --"Mouse Button 4",
+                [1006] = "\238\132\132", --"Mouse Button 5",
             },
             -- Xbox360
             [2] =
