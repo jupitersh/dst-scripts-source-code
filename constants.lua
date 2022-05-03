@@ -377,7 +377,7 @@ CHARACTER_VIDEOS =
 	willow = {"https://bit.ly/3rFOkU3"},
 	wendy = {"https://bit.ly/3fI3PbR"},
 	wolfgang = {"https://klei.gg/33A9mNx"},
---	wx78 = {},
+	wx78 = {"https://klei.gg/3F9qqc1"},
 --	wickerbottom = {},
 	wes = {"https://bit.ly/2QLFpn4"},
 	waxwell = {"https://bit.ly/3rF0UD0"},
@@ -1071,7 +1071,9 @@ TECH =
 
     LOST = { MAGIC = 10, SCIENCE = 10, ANCIENT = 10 },
 
-    SPIDERCRAFT_ONE = { SPIDERCRAFT = 1 }
+    SPIDERCRAFT_ONE = { SPIDERCRAFT = 1 },
+
+    ROBOTMODULECRAFT_ONE = { ROBOTMODULECRAFT = 1 },
 }
 
 -- See cell_data.h

@@ -410,6 +410,9 @@ PREFAB_SKINS = {
 		"firepit_fanged",
 		"firepit_firebird",
 		"firepit_hole",
+		"firepit_hole_alt",
+		"firepit_kiln",
+		"firepit_kiln_alt",
 		"firepit_lava",
 		"firepit_stonehenge",
 		"firepit_victorian",
@@ -429,6 +432,10 @@ PREFAB_SKINS = {
 	{
 		"firesuppressor_circus",
 		"firesuppressor_robot",
+	},
+	fish_box =
+	{
+		"fishbox_nautical",
 	},
 	flowerhat =
 	{
@@ -545,6 +552,7 @@ PREFAB_SKINS = {
 		"lantern_gothic",
 		"lantern_mummy",
 		"lantern_mummy_alt",
+		"lantern_retro",
 		"lantern_tesla",
 		"lantern_winter",
 		"lantern_winter_alt",
@@ -557,6 +565,7 @@ PREFAB_SKINS = {
 	{
 		"lightning_rod_gothic",
 		"lightning_rod_nautical",
+		"lightning_rod_retro",
 		"lightning_rod_robot",
 	},
 	lureplant =
@@ -741,6 +750,7 @@ PREFAB_SKINS = {
 	{
 		"researchlab_gothic",
 		"researchlab_green",
+		"researchlab_retro",
 	},
 	researchlab2 =
 	{
@@ -918,6 +928,8 @@ PREFAB_SKINS = {
 		"torch_carrat",
 		"torch_carrat_alt",
 		"torch_nautical",
+		"torch_pillar",
+		"torch_pillar_alt",
 		"torch_pronged",
 		"torch_rag",
 		"torch_shadow",
@@ -1039,6 +1051,7 @@ PREFAB_SKINS = {
 		"wardrobe_crystal",
 		"wardrobe_gothic",
 		"wardrobe_heart",
+		"wardrobe_vine",
 		"wardrobe_yule",
 	},
 	warly =
@@ -1428,17 +1441,22 @@ PREFAB_SKINS = {
 		"wx78_combatant",
 		"wx78_cook",
 		"wx78_formal",
+		"wx78_formalp",
 		"wx78_gladiator",
 		"wx78_ice",
 		"wx78_magma",
 		"wx78_nature",
 		"wx78_none",
+		"wx78_retro",
 		"wx78_rhinorook",
 		"wx78_rhinorook_d",
 		"wx78_rhinorook_p",
 		"wx78_rose",
+		"wx78_rosep",
 		"wx78_shadow",
+		"wx78_shadowp",
 		"wx78_survivor",
+		"wx78_survivorp",
 		"wx78_victorian",
 		"wx78_wip",
 		"wx78_wrestler",
