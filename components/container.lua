@@ -375,8 +375,9 @@ function Container:Open(doer)
 
         if doer.HUD ~= nil then
             doer.HUD:OpenContainer(self.inst, self:IsSideWidget())
+            doer:PushEvent("refreshcrafting")
             if self:IsSideWidget() then
-                TheFocalPoint.SoundEmitter:PlaySound(self.inst.open_skin_sound or "dontstarve/wilson/backpack_open")
+                TheFocalPoint.SoundEmitter:PlaySound(SKIN_SOUND_FX[self.inst.AnimState:GetSkinBuild()] or "dontstarve/wilson/backpack_open")
             else
                 if not self.skipopensnd then
                     TheFocalPoint.SoundEmitter:PlaySound("dontstarve/HUD/Together_HUD/container_open")
@@ -418,6 +419,7 @@ function Container:Close(doer)
 
         if doer.HUD ~= nil then
             doer.HUD:CloseContainer(self.inst, self:IsSideWidget())
+            doer:PushEvent("refreshcrafting")
             if self:IsSideWidget() then
                 TheFocalPoint.SoundEmitter:PlaySound("dontstarve/wilson/backpack_close")
             else
@@ -539,6 +541,17 @@ function Container:HasItemWithTag(tag, amount)
     end
 
     return num_found >= amount, num_found
+end
+
+function Container:GetItemsWithTag(tag)
+    local items = {}
+    for k,v in pairs(self.slots) do
+        if v and v:HasTag(tag) then
+            table.insert(items, v)
+        end
+    end
+
+    return items
 end
 
 function Container:GetItemByName(item, amount)
