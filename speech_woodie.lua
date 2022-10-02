@@ -926,7 +926,11 @@ return{
         BERNIE_ACTIVE = "I guess I should be used to weird stuff by now.",
         BERNIE_BIG = "Hm. Yep. Just another day.",
 
-        BOOKSTATION = "Nice bit of woodworking there.",
+		BOOKSTATION =
+		{
+			GENERIC = "Nice bit of woodworking there.",
+			BURNT = "What a sorry sight, eh?",
+		},
         BOOK_BIRDS = "I already know more than enough aboot those things.",
         BOOK_TENTACLES = "They don't have tentacles in Canada.",
         BOOK_GARDENING = "Does it grow trees?",

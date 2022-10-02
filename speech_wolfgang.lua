@@ -926,7 +926,11 @@ return{
         BERNIE_ACTIVE = "Is so brave!",
         BERNIE_BIG = "Oh no! Wolfgang has shrunken!",
 
-        BOOKSTATION = "Makes brainlady happy, Wolfgang will protect it!",
+		BOOKSTATION =
+		{
+			GENERIC = "Makes brainlady happy, Wolfgang will protect it!",
+			BURNT = "Wolfgang will help brainlady build another!",
+		},
         BOOK_BIRDS = "Book is for the birds!",
         BOOK_TENTACLES = "Wolfgang wants many foes to fight!",
         BOOK_GARDENING = "Wolfgang rather grow muscle than flowers.",
@@ -4448,7 +4452,7 @@ return{
 			SHIMMER = "Wolfgang wants to peek inside!",
 		},
 
-		EYEMASKHAT = "Wolgang not fan of squishy hat.",
+		EYEMASKHAT = "Wolfgang not fan of squishy hat.",
 
         EYEOFTERROR = "Wolfgang not like big scary eye!",
         EYEOFTERROR_MINI = "Feeling of being watched is bad, but feeling of being bitten is much worse!",

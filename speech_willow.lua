@@ -932,7 +932,11 @@ return{
         BERNIE_ACTIVE = "Help me, Bernie!",
         BERNIE_BIG = "GET'EM, BERNIE!!",
 
-        BOOKSTATION = "Hey, uh... what library did Ms. Wickerbottom work at, anyway?",
+		BOOKSTATION =
+		{
+			GENERIC = "Hey, uh... what library did Ms. Wickerbottom work at, anyway?",
+			BURNT = "What's burned is burned, no point thinking about it too much, right?",
+		},
         BOOK_BIRDS = "Less reading, more burning!",
         BOOK_TENTACLES = "Looks like kindling to me!",
         BOOK_GARDENING = "Ughh, who cares?",

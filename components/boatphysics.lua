@@ -186,6 +186,8 @@ function BoatPhysics:OnSave()
         target_rudder_direction_x = self.target_rudder_direction_x,
         target_rudder_direction_z = self.target_rudder_direction_z,
         boat_rotation_offset = self.boat_rotation_offset,
+        velocity_x = self.velocity_x,
+        velocity_z = self.velocity_z,
     }
 
     return data
@@ -193,11 +195,13 @@ end
 
 function BoatPhysics:OnLoad(data)
     if data ~= nil then
-        self.target_rudder_direction_x = data.target_rudder_direction_x
-        self.rudder_direction_x = data.target_rudder_direction_x
-        self.target_rudder_direction_z = data.target_rudder_direction_z
-        self.rudder_direction_z = data.target_rudder_direction_z
+        self.target_rudder_direction_x = data.target_rudder_direction_x or self.target_rudder_direction_x
+        self.rudder_direction_x = data.target_rudder_direction_x or self.rudder_direction_x
+        self.target_rudder_direction_z = data.target_rudder_direction_z or self.target_rudder_direction_z
+        self.rudder_direction_z = data.target_rudder_direction_z or self.rudder_direction_z
         self.boat_rotation_offset = data.boat_rotation_offset or self.boat_rotation_offset
+        self.velocity_x = data.velocity_x or self.velocity_x
+        self.velocity_z = data.velocity_z or self.velocity_z
     end
 end
 
@@ -603,9 +607,16 @@ function BoatPhysics:OnUpdate(dt)
     end
 
     local corrected_vel_x, corrected_vel_z = VecUtil_RotateDir(self.velocity_x, self.velocity_z, self.inst.Transform:GetRotation() * DEGREES)
+    if self.halting then -- NOTES(JBK): Injecting these here because velocity is edited all over this component.
+        corrected_vel_x, corrected_vel_z, cur_velocity = 0, 0, 0
+    end
     self.inst.Physics:SetMotorVel(corrected_vel_x, 0, corrected_vel_z)
 
     self.inst.SoundEmitter:SetParameter("boat_movement", "speed", cur_velocity / TUNING.BOAT.MAX_ALLOWED_VELOCITY)
+end
+
+function BoatPhysics:SetHalting(halt)
+    self.halting = halt
 end
 
 function BoatPhysics:GetDebugString()

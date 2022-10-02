@@ -925,7 +925,11 @@ return{
         BERNIE_ACTIVE = "Woah! Is your bear haunted? Cursed?",
         BERNIE_BIG = "If you play with fire, you're gonna get Bernie'd. Heh...",
 
-        BOOKSTATION = "If you read the books out loud it's almost like listening to a radio play.",
+		BOOKSTATION =
+		{
+			GENERIC = "If you read the books out loud it's almost like listening to a radio play.",
+			BURNT = "Poor Ms. Wickerbottom...",
+		},
         BOOK_BIRDS = "I don't want to brag... but I do have a badge in birdwatching.",
         BOOK_TENTACLES = "Oooh, this reminds me of a radio play where a ship gets eaten by a giant squid!",
         BOOK_GARDENING = "I already have my gardening badge.",
@@ -1807,7 +1811,7 @@ return{
 		{
 			GENERIC = "It hasn't grown back yet.",
 		},
-        GOGGLESHAT = "I feel more  adventurous already!",
+        GOGGLESHAT = "I feel more adventurous already!",
         DESERTHAT = "It's important to dress appropriately for the environment.",
 		DEVTOOL = "Weird! It looks like an axe, but...",
 		DEVTOOL_NODEV = "Guess I haven't earned that badge yet.",

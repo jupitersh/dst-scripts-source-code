@@ -209,7 +209,7 @@ ACTIONS =
     READ = Action({ mount_valid=true }),
     DROP = Action({ priority=-1, mount_valid=true, encumbered_valid=true, is_relative_to_platform=true, extra_arrive_dist=ExtraDropDist }),
     TRAVEL = Action(),
-    CHOP = Action(),
+    CHOP = Action({ distance=1.75 }),
     ATTACK = Action({priority=2, canforce=true, mount_valid=true }), -- No custom range check, attack already handles that
     EAT = Action({ mount_valid=true }),
     PICK = Action({ canforce=true, rangecheckfn=DefaultRangeCheck, extra_arrive_dist=ExtraPickupRange, mount_valid = true }),
@@ -1362,8 +1362,11 @@ ACTIONS.COOK.fn = function(act)
             return false
         end
 
-        if ingredient.components.health ~= nil and ingredient.components.combat ~= nil then
-            act.doer:PushEvent("killed", { victim = ingredient })
+        if ingredient.components.health ~= nil then
+            act.doer:PushEvent("murdered", { victim = ingredient, stackmult = 1 }) -- NOTES(JBK): Cooking something alive.
+            if ingredient.components.combat ~= nil then
+                act.doer:PushEvent("killed", { victim = ingredient })
+            end
         end
 
         local product = act.target.components.cooker:CookItem(ingredient, act.doer)
@@ -2198,6 +2201,11 @@ ACTIONS.MURDER.fn = function(act)
         end
 
         local stacksize = murdered.components.stackable ~= nil and murdered.components.stackable:StackSize() or 1
+
+        -- NOTES(JBK): Push the events before spawning any giving any loot.
+        act.doer:PushEvent("murdered", { victim = murdered, stackmult = stacksize })
+        act.doer:PushEvent("killed", { victim = murdered, stackmult = stacksize })
+
         if murdered.components.lootdropper ~= nil then
             murdered.causeofdeath = act.doer
             local pos = Vector3(x, y, z)
@@ -2216,10 +2224,7 @@ ACTIONS.MURDER.fn = function(act)
             murdered.components.inventory:TransferInventory(act.doer)
         end
 
-        act.doer:PushEvent("murdered", { victim = murdered, stackmult = stacksize })
-        act.doer:PushEvent("killed", { victim = murdered, stackmult = stacksize })
         murdered:Remove()
-
         return true
     end
 end
@@ -2436,6 +2441,7 @@ ACTIONS_MAP_REMAP[ACTIONS.BLINK.code] = function(act, targetpos)
         return nil
     end
     local aimassisted = false
+    local distoverride = nil
     if not TheWorld.Map:IsVisualGroundAtPoint(targetpos.x, targetpos.y, targetpos.z) then
         -- NOTES(JBK): No map tile at the cursor but the area might contain a boat that has a maprevealer component around it.
         -- First find a globalmapicon near here and look for if it is from a fogrevealer and assume it is on landable terrain.
@@ -2451,10 +2457,22 @@ ACTIONS_MAP_REMAP[ACTIONS.BLINK.code] = function(act, targetpos)
         if revealer == nil then
             return nil
         end
+        -- NOTES(JBK): Ocuvigils are normally placed at the edge of the boat and can result in the teleportee being pushed out of the boat boundary.
+        -- The server will make the adjustments to the target position without the client being able to know so we force the original distance to be an override.
         targetpos.x, targetpos.y, targetpos.z = revealer.Transform:GetWorldPosition()
+        distoverride = act.pos:GetPosition():Dist(targetpos)
+        if revealer._target ~= nil then
+            -- Server only code.
+            local boat = revealer._target:GetCurrentPlatform()
+            if boat == nil then
+                -- This should not happen but in case it does fail the act to not teleport onto water.
+                return nil
+            end
+            targetpos.x, targetpos.y, targetpos.z = boat.Transform:GetWorldPosition()
+        end
         aimassisted = true
     end
-    local dist = act.pos:GetPosition():Dist(targetpos)
+    local dist = distoverride or act.pos:GetPosition():Dist(targetpos)
     local act_remap = BufferedAction(doer, nil, ACTIONS.BLINK_MAP, act.invobject, targetpos)
     local dist_mod = ((doer._freesoulhop_counter or 0) * (TUNING.WORTOX_FREEHOP_HOPSPERSOUL - 1)) * act.distance
     local dist_perhop = (act.distance * TUNING.WORTOX_FREEHOP_HOPSPERSOUL * TUNING.WORTOX_MAPHOP_DISTANCE_SCALER)
@@ -3590,20 +3608,23 @@ ACTIONS.BOAT_MAGNET_BEACON_TURN_OFF.fn = function(act)
     return true
 end
 
+local function IsBoatCannonAmmo(item)
+	return item.projectileprefab ~= nil and item:HasTag("boatcannon_ammo")
+end
+
 ACTIONS.BOAT_CANNON_LOAD_AMMO.fn = function(act)
     if act.target.components.boatcannon ~= nil and not act.target.components.boatcannon:IsAmmoLoaded() and act.doer.components.inventory ~= nil then
-
         local activeitem = act.doer.components.inventory:GetActiveItem()
-        local ammo = activeitem
+		local ammo
+		if activeitem == nil then
+			-- Not holding an item, so we must be right-clicking to reload.
+			ammo = act.doer.components.inventory:FindItem(IsBoatCannonAmmo)
+		elseif IsBoatCannonAmmo(activeitem) then
+			ammo = activeitem
+		end
 
-        -- Not holding an item, so we must be right-clicking to reload.
-        if activeitem == nil then
-            ammo = act.doer.components.inventory:FindItem(function(item)
-                return item:HasTag("boatcannon_ammo")
-            end)
-        end
-
-        if ammo ~= nil and act.target.components.boatcannon:LoadAmmo(ammo, act.doer) then
+		if ammo ~= nil then
+			act.target.components.boatcannon:LoadAmmo(ammo.projectileprefab)
             local removeditem = act.doer.components.inventory:RemoveItem(ammo, false, true)
             removeditem:Remove()
             act.doer.components.talker:Say(GetDescription(act.doer, act.target, "AMMOLOADED"))

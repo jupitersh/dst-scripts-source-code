@@ -153,7 +153,10 @@ local function ServerGetSpeedMultiplier(self)
             if saddle ~= nil and saddle.components.saddler ~= nil then
                 mult = mult * saddle.components.saddler:GetBonusSpeedMult()
             end
-        else
+        elseif self.inst.components.inventory.isopen then
+            --NOTE: Check if inventory is open because client GetEquips returns
+            --      nothing if inventory is closed.
+            --      Don't check visibility though.
 			local is_mighty = self.inst.components.mightiness ~= nil and self.inst.components.mightiness:GetState() == "mighty"
             for k, v in pairs(self.inst.components.inventory.equipslots) do
                 if v.components.equippable ~= nil then
@@ -182,6 +185,7 @@ local function ClientGetSpeedMultiplier(self)
                 mult = mult * inventoryitem:GetWalkSpeedMult()
             end
         else
+            --NOTE: GetEquips returns empty if inventory is closed! (Hidden still returns items.)
 			local is_mighty = self.inst:HasTag("mightiness_mighty")
             for k, v in pairs(inventory:GetEquips()) do
                 local inventoryitem = v.replica.inventoryitem
@@ -725,9 +729,12 @@ function LocoMotor:GoToEntity(target, bufferedaction, run)
     self:SetBufferedAction(bufferedaction)
     self.wantstomoveforward = true
 
-    local arrive_dist = nil
+    local arrive_dist
     if bufferedaction ~= nil and bufferedaction.distance ~= nil then
-        arrive_dist = bufferedaction.distance
+        --NOTE: use actual physics (ignoring physicsradiusoverride)
+        --      as fallback if bufferedaction.distance is too small
+        arrive_dist = ARRIVE_STEP + (target.Physics ~= nil and target.Physics:GetRadius() or 0) + (self.inst.Physics ~= nil and self.inst.Physics:GetRadius() or 0)
+        arrive_dist = math.max(arrive_dist, bufferedaction.distance)
     else
         arrive_dist = ARRIVE_STEP + target:GetPhysicsRadius(0) + self.inst:GetPhysicsRadius(0)
 

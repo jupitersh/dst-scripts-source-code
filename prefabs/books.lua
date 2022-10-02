@@ -1,7 +1,6 @@
 local assets =
 {
     Asset("ANIM", "anim/books.zip"),
-    Asset("ANIM", "anim/books2.zip"),
     --Asset("SOUND", "sound/common.fsb"),
 }
 
@@ -22,6 +21,14 @@ local SILVICULTURE_CANT_TAGS = { "magicgrowth", "player", "FX", "pickable", "stu
 
 local HORTICULTURE_ONEOF_TAGS = { "plant", "lichen", "oceanvine", "mushroom_farm", "kelp" }
 local HORTICULTURE_CANT_TAGS = { "magicgrowth", "player", "FX", "leif", "pickable", "stump", "withered", "barren", "INLIMBO", "silviculture", "tree", "winter_tree" }
+
+local FIRE_CANT_TAGS = { "INLIMBO", "lighter" }
+local FIRE_ONEOF_TAGS = { "fire", "smolder" }
+
+local TEMPERATURE_THAW_CANT_TAGS = { "INLIMBO", "frozen" }
+local TEMPERATURE_THAW_MUST_TAGS = { "freezable" }
+
+local BEES_MUST_TAGS = { "beequeen" }
 
 local function MaximizePlant(inst)
     if inst.components.farmplantstress ~= nil then
@@ -63,12 +70,9 @@ local function trygrowth(inst, maximize)
                 inst.components.simplemagicgrower:StartGrowing()
                 return true
             elseif inst.components.growable.domagicgrowthfn ~= nil then
-                if maximize ~= nil then -- The upgraded horticulture book has a delayed start to make sure the plants get tended to first
-                    inst:AddTag("magicgrowth")
-                    inst:DoTaskInTime(2, function() inst.components.growable:DoMagicGrowth() end)
-                else
-                    inst.components.growable:DoMagicGrowth()
-                end
+                -- The upgraded horticulture book has a delayed start to make sure the plants get tended to first
+                inst.magic_growth_delay = maximize and 2 or nil
+                inst.components.growable:DoMagicGrowth()
 
                 return true
             else
@@ -108,49 +112,92 @@ local function trygrowth(inst, maximize)
 	return false
 end
 
-local function GrowNext(spell, reader, max_targets, maximize)
-	while spell._next <= #spell._targets do
-		local target = spell._targets[spell._next]
-		spell._next = spell._next + 1
-
-		if target:IsValid() and trygrowth(target, maximize) then
-			spell._count = spell._count + 1
-			if spell._count < max_targets then
-				spell:DoTaskInTime(0.1 + 0.3 * math.random(), function() 
-                    GrowNext (spell, reader, max_targets, maximize)
-                end)
+local function GrowNext(spell)
+	while #spell._targets > 0 do
+		local target = table.remove(spell._targets, 1)
+		if target:IsValid() and trygrowth(target, spell._maximize) then
+			if spell._count > 1 then
+				spell._count = spell._count - 1
+				spell:DoTaskInTime(0.1 + 0.3 * math.random(), GrowNext)
 				return
-			else
-				break
 			end
+			break
 		end
 	end
-
 	spell:Remove()
 end
 
-local function do_book_horticulture_spell(spell, reader, max_targets, maximize)
-    local x, y, z = reader.Transform:GetWorldPosition()
-    local range = 30
-    
-    local ents = TheSim:FindEntities(x, y, z, range, nil, HORTICULTURE_CANT_TAGS, HORTICULTURE_ONEOF_TAGS)
-    spell._targets = {}
+local function book_horticulture_spell_OnSave(inst, data)
+	local refs = {}
+	for i, v in ipairs(inst._targets) do
+		table.insert(refs, v.GUID)
+	end
+	data.targets = refs
+	data.count = inst._count
+	data.maximize = inst._maximize
+	return refs
+end
 
-    for k,v in pairs(ents) do
-        if v.components.pickable ~= nil or v.components.crop ~= nil or v.components.growable ~= nil or v.components.harvestable ~= nil then
-            table.insert (spell._targets, v)
-        end
-    end
+local function book_horticulture_spell_OnLoadPostPass(inst, newents, data)
+	inst._count = data.count or 0
+	inst._maximize = inst.maximize
+	inst._targets = {}
+	if data.targets ~= nil then
+		for i, v in ipairs(data.targets) do
+			v = newents[v]
+			if v ~= nil and v.entity ~= nil then
+				table.insert(inst._targets, v.entity)
+			end
+		end
+	end
+	inst:DoTaskInTime(0.3 * math.random(), GrowNext)
+end
 
-	if #spell._targets == 0 then
-		spell:Remove()
+local function book_horticulture_spell_fn()
+	local inst = CreateEntity()
+
+	if not TheWorld.ismastersim then
+		--Not meant for client!
+		inst:DoTaskInTime(0, inst.Remove)
+
+		return inst
+	end
+
+	inst.entity:AddTransform()
+
+	--[[Non-networked entity]]
+	inst.entity:Hide()
+
+	inst:AddTag("CLASSIFIED")
+
+	inst.OnSave = book_horticulture_spell_OnSave
+	inst.OnLoadPostPass = book_horticulture_spell_OnLoadPostPass
+
+	return inst
+end
+
+local function do_book_horticulture_spell(x, z, max_targets, maximize)
+	local ents = TheSim:FindEntities(x, 0, z, 30, nil, HORTICULTURE_CANT_TAGS, HORTICULTURE_ONEOF_TAGS)
+	local targets = {}
+	for i, v in ipairs(ents) do
+		if v.components.pickable ~= nil or v.components.crop ~= nil or v.components.growable ~= nil or v.components.harvestable ~= nil then
+			table.insert(targets, v)
+		end
+	end
+
+	if #targets == 0 then
 		return false, "NOHORTICULTURE"
 	end
 
-	spell._next = 1
-	spell._count = 0
-	GrowNext(spell, reader, max_targets, maximize)
-    return true
+	local spell = SpawnPrefab("book_horticulture_spell")
+	spell.Transform:SetPosition(x, 0, z)
+	spell._targets = targets
+	spell._count = max_targets
+	spell._maximize = maximize
+
+	GrowNext(spell)
+
+	return true
 end
 
 local book_defs =
@@ -228,6 +275,7 @@ local book_defs =
         read_sanity = -TUNING.SANITY_HUGE,
         peruse_sanity = TUNING.SANITY_HUGE,
         fx = "fx_book_birds",
+        fxmount = "fx_book_birds_mount",
         fn = function(inst, reader)
             local birdspawner = TheWorld.components.birdspawner
             if birdspawner == nil then
@@ -240,28 +288,29 @@ local book_defs =
             local ents = TheSim:FindEntities(pt.x, pt.y, pt.z, 10, BIRDSMAXCHECK_MUST_TAGS)
             if #ents > 30 then
                 return false, "WAYTOOMANYBIRDS"
-            else
-                local num = math.random(10, 20)
-                if #ents > 20 then
-                    return false, "TOOMANYBIRDS"
-                else
-                    num = num + 10
-                end
-                reader:StartThread(function()
-                    for k = 1, num do
-                        local pos = birdspawner:GetSpawnPoint(pt)
-                        if pos ~= nil then
-                            local bird = birdspawner:SpawnBird(pos, true)
-                            if bird ~= nil then
-                               bird:AddTag("magicalbird")
-                            end
-                        end
-                        Sleep(math.random(.2, .25))
-                    end
-                end)
+            elseif #ents > 20 then
+                return false, "TOOMANYBIRDS"
+            end
+            local num = math.random(10, 20)
+            if #ents <= 10 then
+                num = num + 10
             end
 
-            return true
+            local success = false
+            local delay = 0
+            for k = 1, num do
+                local pos = birdspawner:GetSpawnPoint(pt)
+                if pos ~= nil then
+                    local bird = birdspawner:SpawnBird(pos, true)
+                    if bird ~= nil then
+                        bird:AddTag("magicalbird")
+                        bird.sg:GoToState("delay_glide", delay)
+                        delay = delay + .034 + .033 * math.random()
+                        success = true
+                    end
+                end
+            end
+            return success
         end,
         perusefn = function(inst,reader)
             if reader.peruse_birds then
@@ -279,6 +328,10 @@ local book_defs =
         peruse_sanity = -TUNING.SANITY_LARGE,
         fx_over = "lightning",
         fn = function(inst, reader)
+            if TheWorld.net == nil or TheWorld.net.components.weather == nil then
+                return false
+            end
+
             local pt = reader:GetPosition()
             local num_lightnings = 16
 
@@ -308,6 +361,7 @@ local book_defs =
         read_sanity = -TUNING.SANITY_LARGE,
         peruse_sanity = TUNING.SANITY_LARGE,
         fx = "fx_book_sleep",
+        fxmount = "fx_book_sleep_mount",
         fn = function(inst, reader)
 
             local x, y, z = reader.Transform:GetWorldPosition()
@@ -325,7 +379,11 @@ local book_defs =
                     not (v.components.freezable ~= nil and v.components.freezable:IsFrozen()) and
                     not (v.components.pinnable ~= nil and v.components.pinnable:IsStuck()) and
                     not (v.components.fossilizable ~= nil and v.components.fossilizable:IsFossilized()) then
-                    local mount = v.components.rider ~= nil and v.components.rider:GetMount() or nil
+                    local ismount, mount
+                    if v.components.rider ~= nil then
+                        ismount = v.components.rider:IsRiding()
+                        mount = v.components.rider:GetMount()
+                    end
                     if mount ~= nil then
                         mount:PushEvent("ridersleep", { sleepiness = 10, sleeptime = 20 })
                     end
@@ -337,10 +395,9 @@ local book_defs =
                         v:PushEvent("knockedout")
                     end
 
-                    local fx_x, fx_y, fx_z = v.Transform:GetWorldPosition()
-                    local fx = SpawnPrefab("fx_book_sleep")
-                    fx.Transform:SetPosition(fx_x, fx_y, fx_z)
-
+                    local fx = SpawnPrefab(ismount and "fx_book_sleep_mount" or "fx_book_sleep")
+                    fx.Transform:SetPosition(v.Transform:GetWorldPosition())
+                    fx.Transform:SetRotation(v.Transform:GetRotation())
                 end
             end
             return true
@@ -393,10 +450,8 @@ local book_defs =
         fx_under = "plants_small",
         deps = { "book_horticulture_spell" },
         fn = function(inst, reader)
-
-            local spell = SpawnPrefab("book_horticulture_spell")
-            spell.Transform:SetPosition(reader.Transform:GetWorldPosition())
-			return do_book_horticulture_spell(spell, reader, TUNING.BOOK_GARDENING_MAX_TARGETS)
+			local x, y, z = reader.Transform:GetWorldPosition()
+			return do_book_horticulture_spell(x, z, TUNING.BOOK_GARDENING_MAX_TARGETS)
 		end,
         
         perusefn = function(inst,reader)
@@ -417,10 +472,8 @@ local book_defs =
         layer_sound = { frame = 30, sound = "wickerbottom_rework/book_spells/upgraded_horticulture" },
         deps = { "book_horticulture_spell" },
         fn = function(inst, reader)
-            
-            local spell = SpawnPrefab("book_horticulture_spell")
-            spell.Transform:SetPosition(reader.Transform:GetWorldPosition())
-			return do_book_horticulture_spell(spell, reader, TUNING.BOOK_GARDENING_UPGRADED_MAX_TARGETS, true)
+			local x, y, z = reader.Transform:GetWorldPosition()
+			return do_book_horticulture_spell(x, z, TUNING.BOOK_GARDENING_UPGRADED_MAX_TARGETS, true)
         end,
 
         perusefn = function(inst,reader)
@@ -537,10 +590,11 @@ local book_defs =
         read_sanity = -TUNING.SANITY_LARGE,
         peruse_sanity = -TUNING.SANITY_LARGE,
         fx = "fx_book_fire",
+        fxmount = "fx_book_fire_mount",
         deps = { "firepen" },
         fn = function(inst, reader)
             local x, y, z = reader.Transform:GetWorldPosition()
-            local fires = TheSim:FindEntities(x, y, z, TUNING.BOOK_FIRE_RADIUS, nil, {"INLIMBO", "lighter"}, {"fire", "smolder"})
+            local fires = TheSim:FindEntities(x, y, z, TUNING.BOOK_FIRE_RADIUS, nil, FIRE_CANT_TAGS, FIRE_ONEOF_TAGS)
 
             if #fires > 0 then
                 local fire_count = 0
@@ -633,7 +687,7 @@ local book_defs =
         uses = TUNING.BOOK_USES_LARGE,
         read_sanity = -TUNING.SANITY_LARGE,
         peruse_sanity = TUNING.SANITY_LARGE,
-        fx = "fx_book_temperature",
+        deps = { "fx_book_temperature", "fx_book_temperature_mount" },
         fn = function(inst, reader)
             local x, y, z = reader.Transform:GetWorldPosition()
             local players = FindPlayersInRange( x, y, z, TUNING.BOOK_TEMPERATURE_RADIUS, true )
@@ -642,16 +696,22 @@ local book_defs =
                 player.components.temperature:SetTemperature(TUNING.BOOK_TEMPERATURE_AMOUNT)
                 player.components.moisture:SetMoistureLevel(0)
 
-                if player ~= reader then
-                    local fx = SpawnPrefab("fx_book_temperature")
-                    fx.Transform:SetPosition(player.Transform:GetWorldPosition())
-                end
+                local fx = SpawnPrefab(player.components.rider ~= nil and player.components.rider:IsRiding() and "fx_book_temperature_mount" or "fx_book_temperature")
+                fx.Transform:SetPosition(player.Transform:GetWorldPosition())
+                fx.Transform:SetRotation(player.Transform:GetRotation())
 
                 local items = player.components.inventory:ReferenceAllItems()
                 for _, item in ipairs(items) do
                     if item.components.inventoryitemmoisture ~= nil then
                         item.components.inventoryitemmoisture:SetMoisture(0)
                     end
+                end
+            end
+
+            local frozens = TheSim:FindEntities(x, y, z, TUNING.BOOK_TEMPERATURE_RADIUS, TEMPERATURE_THAW_MUST_TAGS, TEMPERATURE_THAW_CANT_TAGS)
+            for _, frozen in ipairs(frozens) do
+                if frozen.components.freezable then -- Just in case.
+                    frozen.components.freezable:Unfreeze()
                 end
             end
 
@@ -724,6 +784,7 @@ local book_defs =
         read_sanity = -TUNING.SANITY_LARGE,
         peruse_sanity = TUNING.SANITY_LARGE,
         fx = "fx_book_rain",
+        fxmount = "fx_book_rain_mount",
         fn = function(inst, reader)
             if TheWorld.state.precipitation ~= "none" then
                 TheWorld:PushEvent("ms_forceprecipitation", false)
@@ -759,6 +820,7 @@ local book_defs =
         read_sanity = -TUNING.SANITY_HUGE,
         peruse_sanity = -TUNING.SANITY_LARGE,
         fx = "fx_book_moon",
+        fxmount = "fx_book_moon_mount",
         fn = function(inst, reader)
 
             if TheWorld:HasTag("cave") then
@@ -819,17 +881,11 @@ local book_defs =
                     end)
                     
                     reader:DoTaskInTime(0.15 * i, function()
-                        local queen = TheSim:FindEntities(x, y, z, 16, {"beequeen"})[1] or nil
+                        local queen = TheSim:FindEntities(x, y, z, 16, BEES_MUST_TAGS)[1] or nil
 
                         local bee = SpawnPrefab("beeguard")
                         bee.Transform:SetPosition(pos_x, pos_y, pos_z)
-                        if queen then
-                            queen.components.commander:AddSoldier(bee)
-                        else
-                            reader.components.commander:AddSoldier(bee)
-                            bee:AddComponent("follower")
-                            bee.components.follower:SetLeader(reader)
-                        end
+                        bee:AddToArmy(queen or reader)
                         SpawnPrefab("bee_poof_big").Transform:SetPosition(pos_x, pos_y, pos_z)
                     end)
                 end)
@@ -852,18 +908,17 @@ local book_defs =
         uses = TUNING.BOOK_USES_SMALL,
         read_sanity = -TUNING.SANITY_LARGE,
         peruse_sanity = TUNING.SANITY_LARGE,
-        deps = { "fx_book_research_station" },
+        deps = { "fx_book_research_station", "fx_book_research_station_mount" },
         fn = function(inst, reader)
-            
             local x, y, z = reader.Transform:GetWorldPosition()
             local players = FindPlayersInRange( x, y, z, TUNING.BOOK_RESEARCH_STATION_RADIUS, true )
 
             for k,player in pairs(players) do
                 player.components.builder:GiveTempTechBonus({SCIENCE = 2, MAGIC = 2, SEAFARING = 2})
 
-                local fx_x, fx_y, fx_z = player.Transform:GetWorldPosition()
-                local fx = SpawnPrefab("fx_book_research_station")
-                fx.Transform:SetPosition(fx_x, fx_y, fx_z)
+                local fx = SpawnPrefab(player.components.rider ~= nil and player.components.rider:IsRiding() and "fx_book_research_station_mount" or "fx_book_research_station")
+                fx.Transform:SetPosition(player.Transform:GetWorldPosition())
+                fx.Transform:SetRotation(player.Transform:GetRotation())
             end
             
             return true
@@ -890,13 +945,21 @@ local function MakeBook(def)
         prefabs = prefabs or {}
         table.insert(prefabs, def.fx)
     end
+    if def.fxmount ~= nil then
+        prefabs = prefabs or {}
+        table.insert(prefabs, def.fxmount)
+    end
     if def.fx_over ~= nil then
         prefabs = prefabs or {}
-        table.insert(prefabs, "fx_"..def.fx_over.."_over_book")
+        local fx_over_prefab = "fx_"..def.fx_over.."_over_book"
+        table.insert(prefabs, fx_over_prefab)
+        table.insert(prefabs, fx_over_prefab.."_mount")
     end
     if def.fx_under ~= nil then
         prefabs = prefabs or {}
-        table.insert(prefabs, "fx_"..def.fx_under.."_under_book")
+        local fx_under_prefab = "fx_"..def.fx_under.."_under_book"
+        table.insert(prefabs, fx_under_prefab)
+        table.insert(prefabs, fx_under_prefab.."_mount")
     end
 
     local function fn()
@@ -910,7 +973,7 @@ local function MakeBook(def)
         MakeInventoryPhysics(inst)
 
         inst.AnimState:SetBank("books")
-        inst.AnimState:SetBuild("books2")
+        inst.AnimState:SetBuild("books")
         inst.AnimState:PlayAnimation(def.name)
 
         MakeInventoryFloatable(inst, "med", nil, 0.75)
@@ -936,7 +999,7 @@ local function MakeBook(def)
         inst.components.book:SetOnPeruse(def.perusefn)
         inst.components.book:SetReadSanity(def.read_sanity)
         inst.components.book:SetPeruseSanity(def.peruse_sanity)
-        inst.components.book:SetFx(def.fx)
+        inst.components.book:SetFx(def.fx, def.fxmount)
 
         inst:AddComponent("inventoryitem")
 
@@ -960,7 +1023,12 @@ local function MakeBook(def)
     return Prefab(def.name, fn, assets, prefabs)
 end
 
-local function MakeFX(name, anim)
+local function MakeFX(name, anim, ismount)
+    if ismount then
+        name = name.."_mount"
+        anim = anim.."_mount"
+    end
+
     local function fn()
         local inst = CreateEntity()
 
@@ -971,7 +1039,11 @@ local function MakeFX(name, anim)
 
         inst:AddTag("FX")
 
-        inst.Transform:SetFourFaced() --match player
+        if ismount then
+            inst.Transform:SetSixFaced() --match mounted player
+        else
+            inst.Transform:SetFourFaced() --match player
+        end
 
         inst.AnimState:SetBank("fx_books")
         inst.AnimState:SetBuild("fx_books")
@@ -992,39 +1064,18 @@ local function MakeFX(name, anim)
     return Prefab(name, fn, assets_fx)
 end
 
-local function book_horticulture_spell_fn()
-	local inst = CreateEntity()
-
-    if not TheWorld.ismastersim then
-        --Not meant for client!
-        inst:DoTaskInTime(0, inst.Remove)
-
-        return inst
-    end
-
-    inst.entity:AddTransform()
-
-    --[[Non-networked entity]]
-    inst.entity:SetCanSleep(false)
-    inst.entity:Hide()
-
-    inst:AddTag("CLASSIFIED")
-
-	inst.persists = false
-
-	return inst
-end
-
 local ret = { Prefab("book_horticulture_spell", book_horticulture_spell_fn) }
 for i, v in ipairs(book_defs) do
     table.insert(ret, MakeBook(v))
     if v.fx_over ~= nil then
         v.fx_over_prefab = "fx_"..v.fx_over.."_over_book"
-        table.insert(ret, MakeFX(v.fx_over_prefab, v.fx_over))
+        table.insert(ret, MakeFX(v.fx_over_prefab, v.fx_over, false))
+        table.insert(ret, MakeFX(v.fx_over_prefab, v.fx_over, true))
     end
     if v.fx_under ~= nil then
         v.fx_under_prefab = "fx_"..v.fx_under.."_under_book"
-        table.insert(ret, MakeFX(v.fx_under_prefab, v.fx_under))
+        table.insert(ret, MakeFX(v.fx_under_prefab, v.fx_under, false))
+        table.insert(ret, MakeFX(v.fx_under_prefab, v.fx_under, true))
     end
 end
 book_defs = nil

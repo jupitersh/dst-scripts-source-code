@@ -926,7 +926,11 @@ return{
         BERNIE_ACTIVE = "That teddy bear seems to be animated somehow.",
         BERNIE_BIG = "As whimsical as it is befuddling.",
 
-        BOOKSTATION = "Eager minds should always have access to a library.",
+		BOOKSTATION =
+		{
+			GENERIC = "Eager minds should always have access to a library.",
+			BURNT = "Few things are as saddening as the sight of destroyed books.",
+		},
         BOOK_BIRDS = "The expurgated version, but it has my favorite: Megascops kennicottii.",
         BOOK_TENTACLES = "Hard to put this one down. It's gripping, frankly.",
         BOOK_GARDENING = "Dead plants tied together to help me aid living plants.",
@@ -1236,7 +1240,7 @@ return{
 --fallback to speech_wilson.lua 			WEREBEAVER = "only_used_by_woodie", --woodie specific
 			GLASSED = "How curious, the water reacts similarly to what I observed in the grotto.",
         },
-		THULECITE = "This seems to be an interesting, ectoplasmic residue-bearing variety of ziosite.",
+		THULECITE = "This seems to be an interesting, ectoplasmic residue-bearing variety of zoisite.",
 		ARMORRUINS = "A hardy Thulecite armor.",
 		ARMORSKELETON = "Now it's an exoskeleton. Ho ho!",
 		SKELETONHAT = "It has a detrimental effect on the mortal mind.",

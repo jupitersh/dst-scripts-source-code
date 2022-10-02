@@ -318,7 +318,7 @@ function self:SpawnAtLocation(inst, player, x, y, z, isloading, platform_uid, rx
     end
 
 	if self:_ShouldEnableSpawnProtection(inst, player, x, y, z, isloading) then
-		print("Enabling Spawn Protection for ", self.inst)
+		print("Enabling Spawn Protection for", player)
         player:AddDebuff("spawnprotectionbuff", "spawnprotectionbuff")
 	end
 

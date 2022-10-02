@@ -936,7 +936,11 @@ return {
         BERNIE_ACTIVE = "That teddy bear is moving around. Interesting.",
         BERNIE_BIG = "Remind me not to get on Willow's bad side.",
 
-        BOOKSTATION = "Why study when I can experiment?",
+		BOOKSTATION =
+		{
+			GENERIC = "Why study when I can experiment?",
+			BURNT = "I think the library's closed.",
+		},
         BOOK_BIRDS = "No point studying when I can just wing it.",
         BOOK_TENTACLES = "Someone'll get suckered into reading this.",
         BOOK_GARDENING = "I see no farm in reading that.",
@@ -946,7 +950,7 @@ return {
         BOOK_BRIMSTONE = "The beginning was dull, but got better near the end.",
 
         BOOK_FISH = "It didn't really hook me.",
-        BOOK_FIRE = "I don't feel any burning need to read it.",
+        BOOK_FIRE = "I don't feel a burning need to read it.",
         BOOK_WEB = "I'm not scared of spiders! I'm not!",
         BOOK_TEMPERATURE = "My thoughts on it are only lukewarm.",
         BOOK_LIGHT = "Whoever wrote this must've been pretty bright.",

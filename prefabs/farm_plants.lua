@@ -45,7 +45,7 @@ local function IsTooDarkToGrow(inst)
 end
 
 local function UpdateGrowing(inst)
-	if inst.components.growable ~= nil and (inst.components.burnable == nil or not inst.components.burnable.burning) and not IsTooDarkToGrow(inst) then
+	if inst.components.growable ~= nil and (inst.components.burnable == nil or not inst.components.burnable:IsBurning()) and not IsTooDarkToGrow(inst) then
 		inst.components.growable:Resume()
 	else
 		inst.components.growable:Pause()
@@ -568,18 +568,33 @@ local GROWTH_STAGES =
 }
 
 local function RepeatMagicGrowth(inst)
-	if inst:IsValid() and inst.components.growable ~= nil then
+	inst._magicgrowthtask = nil
+	if inst.components.growable ~= nil then
 		inst.components.growable:DoMagicGrowth()
 	end
 end
 
 local function domagicgrowthfn(inst)
-	if inst:IsValid() and inst.components.growable:IsGrowing() then
-		inst.no_oversized = true
+	if inst._magicgrowthtask ~= nil then
+		inst._magicgrowthtask:Cancel()
+		inst._magicgrowthtask = nil
+	end
 
-		if not inst:HasTag("magicgrowth") then
-			inst:AddTag("magicgrowth")
-		end
+	if inst.magic_growth_delay ~= nil then
+		inst:AddTag("magicgrowth")
+		inst._magicgrowthtask = inst:DoTaskInTime(inst.magic_growth_delay, RepeatMagicGrowth)
+		inst.magic_growth_delay = nil
+		return true
+	end
+
+	if inst.components.burnable == nil or not inst.components.burnable:IsBurning() then
+		--try resume for magic growth
+		--night task will auto pause it again after
+		inst.components.growable:Resume()
+	end
+
+	if inst.components.growable:IsGrowing() then
+		inst.no_oversized = true
 
 		if inst.components.farmsoildrinker ~= nil then
 			local remaining_time = inst.components.growable.targettime - GetTime()
@@ -590,7 +605,7 @@ local function domagicgrowthfn(inst)
 		end
 		
 		local magic_tending = inst.magic_tending
-		
+
 		inst.components.growable:DoGrowth()
 		if inst.grew_into ~= nil then
 			inst = inst.grew_into
@@ -601,8 +616,9 @@ local function domagicgrowthfn(inst)
 			inst.magic_tending = true
 		end
 
-		if inst:IsValid() and inst.components.pickable == nil then
-			inst:DoTaskInTime(3 + math.random(), RepeatMagicGrowth)	-- we need a new function so that seeds grow into a weeds, it will call the right function
+		if inst.components.pickable == nil then
+			inst:AddTag("magicgrowth")
+			inst._magicgrowthtask = inst:DoTaskInTime(3 + math.random(), RepeatMagicGrowth)	-- we need a new function so that seeds grow into a weeds, it will call the right function
 		else
 			inst:RemoveTag("magicgrowth")
 			inst.magic_tending = nil
@@ -611,6 +627,8 @@ local function domagicgrowthfn(inst)
 		return true
 	end
 
+	inst:RemoveTag("magicgrowth")
+	inst.magic_tending = nil
 	return false
 end
 
@@ -679,6 +697,11 @@ local function OnSave(inst, data)
 	data.no_oversized = inst.no_oversized
 	data.long_life = inst.long_life
 	data.scale = inst.scale
+
+	if inst._magicgrowthtask ~= nil then
+		data.magicgrowthtime = GetTaskRemaining(inst._magicgrowthtask)
+		data.magic_tending = inst.magic_tending
+	end
 end
 
 local function OnPreLoad(inst, data)
@@ -687,6 +710,17 @@ local function OnPreLoad(inst, data)
 		inst.no_oversized = data.no_oversized
 		inst.scale = data.scale
 		inst.long_life = data.long_life
+	end
+end
+
+local function OnLoad(inst, data)
+	if data ~= nil and data.magicgrowthtime ~= nil then
+		if inst._magicgrowthtask ~= nil then
+			inst._magicgrowthtask:Cancel()
+		end
+		inst._magicgrowthtask = inst:DoTaskInTime(data.magicgrowthtime, RepeatMagicGrowth)
+		inst.magic_tending = data.magic_tending
+		inst:AddTag("magicgrowth")
 	end
 end
 
@@ -827,6 +861,7 @@ local function MakePlant(plant_def)
 
 		inst.OnSave = OnSave
 		inst.OnPreLoad = OnPreLoad
+		inst.OnLoad = OnLoad
 		inst.OnLoadPostPass = OnLoadPostPass
 
         return inst
