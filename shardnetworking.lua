@@ -1,3 +1,5 @@
+local Customize = require("map/customize")
+
 --------------------------------------------------------------------------
 --[[ Shard Networking ]]
 --------------------------------------------------------------------------
@@ -15,7 +17,26 @@ function Shard_IsWorldFull(world_id)
     -- TODO
 end
 
---Called from ShardManager whenever a shard is connected or
+function Shard_SyncWorldSettings(world_id, is_resync)
+    local sync_options = Customize.GetSyncOptions()
+    local worldoptions = ShardGameIndex:GetGenOptions()
+
+    local sync_settings = {}
+    if worldoptions.overrides then
+        for option, value in pairs(worldoptions.overrides) do
+            if sync_options[option] then
+                sync_settings[option] = value
+                print("[SyncWorldSettings] " .. (is_resync and "Resyncing" or "Sending") .. " master world option " .. option .. " = " .. value .. " to secondary shards.")
+            end
+        end
+    end
+
+    if not IsTableEmpty(sync_settings) then
+        SendRPCToShard(SHARD_RPC.SyncWorldSettings, world_id, DataDumper(sync_settings, nil, true))
+    end
+end
+
+    --Called from ShardManager whenever a shard is connected or
 --disconnected, to automatically update known portal states
 --On master server, secondary tags and worldgen options are also passed through here
 --NOTE: should never be called with for our own world_id
@@ -26,12 +47,32 @@ function Shard_UpdateWorldState(world_id, state, tags, world_data)
     if ready then
         if world_data ~= nil and #world_data > 0 then
             local success, data = RunInSandboxSafe(world_data)
+
+            if success and type(data) == "table" and type(data.str) == "string" then
+                local count = 0
+                for _ in pairs(data) do
+                    count = count + 1
+                    if count > 1 then break end
+                end
+                --make sure data.str is the only entry in the table
+                if count == 1 then
+                    success, data = RunInSandboxSafe(TheSim:DecodeAndUnzipString(data.str))
+                end
+            end
+
             world_data = success and data or {}
         else
             world_data = {}
         end
         ShardConnected[world_id] = { ready = true, tags = tags, world = world_data }
         ShardList[world_id] = true
+
+        if TheShard:IsMaster() then
+            Shard_SyncWorldSettings(world_id)
+        else
+            print("[SyncWorldSettings] Sending ResyncWorldSettings.")
+            SendRPCToShard(SHARD_RPC.ResyncWorldSettings, SHARDID.MASTER)
+        end
     else
         ShardConnected[world_id] = nil
         ShardList[world_id] = nil

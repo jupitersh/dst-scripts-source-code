@@ -1,4 +1,4 @@
-local function OverrideTuningVariables(tuning)
+ function OverrideTuningVariables(tuning)
     if tuning ~= nil then
         for k, v in pairs(tuning) do
             if BRANCH == "dev" then
@@ -2820,24 +2820,21 @@ local applyoverrides_pre = {
 		end
 	end,
     seasonalstartingitems = function(difficulty)
-        local tuning_vars =
-        {
-            none = {
-                SEASONAL_STARTING_ITEMS = {}
-            }
-            --[[
-            default = {
-                SEASONAL_STARTING_ITEMS =
+		if difficulty == "never" then
+	        OverrideTuningVariables({SEASONAL_STARTING_ITEMS = {}})
+
+        elseif difficulty == "default" then
+			--[[
+	        OverrideTuningVariables({SEASONAL_STARTING_ITEMS =
                 {
                     autumn = { },
                     winter = { "earmuffshat" },
                     spring = { "strawhat" },
                     summer = { "grass_umbrella" },
-                },
-            }
-            --]]
-        }
-        OverrideTuningVariables(tuning_vars[difficulty])
+                }
+			})
+			]]
+		end
 	end,
     dropeverythingondespawn = function(difficulty)
         local tuning_vars =
@@ -2906,7 +2903,7 @@ local applyoverrides_pre = {
                 TERRORBEAK_SPAWN_CHANCE = 0.5,
             },
             --]]
-            many = {
+            often = {
                 SANITYMONSTERS_INDUCED_MAXPOP = 7,
                 SANITYMONSTERS_INDUCED_CHANCES = {
                     inc = 0.8,
@@ -3124,6 +3121,82 @@ local applyoverrides_pre = {
         }
         OverrideTuningVariables(tuning_vars[difficulty])
     end,
+    temperaturedamage = function (difficulty)
+        local tuning_vars =
+        {
+            nonlethal = {
+                NONLETHAL_TEMPERATURE = true,
+            },
+            --[[
+            default = {
+                NONLETHAL_TEMPERATURE = false,
+            },
+            --]]
+        }
+        OverrideTuningVariables(tuning_vars[difficulty])
+    end,
+    lessdamagetaken = function (difficulty) -- Note: This should be named "playerdamagetaken" but it's not worth retrofitting
+        local tuning_vars =
+        {
+            always = {
+                PLAYER_DAMAGE_TAKEN_MOD = 0.35,
+            },
+            --[[
+            none = {
+                PLAYER_DAMAGE_TAKEN_MOD = false,
+            },
+            --]]
+			more = {
+                PLAYER_DAMAGE_TAKEN_MOD = -0.35,
+			},
+        }
+        OverrideTuningVariables(tuning_vars[difficulty])
+    end,
+    hunger = function (difficulty)
+        local tuning_vars =
+        {
+            nonlethal = {
+                NONLETHAL_HUNGER = true,
+            },
+            --[[
+            default = {
+                NONLETHAL_HUNGER = false,
+            },
+            --]]
+        }
+        OverrideTuningVariables(tuning_vars[difficulty])
+    end,
+    darkness = function (difficulty)
+        local tuning_vars =
+        {
+            nonlethal = {
+                NONLETHAL_DARKNESS = true,
+            },
+            --[[
+            default = {
+                NONLETHAL_DARKNESS = false,
+            },
+            --]]
+        }
+        OverrideTuningVariables(tuning_vars[difficulty])
+    end,
+    healthpenalty = function (difficulty)
+        local tuning_vars =
+        {
+            none = {
+                HEALTH_PENALTY_ENABLED = false,
+            },
+            --[[
+            default = {
+                HEALTH_PENALTY_ENABLED = true,
+            },
+            always = {
+                HEALTH_PENALTY_ENABLED = true,
+            },
+            --]]
+        }
+        OverrideTuningVariables(tuning_vars[difficulty])
+    end,
 }
 
 local applyoverrides_post = {
@@ -3250,6 +3323,58 @@ local applyoverrides_post = {
             TheWorld:PushEvent("ms_setlightningdelay", { min = 10, max = 30 })
         end
     end,
+    spawnmode = function(difficulty)
+        if difficulty == "default" then difficulty = "fixed" end
+
+        TheWorld:PushEvent("ms_setworldsetting", {setting = "spawn_mode", value = difficulty})
+        TheWorld:PushEvent("ms_setspawnmode", difficulty)
+    end,
+    basicresource_regrowth = function(difficulty)
+        if difficulty == "default" then difficulty = "none" end
+
+        difficulty = difficulty == "always"
+        TheWorld:PushEvent("ms_setworldsetting", {setting = "resource_renewal", value = difficulty})
+        TheWorld:PushEvent("ms_enableresourcerenewal", difficulty)
+    end,
+    ghostsanitydrain = function(difficulty)
+        if difficulty == "default" then difficulty = "always" end
+
+        difficulty = difficulty == "always"
+        TheWorld:PushEvent("ms_setworldsetting", {setting = "ghost_sanity_drain", value = difficulty})
+    end,
+    ghostenabled = function(difficulty)
+        if difficulty == "default" then difficulty = "always" end
+
+        difficulty = difficulty == "always"
+        TheWorld:PushEvent("ms_setworldsetting", {setting = "ghost_enabled", value = difficulty})
+    end,
+    portalresurection = function(difficulty)
+        if difficulty == "default" then difficulty = "none" end
+
+        difficulty = difficulty == "always"
+        TheWorld:PushEvent("ms_setworldsetting", {setting = "portal_rez", value = difficulty})
+        TheWorld:PushEvent("ms_onportalrez", difficulty)
+    end,
+    resettime = function(difficulty)
+        local reset_time
+        if difficulty == "none" then
+            reset_time = nil
+        elseif difficulty == "slow" then
+            reset_time = { time = 240, loadingtime = 360 }
+        elseif difficulty == "default" then
+            reset_time = { time = 120, loadingtime = 180 }
+        elseif difficulty == "fast" then
+            reset_time = { time = 60, loadingtime = 90 }
+        elseif difficulty == "always" then
+            reset_time = { instant = true }
+        end
+
+        TheWorld:PushEvent("ms_setworldsetting", {setting = "reset_time", value = reset_time})
+        TheWorld:PushEvent("ms_setworldresettime", reset_time)
+    end,
+}
+
+local applyoverrides_sync = {
 }
 
 local function areaambientdefault(prefab)
@@ -3284,4 +3409,4 @@ local function areaambientdefault(prefab)
     end
 end
 
-return {Pre = applyoverrides_pre, Post = applyoverrides_post, areaambientdefault = areaambientdefault}
+return {Pre = applyoverrides_pre, Post = applyoverrides_post, Sync = applyoverrides_sync, areaambientdefault = areaambientdefault}

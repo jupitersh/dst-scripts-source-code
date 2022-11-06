@@ -19,7 +19,7 @@ local padded_height = widget_height + 10
 local num_rows = math.floor(500 / padded_height)
 local peek_height = math.abs(num_rows * padded_height - 500)
 
-local presetstr = {}
+local preset_settingsdata = {}
 local function GetTruncatedMultiLineString(textwidget, str)
     textwidget:SetMultilineTruncatedString(str, 3, padded_width - 40, nil, "...")
     return textwidget:GetString()
@@ -69,17 +69,17 @@ local PresetPopupScreen = Class(Screen, function(self, currentpreset, onconfirmf
         preset_str = STRINGS.UI.CUSTOMIZATIONSCREEN.COMBINEDPRESET
     end
 
-    self.presets = self.root:AddChild(Text(CHATFONT, 35))
-    self.presets:SetColour(UICOLOURS.GOLD_UNIMPORTANT)
-    self.presets:SetHAlign(ANCHOR_MIDDLE)
-    self.presets:SetString(preset_str)
-    self.presets:SetPosition(0, 250)
+    self.presets_label = self.root:AddChild(Text(CHATFONT, 35))
+    self.presets_label:SetColour(UICOLOURS.GOLD_UNIMPORTANT)
+    self.presets_label:SetHAlign(ANCHOR_MIDDLE)
+    self.presets_label:SetString(preset_str)
+    self.presets_label:SetPosition(0, 250)
 
     self.horizontal_line = self.root:AddChild(Image("images/global_redux.xml", "item_divider.tex"))
     self.horizontal_line:SetPosition(0,window_height/2 - 48)
     self.horizontal_line:SetSize(dialog_width, 5)
 
-    self.presets = Levels.GetList(self.levelcategory, self.level_type, self.location, true)
+	self:UpdatePresetList()
 
     self:OnSelectPreset(currentpreset or self.presets[1].data)
 
@@ -103,12 +103,18 @@ local PresetPopupScreen = Class(Screen, function(self, currentpreset, onconfirmf
         preset.name = preset.backing:AddChild(Text(CHATFONT, 26))
         preset.name:SetHAlign(ANCHOR_LEFT)
         preset.name:SetRegionSize(padded_width - 40, 30)
-        preset.name:SetPosition(0, padded_height/2 - 20)
+        preset.name:SetPosition(0, padded_height/2 - 22.5)
 
         preset.desc = preset.backing:AddChild(Text(CHATFONT, 16))
         preset.desc:SetVAlign(ANCHOR_MIDDLE)
         preset.desc:SetHAlign(ANCHOR_LEFT)
         preset.desc:SetPosition(0, padded_height/2 -(20 + 26 + 10))
+
+		preset.playstyle = preset.backing:AddChild(TEMPLATES.ServerDetailIcon(nil, nil, "brown"))
+		preset.playstyle:SetScale(.1)
+		preset.playstyle.bg:SetScale(1)
+		preset.playstyle.img:SetScale(0.8)
+        preset.playstyle:SetPosition(175, padded_height/2 - 22.5)
 
         preset.edit = preset.backing:AddChild(TEMPLATES.IconButton("images/button_icons.xml", "mods.tex", STRINGS.UI.CUSTOMIZATIONSCREEN.EDITPRESET, false, false, function() self:EditPreset(preset.data.data) end, hover_config))
         preset.edit:SetScale(0.5)
@@ -185,11 +191,20 @@ local PresetPopupScreen = Class(Screen, function(self, currentpreset, onconfirmf
             preset.backing:Show()
 
             preset.name:SetString(data.text)
-            if presetstr[data.data] then
-                preset.desc:SetString(presetstr[data.data])
-            else
-                presetstr[data.data] = GetTruncatedMultiLineString(preset.desc, Levels.GetDescForID(self.levelcategory, data.data)) --also sets the string
+            if preset_settingsdata[data.data] == nil then
+                preset_settingsdata[data.data] = Levels.GetDataForSettingsID(data.data)
             end
+		    preset.desc:SetMultilineTruncatedString(preset_settingsdata[data.data].settings_desc, 3, padded_width - 40, nil, "...")
+
+			local playstyle_def = preset_settingsdata[data.data].playstyle ~= nil and Levels.GetPlaystyleDef(preset_settingsdata[data.data].playstyle) or nil
+			if playstyle_def ~= nil then
+				preset.playstyle:Show()
+				preset.playstyle.img:SetTexture(playstyle_def.smallimage.atlas,  playstyle_def.smallimage.icon)
+				preset.playstyle:SetHoverText(playstyle_def.name)
+			else
+				preset.playstyle:Hide()
+			end
+			
 
             if data.data == self.originalpreset then
                 preset.backing:SetImageNormalColour(unpack(current_list_item_bg_tint))
@@ -206,6 +221,8 @@ local PresetPopupScreen = Class(Screen, function(self, currentpreset, onconfirmf
             if CustomPresetManager:IsCustomPreset(self.levelcategory, data.data) then
                 preset.edit:Show()
                 preset.delete:Show()
+		        preset.playstyle:SetPosition(175, padded_height/2 - 22.5 - 28)
+
                 if data.modded then
                     preset.modded:SetPosition(110, padded_height/2 - 22.5)
                     preset.modded:Show()
@@ -216,9 +233,11 @@ local PresetPopupScreen = Class(Screen, function(self, currentpreset, onconfirmf
                 preset.edit:Hide()
                 preset.delete:Hide()
                 if data.modded then
+			        preset.playstyle:SetPosition(175, padded_height/2 - 22.5 - 28)
                     preset.modded:SetPosition(175, padded_height/2 - 22.5)
                     preset.modded:Show()
                 else
+			        preset.playstyle:SetPosition(175, padded_height/2 - 22.5)
                     preset.modded:Hide()
                 end
             end
@@ -311,9 +330,24 @@ function PresetPopupScreen:OnPresetButton(presetinfo)
 end
 
 function PresetPopupScreen:UpdatePresetList()
-    self.presets = Levels.GetList(self.levelcategory, self.level_type, self.location, true)
-    self.scroll_list:SetItemsData(self.presets)
-    self.scroll_list:SetPosition(0 + (self.scroll_list:CanScroll() and -10 or 0), -25)
+	local presets = Levels.GetList(self.levelcategory, self.level_type, self.location, true)
+	self.presets = {}
+	-- adding some validation because some people happen to have corrupt data :(
+	for _, data in ipairs(presets) do
+		if data.data ~= nil then
+			if preset_settingsdata[data.data] == nil then
+				preset_settingsdata[data.data] = Levels.GetDataForSettingsID(data.data)
+			end
+			if preset_settingsdata[data.data] ~= nil then
+				table.insert(self.presets, data)
+			end
+		end
+	end
+
+	if self.scroll_list then
+		self.scroll_list:SetItemsData(self.presets)
+		self.scroll_list:SetPosition(0 + (self.scroll_list:CanScroll() and -10 or 0), -25)
+	end
 end
 
 function PresetPopupScreen:Refresh()

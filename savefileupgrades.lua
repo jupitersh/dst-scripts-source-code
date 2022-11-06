@@ -300,6 +300,57 @@ t = {
             shardindex.version = 4
             shardindex:MarkDirty()
         end,
+
+		ApplyPlaystyleOverridesForGameMode = function(world_options, game_mode)
+            if world_options then
+				if world_options.overrides == nil then
+					world_options.overrides = {}
+				end
+                if game_mode == "wilderness" then
+					world_options.overrides.spawnmode = "scatter"
+					world_options.overrides.basicresource_regrowth = "always"
+					world_options.overrides.ghostsanitydrain = "none"
+					world_options.overrides.ghostenabled = "none"
+					world_options.overrides.resettime = "none"
+                elseif game_mode == "endless" then
+                    world_options.overrides.basicresource_regrowth = "always"
+                    world_options.overrides.ghostsanitydrain = "none"
+                    world_options.overrides.portalresurection = "always"
+                    world_options.overrides.resettime = "none"
+                end
+            end
+		end,
+
+        UpgradeShardIndexFromV4toV5 = function(shardindex)
+            if shardindex.version ~= 4 then
+                return
+            end
+
+            local server = shardindex:GetServerData()
+            if server == nil then
+                return
+            end
+
+            if server.game_mode == "wilderness" then
+                local level = shardindex:GetGenOptions()
+				t.utilities.ApplyPlaystyleOverridesForGameMode(level, server.game_mode)
+				server.playstyle = "wilderness"
+                server.game_mode = "survival"
+            elseif server.game_mode == "endless" then
+                local level = shardindex:GetGenOptions()
+				t.utilities.ApplyPlaystyleOverridesForGameMode(level, server.game_mode)
+				server.playstyle = "endless"
+                server.game_mode = "survival"
+			else
+                local level = shardindex:GetGenOptions()
+				server.playstyle = level and require("map/levels").CalcPlaystyleForSettings(level) or PLAYSTYLE_DEFAULT
+            end
+
+			server.intention = nil
+
+            shardindex.version = 5
+            shardindex:MarkDirty()
+        end,
         UpgradeWorldgenoverrideFromV1toV2 = function(wgo)
             local validfields = {
                 overrides = true,
@@ -1176,6 +1227,13 @@ t = {
             version = 5.12, -- Curse of Moon Quay - new content
             fn = function(savedata)
                 savedata.retrofit_moonquay_monkeyisland_setpiece = true
+            end,
+        },
+
+        {
+            version = 5.13, -- A Little Drama - new setpieces
+            fn = function(savedata)
+                FlagForRetrofitting_Forest(savedata, "retrofit_alittledrama_content")
             end,
         },
     },

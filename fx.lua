@@ -516,14 +516,6 @@ local fx =
             return GetString(viewer, "DESCRIBE", { "MOLE", "UNDERGROUND" })
         end,
     },
-    --[[{
-        name = "sparklefx",
-        bank = "sparklefx",
-        build = "sparklefx",
-        anim = "sparkle",
-        sound = "dontstarve/common/chest_positive",
-        tintalpha = 0.6,
-    },]]
     {
         name = "chester_transform_fx",
         bank = "die_fx",
@@ -2499,7 +2491,7 @@ local fx =
         bank = "fx_dock_crackleandpop",
         build = "fx_dock_crackleandpop",
         anim = "pop",
-        sound = "monkeyisland/dock/break",
+        sound = "monkeyisland/dock/break2",
     },
 
     {
@@ -2700,6 +2692,13 @@ local fx =
         sound = "wickerbottom_rework/fence_rotator/use",
         fn = FinalOffset1,
     },
+
+    {
+        name = "turf_smoke_fx",
+        bank = "turf_smoke_fx",
+        build = "turf_smoke_fx",
+        anim = "fx",
+    },
 }
 
 for cratersteamindex = 1, 4 do
@@ -2736,15 +2735,16 @@ for j = 0, 3, 3 do
     end
 end
 
-local shot_types = {"rocks", "gold", "marble", "thulecite", "freeze", "slow", "poop", "trinket_1"}
+local shot_types = {"rock", "gold", "marble", "thulecite", "freeze", "slow", "poop", "trinket_1"}
 for _, shot_type in ipairs(shot_types) do
     table.insert(fx, {
         name = "slingshotammo_hitfx_"..shot_type,
         bank = "slingshotammo",
         build = "slingshotammo",
         anim = "used",
+        sound = "dontstarve/characters/walter/slingshot/"..shot_type,
         fn = function(inst)
-			if shot_type ~= "rocks" then
+			if shot_type ~= "rock" then
 		        inst.AnimState:OverrideSymbol("rock", "slingshotammo", shot_type)
 			end
 		    inst.AnimState:SetFinalOffset(3)

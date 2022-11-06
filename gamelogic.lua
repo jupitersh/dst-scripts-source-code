@@ -400,7 +400,7 @@ local function PopulateWorld(savedata, profile)
 		local savedata_overrides = savedata.map.topology.overrides
 
 		if savedata_overrides then
-			ApplySpecialEvent(savedata_overrides.specialevent or nil)
+			ApplySpecialEvent(savedata_overrides.specialevent or "default")
 			for k, event_name in pairs(SPECIAL_EVENTS) do
 				if savedata_overrides[event_name] == "enabled" then
 					ApplyExtraEvent(event_name)
@@ -631,13 +631,6 @@ local function PopulateWorld(savedata, profile)
             if savedata.world_network ~= nil and savedata.world_network.persistdata ~= nil then
                 world.net:SetPersistData(savedata.world_network.persistdata)
             end
-
-            local gamemode = TheNet:GetServerGameMode()
-			world:PushEvent("ms_setspawnmode", GetSpawnMode( gamemode ) )
-			world:PushEvent("ms_setworldresettime", GetResetTime( gamemode ) )
-            world:PushEvent("ms_enableresourcerenewal", GetHasResourceRenewal( gamemode ) )
-
-            --V2C: forward to MOD game mode server configuration HERE
         end
 
 		WorldSettings_Overrides.areaambientdefault(savedata.map.prefab)
@@ -887,6 +880,10 @@ local function DoInitGame(savedata, profile)
 		end
 	end
 	savedata.map.topology.overrides.original = nil
+
+	local Levels = require("map/levels")
+	ShardGameIndex:GetServerData().playstyle = Levels.CalcPlaystyleForSettings(savedata.map.topology.overrides)
+	TheNet:SetServerPlaystyle(ShardGameIndex:GetServerData().playstyle)
 
 	-- remove the LOOP_BLANK_SUB before we do anything else
 	for i = #savedata.map.topology.ids, 1, -1 do
