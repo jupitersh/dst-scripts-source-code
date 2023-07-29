@@ -80,7 +80,12 @@ local function AttachToBoat(inst, boat)
     inst.Physics:Stop()
     inst.components.locomotor:Stop()
 
+    if inst._current_boat_remove_listener ~= nil then
+        inst:RemoveEventCallback("onremove", inst._current_boat_remove_listener, inst._current_boat)
+        inst._current_boat_remove_listener = nil
+    end
     inst._current_boat = boat
+    inst._current_boat_remove_listener = inst:ListenForEvent("onremove", inst._detach_from_boat_fn, inst._current_boat)
 
     local x, y, z = inst.Transform:GetWorldPosition()
     local bx, by, bz = boat.Transform:GetWorldPosition()
@@ -125,6 +130,10 @@ local function DetachFromBoat(inst)
 
     inst._should_teleport_time = GetTime()
 
+    if inst._current_boat_remove_listener ~= nil then
+        inst:RemoveEventCallback("onremove", inst._current_boat_remove_listener, inst._current_boat)
+        inst._current_boat_remove_listener = nil
+    end
     inst._current_boat = nil
 
     inst.Physics:SetCapsule(COLLISION_RADIUS_ON_OCEAN, 1)
@@ -296,6 +305,7 @@ local function fn()
     inst:AddTag("shadow")
     inst:AddTag("notraptrigger")
     inst:AddTag("ignorewalkableplatforms")
+    inst:AddTag("shadow_aligned")
 
 	--shadowsubmissive (from shadowsubmissive component) added to pristine state for optimization
 	inst:AddTag("shadowsubmissive")

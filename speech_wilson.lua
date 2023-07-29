@@ -47,6 +47,7 @@ return {
             NOTALLOWED = "It won't fit.",
             EMPTY = "I need something to build with.",
             MISMATCH = "Whoops! Wrong plans.",
+            NOTREADY = "It might come out once things have stabilized around here.",
         },
 		RUMMAGE =
 		{
@@ -75,6 +76,7 @@ return {
 			KITCOON_HIDEANDSEEK_NOT_ENOUGH_HIDING_SPOTS = "There aren't a lot of places around for them to hide.",
 			KITCOON_HIDEANDSEEK_ONE_GAME_PER_DAY = "I think that's enough for one day.",
             MANNEQUIN_EQUIPSWAPFAILED = "I don't think he can wear this.",
+            PILLOWFIGHT_NO_HANDPILLOW = "I need a pillow to fight with!",
 		},
 		OPEN_CRAFTING =
 		{
@@ -215,7 +217,7 @@ return {
 			--MapSpotRevealer/messagebottle
 			MESSAGEBOTTLEMANAGER_NOT_FOUND = "I can't make anything out in this lighting!",--Likely trying to read messagebottle treasure map in caves
 
-            STASH_MAP_NOT_FOUND = "I don't see an \"X marks the spot\". They must've forgotten to draw it.",-- Likely trying to read stash map  in world without stash
+            STASH_MAP_NOT_FOUND = "I don't see an \"X marks the spot\". They must've forgotten to draw it.",-- Likely trying to read stash map  in world without stash                  
         },
         WRAPBUNDLE =
         {
@@ -754,6 +756,8 @@ return {
         BOOK_TEMPERATURE = "only_used_by_wurt",
         BOOK_LIGHT = "only_used_by_wurt",
         BOOK_RAIN = "only_used_by_wurt",
+        BOOK_MOON = "only_used_by_wurt",
+        BOOK_BEES = "only_used_by_wurt",
 
         BOOK_HORTICULTURE_UPGRADED = "only_used_by_wurt",
         BOOK_RESEARCH_STATION = "only_used_by_wurt",
@@ -886,6 +890,39 @@ return {
     ANNOUNCE_BOOK_MOON_DAYTIME = "only_used_by_waxwell_and_wicker",
 
     ANNOUNCE_OFF_SCRIPT = "I have a feeling that wasn't in the script.",
+
+    ANNOUNCE_COZY_SLEEP = "I feel so refreshed!",
+
+	--
+	ANNOUNCE_TOOL_TOOWEAK = "I need a stronger tool!",
+
+    ANNOUNCE_LUNAR_RIFT_MAX = "That flash! Was that moonlight?",
+    ANNOUNCE_SHADOW_RIFT_MAX = "Something sinister's on the horizon.",
+
+    ANNOUNCE_SCRAPBOOK_FULL = "I already have all these.",
+
+    ANNOUNCE_COACH = 
+    {
+        "only_used_by_wolfgang",
+        "only_used_by_wolfgang",
+        "only_used_by_wolfgang",
+        "only_used_by_wolfgang",
+        "only_used_by_wolfgang",
+        "only_used_by_wolfgang",
+        "only_used_by_wolfgang",
+        "only_used_by_wolfgang",
+        "only_used_by_wolfgang",
+    },
+    ANNOUNCE_WOLFGANG_WIMPY_COACHING = "only_used_by_wolfgang",
+    ANNOUNCE_WOLFGANG_MIGHTY_COACHING = "only_used_by_wolfgang",
+    ANNOUNCE_WOLFGANG_BEGIN_COACHING = "only_used_by_wolfgang",
+    ANNOUNCE_WOLFGANG_END_COACHING = "only_used_by_wolfgang",
+    ANNOUNCE_WOLFGANG_NOTEAM = 
+    {
+        "only_used_by_wolfgang",
+        "only_used_by_wolfgang",
+        "only_used_by_wolfgang",
+    },
 
 	BATTLECRY =
 	{
@@ -1491,6 +1528,8 @@ return {
         TURF_MOSAIC_RED = "Yet another ground type.",
         TURF_MOSAIC_BLUE = "Yet another ground type.",
 
+        TURF_BEARD_RUG = "I made it from my beard!",
+
 		POWCAKE = "Science help us.",
         CAVE_ENTRANCE = "I wonder if that rock could be moved.",
         CAVE_ENTRANCE_RUINS = "It's probably hiding something.",
@@ -1794,9 +1833,11 @@ return {
         CHESSPIECE_BEEFALO = "This sculpture is pretty beefy.",
 		CHESSPIECE_KITCOON = "These ones are much easier to find.",
 		CHESSPIECE_CATCOON = "It would probably make a great scratching post.",
+        CHESSPIECE_MANRABBIT = "I want to hug it, but the stone chafes.",
         CHESSPIECE_GUARDIANPHASE3 = "I much prefer it this way.",
         CHESSPIECE_EYEOFTERROR = "It's giving me a stony stare.",
         CHESSPIECE_TWINSOFTERROR = "That was a terrible night of very uncomfortable eye contact.",
+        CHESSPIECE_DAYWALKER = "Now he's off who-knows-were.",
 
         CHESSJUNK1 = "A pile of broken chess pieces.",
         CHESSJUNK2 = "Another pile of broken chess pieces.",
@@ -2889,6 +2930,34 @@ return {
         },
         BEEFALO_GROOMER_ITEM = "I'd better set this up somewhere.",
 
+        YOTR_RABBITSHRINE =
+        {
+            GENERIC = "What to make...",
+            EMPTY = "That rabbit looks hungry.",
+            BURNT = "Smells like veggie barbecue.",
+        },
+
+        NIGHTCAPHAT = "No more bedhead for this scientist!",
+
+        YOTR_FOOD1 = "It's made with carrots, so science says it must be healthy.",
+        YOTR_FOOD2 = "Blue is the most scientific flavor.",
+        YOTR_FOOD3 = "A jiggly treat.",
+        YOTR_FOOD4 = "Bunny-hop right into my mouth!",
+
+        YOTR_TOKEN = "I should be careful who I hand this out to.",
+
+        COZY_BUNNYMAN = "They look so cozy.",
+
+        HANDPILLOW_BEEFALOWOOL = "If only it didn't also smell like a beefalo.",
+        HANDPILLOW_KELP = "It's soggier than I would like.",
+        HANDPILLOW_PETALS = "At least it smells nicer than the beefalo pillow.",
+        HANDPILLOW_STEELWOOL = "Who would sleep on this?",
+
+        BODYPILLOW_BEEFALOWOOL = "If only it didn't also smell like a beefalo.",
+        BODYPILLOW_KELP = "It's soggier than I would like.",
+        BODYPILLOW_PETALS = "At least it smells nicer than the beefalo pillow.",
+        BODYPILLOW_STEELWOOL = "Who would sleep on this?",
+
 		BISHOP_CHARGE_HIT = "Ow!",
 		TRUNKVEST_SUMMER = "Wilderness casual.",
 		TRUNKVEST_WINTER = "Winter survival gear.",
@@ -2920,6 +2989,8 @@ return {
 		WALL_WOOD_ITEM = "Pickets!",
 		WALL_MOONROCK = "Spacey and smooth!",
 		WALL_MOONROCK_ITEM = "Very light, but surprisingly tough.",
+		WALL_DREADSTONE = " I feel so... safe?",
+		WALL_DREADSTONE_ITEM = "What could go wrong?",
 		FENCE = "It's just a wood fence.",
         FENCE_ITEM = "All we need to build a nice, sturdy fence.",
         FENCE_GATE = "It opens. And closes sometimes, too.",
@@ -4498,6 +4569,9 @@ return {
         DUMBBELL_GEM = "I'll conquer this weight with the power of-- ACK! My spine!!",
         POTATOSACK = "It's either filled with potato-shaped rocks or rock-shaped potatoes.",
 
+        DUMBBELL_HEAT = "It's good for a warm-up.",
+        DUMBBELL_REDGEM = "It'll really make you feel the burn.",
+        DUMBBELL_BLUEGEM = "You can't get much cooler than that.",
 
         TERRARIUMCHEST =
 		{
@@ -4583,7 +4657,7 @@ return {
         BOAT_ROTATOR_KIT = "I think I'll take it out for a spin.",
         BOAT_BUMPER_KELP = "It won't save the boat from everything, but it sure kelps.",
         BOAT_BUMPER_KELP_KIT = "A soon-to-be boat bumper.",
-        BOAT_BUMPER_SHELL = "It gives the boat a little shellf defence.",
+		BOAT_BUMPER_SHELL = "It gives the boat a little shellf defense.",
         BOAT_BUMPER_SHELL_KIT = "A soon-to-be boat bumper.",
         BOAT_CANNON = {
             GENERIC = "I should load it with something.",
@@ -4698,6 +4772,133 @@ return {
 		-- Waxwell
 		MAGICIAN_CHEST = "Why am I starting to feel a bit uneasy...?",
 		TOPHAT_MAGICIAN = "That hat just oozes style.",
+
+        -- Year of the Rabbit
+        YOTR_FIGHTRING_KIT = "It must be built, for science!",
+        YOTR_FIGHTRING_BELL =
+        {
+            GENERIC = "It's peaceful, for now.",
+            PLAYING = "I think we've all learned a lot here today.",
+        },
+
+        YOTR_DECOR_1 = {
+            GENERAL = "That rabbit can really light up a room.",
+            OUT = "That rabbit isn't lighting up anything.",
+        },
+        YOTR_DECOR_2 = {
+            GENERAL = "That rabbit can really light up a room.",
+            OUT = "That rabbit isn't lighting up anything.",
+        },
+
+        HAREBALL = "At this point... I've eaten worse things.",
+        YOTR_DECOR_1_ITEM = "I know just the place for it.",
+        YOTR_DECOR_2_ITEM = "I know just the place for it.",
+
+		--
+		DREADSTONE = "It seems to reflect shadows instead of light.",
+		HORRORFUEL = "It sends a terrible shiver down my spine.",
+		DAYWALKER =
+		{
+			GENERIC = "Freeing him might not have been my best idea.",
+			IMPRISONED = "I feel almost sorry for him.",
+		},
+		DAYWALKER_PILLAR =
+		{
+			GENERIC = "There's something glinting inside the marble.",
+			EXPOSED = "A pillar of impossibly hard stone.",
+		},
+		ARMORDREADSTONE = "Lightweight, sturdy, and snazzy!",
+		DREADSTONEHAT = "To keep my brilliant brain safe and sound.",
+
+        -- Rifts 1
+        LUNARRIFT_PORTAL = "All that science hiding inside... and I can't get to it!",
+        LUNARRIFT_CRYSTAL = "Crystallized illuminosity.",
+
+        LUNARTHRALL_PLANT = "It doesn't seem to care about personal space.",
+        LUNARTHRALL_PLANT_VINE_END = "It has a prickly disposition.",
+
+		LUNAR_GRAZER = "It must have come through that strange rift!",
+
+        PUREBRILLIANCE = "It's blinding me with science!",
+        LUNARPLANT_HUSK = "It's incredibly tough. I could use this!",
+
+		LUNAR_FORGE = "Just the place to make something very clever and scientific.",
+		LUNAR_FORGE_KIT = "A simple combination of elements!",
+
+		LUNARPLANT_KIT = "I'm moonlighting as a tailor.",
+		ARMOR_LUNARPLANT = "This armor doesn't leaf any room for improvement.",
+		LUNARPLANTHAT = "It makes me look even brighter than usual.",
+		BOMB_LUNARPLANT = "Botany and chemistry, working together.",
+		STAFF_LUNARPLANT = "Plant power!",
+		SWORD_LUNARPLANT = "It's hard not to make sound effects when I wave it around.",
+		PICKAXE_LUNARPLANT = "Smashing!",
+		SHOVEL_LUNARPLANT = "The dirt displacing possibilities are endless!",
+
+		BROKEN_FORGEDITEM = "It's broken, but I think I could repair it.",
+
+        PUNCHINGBAG = "It comes with a finely calibrated ouch-o-meter.",
+
+        -- Rifts 2
+        SHADOWRIFT_PORTAL = "That drop looks like it goes on forever.",
+
+		SHADOW_FORGE = "What dark designs will it bring to life?",
+		SHADOW_FORGE_KIT = "It would be unscientific of me not to at least do some experiments.",
+
+        FUSED_SHADELING = "I liked you better when you were smaller, and bothering someone else.",
+        FUSED_SHADELING_BOMB = "Bombastic!",
+
+		VOIDCLOTH = "Those shadows are all cut from the same cloth.",
+		VOIDCLOTH_KIT = "My knowledge of sewing with shadows is patchy at best.",
+		VOIDCLOTHHAT = "It makes me feel dark and mysterious.",
+		ARMOR_VOIDCLOTH = "Oh drat, there's a tear across the front!",
+
+        VOIDCLOTH_UMBRELLA = "I always hate when my hair gets melted by acid.",
+        VOIDCLOTH_SCYTHE = "It makes harvesting so easy, it's scary!",
+
+		SHADOWTHRALL_HANDS = "Hands off!",
+		SHADOWTHRALL_HORNS = "It looks hungry for a fight.",
+		SHADOWTHRALL_WINGS = "The wings seem to be just for show.",
+
+        CHARLIE_NPC = "Wait, is that...?",
+        CHARLIE_HAND = "It wants something dreadful.",
+
+        NITRE_FORMATION = "It's definitely some kind of rock.",
+        DREADSTONE_STACK = "It's coming from deep down in those chasms...",
+        
+        SCRAPBOOK_PAGE = "Someone else out there likes to scrapbook.",
+
+        LEIF_IDOL = "Carving a tree out of wood seems a bit redundant.",
+        WOODCARVEDHAT = "It looks like it's been lovingly carved.",
+        WALKING_STICK = "It's a very nice stick.",
+
+        IPECACSYRUP = "I don't think I want to eat this.",
+        BOMB_LUNARPLANT_WORMWOOD = "Our friend seems to be getting more in touch with his lunar roots.", -- Unused
+        WORMWOOD_MUTANTPROXY_CARRAT =
+        {
+        	DEAD = "That's the end of that.",
+        	GENERIC = "Are carrots supposed to have legs?",
+        	HELD = "You're kind of ugly up close.",
+        	SLEEPING = "It's almost cute.",
+        },
+        WORMWOOD_MUTANTPROXY_LIGHTFLIER = "How strange, carrying one makes my pocket feel lighter!",
+		WORMWOOD_MUTANTPROXY_FRUITDRAGON =
+		{
+			GENERIC = "It's cute, but it's not ripe yet.",
+			RIPE = "I think it's ripe now.",
+			SLEEPING = "It's snoozing.",
+		},
+
+        SUPPORT_PILLAR_SCAFFOLD = "It's all under wraps for now.",
+        SUPPORT_PILLAR = "I should really get around to fixing that.",
+        SUPPORT_PILLAR_COMPLETE = "It fills me with confidence.",
+        SUPPORT_PILLAR_BROKEN = "You were once tall and strong.",
+
+		SUPPORT_PILLAR_DREADSTONE_SCAFFOLD = "It's all under wraps for now.",
+		SUPPORT_PILLAR_DREADSTONE = "I should really get around to fixing that.",
+		SUPPORT_PILLAR_DREADSTONE_COMPLETE = "That looks dreadfully strong.",
+		SUPPORT_PILLAR_DREADSTONE_BROKEN = "How dreadful.",
+
+        WOLFGANG_WHISTLE = "It gives me terrible flashbacks to the gym classes of my youth...",
     },
 
     DESCRIBE_GENERIC = "It's a... thing.",
@@ -4714,6 +4915,7 @@ return {
     DESCRIBE_PLANTSTRESSORMOISTURE = "This looks really dehydrated.",
     DESCRIBE_PLANTSTRESSORNUTRIENTS = "This poor plant needs nutrients!",
     DESCRIBE_PLANTSTRESSORHAPPINESS = "It's hungry for some good conversation.",
+    DESCRIBE_PLANT_IDENTIFIED = "only_used_by_wormwood",
 
     EAT_FOOD =
     {

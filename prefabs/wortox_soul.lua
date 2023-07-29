@@ -34,7 +34,7 @@ local function toground(inst)
         inst._task = inst:DoTaskInTime(.4 + math.random() * .7, KillSoul) -- NOTES(JBK): This is 1.1 max keep it in sync with "[WST]"
     end
     if inst.AnimState:IsCurrentAnimation("idle_loop") then
-        inst.AnimState:SetTime(math.random() * inst.AnimState:GetCurrentAnimationLength())
+		inst.AnimState:SetFrame(math.random(inst.AnimState:GetCurrentAnimationNumFrames()) - 1)
     end
 end
 
@@ -88,6 +88,8 @@ local function fn()
     inst:AddTag("rechargeable")
     -- Optional tag to control if the item is not a "cooldown until" meter but a "bonus while" meter.
     inst:AddTag("rechargeable_bonus")
+
+    inst.scrapbook_specialinfo = "WORTOX_SOUL"
 
     inst.entity:SetPristine()
 

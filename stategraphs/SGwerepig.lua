@@ -17,6 +17,7 @@ local events =
     CommonHandlers.OnDeath(),
     CommonHandlers.OnHop(),
 	CommonHandlers.OnSink(),
+    CommonHandlers.OnIpecacPoop(),
     EventHandler("transformwere", function(inst)
         if not inst.components.health:IsDead() then
             inst.sg:GoToState("transformWere")
@@ -57,9 +58,16 @@ local states =
         name = "howl",
         tags = { "busy" },
 
-        onenter = function(inst)
+        onenter = function(inst, pushanim)
             inst.Physics:Stop()
-            inst.AnimState:PlayAnimation("howl")
+            if pushanim then
+                if type(pushanim) == "string" then
+                    inst.AnimState:PlayAnimation(pushanim)
+                end
+                inst.AnimState:PushAnimation("howl", false)
+            else
+                inst.AnimState:PlayAnimation("howl")
+            end
         end,
 
         timeline =
@@ -142,7 +150,7 @@ local states =
         events =
         {
             EventHandler("animqueueover", function(inst)
-                inst.sg:GoToState(not inst.components.combat:HasTarget() and math.random() < .3 and "howl" or "idle")
+                inst.sg:GoToState((not inst.components.combat:HasTarget() and math.random() < .3) and "howl" or "idle", "were_atk_pst")
             end),
         },
     },
@@ -316,5 +324,6 @@ CommonStates.AddFrozenStates(states)
 CommonStates.AddSimpleActionState(states, "eat", "eat", 20 * FRAMES, { "busy" })
 CommonStates.AddHopStates(states, true, { pre = "boat_jump_pre", loop = "boat_jump_loop", pst = "boat_jump_pst"})
 CommonStates.AddSinkAndWashAsoreStates(states)
+CommonStates.AddIpecacPoopState(states)
 
 return StateGraph("werepig", states, events, "idle", actionhandlers)

@@ -33,6 +33,8 @@ local function MakeWrap(name, containerprefab, tag, cheapfuel)
             inst:AddTag(tag)
         end
 
+        inst.scrapbook_specialinfo = "BUNDLEWRAP",
+
         inst.entity:SetPristine()
 
         if not TheWorld.ismastersim then
@@ -64,7 +66,7 @@ local function MakeWrap(name, containerprefab, tag, cheapfuel)
     return Prefab(name.."wrap", fn, assets, prefabs)
 end
 
-local function MakeContainer(name, build)
+local function MakeContainer(name, build, tag)
     local assets =
     {
         Asset("ANIM", "anim/"..build..".zip"),
@@ -77,6 +79,10 @@ local function MakeContainer(name, build)
         inst.entity:AddNetwork()
 
         inst:AddTag("bundle")
+
+		if tag ~= nil then
+			inst:AddTag(tag)
+		end
 
         --V2C: blank string for controller action prompt
         inst.name = " "
@@ -185,6 +191,7 @@ local function MakeBundle(name, onesize, variations, loot, tossloot, setupdata, 
             suffix = suffix..tostring(inst.variation)
         end
         inst.AnimState:PlayAnimation("idle"..suffix)
+        inst.scrapbook_anim = "idle"..suffix
 
         if doer ~= nil and doer.SoundEmitter ~= nil then
             doer.SoundEmitter:PlaySound(inst.skin_wrap_sound or "dontstarve/common/together/packaged")
@@ -250,6 +257,9 @@ local function MakeBundle(name, onesize, variations, loot, tossloot, setupdata, 
             (onesize and "idle_onesize1" or "idle_large1") or
             (onesize and "idle_onesize" or "idle_large")
         )
+        inst.scrapbook_anim = variations ~= nil and
+            (onesize and "idle_onesize1" or "idle_large1") or
+            (onesize and "idle_onesize" or "idle_large")
 
         inst:AddTag("bundle")
 
@@ -259,6 +269,8 @@ local function MakeBundle(name, onesize, variations, loot, tossloot, setupdata, 
         if setupdata ~= nil and setupdata.common_postinit ~= nil then
             setupdata.common_postinit(inst, setupdata)
         end
+
+        inst.scrapbook_specialinfo = "BUNDLE"
 
         inst.entity:SetPristine()
 
@@ -367,6 +379,16 @@ local redpouch_yotb =
 }
 
 local redpouch_yot_catcoon =
+{
+    master_postinit = function(inst, setupdata)
+        inst.wet_prefix = STRINGS.WET_PREFIX.POUCH
+    end,
+    common_postinit = function(inst, setupdata)
+        inst:SetPrefabNameOverride("redpouch")
+    end,
+}
+
+local redpouch_yotr =
 {
     master_postinit = function(inst, setupdata)
         inst.wet_prefix = STRINGS.WET_PREFIX.POUCH
@@ -537,7 +559,8 @@ local wetpouch =
 }
 
 return MakeContainer("bundle_container", "ui_bundle_2x2"),
-    MakeContainer("construction_container", "ui_bundle_2x2"),
+	MakeContainer("construction_container", "ui_construction_4x1"),
+	MakeContainer("construction_repair_container", "ui_construction_4x1", "repairconstructionsite"),
     --"bundle", "bundlewrap"
     MakeBundle("bundle", false, nil, { "waxpaper" }),
     MakeWrap("bundle", "bundle_container", nil, false),
@@ -550,6 +573,7 @@ return MakeContainer("bundle_container", "ui_bundle_2x2"),
     MakeBundle("redpouch_yotc", false, nil, nil, true, redpouch_yotc),
     MakeBundle("redpouch_yotb", false, nil, nil, true, redpouch_yotb),
     MakeBundle("redpouch_yot_catcoon", false, nil, nil, true, redpouch_yot_catcoon),
+    MakeBundle("redpouch_yotr",        false, nil, nil, true, redpouch_yotr),
 	MakeBundle("yotc_seedpacket", true, nil, nil, true, yotc_seedpacket),
 	MakeBundle("yotc_seedpacket_rare", true, nil, nil, true, yotc_seedpacket_rare),
 	MakeBundle("carnival_seedpacket", true, nil, nil, true, carnival_seedpacket),

@@ -1,4 +1,5 @@
 local EquipSlot = require("equipslotutil")
+local SpDamageUtil = require("components/spdamageutil")
 
 local function OnDeath(inst)
     if inst.components.inventory ~= nil then
@@ -46,6 +47,7 @@ local Inventory = Class(function(self, inst)
     self.acceptsstacks = true
     self.ignorescangoincontainer = false
     self.opencontainers = {}
+	self.opencontainerproxies = {}
 
     self.dropondeath = true
     inst:ListenForEvent("death", OnDeath)
@@ -348,48 +350,106 @@ function Inventory:EquipHasTag(tag)
     end
 end
 
+function Inventory:EquipHasSpDefenseForType(sptype)
+	for k, v in pairs(self.equipslots) do
+		if SpDamageUtil.GetSpDefenseForType(v, sptype) > 0 then
+			return true
+		end
+	end
+end
+
 function Inventory:IsHeavyLifting()
     return self.heavylifting
 end
 
-function Inventory:ApplyDamage(damage, attacker, weapon)
-    --check resistance and specialised armor
+function Inventory:ApplyDamage(damage, attacker, weapon, spdamage)
     local absorbers = {}
+	local damagetypemult = 1
     for k, v in pairs(self.equipslots) do
-        if v.components.resistance ~= nil and
-            v.components.resistance:HasResistance(attacker, weapon) and
-            v.components.resistance:ShouldResistDamage() then
-            v.components.resistance:ResistDamage(damage)
-            return 0
-        elseif v.components.armor ~= nil then
-            absorbers[v.components.armor] = v.components.armor:GetAbsorption(attacker, weapon)
-        end
+		--check resistance
+		if v.components.resistance ~= nil and
+			v.components.resistance:HasResistance(attacker, weapon) and
+			v.components.resistance:ShouldResistDamage() then
+			v.components.resistance:ResistDamage(damage)
+			return 0, nil
+		elseif v.components.armor ~= nil then
+			absorbers[v.components.armor] = v.components.armor:GetAbsorption(attacker, weapon)
+		end
+		if v.components.damagetyperesist ~= nil then
+			damagetypemult = damagetypemult * v.components.damagetyperesist:GetResist(attacker, weapon)
+		end
     end
 
-    -- print("Incoming damage", damage)
+	damage = damage * damagetypemult
+	-- print("Incoming damage", damage)
 
-    local absorbed_percent = 0
-    local total_absorption = 0
-    for armor, amt in pairs(absorbers) do
-        -- print("\t", armor.inst, "absorbs", amt)
-        absorbed_percent = math.max(amt, absorbed_percent)
-        total_absorption = total_absorption + amt
-    end
+	local absorbed_percent = 0
+	local total_absorption = 0
+	for armor, amt in pairs(absorbers) do
+		-- print("\t", armor.inst, "absorbs", amt)
+		absorbed_percent = math.max(amt, absorbed_percent)
+		total_absorption = total_absorption + amt
+	end
 
-    local absorbed_damage = damage * absorbed_percent
-    local leftover_damage = damage - absorbed_damage
+	local absorbed_damage = damage * absorbed_percent
+	local leftover_damage = damage - absorbed_damage
 
-    -- print("\tabsorbed%", absorbed_percent, "total_absorption", total_absorption, "absorbed_damage", absorbed_damage, "leftover_damage", leftover_damage)
+	-- print("\tabsorbed%", absorbed_percent, "total_absorption", total_absorption, "absorbed_damage", absorbed_damage, "leftover_damage", leftover_damage)
 
-    if total_absorption > 0 then
-        ProfileStatsAdd("armor_absorb", absorbed_damage)
+	local armor_damage = {}
+	if total_absorption > 0 then
+		ProfileStatsAdd("armor_absorb", absorbed_damage)
 
-        for armor, amt in pairs(absorbers) do
-            armor:TakeDamage(absorbed_damage * amt / total_absorption + armor:GetBonusDamage(attacker, weapon))
-        end
-    end
+		for armor, amt in pairs(absorbers) do
+			armor_damage[armor] = absorbed_damage * amt / total_absorption + armor:GetBonusDamage(attacker, weapon)
+		end
+	end
 
-    return leftover_damage
+	--Apply special damage
+	if spdamage ~= nil then
+		for sptype, dmg in pairs(spdamage) do
+			dmg = dmg * damagetypemult
+			local spdefenders = {}
+			local count = 0
+			for eslot, equip in pairs(self.equipslots) do
+				local def = SpDamageUtil.GetSpDefenseForType(equip, sptype)
+				if def > 0 then
+					count = count + 1
+					spdefenders[equip] = def
+				end
+			end
+			while dmg > 0 and count > 0 do
+				local splitdmg = dmg / count
+				for k, v in pairs(spdefenders) do
+					local defended
+					if v > splitdmg then
+						defended = splitdmg
+						spdefenders[k] = v - splitdmg
+					else
+						defended = v
+						spdefenders[k] = nil
+						count = count - 1
+					end
+					dmg = dmg - defended
+					local armor = k.components.armor
+					if armor ~= nil then
+						armor_damage[armor] = (armor_damage[armor] or 0) + defended
+					end
+				end
+			end
+			spdamage[sptype] = dmg > 0 and dmg or nil
+		end
+		if next(spdamage) == nil then
+			spdamage = nil
+		end
+	end
+
+	--Apply armor durability loss
+	for armor, dmg in pairs(armor_damage) do
+		armor:TakeDamage(dmg)
+	end
+
+	return leftover_damage, spdamage
 end
 
 function Inventory:GetActiveItem()
@@ -571,6 +631,12 @@ function Inventory:ForEachItem(fn, ...)
     end
 end
 
+function Inventory:ForEachEquipment(fn, ...)
+    for k,v in pairs(self.equipslots) do
+        fn(v, ...)
+    end
+end
+
 function Inventory:RemoveItemBySlot(slot)
     if slot and self.itemslots[slot] then
         local item = self.itemslots[slot]
@@ -599,10 +665,6 @@ function Inventory:DropItem(item, wholestack, randomdir, pos)
 
         dropped.prevcontainer = nil
         dropped.prevslot = nil
-
-        if dropped:HasTag("personal_possession") then
-            dropped:RemoveTag("personal_possession")
-        end
 
         self.inst:PushEvent("dropitem", { item = dropped })
     end
@@ -960,6 +1022,9 @@ function Inventory:Unequip(equipslot, slip)
     --print("Inventory:Unequip", item)
     if item ~= nil then
         if item.components.equippable ~= nil then
+            if item.components.equippable:ShouldPreventUnequipping() then
+                return nil
+            end
             item.components.equippable:Unequip(self.inst)
             local overflow = self:GetOverflowContainer()
             if overflow ~= nil and overflow.inst == item then
@@ -970,8 +1035,14 @@ function Inventory:Unequip(equipslot, slip)
             self.heavylifting = false
         end
     end
+
     self.equipslots[equipslot] = nil
     self.inst:PushEvent("unequip", {item=item, eslot=equipslot, slip=slip})
+
+    if self.inst:HasTag("player") and item ~= nil and item.components.setbonus ~= nil then
+        item.components.setbonus:UpdateSetBonus(self, false)
+    end
+
     return item
 end
 
@@ -988,8 +1059,15 @@ function Inventory:SetActiveItem(item)
     end
 end
 
-function Inventory:Equip(item, old_to_active, no_animation)
+function Inventory:Equip(item, old_to_active, no_animation, force_ui_anim)
     if item == nil or item.components.equippable == nil or not item:IsValid() or item.components.equippable:IsRestricted(self.inst) or (self.noheavylifting and item:HasTag("heavy")) then
+        return
+    end
+    -----
+    
+    local eslot = item.components.equippable.equipslot
+    local olditem = self.equipslots[eslot]
+    if olditem ~= nil and olditem.components.equippable:ShouldPreventUnequipping() then
         return
     end
 
@@ -1017,7 +1095,7 @@ function Inventory:Equip(item, old_to_active, no_animation)
         if handitem ~= nil then
             if handitem.components.inventoryitem.cangoincontainer then
                 self.silentfull = true
-                self:GiveItem(handitem)
+				self:GiveItem(handitem, nil, force_ui_anim and self.inst:GetPosition() or nil)
                 self.silentfull = false
             else
                 self:DropItem(handitem, true, true)
@@ -1041,15 +1119,13 @@ function Inventory:Equip(item, old_to_active, no_animation)
         self:SetActiveItem(nil)
     end
 
-    local eslot = item.components.equippable.equipslot
-    if self.equipslots[eslot] ~= item then
-        local olditem = self.equipslots[eslot]
+    if olditem ~= item then
         if leftovers ~= nil then
             if old_to_active then
                 self:GiveActiveItem(leftovers)
             else
                 self.silentfull = true
-                self:GiveItem(leftovers)
+				self:GiveItem(leftovers, nil, force_ui_anim and self.inst:GetPosition() or nil)
                 self.silentfull = false
             end
         end
@@ -1063,7 +1139,7 @@ function Inventory:Equip(item, old_to_active, no_animation)
                 self:GiveActiveItem(olditem)
             else
                 self.silentfull = true
-                self:GiveItem(olditem)
+				self:GiveItem(olditem, nil, force_ui_anim and self.inst:GetPosition() or nil)
                 self.silentfull = false
             end
         end
@@ -1083,6 +1159,11 @@ function Inventory:Equip(item, old_to_active, no_animation)
         if METRICS_ENABLED and item.prefab ~= nil then
             ProfileStatsAdd("equip_"..item.prefab)
         end
+
+        if self.inst:HasTag("player") and item.components.setbonus ~= nil then
+            item.components.setbonus:UpdateSetBonus(self, true)
+        end
+
         return true
     end
 end
@@ -1488,6 +1569,10 @@ function Inventory:DropEverything(ondeath, keepequip)
     end
 
     if not keepequip then
+        if self.inst.EmptyBeard ~= nil then
+            self.inst:EmptyBeard()
+        end    
+
         for k, v in pairs(self.equipslots) do
             if not (ondeath and v.components.inventoryitem.keepondeath) then
                 self:DropItem(v, true, true)
@@ -1614,7 +1699,7 @@ function Inventory:Hide()
     overflow = overflow ~= nil and overflow.inst or nil
 
     for k, v in pairs(self.opencontainers) do
-        if k ~= overflow then
+        if k ~= overflow and not k.components.container.stay_open_on_hide then
 			k.components.container:Close(self.inst)
         end
     end
@@ -1884,7 +1969,11 @@ function Inventory:ControllerUseItemOnSceneFromInvTile(item, target, actioncode,
         elseif item.components.inventoryitem:GetGrandOwner() ~= self.inst then
             --V2C: This is now invalid as playercontroller will now send this
             --     case to the proper call to move items between controllers.
-        elseif actioncode == nil or target == nil or CanEntitySeeTarget(self.inst, target) then
+		elseif actioncode == nil
+			or target == nil
+			or CanEntitySeeTarget(self.inst, target)
+			or (target:HasTag("pocketdimension_container") and self.inst:HasTag("usingmagiciantool"))
+			then
             act = self.inst.components.playercontroller:GetItemUseAction(item, target)
         end
         ClearClientRequestedAction()
@@ -2107,7 +2196,18 @@ function Inventory:IsWaterproof()
 end
 
 function Inventory:TransferComponent(newinst)
+    if self.inst.EmptyBeard ~= nil then
+        self.inst:EmptyBeard()
+    end  
     self:TransferInventory(newinst)
+end
+
+function Inventory:GetOpenContainerProxyFor(master)
+	for k in pairs(self.opencontainerproxies) do
+		if k.components.container_proxy:GetMaster() == master then
+			return k
+		end
+	end
 end
 
 return Inventory

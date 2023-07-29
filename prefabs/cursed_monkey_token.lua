@@ -45,8 +45,6 @@ local function OnLoad(inst, data)
     seticons(inst)
 end
 
-
-
 local function fn()
     local inst = CreateEntity()
 
@@ -63,6 +61,8 @@ local function fn()
     inst.AnimState:SetBank("cursedbeads")
     inst.AnimState:SetBuild("cursed_beads")
     inst.AnimState:PlayAnimation("idle1")
+
+    inst.scrapbook_specialinfo = "CURSEDMONKEYTOKEN"
 
     inst:AddTag("cattoy")
     inst:AddTag("monkey_token")

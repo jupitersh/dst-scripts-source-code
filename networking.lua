@@ -19,11 +19,12 @@ function SpawnSecondInstance()
     end
 end
 
+
 --V2C: This is for server side processing of remote slash command requests
 function Networking_SlashCmd(guid, userid, cmd)
-    local entity = Ents[guid] or TheNet:GetClientTableForUser(userid)
-    if entity ~= nil then
-        UserCommands.RunTextUserCommand(cmd, entity, true)
+    local caller = Ents[guid] or TheNet:GetClientTableForUser(userid) -- NOTES(JBK): Either an actual entity or a table with some data.
+    if caller ~= nil then
+        UserCommands.RunTextUserCommand(cmd, caller, true)
     end
 end
 
@@ -197,6 +198,7 @@ function ValidateSpawnPrefabRequest(user_id, prefab_name, skin_base, clothing_bo
     if table.contains(SEAMLESSSWAP_CHARACTERLIST, prefab_name) and not allow_seamlessswap_characters then
         -- NOTES(JBK): This is not assertion level of importance but it is administrative note worthy level to know someone tried breaking things.
         in_valid_char_list = false
+        in_mod_char_list = false
         print(string.format("[WERR] Player with ID %s tried spawning as %s without having permissions to do so!", user_id or "?", prefab_name or "?"))
     end
 
@@ -241,7 +243,8 @@ function ValidateSpawnPrefabRequest(user_id, prefab_name, skin_base, clothing_bo
     return validated_prefab, validated_skin_base, validated_clothing_body, validated_clothing_hand, validated_clothing_legs, validated_clothing_feet
 end
 
-function SpawnNewPlayerOnServerFromSim(player_guid, skin_base, clothing_body, clothing_hand, clothing_legs, clothing_feet, starting_item_skins)
+-- NOTES(JBK): [Searchable "SN_SKILLSELECTION"] skillselection 
+function SpawnNewPlayerOnServerFromSim(player_guid, skin_base, clothing_body, clothing_hand, clothing_legs, clothing_feet, starting_item_skins, skillselection)
     local player = Ents[player_guid]
     if player ~= nil then
         local skinner = player.components.skinner
@@ -256,6 +259,10 @@ function SpawnNewPlayerOnServerFromSim(player_guid, skin_base, clothing_body, cl
             player:OnNewSpawn(starting_item_skins)
             player.OnNewSpawn = nil
         end
+
+        local skilltreeupdater = player.components.skilltreeupdater
+        skilltreeupdater:SetPlayerSkillSelection(skillselection)
+
         TheWorld.components.playerspawner:SpawnAtNextLocation(TheWorld, player)
         SerializeUserSession(player, true)        
     end

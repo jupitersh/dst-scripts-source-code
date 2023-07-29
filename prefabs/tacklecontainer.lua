@@ -67,11 +67,19 @@ local function MakeTackleContainer(name, bank, build, assets)
         inst.AnimState:SetBank(bank)
         inst.AnimState:SetBuild(build)
         inst.AnimState:PlayAnimation("closed")
+        inst.scrapbook_anim = "closed"
 
 		MakeInventoryPhysics(inst)
 
         local swap_data = {bank = bank, anim = "closed"}
         MakeInventoryFloatable(inst, "med", nil, nil, nil, nil, swap_data)
+
+        if name == "tacklecontainer" then
+            inst.scrapbook_specialinfo = "TACKLECONTAINER"    
+        end
+        if name == "supertacklecontainer" then
+            inst.scrapbook_specialinfo = "SUPERTACKLECONTAINER"
+        end
 
         inst.entity:SetPristine()
 

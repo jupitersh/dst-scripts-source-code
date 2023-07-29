@@ -13,10 +13,9 @@ local assets =
 
 local prefabs =
 {
-    "meat",
-    "log",
-    "character_fire",
+    "monstermeat",
     "livinglog",
+    "character_fire",
 }
 
 local function SetLeifScale(inst, scale)
@@ -108,6 +107,7 @@ local function common_fn(build)
     inst.AnimState:SetBank("leif")
     inst.AnimState:SetBuild(build)
     inst.AnimState:PlayAnimation("idle_loop", true)
+    inst.scrapbook_anim = "idle_loop"
 
     inst.entity:SetPristine()
 

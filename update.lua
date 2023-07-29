@@ -85,6 +85,9 @@ function WallUpdate(dt)
     end
 
     TheSim:ProfilerPush("fe")
+    if HashesMessageState == "SHOW_WARNING" then
+        ShowBadHashUI() -- This sets global_error_widget.
+    end
     if global_error_widget then
         TheFrontEnd:OnRenderImGui(dt)
         global_error_widget:OnUpdate(dt)
@@ -134,10 +137,12 @@ function WallUpdate(dt)
     ]]
 end
 
+require("components/updatelooper")
+
 function PostUpdate(dt)
     --TheSim:ProfilerPush("LuaPostUpdate")
     EmitterManager:PostUpdate()
-
+	UpdateLooper_PostUpdate()
     --TheSim:ProfilerPop()
 end
 

@@ -95,11 +95,16 @@ local function fn()
 
     inst.Physics:SetCollisionCallback(oncollide)
 
-    inst.AnimState:SetTime(math.random() * 2)
+	inst.AnimState:SetFrame(math.random(inst.AnimState:GetCurrentAnimationNumFrames()) - 1)
 
     inst.balloon_num = 1
 
     BALLOONS.SetRopeShape(inst)
+
+    inst.scrapbook_overridedata={}
+    table.insert( inst.scrapbook_overridedata, {"swap_balloon", "balloon_shapes_party", "balloon_1"})
+    table.insert( inst.scrapbook_overridedata, {"swap_rope", "balloon2", "rope_1"})
+
 
 	--inst.colour_idx = BALLOONS.SetColour(inst)
 
@@ -280,7 +285,7 @@ local function confettiballoon_fn()
     inst.AnimState:SetBank("wes_balloon_party")
     inst.AnimState:SetBuild("wes_balloon_party")
     inst.AnimState:PlayAnimation("float", true)
-	inst.AnimState:SetTime(math.random() * inst.AnimState:GetCurrentAnimationLength())
+	inst.AnimState:SetFrame(math.random(inst.AnimState:GetCurrentAnimationNumFrames()) - 1)
 	BALLOONS.SetColour(inst)
 
 	local s = 0.9 + math.random() * 0.1

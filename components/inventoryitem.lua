@@ -111,6 +111,18 @@ function InventoryItem:InheritMoisture(moisture, iswet)
     end
 end
 
+function InventoryItem:InheritWorldWetnessAtXZ(x, z)
+	if self.inst.components.inventoryitemmoisture ~= nil and not IsUnderRainDomeAtXZ(x, z) then
+		self.inst.components.inventoryitemmoisture:InheritMoisture(TheWorld.state.wetness, TheWorld.state.iswet)
+	end
+end
+
+function InventoryItem:InheritWorldWetnessAtTarget(target)
+	if self.inst.components.inventoryitemmoisture ~= nil and target.components.rainimmunity == nil then
+		self.inst.components.inventoryitemmoisture:InheritMoisture(TheWorld.state.wetness, TheWorld.state.iswet)
+	end
+end
+
 function InventoryItem:DiluteMoisture(item, count)
     if self.inst.components.inventoryitemmoisture ~= nil then
         self.inst.components.inventoryitemmoisture:DiluteMoisture(item, count)
@@ -251,16 +263,19 @@ function InventoryItem:DoDropPhysics(x, y, z, randomdir, speedmult)
         if not self.nobounce then
             y = y + (heavy and .5 or 1)
         end
-        self.inst.Physics:Teleport(x, y, z)
 
         -- convert x, y, z to velocity
         if randomdir then
             local speed = ((heavy and 1 or 2) + math.random()) * (speedmult or 1)
             local angle = math.random() * 2 * PI
-            x = speed * math.cos(angle)
+			local cos_angle = math.cos(angle)
+			local sin_angle = math.sin(angle)
+			self.inst.Physics:Teleport(x + .01 * cos_angle, y, z - .01 * sin_angle)
+			x = speed * cos_angle
             y = self.nobounce and 0 or speed * 3
-            z = -speed * math.sin(angle)
+			z = -speed * sin_angle
         else
+			self.inst.Physics:Teleport(x, y, z)
             x = 0
             y = (self.nobounce and 0) or (heavy and 2.5) or 5
             z = 0
@@ -289,7 +304,6 @@ function InventoryItem:OnPickup(pickupguy, src_pos)
             pickupguy:PushEvent("burnt")
         end
     end
-
 
     self.inst:PushEvent("onpickup", { owner = pickupguy })
     return self.onpickupfn and self.onpickupfn(self.inst, pickupguy, src_pos)

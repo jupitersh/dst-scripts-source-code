@@ -1257,6 +1257,8 @@ local function makefn(build, stage, data)
             inst.AnimState:OverrideSymbol("swap_leaves", GetBuild(inst).leavesbuild, "swap_leaves")
         end
 
+        inst.scrapbook_overridedata={"swap_leaves", "tree_leaf_green_build", "swap_leaves"}
+
         inst:SetPrefabName(GetBuild(inst).prefab_name)
 
         MakeSnowCoveredPristine(inst)
@@ -1364,7 +1366,7 @@ local function makefn(build, stage, data)
             --When POPULATING, season won't be valid yet at this point,
             --but we want this immediate for all later spawns.
             OnInitSeason(inst)
-            inst.AnimState:SetTime(math.random() * 2)
+			inst.AnimState:SetFrame(math.random(inst.AnimState:GetCurrentAnimationNumFrames()) - 1)
             if data == "burnt" then
                 OnBurnt(inst, true)
             else
@@ -1375,8 +1377,6 @@ local function makefn(build, stage, data)
 					inst:DoTaskInTime(0, OnInitSeason)
 				end
             end
-
-
         end
 
         inst.OnEntitySleep = OnEntitySleep

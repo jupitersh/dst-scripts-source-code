@@ -1,6 +1,19 @@
-local cannonball_assets =
+local assets =
 {
     Asset("ANIM", "anim/cannonball_rock.zip"),
+}
+
+local prefabs_item =
+{
+	"cannonball_rock",
+}
+
+local prefabs =
+{
+	"bullkelp_root",
+	"cannonball_used",
+	"crab_king_waterspout",
+	"wave_splash",
 }
 
 -- TODO: Move these to tuning.lua!
@@ -98,7 +111,7 @@ local function OnHit(inst, attacker, target)
                 if loot ~= nil then
                     loot.Transform:SetPosition(ae_x, ae_y, ae_z)
                     if loot.components.inventoryitem ~= nil then
-                        loot.components.inventoryitem:InheritMoisture(TheWorld.state.wetness, TheWorld.state.iswet)
+						loot.components.inventoryitem:InheritWorldWetnessAtTarget(affected_entity)
                     end
                     if loot.components.stackable ~= nil
                             and affected_entity.components.pickable.numtoharvest > 1 then
@@ -156,7 +169,7 @@ local function OnUpdateProjectile(inst)
             if target:HasTag("wall") and target.components.health then
                 if not target.components.health:IsDead() then
                     inst.components.combat:DoAreaAttack(inst, CANNONBALL_SPLASH_RADIUS, nil, nil, nil, AREAATTACK_EXCLUDETAGS)
-                    SpawnPrefab("waterballoon_splash").Transform:SetPosition(inst.Transform:GetWorldPosition())
+                    SpawnPrefab("cannonball_used").Transform:SetPosition(inst.Transform:GetWorldPosition())
                     inst:Remove()
                     return
                 end
@@ -294,5 +307,5 @@ local function cannonball_item_fn()
     return inst
 end
 
-return Prefab("cannonball_rock", cannonball_fn, cannonball_assets),
-        Prefab("cannonball_rock_item", cannonball_item_fn, cannonball_assets)
+return Prefab("cannonball_rock", cannonball_fn, assets, prefabs),
+	Prefab("cannonball_rock_item", cannonball_item_fn, assets, prefabs_item)

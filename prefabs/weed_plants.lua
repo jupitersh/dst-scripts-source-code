@@ -113,7 +113,7 @@ end
 local function PlayStageAnim(inst, anim, custom_pre)
 	if POPULATING or inst:IsAsleep() then
 		inst.AnimState:PlayAnimation("crop_"..anim, true)
-		inst.AnimState:SetTime(math.random() * inst.AnimState:GetCurrentAnimationLength())
+		inst.AnimState:SetFrame(math.random(inst.AnimState:GetCurrentAnimationNumFrames()) - 1)
 	elseif custom_pre ~= nil then
 		inst.AnimState:PlayAnimation(custom_pre, false)
 		inst.AnimState:PushAnimation("crop_"..anim, true)
@@ -502,10 +502,12 @@ local function MakeWeed(weed_def)
         inst:AddTag("farm_plant")
 		inst:AddTag("farm_plant_killjoy")
 		inst:AddTag("weed")
+        inst:AddTag("lunarplant_target")
 		inst:AddTag("plant")
 		inst:AddTag("plantresearchable")
 		inst:AddTag("weedplantstress")
 		inst:AddTag("tendable_farmplant") -- for farmplanttendable component
+
 		if weed_def.extra_tags ~= nil then
 			for k, v in ipairs(weed_def.extra_tags) do
 				inst:AddTag(v)

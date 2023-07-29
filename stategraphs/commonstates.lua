@@ -108,6 +108,12 @@ local function update_hit_recovery_delay(inst)
 end
 
 CommonHandlers.UpdateHitRecoveryDelay = update_hit_recovery_delay
+
+CommonHandlers.ResetHitRecoveryDelay = function(inst)
+	inst._last_hitreact_time = nil
+	inst._last_hitreact_count = nil
+end
+
 local function onattacked(inst, data, hitreact_cooldown, max_hitreacts, skip_cooldown_fn)
     if inst.components.health ~= nil and not inst.components.health:IsDead()
 		and not hit_recovery_delay(inst, hitreact_cooldown, max_hitreacts, skip_cooldown_fn)
@@ -352,7 +358,9 @@ CommonStates.AddRunStates = function(states, timelines, anims, softstop, delayst
 			if fns ~= nil and fns.startonenter ~= nil then
 				fns.startonenter(inst)
 			end
-			if not delaystart then
+			if delaystart then
+				inst.components.locomotor:StopMoving()
+			else
 	            inst.components.locomotor:RunForward()
 			end
             inst.AnimState:PlayAnimation(get_loco_anim(inst, anims ~= nil and anims.startrun or nil, "run_pre"))
@@ -453,7 +461,9 @@ CommonStates.AddWalkStates = function(states, timelines, anims, softstop, delays
 			if fns ~= nil and fns.startonenter ~= nil then -- this has to run before WalkForward so that startonenter has a chance to update the walk speed
 				fns.startonenter(inst)
 			end
-			if not delaystart then
+			if delaystart then
+				inst.components.locomotor:StopMoving()
+			else
 	            inst.components.locomotor:WalkForward()
 			end
             inst.AnimState:PlayAnimation(get_loco_anim(inst, anims ~= nil and anims.startwalk or nil, "walk_pre"))
@@ -984,6 +994,7 @@ local function onunfreeze(inst)
 end
 
 local function onthaw(inst)
+	inst.sg.statemem.thawing = true
     inst.sg:GoToState("thaw")
 end
 
@@ -1016,7 +1027,9 @@ local function onenterfrozen(inst)
 end
 
 local function onexitfrozen(inst)
-    inst.AnimState:ClearOverrideSymbol("swap_frozen")
+	if not inst.sg.statemem.thawing then
+		inst.AnimState:ClearOverrideSymbol("swap_frozen")
+	end
 end
 
 local function onenterthawpre(inst)
@@ -1872,23 +1885,27 @@ CommonStates.AddSinkAndWashAsoreStates = function(states, anims, timelines, fns)
 	})
 end
 
+CommonStates.AddSinkAndWashAshoreStates = CommonStates.AddSinkAndWashAsoreStates
+
 --------------------------------------------------------------------------
 
 function PlayMiningFX(inst, target, nosound)
     if target ~= nil and target:IsValid() then
         local frozen = target:HasTag("frozen")
         local moonglass = target:HasTag("moonglass")
+        local crystal = target:HasTag("crystal")
         if target.Transform ~= nil then
             SpawnPrefab(
                 (frozen and "mining_ice_fx") or
                 (moonglass and "mining_moonglass_fx") or
+                (crystal and "mining_crystal_fx") or
                 "mining_fx"
             ).Transform:SetPosition(target.Transform:GetWorldPosition())
         end
         if not nosound and inst.SoundEmitter ~= nil then
             inst.SoundEmitter:PlaySound(
                 (frozen and "dontstarve_DLC001/common/iceboulder_hit") or
-                (moonglass and "turnoftides/common/together/moon_glass/mine") or
+                ((moonglass or crystal) and "turnoftides/common/together/moon_glass/mine") or
                 "dontstarve/wilson/use_pick_rock"
             )
         end
@@ -1896,3 +1913,33 @@ function PlayMiningFX(inst, target, nosound)
 end
 
 --------------------------------------------------------------------------
+
+local function IpecacPoop(inst)
+    if not (inst.sg:HasStateTag("busy") or (inst.components.health ~= nil and inst.components.health:IsDead())) then
+        inst.sg:GoToState("ipecacpoop")
+    end
+end
+
+CommonHandlers.OnIpecacPoop = function()
+    return EventHandler("ipecacpoop", IpecacPoop)
+end
+
+CommonStates.AddIpecacPoopState = function(states, anim)
+    anim = anim or "hit"
+
+    table.insert(states, State{
+        name = "ipecacpoop",
+        tags = { "busy" },
+
+        onenter = function(inst)
+            inst.SoundEmitter:PlaySound("meta2/wormwood/laxative_poot")
+            inst.AnimState:PlayAnimation(anim)
+            inst.Physics:Stop()
+        end,
+
+        events =
+        {
+            EventHandler("animover", function(inst) inst.sg:GoToState("idle") end),
+        },
+    })
+end

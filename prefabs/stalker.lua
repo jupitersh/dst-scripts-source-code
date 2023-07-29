@@ -43,6 +43,7 @@ local prefabs_forest =
 
 local prefabs_atrium =
 {
+    "shadowheart",
     "fossil_piece",
     "fossilspike",
     "fossilspike2",
@@ -388,12 +389,25 @@ end
 
 --------------------------------------------------------------------------
 
+local function GetRepairedAtriumChatterLines(inst, strtbl)
+    local stargate = inst.components.entitytracker:GetEntity("stargate")
+
+    if stargate ~= nil and
+        stargate.components.charliecutscene ~= nil and
+        stargate.components.charliecutscene:IsGateRepaired() and
+        STRINGS[strtbl.."_ATRIUM_REPAIRED"] ~= nil
+    then
+        return strtbl.."_ATRIUM_REPAIRED"
+    end
+end
+
 local function BattleCry(combat, target)
     local strtbl =
         target ~= nil and
         target:HasTag("player") and
         "STALKER_PLAYER_BATTLECRY" or
         "STALKER_BATTLECRY"
+
     return strtbl, math.random(#STRINGS[strtbl])
 end
 
@@ -403,6 +417,9 @@ local function AtriumBattleCry(combat, target)
         target:HasTag("player") and
         "STALKER_ATRIUM_PLAYER_BATTLECRY" or
         "STALKER_ATRIUM_BATTLECRY"
+
+    strtbl = GetRepairedAtriumChatterLines(combat.inst, strtbl) or strtbl
+
     return strtbl, math.random(#STRINGS[strtbl])
 end
 
@@ -414,6 +431,9 @@ end
 -- STRINGS.STALKER_ATRIUM_DEATHCRY
 local function AtriumBattleChatter(inst, id, forcetext)
     local strtbl = "STALKER_ATRIUM_"..string.upper(id)
+
+    strtbl = GetRepairedAtriumChatterLines(inst, strtbl) or strtbl
+
     inst.components.talker:Chatter(strtbl, math.random(#STRINGS[strtbl]), 2, forcetext)
 end
 
@@ -671,6 +691,7 @@ end
 local function OnSoldiersChanged(inst)
     if inst.hasshield ~= (inst.components.commander:GetNumSoldiers() > 0) then
         inst.hasshield = not inst.hasshield
+		inst._hasshield:set(inst.hasshield)
         if not inst.hasshield then
             inst.components.timer:StopTimer("channelers_cd")
             inst.components.timer:StartTimer("channelers_cd", TUNING.STALKER_CHANNELERS_CD)
@@ -995,10 +1016,28 @@ local function CheckAtriumDecay(inst)
     return inst.atriumdecay
 end
 
-local function AtriumOnDeath(inst)
-    if not CheckAtriumDecay(inst) then
+local function trackattackers(inst,data)
+    if data.attacker and data.attacker:HasTag("player") then
+        inst.attackerUSERIDs[data.attacker.userid] = true
+    end
+end
+
+local function AtriumOnDeath(inst,data)
+    if not inst:IsAtriumDecay() then
+        trackattackers(inst, data)
+
+        for ID, data in pairs(inst.attackerUSERIDs) do
+            for i, player in ipairs(AllPlayers) do
+                if player.userid == ID then 
+                    SendRPCToClient(CLIENT_RPC.UpdateAccomplishment, player.userid, "fuelweaver_killed")
+                    break
+                end
+            end
+        end
+
         SetMusicLevel(inst, 3)
     end
+
     if inst.miniontask ~= nil then
         inst.miniontask:Cancel()
         inst.miniontask = nil
@@ -1015,6 +1054,7 @@ local function AtriumOnSave(inst, data)
     data.level = inst._music:value() == 2 and 2 or nil
     data.channelers = inst.channelerparams
     data.minions = inst.minionpoints ~= nil and #inst.minionpoints or nil
+    data.attackerUSERIDs = inst.attackerUSERIDs or nil
 end
 
 local function AtriumOnLoad(inst, data)
@@ -1048,6 +1088,7 @@ local function AtriumOnLoad(inst, data)
                 inst.channelertask = inst:DoTaskInTime(0, DoSpawnChanneler)
             end
         end
+        inst.attackerUSERIDs = data.attackerUSERIDs or {}
     end
 end
 
@@ -1257,6 +1298,7 @@ local function common_fn(bank, build, shadowsize, canfight, atriumstalker)
     inst.AnimState:SetBuild("stalker_shadow_build")
     inst.AnimState:AddOverrideBuild(build)
     inst.AnimState:PlayAnimation("idle", true)
+    inst.scrapbook_overridebuild = build
 
     inst:AddTag("epic")
     inst:AddTag("monster")
@@ -1265,6 +1307,7 @@ local function common_fn(bank, build, shadowsize, canfight, atriumstalker)
     inst:AddTag("largecreature")
     inst:AddTag("stalker")
     inst:AddTag("fossil")
+    inst:AddTag("shadow_aligned")
 
     if atriumstalker then
         inst:AddTag("noepicmusic")
@@ -1275,6 +1318,12 @@ local function common_fn(bank, build, shadowsize, canfight, atriumstalker)
         inst._playingmusic = false
         inst._musictask = nil
         SetMusicLevel(inst, 1)
+
+		--Lower priority to regular monster when it is shielded
+		inst._hasshield = net_bool(inst.GUID, "stalker._hasshield")
+		inst.controller_priority_override_is_epic = function()
+			return not inst._hasshield:value()
+		end
     end
 
     if canfight then
@@ -1457,10 +1506,13 @@ local function atrium_fn()
     inst.OnLoad = AtriumOnLoad
     inst.OnLoadPostPass = AtriumOnLoadPostPass
 
+    inst.attackerUSERIDs = {}
+
     inst.hasshield = false
     inst:ListenForEvent("soldierschanged", OnSoldiersChanged)
     inst:ListenForEvent("miniondeath", OnMinionDeath)
     inst:ListenForEvent("death", AtriumOnDeath)
+    inst:ListenForEvent("attacked", trackattackers)
 
     return inst
 end

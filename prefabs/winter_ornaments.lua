@@ -223,11 +223,15 @@ local function MakeOrnament(ornamentid, overridename, lightdata, build, float_sc
             inst:AddTag("lightbattery")
 
             inst.AnimState:PlayAnimation(tostring(ornamentid).."_on")
+            inst.scrapbook_anim = tostring(ornamentid).."_on"
         else
             inst.AnimState:PlayAnimation(tostring(ornamentid))
+            inst.scrapbook_anim = tostring(ornamentid)
         end
 
         MakeInventoryFloatable(inst)
+
+        inst.scrapbook_specialinfo = "WINTERTREE_ORNAMENT"
 
         inst.entity:SetPristine()
 

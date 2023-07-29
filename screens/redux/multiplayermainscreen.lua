@@ -187,6 +187,13 @@ local function MakeYOTCatcoonBanner(self, banner_root, anim)
     anim:GetAnimState():PlayAnimation("loop", true)
 end
 
+local function MakeYOTRBanner(self, banner_root, anim)
+    anim:GetAnimState():SetBuild("dst_menu_yotr")
+    anim:GetAnimState():SetBank ("dst_menu_yotr")
+    anim:SetScale(.667)
+    anim:GetAnimState():PlayAnimation("loop", true)
+end
+
 local function MakeHallowedNightsBanner(self, banner_root, anim)
     anim:GetAnimState():SetBuild("dst_menu_halloween2")
     anim:GetAnimState():SetBank ("dst_menu_halloween2")
@@ -316,6 +323,38 @@ local function MakeWaxwellBanner(self, banner_root, anim)
     anim:SetScale(.667)
 end
 
+local function MakeWilsonBanner(self, banner_root, anim)
+    anim:GetAnimState():SetBuild("dst_menu_wilson")
+    anim:GetAnimState():SetBank("dst_menu_wilson")
+    anim:GetAnimState():PlayAnimation("loop", true)
+    anim:SetScale(.667)
+end
+
+local function MakeLunarRiftBanner(self, banner_root, anim)
+    anim:GetAnimState():SetBuild("dst_menu_lunarrifts")
+    anim:GetAnimState():SetBank("dst_menu_lunarrifts")
+    anim:GetAnimState():PlayAnimation("loop", true)
+    anim:SetScale(.667)
+end
+
+local function MakeShadowRiftBanner(self, banner_root, anim)
+    anim:GetAnimState():SetBuild("dst_menu_rift2")
+    anim:GetAnimState():SetBank("dst_menu_rift2")
+    anim:GetAnimState():PlayAnimation("loop", true)
+    anim:SetScale(.667)
+end
+
+
+local function MakeMeta2Banner(self, banner_root, anim)
+    anim:GetAnimState():SetBuild("dst_menu_meta2")
+    anim:GetAnimState():SetBank("dst_menu_meta2")
+    anim:GetAnimState():PlayAnimation("loop", true)
+    anim:SetScale(.667)
+end
+
+
+
+
 local function MakeDefaultBanner(self, banner_root, anim)
 	local banner_height = 350
 	banner_root:SetPosition(0, RESOLUTION_Y / 2 - banner_height / 2 + 1 ) -- positioning for when we had the top banner art
@@ -365,18 +404,23 @@ function MakeBanner(self)
 
 	if IS_BETA then
 		title_str = STRINGS.UI.MAINSCREEN.MAINBANNER_BETA_TITLE
-        MakeWaxwellBanner(self, banner_root, anim)
+        
+        MakeMeta2Banner(self, banner_root, anim)
+
+    elseif IsSpecialEventActive(SPECIAL_EVENTS.YOTR) then
+        MakeYOTRBanner(self, banner_root, anim)
 	elseif IsSpecialEventActive(SPECIAL_EVENTS.YOTC) then
         MakeYOTCBanner(self, banner_root, anim)
 	elseif IsSpecialEventActive(SPECIAL_EVENTS.YOT_CATCOON) then
         MakeYOTCatcoonBanner(self, banner_root, anim)
 	elseif IsSpecialEventActive(SPECIAL_EVENTS.HALLOWED_NIGHTS) then
-		MakeDramaBanner(self, banner_root, anim)
-        --MakeHallowedNightsBanner(self, banner_root, anim)
+		--MakeDramaBanner(self, banner_root, anim)
+        MakeHallowedNightsBanner(self, banner_root, anim)
 	elseif IsSpecialEventActive(SPECIAL_EVENTS.CARNIVAL) then
-        MakeCawnivalBanner(self, banner_root, anim)
+        MakeMeta2Banner(self, banner_root, anim) -- FIXME(JBK): Comment this when the shadow rift update is done.
+        --MakeCawnivalBanner(self, banner_root, anim) -- FIXME(JBK): Uncomment this when the shadow rift update is done.
 	else
-		MakeWaxwellBanner(self, banner_root, anim)
+		MakeMeta2Banner(self, banner_root, anim)
         --MakeDramaBanner(self, banner_root, anim)
         --MakeDefaultBanner(self, banner_root, anim)
         --MakePiratesBanner(self, banner_root, anim)
@@ -492,11 +536,19 @@ local MultiplayerMainScreen = Class(Screen, function(self, prev_screen, profile,
     self.prev_screen = prev_screen
 	self:DoInit()
 	self.default_focus = self.menu
+
+    TheGenericKV:ApplyOnlineProfileData() -- Applies the data after synchronization in login flow if applicable.
 end)
 
 function MultiplayerMainScreen:GotoShop( filter_info )
-	if not TheInventory:HasSupportForOfflineSkins() and (TheFrontEnd:GetIsOfflineMode() or not TheNet:IsOnlineMode()) then
-		TheFrontEnd:PushScreen(PopupDialogScreen(STRINGS.UI.MAINSCREEN.OFFLINE, STRINGS.UI.MAINSCREEN.ITEMCOLLECTION_DISABLE,
+	if (TheFrontEnd:GetIsOfflineMode() or not TheNet:IsOnlineMode()) then
+		local error_message
+		if TheInventory:HasSupportForOfflineSkins() then
+			error_message = STRINGS.UI.MAINSCREEN.STORE_DISABLE
+		else
+			error_message = STRINGS.UI.MAINSCREEN.ITEMCOLLECTION_DISABLE
+		end
+		TheFrontEnd:PushScreen(PopupDialogScreen(STRINGS.UI.MAINSCREEN.OFFLINE, error_message, 
 			{
 				{text=STRINGS.UI.FESTIVALEVENTSCREEN.OFFLINE_POPUP_LOGIN, cb = function()
 						SimReset()
@@ -561,7 +613,8 @@ function MultiplayerMainScreen:DoInit()
     self.onlinestatus = self.fixed_root:AddChild(OnlineStatus( true ))
 
     --TODO(Peter) put the snowflakes back in after 2021
-	--[[if IsSpecialEventActive(SPECIAL_EVENTS.WINTERS_FEAST) then
+	--[
+    if IsSpecialEventActive(SPECIAL_EVENTS.WINTERS_FEAST) then
 		self.banner_snowfall = self.banner_root:AddChild(TEMPLATES.old.Snowfall(-.39 * RESOLUTION_Y, .35, 3, 15))
 		self.banner_snowfall:SetVAnchor(ANCHOR_TOP)
 		self.banner_snowfall:SetHAnchor(ANCHOR_MIDDLE)
@@ -571,7 +624,8 @@ function MultiplayerMainScreen:DoInit()
 		self.snowfall:SetVAnchor(ANCHOR_TOP)
 		self.snowfall:SetHAnchor(ANCHOR_MIDDLE)
 		self.snowfall:SetScaleMode(SCALEMODE_PROPORTIONAL)
-	end]]
+	end
+    --]
 
     ----------------------------------------------------------
 	-- new MOTD

@@ -37,6 +37,7 @@ return{
             NOTALLOWED = "Nuh-uh.",
             EMPTY = "Need some buildy things.",
             MISMATCH = "Glort? Not right?",
+            NOTREADY = "Later! Too scary here, florp!",
         },
 		RUMMAGE =
 		{
@@ -65,6 +66,7 @@ return{
 			KITCOON_HIDEANDSEEK_NOT_ENOUGH_HIDING_SPOTS = "Hmm, no good hidey spots here.",
 			KITCOON_HIDEANDSEEK_ONE_GAME_PER_DAY = "Glurgh. Bored of this game.",
             MANNEQUIN_EQUIPSWAPFAILED = "Not supposed to put that there.",
+            PILLOWFIGHT_NO_HANDPILLOW = "WAIT!! Forgot pillow!",
 		},
 		OPEN_CRAFTING =
 		{
@@ -205,7 +207,7 @@ return{
 			--MapSpotRevealer/messagebottle
 			MESSAGEBOTTLEMANAGER_NOT_FOUND = "Grrr, can't read! Too dark here!",--Likely trying to read messagebottle treasure map in caves
 
-            STASH_MAP_NOT_FOUND = "Glurgh... can't read monkey scribbles.",-- Likely trying to read stash map  in world without stash
+            STASH_MAP_NOT_FOUND = "Glurgh... can't read monkey scribbles.",-- Likely trying to read stash map  in world without stash                  
         },
         WRAPBUNDLE =
         {
@@ -387,12 +389,12 @@ return{
 
 		CAST_SPELLBOOK =
 		{
---fallback to speech_wilson.lua			NO_TOPHAT = "only_used_by_waxwell",
+--fallback to speech_wilson.lua 			NO_TOPHAT = "only_used_by_waxwell",
 		},
 
 		CASTAOE =
 		{
---fallback to speech_wilson.lua			NO_MAX_SANITY = "only_used_by_waxwell",
+--fallback to speech_wilson.lua 			NO_MAX_SANITY = "only_used_by_waxwell",
 		},
     },
 
@@ -417,11 +419,11 @@ return{
 --fallback to speech_wilson.lua     ANNOUNCE_NOWATERNEARBY = "only_used_by_waxwell_and_wicker",
 
 	--waxwell specific
---fallback to speech_wilson.lua		ANNOUNCE_SHADOWLEVEL_ITEM = "only_used_by_waxwell",
---fallback to speech_wilson.lua		ANNOUNCE_EQUIP_SHADOWLEVEL_T1 = "only_used_by_waxwell",
---fallback to speech_wilson.lua		ANNOUNCE_EQUIP_SHADOWLEVEL_T2 = "only_used_by_waxwell",
---fallback to speech_wilson.lua		ANNOUNCE_EQUIP_SHADOWLEVEL_T3 = "only_used_by_waxwell",
---fallback to speech_wilson.lua		ANNOUNCE_EQUIP_SHADOWLEVEL_T4 = "only_used_by_waxwell",
+--fallback to speech_wilson.lua 	ANNOUNCE_SHADOWLEVEL_ITEM = "only_used_by_waxwell",
+--fallback to speech_wilson.lua 	ANNOUNCE_EQUIP_SHADOWLEVEL_T1 = "only_used_by_waxwell",
+--fallback to speech_wilson.lua 	ANNOUNCE_EQUIP_SHADOWLEVEL_T2 = "only_used_by_waxwell",
+--fallback to speech_wilson.lua 	ANNOUNCE_EQUIP_SHADOWLEVEL_T3 = "only_used_by_waxwell",
+--fallback to speech_wilson.lua 	ANNOUNCE_EQUIP_SHADOWLEVEL_T4 = "only_used_by_waxwell",
 
     --wolfgang specific
 --fallback to speech_wilson.lua     ANNOUNCE_NORMALTOMIGHTY = "only_used_by_wolfang",
@@ -878,6 +880,39 @@ return{
 --fallback to speech_wilson.lua     ANNOUNCE_BOOK_MOON_DAYTIME = "only_used_by_waxwell_and_wicker",
 
     ANNOUNCE_OFF_SCRIPT = "Hee-hee, you messed up play!",
+
+    ANNOUNCE_COZY_SLEEP = "Aww, was having such good dream...",
+
+	--
+	ANNOUNCE_TOOL_TOOWEAK = "Grrr... need something stronger, florp!",
+
+    ANNOUNCE_LUNAR_RIFT_MAX = "Grrr! Who make that light?",
+    ANNOUNCE_SHADOW_RIFT_MAX = "N-not scared of weird light, florp!",
+
+    ANNOUNCE_SCRAPBOOK_FULL = "No more room in scrappy book.",
+
+    ANNOUNCE_COACH = 
+    {
+        "only_used_by_wolfgang",
+        "only_used_by_wolfgang",
+        "only_used_by_wolfgang",
+        "only_used_by_wolfgang",
+        "only_used_by_wolfgang",
+        "only_used_by_wolfgang",
+        "only_used_by_wolfgang",
+        "only_used_by_wolfgang",
+        "only_used_by_wolfgang",
+    },
+    ANNOUNCE_WOLFGANG_WIMPY_COACHING = "only_used_by_wolfgang",
+    ANNOUNCE_WOLFGANG_MIGHTY_COACHING = "only_used_by_wolfang",
+    ANNOUNCE_WOLFGANG_BEGIN_COACHING = "only_used_by_wolfang",
+    ANNOUNCE_WOLFGANG_END_COACHING = "only_used_by_wolfang",
+    ANNOUNCE_WOLFGANG_NOTEAM = 
+    {
+        "only_used_by_wolfang",
+        "only_used_by_wolfang",
+        "only_used_by_wolfang",
+    },
 
 	BATTLECRY =
 	{
@@ -1483,6 +1518,8 @@ return{
         TURF_MOSAIC_RED = "Ground bit.",
         TURF_MOSAIC_BLUE = "Ground bit.",
 
+        TURF_BEARD_RUG = "Soft!",
+
 		POWCAKE = "Gives tummy-ache, but... smell so good...",
         CAVE_ENTRANCE = "There rocks in the way.",
         CAVE_ENTRANCE_RUINS = "What down there?",
@@ -1786,9 +1823,11 @@ return{
         CHESSPIECE_BEEFALO = "It just rock, real thing better.",
 		CHESSPIECE_KITCOON = "Aww, they having a nap.",
 		CHESSPIECE_CATCOON = "It pretty good statue, has dead butterfly!",
+        CHESSPIECE_MANRABBIT = "Glurgh. Bunnyman get statue before Mermfolk?!",
         CHESSPIECE_GUARDIANPHASE3 = "Glorp! Oh, it not real.",
         CHESSPIECE_EYEOFTERROR = "Oh no... got dried out, glorp...",
         CHESSPIECE_TWINSOFTERROR = "Ha ha, they just rocks now!",
+        CHESSPIECE_DAYWALKER = "Grrr... why we have nasty Pig statue?!",
 
         CHESSJUNK1 = "It all broken.",
         CHESSJUNK2 = "Didn't do it!!",
@@ -2316,7 +2355,7 @@ return{
             FULL = "That house full of nasty Pigfolk!",
             GENERIC = "Sniff... smell like... Pigfolk!",
             LIGHTSOUT = "Coast clear, florp.",
-            BURNT = "Hee-hee, pig house all burnt up!",
+            BURNT = "Hee-hee, Pig house all burnt up!",
         },
         PIGKING = "He no King, flort!!",
         PIGMAN =
@@ -2784,7 +2823,7 @@ return{
             BURNT = "Good, it gone now.",
 		},
 		PIG_TOKEN = "Stole Pigman's belt!",
-		PIG_COIN = "Shiny pig nose, florp!",
+		PIG_COIN = "Shiny Pig nose, florp!",
 		YOTP_FOOD1 = "Blegh! Has nasty Pig face!",
 		YOTP_FOOD2 = "Usually like mud, but that just bad.",
 		YOTP_FOOD3 = "This insulting to fish.",
@@ -2881,6 +2920,34 @@ return{
         },
         BEEFALO_GROOMER_ITEM = "Buildy pieces.",
 
+        YOTR_RABBITSHRINE =
+        {
+            GENERIC = "Gimme stuff, big rabbit head!",
+            EMPTY = "Rabbit want carrot?",
+            BURNT = "Uh oh...",
+        },
+
+        NIGHTCAPHAT = "Sleepy-time hat.",
+
+        YOTR_FOOD1 = "Grrr, will gobble you up, rabbit! Hee-hee.",
+        YOTR_FOOD2 = "Yummy!",
+        YOTR_FOOD3 = "That really okay for eating?",
+        YOTR_FOOD4 = "Not sharing!",
+
+        YOTR_TOKEN = "Hee-hee-hee... SMACK!",
+
+        COZY_BUNNYMAN = "Hey! What they doing up here?",
+
+        HANDPILLOW_BEEFALOWOOL = "Blegh, it full of hair!",
+        HANDPILLOW_KELP = "Ahh, slimy and nice!",
+        HANDPILLOW_PETALS = "Stinky ugly pillow!",
+        HANDPILLOW_STEELWOOL = "It good fighting pillow, nice and scratchy!",
+
+        BODYPILLOW_BEEFALOWOOL = "Blegh, it full of hair!",
+        BODYPILLOW_KELP = "Ahh, slimy and nice!",
+        BODYPILLOW_PETALS = "Stinky ugly pillow!",
+        BODYPILLOW_STEELWOOL = "Glurgh! Itchy!!",
+
 		BISHOP_CHARGE_HIT = "GLOP!",
 		TRUNKVEST_SUMMER = "Wearing a nose!",
 		TRUNKVEST_WINTER = "Cozy...",
@@ -2912,6 +2979,8 @@ return{
 		WALL_WOOD_ITEM = "Nice and sharp, florp.",
 		WALL_MOONROCK = "Moon wall!",
 		WALL_MOONROCK_ITEM = "Tough rocks.",
+		WALL_DREADSTONE = "Pretty wall!",
+		WALL_DREADSTONE_ITEM = "Will be good wall, florp.",
 		FENCE = "Keep out nasty Pigfolk, florp.",
         FENCE_ITEM = "For building fence!",
         FENCE_GATE = "Oooh smart, put door in fence.",
@@ -2941,7 +3010,7 @@ return{
 		WAXWELLJOURNAL =
 		{
 			GENERIC = "...Don't like stories in that book.",
---fallback to speech_wilson.lua			NEEDSFUEL = "only_used_by_waxwell",
+--fallback to speech_wilson.lua 			NEEDSFUEL = "only_used_by_waxwell",
 		},
 		WETGOOP = "Usually like wet goopy things...",
         WHIP = "Whi-chaaa!!",
@@ -4490,6 +4559,9 @@ return{
         DUMBBELL_GEM = "Muscly mustache man leave rocks everywhere.",
         POTATOSACK = "Snacks! Mine!!",
 
+        DUMBBELL_HEAT = "Muscly mustache man leave rocks everywhere.",
+        DUMBBELL_REDGEM = "Glurp! Hot rocks!",
+        DUMBBELL_BLUEGEM = "Glorph! Too cold!",
 
         TERRARIUMCHEST =
 		{
@@ -4575,7 +4647,7 @@ return{
         BOAT_ROTATOR_KIT = "It boat stuff.",
         BOAT_BUMPER_KELP = "Pretty decorations!",
         BOAT_BUMPER_KELP_KIT = "Gonna decorate boat, florp.",
-        BOAT_BUMPER_SHELL = "Pretty decorations!",
+		BOAT_BUMPER_SHELL = "Pretty decorations!",
         BOAT_BUMPER_SHELL_KIT = "Gonna decorate boat, florp.",
         BOAT_CANNON = {
             GENERIC = "It not ready yet!",
@@ -4690,6 +4762,133 @@ return{
 		-- Waxwell
 		MAGICIAN_CHEST = "Magic hidey-place.",
 		TOPHAT_MAGICIAN = "Glurgh, fancy hat got all gloopy.",
+
+        -- Year of the Rabbit
+        YOTR_FIGHTRING_KIT = "We allowed to hit things? Yay!!",
+        YOTR_FIGHTRING_BELL =
+        {
+            GENERIC = "Hee-hee! Who wanna fight!?",
+            PLAYING = "Me next, me next!!",
+        },
+
+        YOTR_DECOR_1 = {
+            GENERAL = "Ugly light statue.",
+            OUT = "Where light? Bunnyman not doing job!",
+        },
+        YOTR_DECOR_2 = {
+            GENERAL = "Ugly light statue.",
+            OUT = "Where light? Bunnyman not doing job!",
+        },
+
+        HAREBALL = "Glurgh, Bunnyman spit-up!",
+        YOTR_DECOR_1_ITEM = "Mermfolk light would be better.",
+        YOTR_DECOR_2_ITEM = "Mermfolk light would be better.",
+
+		--
+		DREADSTONE = "Pretty rocks!",
+		HORRORFUEL = "I-is just goop! Not scared!",
+		DAYWALKER =
+		{
+			GENERIC = "Grrr! You just big stinky Pig!",
+			IMPRISONED = "Nyeeeeehhh!!",
+		},
+		DAYWALKER_PILLAR =
+		{
+			GENERIC = "Heehee, stinky Pig all locked up!",
+			EXPOSED = "Rock too hard for breaking, florp.",
+		},
+		ARMORDREADSTONE = "So pretty... it mine!",
+		DREADSTONEHAT = "It real good for headbutting, flort!",
+
+        -- Rifts 1
+        LUNARRIFT_PORTAL = "Who broke sky?!",
+        LUNARRIFT_CRYSTAL = "Blegh, it not ice!",
+
+        LUNARTHRALL_PLANT = "Hey, it not sharing! Wicker-lady say we have to share!",
+        LUNARTHRALL_PLANT_VINE_END = "Glurgh, quit hitting!!",
+
+		LUNAR_GRAZER = "Hee-hee, it funny!",
+
+        PUREBRILLIANCE = "Glurgh, too bright!",
+        LUNARPLANT_HUSK = "Hee-hee, it dead!",
+
+		LUNAR_FORGE = "Make shiny things.",
+		LUNAR_FORGE_KIT = "Look easy to build, florp.",
+
+		LUNARPLANT_KIT = "Fix-up stuff.",
+		ARMOR_LUNARPLANT = "Tough and glowy!",
+		LUNARPLANTHAT = "Cage for head, florp?",
+		BOMB_LUNARPLANT = "Hee-hee-hee... boom!!",
+		STAFF_LUNARPLANT = "Magic hitting stick.",
+		SWORD_LUNARPLANT = "It mine!! Me want glowy sword!",
+		PICKAXE_LUNARPLANT = "It real good at breaking stuff.",
+		SHOVEL_LUNARPLANT = "Good scooper-upper, florp.",
+
+		BROKEN_FORGEDITEM = "Didn't break it!! Was someone else!",
+
+        PUNCHINGBAG = "Allowed to hit it? Yay!!",
+
+        -- Rifts 2
+        SHADOWRIFT_PORTAL = "Glorp! Ground broken!",
+
+		SHADOW_FORGE = "Make me things! Now!",
+		SHADOW_FORGE_KIT = "It not ready yet.",
+
+        FUSED_SHADELING = "Something stuck to its tail?",
+        FUSED_SHADELING_BOMB = "It gonna 'splode!",
+
+		VOIDCLOTH = "All torn up.",
+		VOIDCLOTH_KIT = "Fix-up stuff.",
+		VOIDCLOTHHAT = "It dark inside!",
+		ARMOR_VOIDCLOTH = "Scary shirt...",
+
+        VOIDCLOTH_UMBRELLA = "Huh? Th-there a storm in it!",
+        VOIDCLOTH_SCYTHE = "Swish swish, bye-bye plants! Hee-hee!",
+
+		SHADOWTHRALL_HANDS = "G-go away!!",
+		SHADOWTHRALL_HORNS = "Hey! No eating!!",
+		SHADOWTHRALL_WINGS = "N-not scared of you, florp!",
+
+        CHARLIE_NPC = "It the scary night lady!!",
+        CHARLIE_HAND = "What you want, florp?",
+
+        NITRE_FORMATION = "Big bunch of funny rocks.",
+        DREADSTONE_STACK = "Oooh, big shiny rock!",
+        
+        SCRAPBOOK_PAGE = "Found page for scrappy book!",
+
+        LEIF_IDOL = "Aww, little Treebeast!",
+        WOODCARVEDHAT = "Wood choppy man make it with metal choppy friend!",
+        WALKING_STICK = "Wicker-lady say is for walking, not for poking Wen-dee...",
+
+        IPECACSYRUP = "Smell good! Like swamp and rot!",
+        BOMB_LUNARPLANT_WORMWOOD = "Leafy make it different. How?", -- Unused
+        WORMWOOD_MUTANTPROXY_CARRAT =
+        {
+        	DEAD = "It not moving anymore.",
+        	GENERIC = "What that?",
+        	HELD = "Food or pet, florp?",
+        	SLEEPING = "It sleeping now.",
+        },
+        WORMWOOD_MUTANTPROXY_LIGHTFLIER = "Follow me, glowy bug!",
+		WORMWOOD_MUTANTPROXY_FRUITDRAGON =
+		{
+			GENERIC = "It not easy being green.",
+			RIPE = "Smell like... fruit?",
+			SLEEPING = "It taking a nap.",
+		},
+
+        SUPPORT_PILLAR_SCAFFOLD = "Need rocks! MORE ROCKS!!",
+        SUPPORT_PILLAR = "Hey, stop it! Not allowed to break, florp!",
+        SUPPORT_PILLAR_COMPLETE = "Made with own two claws!",
+        SUPPORT_PILLAR_BROKEN = "Didn't do it!",
+
+		SUPPORT_PILLAR_DREADSTONE_SCAFFOLD = "Need rocks! MORE ROCKS!!",
+		SUPPORT_PILLAR_DREADSTONE = "Hey, stop it! Not allowed to break, florp!",
+		SUPPORT_PILLAR_DREADSTONE_COMPLETE = "Pretty pretty pillar, florp!",
+		SUPPORT_PILLAR_DREADSTONE_BROKEN = "Glorp! Found it like that.",
+
+        WOLFGANG_WHISTLE = "Shiny... maybe he not mind if me borrow...",
     },
 
     DESCRIBE_GENERIC = "What that?",
@@ -4706,6 +4905,7 @@ return{
     DESCRIBE_PLANTSTRESSORMOISTURE = "Need water!",
     DESCRIBE_PLANTSTRESSORNUTRIENTS = "Need plant food.",
     DESCRIBE_PLANTSTRESSORHAPPINESS = "Wicker-lady say plant like talking to...",
+    DESCRIBE_PLANT_IDENTIFIED = "only_used_by_wormwood",
 
     EAT_FOOD =
     {

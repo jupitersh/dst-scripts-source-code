@@ -101,12 +101,15 @@ local function MakeSpikeFn(shape, size)
         inst.AnimState:SetBank("sand_"..shape)
         inst.AnimState:SetBuild("sand_"..shape)
         inst.AnimState:PlayAnimation(inst.animname.."_glass_idle")
+        inst.scrapbook_anim = inst.animname.."_glass_idle"
 
         inst:AddTag("heavy")
 
         MakeHeavyObstaclePhysics(inst, inst.spikeradius)
 
         inst.entity:SetPristine()
+
+        inst.scrapbook_adddeps = {"antlion"}
 
         if not TheWorld.ismastersim then
             return inst

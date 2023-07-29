@@ -170,6 +170,7 @@ local function ServerGetSpeedMultiplier(self)
             end
         end
     end
+
     return mult * (self:TempGroundSpeedMultiplier() or self.groundspeedmultiplier) * self.throttle
 end
 
@@ -200,6 +201,7 @@ local function ClientGetSpeedMultiplier(self)
             end
         end
     end
+
     return mult * (self:TempGroundSpeedMultiplier() or self.groundspeedmultiplier) * self.throttle
 end
 
@@ -266,6 +268,7 @@ local LocoMotor = Class(function(self, inst)
     self.movestarttime = -1
     self.movestoptime = -1
     --self.predictmovestarttime = nil
+	--self.no_predict_fastforward = nil --see PlayerController:RepeatHeldAction()
 
     self.groundspeedmultiplier = 1.0
     self.enablegroundspeedmultiplier = true
@@ -486,13 +489,19 @@ function LocoMotor:UpdateGroundSpeedMultiplier()
     if oncreep and self.triggerscreep then
         -- if this ever needs to happen when self.enablegroundspeedmultiplier is set, need to move the check for self.enablegroundspeedmultiplier above
         if not self.wasoncreep then
-            for _, v in ipairs(TheWorld.GroundCreep:GetTriggeredCreepSpawners(x, y, z)) do
-                v:PushEvent("creepactivate", { target = self.inst })
+            local spawners = TheWorld.GroundCreep:GetTriggeredCreepSpawners(x, y, z)
+            local eventdata = { target = self.inst, spawners = spawners, }
+            for _, v in ipairs(spawners) do
+                v:PushEvent("creepactivate", eventdata)
             end
+            self.inst:PushEvent("walkoncreep", eventdata)
             self.wasoncreep = true
         end
         self.groundspeedmultiplier = self.slowmultiplier
     else
+        if self.wasoncreep and self.triggerscreep then
+            self.inst:PushEvent("walkoffcreep")
+        end
         self.wasoncreep = false
 
         local current_ground_tile = TheWorld.Map:GetTileAtPoint(x, 0, z)
@@ -626,7 +635,13 @@ function LocoMotor:PreviewAction(bufferedaction, run, try_instant)
 	elseif bufferedaction.action.instant or bufferedaction.action.do_not_locomote or bufferedaction.options.instant then
         self.inst:PreviewBufferedAction(bufferedaction)
     elseif bufferedaction.target ~= nil then
-        if bufferedaction.distance ~= nil and bufferedaction.distance >= math.huge then
+		local inventoryitem = bufferedaction.target.replica.inventoryitem
+		local owner = inventoryitem ~= nil and inventoryitem:IsHeld() and bufferedaction.target.entity:GetParent() or nil
+		if owner ~= nil and owner:HasTag("pocketdimension_container") then
+			--don't try to walk to this container at (0, 0, 0)
+			self.inst:FacePoint(bufferedaction.target.Transform:GetWorldPosition())
+			self.inst:PushBufferedAction(bufferedaction)
+		elseif bufferedaction.distance ~= nil and bufferedaction.distance >= math.huge then
             --essentially instant
             self.inst:FacePoint(bufferedaction.target.Transform:GetWorldPosition())
             self.inst:PreviewBufferedAction(bufferedaction)
@@ -657,7 +672,14 @@ end
 function LocoMotor:PushAction(bufferedaction, run, try_instant)
     if bufferedaction == nil then
         return
-    end
+	elseif self.inst.components.playercontroller ~= nil then
+		self.inst.components.playercontroller:OnRemoteBufferedAction()
+	end
+
+	--V2C: see PlayerController:RepeatHeldAction()
+	if self.no_predict_fastforward then
+		bufferedaction.options.no_predict_fastforward = true
+	end
 
     if bufferedaction.action.pre_action_cb ~= nil then
         bufferedaction.action.pre_action_cb(bufferedaction)
@@ -700,7 +722,12 @@ function LocoMotor:PushAction(bufferedaction, run, try_instant)
 	elseif bufferedaction.action.instant or bufferedaction.action.do_not_locomote or bufferedaction.options.instant then
         self.inst:PushBufferedAction(bufferedaction)
     elseif bufferedaction.target ~= nil then
-        if bufferedaction.distance ~= nil and bufferedaction.distance >= math.huge then
+		local owner = bufferedaction.target.components.inventoryitem ~= nil and bufferedaction.target.components.inventoryitem.owner or nil
+		if owner ~= nil and owner:HasTag("pocketdimension_container") then
+			--don't try to walk to this container at (0, 0, 0)
+			self.inst:FacePoint(bufferedaction.target.Transform:GetWorldPosition())
+			self.inst:PushBufferedAction(bufferedaction)
+		elseif bufferedaction.distance ~= nil and bufferedaction.distance >= math.huge then
             --essentially instant
             self.inst:FacePoint(bufferedaction.target.Transform:GetWorldPosition())
             self.inst:PushBufferedAction(bufferedaction)
@@ -725,10 +752,6 @@ function LocoMotor:PushAction(bufferedaction, run, try_instant)
         self.inst:PushBufferedAction(bufferedaction)
     else
         self:GoToPoint(nil, bufferedaction, run)
-    end
-
-    if self.inst.components.playercontroller ~= nil then
-        self.inst.components.playercontroller:OnRemoteBufferedAction()
     end
 end
 
@@ -820,6 +843,9 @@ function LocoMotor:SetBufferedAction(act)
     if self.allow_platform_hopping then
         self.last_platform_visited = INVALID_PLATFORM_ID
     end
+	if act ~= nil and self.inst.components.playercontroller ~= nil then
+		self.inst.components.playercontroller:OnLocomotorBufferedAction(act)
+	end
 end
 
 function LocoMotor:Stop(sgparams)
@@ -1113,6 +1139,7 @@ function LocoMotor:OnUpdate(dt)
         local reached_dest, invalid, in_cooldown = nil, nil, false
         if self.bufferedaction ~= nil and
             self.bufferedaction.action == ACTIONS.ATTACK and
+			not (self.bufferedaction.forced and self.bufferedaction.target == nil) and
             self.inst.replica.combat ~= nil then
 
             local dsq = distsq(destpos_x, destpos_z, mypos_x, mypos_z)

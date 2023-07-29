@@ -49,7 +49,6 @@ local function makeemptyfn(inst)
 end
 
 local function setupstump(inst)
-	TheWorld:PushEvent("beginregrowth", inst)
     SpawnPrefab("cave_banana_stump").Transform:SetPosition(inst.Transform:GetWorldPosition())
     inst:Remove()
 end
@@ -89,7 +88,6 @@ local function tree_startburn(inst)
 end
 
 local function tree_burnt(inst)
-	TheWorld:PushEvent("beginregrowth", inst)
     local burnt_tree = SpawnPrefab("cave_banana_burnt")
     burnt_tree.Transform:SetPosition(inst.Transform:GetWorldPosition())
     burnt_tree.no_banana = inst.components.pickable == nil or not inst.components.pickable.canbepicked
@@ -142,7 +140,7 @@ local function tree_fn()
         return inst
     end
 
-    inst.AnimState:SetTime(math.random() * 2)
+	inst.AnimState:SetFrame(math.random(inst.AnimState:GetCurrentAnimationNumFrames()) - 1)
 
     inst:AddComponent("pickable")
     inst.components.pickable.picksound = "dontstarve/wilson/pickup_reeds"
@@ -169,6 +167,7 @@ local function tree_fn()
 
     inst.components.burnable:SetOnIgniteFn(tree_startburn)
     inst.components.burnable:SetOnBurntFn(tree_burnt)
+    AddToRegrowthManager(inst)
 
     inst.OnSave = tree_onsave
     inst.OnLoad = tree_onload

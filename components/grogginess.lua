@@ -182,6 +182,12 @@ function Grogginess:MaximizeGrogginess()
     end
 end
 
+function Grogginess:SetPercent(percent)
+    local delta = (self:GetResistance() * percent) - self.grog_amount
+
+    self:AddGrogginess(delta)
+end
+
 function Grogginess:SubtractGrogginess(grogginess)
     if grogginess <= 0 then
         return
@@ -199,6 +205,10 @@ function Grogginess:ResetGrogginess()
     if self.grog_amount > 0 then
         self:SubtractGrogginess(self.grog_amount)
     end
+end
+
+function Grogginess:CapToResistance()
+	self.grog_amount = math.min(self.grog_amount, self.resistance)
 end
 
 function Grogginess:ExtendKnockout(knockoutduration)

@@ -82,6 +82,8 @@ local function addcone(name, spawn_prefab, bank, build, anim, winter_tree)
 
         MakeInventoryFloatable(inst, "small", 0.05, 0.9)
 
+        inst.scrapbook_specialinfo = "PLANTABLE"
+
         inst.entity:SetPristine()
 
         if not TheWorld.ismastersim then
@@ -132,6 +134,6 @@ end
 
 addcone("pinecone", "pinecone_sapling", "pinecone", "pinecone", "idle_planted", "winter_tree")
 addcone("twiggy_nut", "twiggy_nut_sapling", "twiggy_nut", "twiggy_nut", "idle_planted", "winter_twiggytree")
-addcone("palmcone_seed", "palmcone_sapling", "palmcone_seed", "palmcone_seed", "idle_planted")
+addcone("palmcone_seed", "palmcone_sapling", "palmcone_seed", "palmcone_seed", "idle_planted", "winter_palmconetree")
 
 return unpack(cones)

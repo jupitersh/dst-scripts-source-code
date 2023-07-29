@@ -205,11 +205,11 @@ function BoatPhysics:OnLoad(data)
     end
 end
 
-function BoatPhysics:AddAnchorCmp(anchor_cmp)
+function BoatPhysics:AddAnchorCmp(anchor)
     print("BoatPhysics:AddAnchorCmp is deprecated, please use AddBoatDrag instead.")
 end
 
-function BoatPhysics:RemoveAnchorCmp(anchor_cmp)
+function BoatPhysics:RemoveAnchorCmp(anchor)
     print("BoatPhysics:RemoveAnchorCmp is deprecated, please use RemoveBoatDrag instead.")
 end
 
@@ -616,7 +616,15 @@ function BoatPhysics:OnUpdate(dt)
 end
 
 function BoatPhysics:SetHalting(halt)
-    self.halting = halt
+    if halt then
+        self.halting = true
+        self.inst.Physics:SetMass(0)
+        -- NOTES(JBK): Make sails deflate if we are applying heavy brakes.
+        self:CloseAllSails()
+    else
+        self.halting = nil
+        self.inst.Physics:SetMass(TUNING.BOAT.MASS)
+    end
 end
 
 function BoatPhysics:GetDebugString()
@@ -631,11 +639,15 @@ function BoatPhysics:StopUpdating()
     self.inst:StopUpdatingComponent(self)
 end
 
-function BoatPhysics:OnEntitySleep()
-    --close all the masts on the boat
+function BoatPhysics:CloseAllSails()
     for mast in pairs(self.masts) do
         mast:CloseSail()
     end
+end
+
+function BoatPhysics:OnEntitySleep()
+    --close all the masts on the boat
+    self:CloseAllSails()
 end
 
 return BoatPhysics

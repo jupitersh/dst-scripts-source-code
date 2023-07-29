@@ -33,6 +33,7 @@ local function MakeModule(data)
         inst.AnimState:SetBank("chips")
         inst.AnimState:SetBuild("wx_chips")
         inst.AnimState:PlayAnimation(data.name)
+        inst.scrapbook_anim = data.name
 
         if data.slots > 4 then
             MakeInventoryFloatable(inst, "med", 0.1, 0.75)
@@ -44,6 +45,53 @@ local function MakeModule(data)
         -- For client-side access to information that should not be mutated
         inst._netid = data.module_netid
         inst._slots = data.slots
+
+        if data.name == "maxhealth" then
+            inst.scrapbook_specialinfo = "WX78MODULE_MAXHEALTH"
+        end
+        if data.name == "maxsanity1" then
+            inst.scrapbook_specialinfo = "WX78MODULE_MAXSANITY1"
+        end
+        if data.name == "maxsanity" then
+            inst.scrapbook_specialinfo = "WX78MODULE_MAXSANITY"
+        end
+        if data.name == "movespeed" then
+            inst.scrapbook_specialinfo = "WX78MODULE_MOVESPEED"
+        end        
+        if data.name == "movespeed2" then
+            inst.scrapbook_specialinfo = "WX78MODULE_MOVESPEED2"
+        end
+        if data.name == "heat" then
+            inst.scrapbook_specialinfo = "WX78MODULE_HEAT"
+        end
+        if data.name == "nightvision" then
+            inst.scrapbook_specialinfo = "WX78MODULE_NIGHVISION"
+        end
+        if data.name == "cold" then
+            inst.scrapbook_specialinfo = "WX78MODULE_COLD"
+        end
+        if data.name == "taser" then
+            inst.scrapbook_specialinfo = "WX78MODULE_TASER"
+        end
+        if data.name == "light" then
+            inst.scrapbook_specialinfo = "WX78MODULE_LIGHT"
+        end
+        if data.name == "maxhunger" then
+            inst.scrapbook_specialinfo = "WX78MODULE_MAXHUNGER"
+        end
+        if data.name == "maxhunger1" then
+            inst.scrapbook_specialinfo = "WX78MODULE_MAXHUNGER1"
+        end
+        if data.name == "music" then
+            inst.scrapbook_specialinfo = "WX78MODULE_MUSIC"
+        end
+        if data.name == "bee" then
+            inst.scrapbook_specialinfo = "WX78MODULE_BEE"
+        end
+        if data.name == "maxhealth2" then
+            inst.scrapbook_specialinfo = "WX78MODULE_MAXHEALTH2"
+        end
+
 
         inst.entity:SetPristine()
         if not TheWorld.ismastersim then

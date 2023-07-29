@@ -113,6 +113,8 @@ local ERODEIN =
     remove = false,
 }
 local function start_wag_sequence(inst)
+	TheWorld:PushEvent("ms_despawn_wagstaff_npc_pstboss")
+
     local ipos = inst:GetPosition()
 
     local offset = FindWalkableOffset(ipos, 2*PI*math.random(), 2.5)

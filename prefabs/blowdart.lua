@@ -57,6 +57,7 @@ local function common(anim, tags, removephysicscolliders)
     inst.AnimState:SetBank("blow_dart")
     inst.AnimState:SetBuild("blow_dart")
     inst.AnimState:PlayAnimation(anim)
+    inst.scrapbook_anim = anim
 
     inst:AddTag("blowdart")
     inst:AddTag("sharp")
@@ -194,6 +195,8 @@ end
 
 local function fire()
     local inst = common("idle_red", { "firedart" })
+
+    inst.scrapbook_specialinfo = "REDSTAFF"
 
     if not TheWorld.ismastersim then
         return inst

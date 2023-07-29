@@ -29,6 +29,10 @@ local events =
     CommonHandlers.OnLocomote(false, true),
 }
 
+local function onattackreflected(inst)
+	inst.sg.statemem.attackreflected = true
+end
+
 local function FinishExtendedSound(inst, soundid)
     inst.SoundEmitter:KillSound("sound_"..tostring(soundid))
     inst.sg.mem.soundcache[soundid] = nil
@@ -102,7 +106,18 @@ local states =
         timeline =
         {
             TimeEvent(14*FRAMES, function(inst) PlayExtendedSound(inst, "attack") end),
-            TimeEvent(16*FRAMES, function(inst) inst.components.combat:DoAttack(inst.sg.statemem.target) end),
+			TimeEvent(16*FRAMES, function(inst)
+				--The stategraph event handler is delayed, so it won't be
+				--accurate for detecting attacks due to damage reflection
+				inst:ListenForEvent("attacked", onattackreflected)
+				inst.components.combat:DoAttack(inst.sg.statemem.target)
+				inst:RemoveEventCallback("attacked", onattackreflected)
+			end),
+			FrameEvent(17, function(inst)
+				if inst.sg.statemem.attackreflected and not inst.components.health:IsDead() then
+					inst.sg:GoToState("hit")
+				end
+			end),
         },
 
         events =
@@ -130,14 +145,12 @@ local states =
         events =
         {
             EventHandler("animover", function(inst)
-                local max_tries = 4
-                for k = 1, max_tries do
-                    local x, y, z = inst.Transform:GetWorldPosition()
-                    local offset = 10
-                    x = x + math.random(2 * offset) - offset
-                    z = z + math.random(2 * offset) - offset
-                    if TheWorld.Map:IsPassableAtPoint(x, y, z) then
-                        inst.Physics:Teleport(x, y, z)
+				local x0, y0, z0 = inst.Transform:GetWorldPosition()
+				for k = 1, 4 --[[# of attempts]] do
+					local x = x0 + math.random() * 20 - 10
+					local z = z0 + math.random() * 20 - 10
+					if TheWorld.Map:IsPassableAtPoint(x, 0, z) then
+						inst.Physics:Teleport(x, 0, z)
                         break
                     end
                 end

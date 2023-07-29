@@ -295,13 +295,13 @@ function ConsoleScreen:DoInit()
 		"inst",
 		"knownassert",
 		"list", "listallplayers", "listplayers", "listtag",
-		"maintainall", "maintainhealth", "maintainhunger", "maintainmoisture", "maintainsanity", "maintaintemperature", "makeboat", "makeboatspiral", "makecrabboat", "makeinvisible", "mat", "mermking", "mermthrone", "migrateto", "migrationportal", "move",
+		"maintainall", "maintainhealth", "maintainhunger", "maintainmoisture", "maintainsanity", "maintaintemperature", "makeboat", "makeboatspiral", "makecrabboat", "makegrassboat", "makeinvisible", "mat", "mermking", "mermthrone", "migrateto", "migrationportal", "move",
 		"netstats",
 		"pos", "printpos", "printtextureinfo",
 		"regenerateshard", "regenerateworld", "remote", "remove", "removeall", "removeallwithtags", "removeat", "repeatlastcommand", "reregisterportals", "reset", "rollback", "rotateccw", "rotatecw",
 		"save", "searchprefabs", "sel", "sel_health", "select", "selectnear", "selectnext", "sethealth", "sethunger", "setinspiration", "setmightiness", "setminhealth", "setmoisture", "setrotation", "setsanity", "settemperature", "setwereness", "shellsfromtable", "shutdown", "simphase", "skip", "sounddebug", "sounddebugui", "spawn", "speedmult", "speedup", "startinggear", "startvote", "stopvote", "summonbearger", "summondeerclops", "summonmalbatross", "supergodmode",
 		"teleport", "tile",
-		"worldstatedebug",
+		"worldstatedebug", "showradius",
 	}
 	self.console_edit:AddWordPredictionDictionary({words = prediction_command, delim = "c_", num_chars = 0})
 

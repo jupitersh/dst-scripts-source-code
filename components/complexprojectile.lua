@@ -127,21 +127,24 @@ function ComplexProjectile:Launch(targetPos, attacker, owningweapon)
 	end
 
     if self.onlaunchfn ~= nil then
-        self.onlaunchfn(self.inst)
+        self.onlaunchfn(self.inst, attacker)
     end
 
     self.inst:AddTag("activeprojectile")
     self.inst:StartUpdatingComponent(self)
 end
 
+
+function ComplexProjectile:Cancel()
+	self.inst:RemoveTag("activeprojectile")
+	self.inst:StopUpdatingComponent(self)
+	self.inst.Physics:SetMotorVel(0, 0, 0)
+	self.inst.Physics:Stop()
+	self.velocity.x, self.velocity.y, self.velocity.z = 0, 0, 0
+end
+
 function ComplexProjectile:Hit(target)
-    self.inst:RemoveTag("activeprojectile")
-    self.inst:StopUpdatingComponent(self)
-
-    self.inst.Physics:SetMotorVel(0,0,0)
-    self.inst.Physics:Stop()
-    self.velocity.x, self.velocity.y, self.velocity.z = 0, 0, 0
-
+	self:Cancel()
     if self.onhitfn ~= nil then
         self.onhitfn(self.inst, self.attacker, target)
     end

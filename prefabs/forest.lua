@@ -435,6 +435,7 @@ local prefabs =
     "palmconetree_normal",
     "palmconetree_tall",
     "pirate_flag_pole",
+	"piratewarningsound",
     "bananabush",
     "monkeytail",
     "dock_tile_registrator",
@@ -443,11 +444,21 @@ local prefabs =
     "fx_dock_crackle",
     "fx_dock_pop",
 
-    "fence_rotator",
-
     "charlie_stage_post",
     "stageusher",
     "statueharp_hedgespawner",
+
+    -- Lunar Rifts
+    "lunarrift_portal",
+
+    "lunarthrall_plant",
+    "domesticplantherd",
+
+    -- Shadow Rifts
+    "charlie_npc",
+    "scrapbook_page",
+
+    --
 }
 
 local FISH_DATA = require("prefabs/oceanfishdef")
@@ -570,6 +581,9 @@ local function master_postinit(inst)
     inst:AddComponent("moonstormmanager")
 
     inst:AddComponent("sharklistener")
+
+    inst:AddComponent("riftspawner")
+    inst:AddComponent("lunarthrall_plantspawner")
 
     if METRICS_ENABLED then
         inst:AddComponent("worldoverseer")

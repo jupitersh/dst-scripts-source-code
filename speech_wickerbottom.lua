@@ -37,6 +37,7 @@ return{
             NOTALLOWED = "That was erroneous.",
             EMPTY = "I need something to build with first.",
             MISMATCH = "Those are the wrong plans.",
+            NOTREADY = "Perhaps when the ground is more stable...",
         },
 		RUMMAGE =
 		{
@@ -65,6 +66,7 @@ return{
 			KITCOON_HIDEANDSEEK_NOT_ENOUGH_HIDING_SPOTS = "I believe there are not enough locations for the kittens to hide.",
 			KITCOON_HIDEANDSEEK_ONE_GAME_PER_DAY = "I believe I should take some time to rest.",
             MANNEQUIN_EQUIPSWAPFAILED = "That does not belong on a mannequin.",
+            PILLOWFIGHT_NO_HANDPILLOW = "I will require a pillow to participate.",
 		},
 		OPEN_CRAFTING =
 		{
@@ -205,7 +207,7 @@ return{
 			--MapSpotRevealer/messagebottle
 			MESSAGEBOTTLEMANAGER_NOT_FOUND = "It's much too dark to make any sense of this.",--Likely trying to read messagebottle treasure map in caves
 
-            STASH_MAP_NOT_FOUND = "The apes seem to have neglected to mark any particular sites on this map.",-- Likely trying to read stash map  in world without stash
+            STASH_MAP_NOT_FOUND = "The apes seem to have neglected to mark any particular sites on this map.",-- Likely trying to read stash map  in world without stash                  
         },
         WRAPBUNDLE =
         {
@@ -387,12 +389,12 @@ return{
 
 		CAST_SPELLBOOK =
 		{
---fallback to speech_wilson.lua			NO_TOPHAT = "only_used_by_waxwell",
+--fallback to speech_wilson.lua 			NO_TOPHAT = "only_used_by_waxwell",
 		},
 
 		CASTAOE =
 		{
---fallback to speech_wilson.lua			NO_MAX_SANITY = "only_used_by_waxwell",
+--fallback to speech_wilson.lua 			NO_MAX_SANITY = "only_used_by_waxwell",
 		},
     },
 
@@ -417,11 +419,11 @@ return{
 --fallback to speech_wilson.lua     ANNOUNCE_NOWATERNEARBY = "only_used_by_waxwell_and_wicker",
 
 	--waxwell specific
---fallback to speech_wilson.lua		ANNOUNCE_SHADOWLEVEL_ITEM = "only_used_by_waxwell",
---fallback to speech_wilson.lua		ANNOUNCE_EQUIP_SHADOWLEVEL_T1 = "only_used_by_waxwell",
---fallback to speech_wilson.lua		ANNOUNCE_EQUIP_SHADOWLEVEL_T2 = "only_used_by_waxwell",
---fallback to speech_wilson.lua		ANNOUNCE_EQUIP_SHADOWLEVEL_T3 = "only_used_by_waxwell",
---fallback to speech_wilson.lua		ANNOUNCE_EQUIP_SHADOWLEVEL_T4 = "only_used_by_waxwell",
+--fallback to speech_wilson.lua 	ANNOUNCE_SHADOWLEVEL_ITEM = "only_used_by_waxwell",
+--fallback to speech_wilson.lua 	ANNOUNCE_EQUIP_SHADOWLEVEL_T1 = "only_used_by_waxwell",
+--fallback to speech_wilson.lua 	ANNOUNCE_EQUIP_SHADOWLEVEL_T2 = "only_used_by_waxwell",
+--fallback to speech_wilson.lua 	ANNOUNCE_EQUIP_SHADOWLEVEL_T3 = "only_used_by_waxwell",
+--fallback to speech_wilson.lua 	ANNOUNCE_EQUIP_SHADOWLEVEL_T4 = "only_used_by_waxwell",
 
     --wolfgang specific
 --fallback to speech_wilson.lua     ANNOUNCE_NORMALTOMIGHTY = "only_used_by_wolfang",
@@ -744,6 +746,8 @@ return{
 --fallback to speech_wilson.lua         BOOK_TEMPERATURE = "only_used_by_wurt",
 --fallback to speech_wilson.lua         BOOK_LIGHT = "only_used_by_wurt",
 --fallback to speech_wilson.lua         BOOK_RAIN = "only_used_by_wurt",
+--fallback to speech_wilson.lua         BOOK_MOON = "only_used_by_wurt",
+--fallback to speech_wilson.lua         BOOK_BEES = "only_used_by_wurt",
 
 --fallback to speech_wilson.lua         BOOK_HORTICULTURE_UPGRADED = "only_used_by_wurt",
 --fallback to speech_wilson.lua         BOOK_RESEARCH_STATION = "only_used_by_wurt",
@@ -876,6 +880,39 @@ return{
     ANNOUNCE_BOOK_MOON_DAYTIME = "We won't be able to view the effects until this evening.",
 
     ANNOUNCE_OFF_SCRIPT = "Perhaps a review of the script is in order, dear?",
+
+    ANNOUNCE_COZY_SLEEP = "I suppose it was worth a try.",
+
+	--
+	ANNOUNCE_TOOL_TOOWEAK = "This will require a more robust tool.",
+
+    ANNOUNCE_LUNAR_RIFT_MAX = "I suspect a powerful influx of energy is the source of that strange glow.",
+    ANNOUNCE_SHADOW_RIFT_MAX = "As nonsensical as it sounds, there is something dark about that \"light\"...",
+
+    ANNOUNCE_SCRAPBOOK_FULL = "My scrapbook has already been completed.",
+
+    ANNOUNCE_COACH = 
+    {
+        "only_used_by_wolfgang",
+        "only_used_by_wolfgang",
+        "only_used_by_wolfgang",
+        "only_used_by_wolfgang",
+        "only_used_by_wolfgang",
+        "only_used_by_wolfgang",
+        "only_used_by_wolfgang",
+        "only_used_by_wolfgang",
+        "only_used_by_wolfgang",
+    },
+    ANNOUNCE_WOLFGANG_WIMPY_COACHING = "only_used_by_wolfgang",
+    ANNOUNCE_WOLFGANG_MIGHTY_COACHING = "only_used_by_wolfgang",
+    ANNOUNCE_WOLFGANG_BEGIN_COACHING = "only_used_by_wolfgang",
+    ANNOUNCE_WOLFGANG_END_COACHING = "only_used_by_wolfgang",
+    ANNOUNCE_WOLFGANG_NOTEAM = 
+    {
+        "only_used_by_wolfgang",
+        "only_used_by_wolfgang",
+        "only_used_by_wolfgang",
+    },
 
 	BATTLECRY =
 	{
@@ -1481,6 +1518,8 @@ return{
         TURF_MOSAIC_RED = "The ground. You step on it.",
         TURF_MOSAIC_BLUE = "The ground. You step on it.",
 
+        TURF_BEARD_RUG = "Oh my...",
+
 		POWCAKE = "The crowning achievement of the agricultural-industrial complex.",
         CAVE_ENTRANCE = "The placement of that rock looks intentional.",
         CAVE_ENTRANCE_RUINS = "The passage has been obstructed.",
@@ -1784,9 +1823,11 @@ return{
         CHESSPIECE_BEEFALO = "It captures my beefalo's likeness quite well.",
 		CHESSPIECE_KITCOON = "I should warn the children not to play too close to it.",
 		CHESSPIECE_CATCOON = "The resemblance to the Felis lybica is incredible.",
+        CHESSPIECE_MANRABBIT = "Those lagomorphs are quite the rascals.",
         CHESSPIECE_GUARDIANPHASE3 = "I must commend the artist for their attention to detail.",
         CHESSPIECE_EYEOFTERROR = "A trophy that doubles as a useful anatomical model.",
         CHESSPIECE_TWINSOFTERROR = "A stone rendition of a pair of mechanical marvels.",
+        CHESSPIECE_DAYWALKER = "An accurate stone model of that ill-behaved creature.",
 
         CHESSJUNK1 = "The magician's unfinished projects?",
         CHESSJUNK2 = "The magician's unfinished projects?",
@@ -2879,6 +2920,34 @@ return{
         },
         BEEFALO_GROOMER_ITEM = "I'd best get it set up.",
 
+        YOTR_RABBITSHRINE =
+        {
+            GENERIC = "We must show our appreciation to the local lagomorphs.",
+            EMPTY = "The expression on this edifice suggests an offering of food may be appropriate.",
+            BURNT = "Oh dear.",
+        },
+
+        NIGHTCAPHAT = "I'm afraid I have no use for it.",
+
+        YOTR_FOOD1 = "Putting carrots in your dessert does not make it healthy, I'm afraid.",
+        YOTR_FOOD2 = "\"Blue\" is an odd adjective for a flavor, but I can't disagree.",
+        YOTR_FOOD3 = "What a fascinating confection!",
+        YOTR_FOOD4 = "Cakes on a stick, what next?",
+
+        YOTR_TOKEN = "Traditionally, being struck with a glove implies a challenge to a duel.",
+
+        COZY_BUNNYMAN = "They look quite comfortable.",
+
+        HANDPILLOW_BEEFALOWOOL = "The woolen fibers of a beefalo's coat make for excellent padding.",
+        HANDPILLOW_KELP = "What a fascinating use of kelp.",
+        HANDPILLOW_PETALS = "It gives off a delicate floral aroma.",
+        HANDPILLOW_STEELWOOL = "This seems ill-suited for a restful night's sleep.",
+
+        BODYPILLOW_BEEFALOWOOL = "The woolen fibers of a beefalo's coat make for excellent padding.",
+        BODYPILLOW_KELP = "What a fascinating use of kelp.",
+        BODYPILLOW_PETALS = "It gives off a delicate floral aroma.",
+        BODYPILLOW_STEELWOOL = "This seems ill-suited for a restful night's sleep.",
+
 		BISHOP_CHARGE_HIT = "Augh!",
 		TRUNKVEST_SUMMER = "Durable outerwear.",
 		TRUNKVEST_WINTER = "Ample protection against the elements.",
@@ -2910,6 +2979,8 @@ return{
 		WALL_WOOD_ITEM = "Deployable pickets.",
 		WALL_MOONROCK = "A job well done.",
 		WALL_MOONROCK_ITEM = "Fits comfortably in my pocket.",
+		WALL_DREADSTONE = "A highly secure wall.",
+		WALL_DREADSTONE_ITEM = "The stone's density makes for an incredibly strong building material.",
 		FENCE = "A simply constructed fence.",
         FENCE_ITEM = "All the components for a wooden fence.",
         FENCE_GATE = "That is a wooden gate.",
@@ -2939,7 +3010,7 @@ return{
 		WAXWELLJOURNAL =
 		{
 			GENERIC = "I'm not letting THAT in MY library!",
---fallback to speech_wilson.lua			NEEDSFUEL = "only_used_by_waxwell",
+--fallback to speech_wilson.lua 			NEEDSFUEL = "only_used_by_waxwell",
 		},
 		WETGOOP = "Oh no. No, no, no. This won't do at all.",
         WHIP = "An instrument for developing pain compliance.",
@@ -4488,6 +4559,9 @@ return{
         DUMBBELL_GEM = "A bit of exercise can be quite beneficial to one's health.",
         POTATOSACK = "He seems to have a deep fondness for tubers.",
 
+        DUMBBELL_HEAT = "An interesting combination of exercise and temperature regulation.",
+        DUMBBELL_REDGEM = "Careful dear, that looks suspiciously combustible.",
+        DUMBBELL_BLUEGEM = "My, it's ice-cold to the touch!",
 
         TERRARIUMCHEST =
 		{
@@ -4573,7 +4647,7 @@ return{
         BOAT_ROTATOR_KIT = "It should improve the boat's maneuverability.",
         BOAT_BUMPER_KELP = "A thick barrier of Nereocystis luetkeana.",
         BOAT_BUMPER_KELP_KIT = "It would be wise to equip the boat with a protective barrier.",
-        BOAT_BUMPER_SHELL = "A thick barrier of mollusks.",
+		BOAT_BUMPER_SHELL = "A thick barrier of mollusks.",
         BOAT_BUMPER_SHELL_KIT = "It would be wise to equip the boat with a protective barrier.",
         BOAT_CANNON = {
             GENERIC = "A highly effective weapon in nautical combat, when properly loaded.",
@@ -4688,6 +4762,133 @@ return{
 		-- Waxwell
 		MAGICIAN_CHEST = "I must admit, I find his renewed interest in the Codex... unsettling.",
 		TOPHAT_MAGICIAN = "It has been imbued with an ectoplasmic residue.",
+
+        -- Year of the Rabbit
+        YOTR_FIGHTRING_KIT = "Let's build this far away from my reading area, shall we?",
+        YOTR_FIGHTRING_BELL =
+        {
+            GENERIC = "Ah. Silent, for now.",
+            PLAYING = "Now now, let's not get too rough!",
+        },
+
+        YOTR_DECOR_1 = {
+            GENERAL = "It provides ample reading light.",
+            OUT = "It appears my reading light has run out.",
+        },
+        YOTR_DECOR_2 = {
+            GENERAL = "It provides ample reading light.",
+            OUT = "It appears my reading light has run out.",
+        },
+
+        HAREBALL = "A dare? What childish nonsense.",
+        YOTR_DECOR_1_ITEM = "It would look quite nice right over there.",
+        YOTR_DECOR_2_ITEM = "It would look quite nice right over there.",
+
+		--
+		DREADSTONE = "Metamorphic, if I'm not mistaken.",
+		HORRORFUEL = "Highly concentrated ectoplasmic residue.",
+		DAYWALKER =
+		{
+			GENERIC = "This creature has terrible manners.",
+			IMPRISONED = "My, how did it end up in this state?",
+		},
+		DAYWALKER_PILLAR =
+		{
+			GENERIC = "How odd... the marble appears to be encasing something.",
+			EXPOSED = "It will require much greater force than I can muster to break it.",
+		},
+		ARMORDREADSTONE = "Extremely durable, and surprisingly lightweight.",
+		DREADSTONEHAT = "Unfortunately, the material seems to have adverse affects on the mind.",
+
+        -- Rifts 1
+        LUNARRIFT_PORTAL = "It seems to be contaminating the surrounding area.",
+        LUNARRIFT_CRYSTAL = "These crystalline structures have grown at a rapid rate.",
+
+        LUNARTHRALL_PLANT = "It exhibits parasitic behavior.",
+        LUNARTHRALL_PLANT_VINE_END = "A rather effective defense mechanism.",
+
+		LUNAR_GRAZER = "Its unique physiology seems to allow it to re-form itself.",
+
+        PUREBRILLIANCE = "Pure energy, in a crystalline form.",
+        LUNARPLANT_HUSK = "An extremely resilient material. I should make use of it.",
+
+		LUNAR_FORGE = "It utilizes crystallized energy to reshape and reinforce organic material.",
+		LUNAR_FORGE_KIT = "It should be a simple matter to construct it.",
+
+		LUNARPLANT_KIT = "Now that I'm familiar with the material, it's a simple matter to repair it.",
+		ARMOR_LUNARPLANT = "Surprisingly effective plant-based armor.",
+		LUNARPLANTHAT = "It does not fit well over my glasses, but I suppose I must make do.",
+		BOMB_LUNARPLANT = "Unstable energy, barely held together by a hardy plant epidermis.",
+		STAFF_LUNARPLANT = "It allows the user to attack from afar.",
+		SWORD_LUNARPLANT = "The energy has been stabilized enough to form a functional blade.",
+		PICKAXE_LUNARPLANT = "A surprisingly effective mining and crushing implement.",
+		SHOVEL_LUNARPLANT = "A surprisingly effective digging implement.",
+
+		BROKEN_FORGEDITEM = "With the right materials, it could be repaired.",
+
+        PUNCHINGBAG = "A useful tool for testing a weapon's efficacy.",
+
+        -- Rifts 2
+        SHADOWRIFT_PORTAL = "Intriguing and deeply worrying in equal measures.",
+
+		SHADOW_FORGE = "I do not care for this type of magic.",
+		SHADOW_FORGE_KIT = "It cannot be utilized until its been assembled.",
+
+        FUSED_SHADELING = "It is reminiscent of the parasitic shadows we encountered before.",
+        FUSED_SHADELING_BOMB = "Its body is highly volatile.",
+
+		VOIDCLOTH = "This unusual fabric may be quite useful.",
+		VOIDCLOTH_KIT = "Now that I'm familiar with the material, it's a simple matter to repair it.",
+		VOIDCLOTHHAT = "Prolonged use will surely have detrimental effects on the mind.",
+		ARMOR_VOIDCLOTH = "Armor against metaphysical damage.",
+
+        VOIDCLOTH_UMBRELLA = "It provides a useful barrier against acid droplets.",
+        VOIDCLOTH_SCYTHE = "A common harvesting implement, with an admittedly unsettling appearance.",
+
+		SHADOWTHRALL_HANDS = "I would advise against challenging it in hand-to-hand combat.",
+		SHADOWTHRALL_HORNS = "A ravenous shadow beast.",
+		SHADOWTHRALL_WINGS = "Its wings seem to be utilized for propulsion, not to remain airborne.",
+
+        CHARLIE_NPC = "I'd like to give that young lady a stern talking to!",
+        CHARLIE_HAND = "It requires materials.",
+
+        NITRE_FORMATION = "The acidic rain seems to have caused a chemical reaction, producing these formations.",
+        DREADSTONE_STACK = "Its source must lie even deeper underground.",
+        
+        SCRAPBOOK_PAGE = "What a hideous sight! A page torn from its book!",
+
+        LEIF_IDOL = "I believe it requires the application of a flame.",
+        WOODCARVEDHAT = "A bit utilitarian, but sturdy enough.",
+        WALKING_STICK = "An impressive level of detail, considering it was carved with an axe.",
+
+        IPECACSYRUP = "Ingesting it would be detrimental to one's health.",
+        BOMB_LUNARPLANT_WORMWOOD = "Our verdant friend seems to have worked his magic on this.", -- Unused
+        WORMWOOD_MUTANTPROXY_CARRAT =
+        {
+        	DEAD = "Perhaps that was unnecessary.",
+        	GENERIC = "My, another plant and animal hybrid. How odd.",
+        	HELD = "The plant and animal matter has fused in total harmony.",
+        	SLEEPING = "It's in a deep sleep.",
+        },
+        WORMWOOD_MUTANTPROXY_LIGHTFLIER = "If it could be convinced to stay still, it would make an excellent reading light.",
+		WORMWOOD_MUTANTPROXY_FRUITDRAGON =
+		{
+			GENERIC = "Plant and animal have merged into one in this specimen.",
+			RIPE = "It does smell quite delicious.",
+			SLEEPING = "It's in a deep sleep.",
+		},
+
+        SUPPORT_PILLAR_SCAFFOLD = "It appears some construction is required.",
+        SUPPORT_PILLAR = "I'm afraid it will not be able to withstand these tectonic shifts forever.",
+        SUPPORT_PILLAR_COMPLETE = "That should stabilize the cave's ceiling for now.",
+        SUPPORT_PILLAR_BROKEN = "It would be prudent to attempt some repairs.",
+
+		SUPPORT_PILLAR_DREADSTONE_SCAFFOLD = "It appears some construction is required.",
+		SUPPORT_PILLAR_DREADSTONE = "I'm afraid it will not be able to withstand these tectonic shifts forever.",
+		SUPPORT_PILLAR_DREADSTONE_COMPLETE = "Dreadstone. This will hold.",
+		SUPPORT_PILLAR_DREADSTONE_BROKEN = "Broken? Perhaps this material is not as indestructible as I surmised.",
+
+        WOLFGANG_WHISTLE = "Please try to keep the noise to a minimum, dear.",
     },
 
     DESCRIBE_GENERIC = "A rare occurrence. I don't know what that is.",
@@ -4704,6 +4905,7 @@ return{
     DESCRIBE_PLANTSTRESSORMOISTURE = "It could use a little hydration.",
     DESCRIBE_PLANTSTRESSORNUTRIENTS = "It requires more nutrient-rich soil.",
     DESCRIBE_PLANTSTRESSORHAPPINESS = "I should stimulate its growth with some conversation.",
+    DESCRIBE_PLANT_IDENTIFIED = "only_used_by_wormwood",
 
     EAT_FOOD =
     {

@@ -51,10 +51,33 @@ local function item_fn(data, name)
     inst.AnimState:SetBank(data.bank or data.build)
     inst.AnimState:SetBuild(data.build)
     inst.AnimState:PlayAnimation("idle_"..data.symbol)
+    inst.scrapbook_anim = "idle_"..data.symbol
 
     MakeInventoryFloatable(inst, "small", nil, 0.5)
 
 	inst:AddTag("oceanfishing_lure")
+
+	if name == "oceanfishinglure_hermit_rain" then
+		inst.scrapbook_specialinfo = "OCEANFISHINGLURERAIN"
+	end
+	if name == "oceanfishinglure_hermit_snow" then
+		inst.scrapbook_specialinfo = "OCEANFISHINGLURESNOW"
+	end	
+	if name == "oceanfishinglure_hermit_drowsy" then
+		inst.scrapbook_specialinfo = "OCEANFISHINGLUREDROWSY"
+	end
+	if name == "oceanfishinglure_hermit_heavy" then
+		inst.scrapbook_specialinfo = "OCEANFISHINGLUREHEAVY"
+	end	
+	if name == "oceanfishinglure_spoon_red" or name == "oceanfishinglure_spinner_red" then
+		inst.scrapbook_specialinfo = "OCEANFISHINGLURERED"
+	end
+	if name == "oceanfishinglure_spoon_green" or name == "oceanfishinglure_spinner_green" then
+		inst.scrapbook_specialinfo = "OCEANFISHINGLUREGREEN"
+	end
+	if name == "oceanfishinglure_spoon_blue" or name == "oceanfishinglure_spinner_blue" then
+		inst.scrapbook_specialinfo = "OCEANFISHINGLUREBLUE"
+	end						
 
     inst.entity:SetPristine()
 

@@ -129,6 +129,8 @@ local function common_fn(bank, build, isinventoryitem)
     inst.AnimState:SetBuild(build)
     inst.AnimState:PlayAnimation("idle")
 
+    inst.scrapbook_damage = TUNING.TRAP_TEETH_DAMAGE
+
     inst:AddTag("trap")
 
     if isinventoryitem then
@@ -173,6 +175,8 @@ end
 
 local function MakeTeethTrapNormal()
     local inst = common_fn("trap_teeth", "trap_teeth", true)
+
+    inst.scrapbook_specialinfo = "TRAPTEETH"
 
     if not TheWorld.ismastersim then
         return inst

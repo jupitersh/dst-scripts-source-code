@@ -44,7 +44,7 @@ local function Unignore(inst, sometarget, ignorethese)
     ignorethese[sometarget] = nil
 end
 local function IgnoreThis(sometarget, ignorethese, leader, worker)
-    if type(ignorethese[sometarget]) == "table" and ignorethese[sometarget].task ~= nil then
+    if ignorethese[sometarget] ~= nil and ignorethese[sometarget].task ~= nil then
         ignorethese[sometarget].task:Cancel()
         ignorethese[sometarget].task = nil
     else
@@ -139,7 +139,7 @@ local function PickValidActionFrom(target)
 end
 local function FilterAnyWorkableTargets(targets, ignorethese, leader, worker)
     for _, sometarget in ipairs(targets) do
-        if type(ignorethese[sometarget]) == "table" and ignorethese[sometarget].worker ~= worker then
+        if ignorethese[sometarget] ~= nil and ignorethese[sometarget].worker ~= worker then
             -- Ignore me!
         elseif sometarget.components.burnable == nil or (not sometarget.components.burnable:IsBurning() and not sometarget.components.burnable:IsSmoldering()) then
             if sometarget:HasTag("DIG_workable") then
@@ -348,7 +348,7 @@ function ShadowWaxwellBrain:OnStart()
         }, 0.25))
 
     local avoid_explosions = RunAway(self.inst, { fn = ShouldAvoidExplosive, tags = { "explosive" }, notags = { "INLIMBO" } }, AVOID_EXPLOSIVE_DIST, AVOID_EXPLOSIVE_DIST)
-    local avoid_danger = RunAway(self.inst, { fn = ShouldRunAway, oneoftags = { "monster", "hostile" }, notags = { "player", "INLIMBO", "companion" } }, RUN_AWAY_DIST, STOP_RUN_AWAY_DIST)
+    local avoid_danger = RunAway(self.inst, { fn = ShouldRunAway, oneoftags = { "monster", "hostile" }, notags = { "player", "INLIMBO", "companion", "spiderden" } }, RUN_AWAY_DIST, STOP_RUN_AWAY_DIST)
 
     local face_player = WhileNode(function() return GetLeader(self.inst) ~= nil end, "Face Player",
         FaceEntity(self.inst, GetFaceTargetFn, KeepFaceTargetFn))
@@ -364,9 +364,9 @@ function ShadowWaxwellBrain:OnStart()
             ignorethese = leader._brain_pickup_ignorethese or {}
             leader._brain_pickup_ignorethese = ignorethese
         end
-		local function ShouldPickup() return not self.inst.sg:HasStateTag("busy") end
+		local function ShouldPickup() return not self.inst.sg:HasStateTag("phasing") end
 		local function ShouldDeliver()
-			if self.inst.sg:HasStateTag("busy") then
+			if self.inst.sg:HasStateTag("phasing") then
 				return false
 			end
 			local leader = GetLeader(self.inst)
@@ -391,8 +391,10 @@ function ShadowWaxwellBrain:OnStart()
             -- Keep watch out for danger.
             avoid_explosions,
             avoid_danger,
+			WhileNode(function() return self.inst.sg:HasStateTag("phasing") or self.inst.sg:HasStateTag("recoil") end, "Busy",
+				ActionNode(function() end)),
             -- Do the work needed to be done.
-			WhileNode(function() return not self.inst.sg:HasStateTag("phasing") end, "Keep Working",
+			WhileNode(function() return not (self.inst.sg:HasStateTag("phasing") or self.inst.sg:HasStateTag("recoil")) end, "Keep Working",
 				DoAction(self.inst, function() return FindAnyEntityToWorkActionsOn(self.inst, pickupparams.ignorethese) end)),
 			-- This Leash is to stop chasing after leader with loot if they keep moving too far away.
 			Leash(self.inst, GetSpawn, pickupparams.range + 4, math.min(6, pickupparams.range)),

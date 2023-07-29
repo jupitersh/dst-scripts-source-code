@@ -19,16 +19,28 @@ local function MakeHat(name)
     local swap_data = { bank = symname, anim = "anim" }
 
 	-- do not pass this function to equippable:SetOnEquip as it has different a parameter listing
-    local function _onequip(inst, owner, symbol_override, headbase_hat_override)
+	local function _base_onequip(inst, owner, symbol_override, swap_hat_override)
+		local skin_build = inst:GetSkinBuild()
+		if skin_build ~= nil then
+			owner:PushEvent("equipskinneditem", inst:GetSkinName())
+			owner.AnimState:OverrideItemSkinSymbol(swap_hat_override or "swap_hat", skin_build, symbol_override or "swap_hat", inst.GUID, fname)
+		else
+			owner.AnimState:OverrideSymbol(swap_hat_override or "swap_hat", fname, symbol_override or "swap_hat")
+		end
 
-        local skin_build = inst:GetSkinBuild()
-        if skin_build ~= nil then
-            owner:PushEvent("equipskinneditem", inst:GetSkinName())
-            owner.AnimState:OverrideItemSkinSymbol("swap_hat", skin_build, symbol_override or "swap_hat", inst.GUID, fname)
-        else
-            owner.AnimState:OverrideSymbol("swap_hat", fname, symbol_override or "swap_hat")
-        end
-        
+		if inst.components.fueled ~= nil then
+			inst.components.fueled:StartConsuming()
+		end
+
+		if inst.skin_equip_sound and owner.SoundEmitter then
+			owner.SoundEmitter:PlaySound(inst.skin_equip_sound)
+		end
+	end
+
+	-- do not pass this function to equippable:SetOnEquip as it has different a parameter listing
+    local function _onequip(inst, owner, symbol_override, headbase_hat_override)
+		_base_onequip(inst, owner, symbol_override)
+
         owner.AnimState:ClearOverrideSymbol("headbase_hat") --clear out previous overrides
         if headbase_hat_override ~= nil then
             local skin_build = owner.AnimState:GetSkinBuild()
@@ -48,14 +60,8 @@ local function MakeHat(name)
         if owner:HasTag("player") then
             owner.AnimState:Hide("HEAD")
             owner.AnimState:Show("HEAD_HAT")
-        end
-
-        if inst.components.fueled ~= nil then
-            inst.components.fueled:StartConsuming()
-        end
-        
-        if inst.skin_equip_sound and owner.SoundEmitter then
-            owner.SoundEmitter:PlaySound(inst.skin_equip_sound)
+			owner.AnimState:Show("HEAD_HAT_NOHELM")
+			owner.AnimState:Hide("HEAD_HAT_HELM")
         end
     end
 
@@ -79,6 +85,8 @@ local function MakeHat(name)
         if owner:HasTag("player") then
             owner.AnimState:Show("HEAD")
             owner.AnimState:Hide("HEAD_HAT")
+			owner.AnimState:Hide("HEAD_HAT_NOHELM")
+			owner.AnimState:Hide("HEAD_HAT_HELM")
         end
 
         if inst.components.fueled ~= nil then
@@ -95,14 +103,7 @@ local function MakeHat(name)
 	end
 
     fns.opentop_onequip = function(inst, owner)
-
-        local skin_build = inst:GetSkinBuild()
-        if skin_build ~= nil then
-            owner:PushEvent("equipskinneditem", inst:GetSkinName())
-            owner.AnimState:OverrideItemSkinSymbol("swap_hat", skin_build, "swap_hat", inst.GUID, fname)
-        else
-            owner.AnimState:OverrideSymbol("swap_hat", fname, "swap_hat")
-        end
+		_base_onequip(inst, owner)
 
         owner.AnimState:Show("HAT")
         owner.AnimState:Hide("HAIR_HAT")
@@ -111,21 +112,67 @@ local function MakeHat(name)
 
         owner.AnimState:Show("HEAD")
         owner.AnimState:Hide("HEAD_HAT")
-
-        if inst.components.fueled ~= nil then
-            inst.components.fueled:StartConsuming()
-        end
-
-        if inst.skin_equip_sound and owner.SoundEmitter then
-            owner.SoundEmitter:PlaySound(inst.skin_equip_sound)
-        end
+		owner.AnimState:Hide("HEAD_HAT_NOHELM")
+		owner.AnimState:Hide("HEAD_HAT_HELM")
     end
+
+	fns.fullhelm_onequip = function(inst, owner)
+		if owner:HasTag("player") then
+			_base_onequip(inst, owner, nil, "headbase_hat")
+
+			owner.AnimState:Hide("HAT")
+			owner.AnimState:Hide("HAIR_HAT")
+			owner.AnimState:Hide("HAIR_NOHAT")
+			owner.AnimState:Hide("HAIR")
+
+			owner.AnimState:Hide("HEAD")
+			owner.AnimState:Show("HEAD_HAT")
+			owner.AnimState:Hide("HEAD_HAT_NOHELM")
+			owner.AnimState:Show("HEAD_HAT_HELM")
+
+			owner.AnimState:HideSymbol("face")
+			owner.AnimState:HideSymbol("swap_face")
+			owner.AnimState:HideSymbol("beard")
+			owner.AnimState:HideSymbol("cheeks")
+
+			owner.AnimState:UseHeadHatExchange(true)
+		else
+			_base_onequip(inst, owner)
+
+			owner.AnimState:Show("HAT")
+			owner.AnimState:Hide("HAIR_HAT")
+			owner.AnimState:Hide("HAIR_NOHAT")
+			owner.AnimState:Hide("HAIR")
+		end
+	end
+
+	fns.fullhelm_onunequip = function(inst, owner)
+		_onunequip(inst, owner)
+
+		if owner:HasTag("player") then
+			owner.AnimState:ShowSymbol("face")
+			owner.AnimState:ShowSymbol("swap_face")
+			owner.AnimState:ShowSymbol("beard")
+			owner.AnimState:ShowSymbol("cheeks")
+
+			owner.AnimState:UseHeadHatExchange(false)
+		end
+	end
 
     fns.simple_onequiptomodel = function(inst, owner, from_ground)
         if inst.components.fueled ~= nil then
             inst.components.fueled:StopConsuming()
         end
     end
+
+    local _skinfns = { -- NOTES(JBK): These are useful for skins to have access to them instead of sometimes storing a reference to a hat.
+        simple_onequip = fns.simple_onequip,
+        simple_onunequip = fns.simple_onunequip,
+        opentop_onequip = fns.opentop_onequip,
+		fullhelm_onequip = fns.fullhelm_onequip,
+		fullhelm_onunequip = fns.fullhelm_onunequip,
+        simple_onequiptomodel = fns.simple_onequiptomodel,
+    }
 
     local function simple(custom_init)
         local inst = CreateEntity()
@@ -154,6 +201,8 @@ local function MakeHat(name)
         if not TheWorld.ismastersim then
             return inst
         end
+
+        inst._skinfns = _skinfns
 
         inst:AddComponent("inventoryitem")
 
@@ -194,6 +243,12 @@ local function MakeHat(name)
         inst.components.insulator:SetSummer()
         inst.components.insulator:SetInsulation(TUNING.INSULATION_SMALL)
 
+        inst:AddComponent("fuel")
+        inst.components.fuel.fuelvalue = TUNING.LARGE_FUEL
+
+        MakeSmallBurnable(inst, TUNING.SMALL_BURNTIME)
+        MakeSmallPropagator(inst)
+
         inst:AddComponent("fueled")
         inst.components.fueled.fueltype = FUELTYPE.USAGE
         inst.components.fueled:InitializeFuelLevel(TUNING.STRAWHAT_PERISHTIME)
@@ -213,6 +268,8 @@ local function MakeHat(name)
 
     fns.bee = function()
         local inst = simple(bee_custom_init)
+
+        inst.scrapbook_specialinfo = "BEEHAT"
 
         inst.components.floater:SetSize("med")
         inst.components.floater:SetScale(0.73)
@@ -304,6 +361,43 @@ local function MakeHat(name)
         return inst
     end
 
+    fns.woodcarved_custom_init = function(inst)
+        inst:AddTag("wood")
+    end
+
+    fns.woodcarved_onhitbyquakedebris = function(inst, damage)
+        -- NOTE(DiogoW): This is not considering bonus damage and planar damage, etc.
+        if inst.components.armor ~= nil then
+            inst.components.armor:TakeDamage(damage)
+        end
+    end
+
+    fns.woodcarved = function()
+        local inst = simple(fns.woodcarved_custom_init)
+
+        inst.scrapbook_specialinfo = "WOODCARVEDHAT"
+
+        if not TheWorld.ismastersim then
+            return inst
+        end
+
+        inst:AddComponent("resistance")
+        inst.components.resistance:AddResistance("quakedebris")
+        inst.components.resistance:SetOnResistDamageFn(fns.woodcarved_onhitbyquakedebris)
+
+        inst:AddComponent("armor")
+        inst.components.armor:InitCondition(TUNING.ARMOR_WOODCARVED_HAT, TUNING.ARMOR_WOODCARVED_HAT_ABSORPTION)
+        inst.components.armor:AddWeakness("beaver", TUNING.BEAVER_WOOD_DAMAGE)
+
+        inst:AddComponent("fuel")
+        inst.components.fuel.fuelvalue = TUNING.LARGE_FUEL
+
+        MakeSmallBurnable(inst, TUNING.SMALL_BURNTIME)
+        MakeSmallPropagator(inst)
+
+        return inst
+    end
+
     local function ruinshat_fxanim(inst)
         inst._fx.AnimState:PlayAnimation("hit")
         inst._fx.AnimState:PushAnimation("idle_loop")
@@ -391,6 +485,8 @@ local function MakeHat(name)
     fns.ruins = function()
         local inst = simple(ruins_custom_init)
 
+        inst.scrapbook_specialinfo = "RUINSHAT"
+
         if not TheWorld.ismastersim then
             return inst
         end
@@ -467,6 +563,8 @@ local function MakeHat(name)
     fns.feather = function()
         local inst = simple()
 
+        inst.scrapbook_specialinfo = "FEATHERHAT"
+
         if not TheWorld.ismastersim then
             return inst
         end
@@ -510,6 +608,7 @@ local function MakeHat(name)
         inst.components.floater:SetVerticalOffset(0.1)
         inst.components.floater:SetScale(0.65)
 
+        inst.scrapbook_specialinfo = "BEEFALOHAT"
         if not TheWorld.ismastersim then
             return inst
         end
@@ -641,6 +740,8 @@ local function MakeHat(name)
         inst.components.floater:SetSize("med")
         inst.components.floater:SetScale(0.6)
 
+        inst.scrapbook_specialinfo = "MINERHAT"
+
         if not TheWorld.ismastersim then
             return inst
         end
@@ -756,6 +857,8 @@ local function MakeHat(name)
         inst.components.floater:SetSize("med")
         inst.components.floater:SetVerticalOffset(0.1)
         inst.components.floater:SetScale(0.62)
+
+        inst.scrapbook_specialinfo = "SPIDERHAT"
 
         if not TheWorld.ismastersim then
             return inst
@@ -951,6 +1054,24 @@ local function MakeHat(name)
         return inst
     end
 
+
+    local function nightcap_custom_init(inst)
+        inst:AddTag("good_sleep_aid")
+    end
+
+    fns.nightcap = function()
+        local inst = simple(nightcap_custom_init)
+
+        inst.components.floater:SetSize("med")
+        inst.components.floater:SetScale(0.65)
+
+        if not TheWorld.ismastersim then
+            return inst
+        end
+
+        return inst
+    end
+
     local function stopusingbush(inst, data)
         local hat = inst.components.inventory ~= nil and inst.components.inventory:GetEquippedItem(EQUIPSLOTS.HEAD) or nil
         if hat ~= nil and data.statename ~= "hide" then
@@ -988,6 +1109,8 @@ local function MakeHat(name)
 
         inst.components.floater:SetSize("med")
         inst.components.floater:SetScale(0.65)
+
+        inst.scrapbook_specialinfo = "BUSHHAT"
 
         if not TheWorld.ismastersim then
             return inst
@@ -1043,6 +1166,8 @@ local function MakeHat(name)
 
         inst.components.floater:SetSize("med")
         inst.components.floater:SetScale(0.68)
+
+        inst.scrapbook_specialinfo = "KELPHAT"
 
         if not TheWorld.ismastersim then
             return inst
@@ -1252,6 +1377,7 @@ local function MakeHat(name)
 
         inst.components.floater:SetSize("med")
         inst.components.floater:SetScale(0.65)
+        inst.scrapbook_specialinfo = "BALLOONHAT"
 
         if not TheWorld.ismastersim then
             return inst
@@ -1287,10 +1413,6 @@ local function MakeHat(name)
         if not TheWorld.ismastersim then
             return inst
         end
-
-        --Saved so we can re-assign with skins
-        inst._opentop_onequip = fns.opentop_onequip
-        inst._onequip = fns.simple_onequip
 
         inst:AddComponent("armor")
         inst.components.armor:InitCondition(TUNING.ARMOR_WATHGRITHRHAT, TUNING.ARMOR_WATHGRITHRHAT_ABSORPTION)
@@ -1354,6 +1476,8 @@ local function MakeHat(name)
     fns.walter = function()
         local inst = simple(walter_custom_init)
 
+        inst.scrapbook_specialinfo = "WALTERHAT"
+
         if not TheWorld.ismastersim then
             return inst
         end
@@ -1394,6 +1518,8 @@ local function MakeHat(name)
 
         inst.components.floater:SetSize("med")
         inst.components.floater:SetScale(0.66)
+
+        inst.scrapbook_specialinfo = "ICEHAT"
 
         if not TheWorld.ismastersim then
             return inst
@@ -1474,6 +1600,8 @@ local function MakeHat(name)
     fns.watermelon = function()
         local inst = simple(watermelon_custom_init)
 
+        inst.scrapbook_specialinfo = "WATERMELONHAT"
+
         if not TheWorld.ismastersim then
             return inst
         end
@@ -1538,6 +1666,8 @@ local function MakeHat(name)
 
     fns.mole = function()
         local inst = simple(mole_custom_init)
+
+        inst.scrapbook_specialinfo = "MOLEHAT"
 
         if not TheWorld.ismastersim then
             return inst
@@ -1643,6 +1773,8 @@ local function MakeHat(name)
         inst.components.floater:SetSize("med")
         inst.components.floater:SetScale(0.95)
 
+        inst.scrapbook_specialinfo = "MUSHHAT"
+
         if not TheWorld.ismastersim then
             return inst
         end
@@ -1652,6 +1784,8 @@ local function MakeHat(name)
 
     fns.green_mushroom = function()
         local inst = common_mushroom("spore_small")
+
+        inst.scrapbook_specialinfo = "MUSHHAT"
 
         inst.components.floater:SetSize("med")
 
@@ -1667,6 +1801,8 @@ local function MakeHat(name)
 
         inst.components.floater:SetSize("med")
         inst.components.floater:SetScale(0.7)
+
+        inst.scrapbook_specialinfo = "MUSHHAT"
 
         if not TheWorld.ismastersim then
             return inst
@@ -1701,6 +1837,7 @@ local function MakeHat(name)
     fns.hive = function()
         local inst = simple(hive_custom_init)
 
+        inst.scrapbook_specialinfo = "HIVEHAT"
         inst.components.floater:SetSize("med")
         inst.components.floater:SetScale(0.8)
 
@@ -1849,6 +1986,8 @@ local function MakeHat(name)
         inst.components.floater:SetSize("med")
         inst.components.floater:SetScale(0.72)
 
+        inst.scrapbook_specialinfo = "DESERTHAT"
+
         if not TheWorld.ismastersim then
             return inst
         end
@@ -1916,7 +2055,9 @@ local function MakeHat(name)
     fns.moonstorm_goggles = function()
         local inst = simple(moonstorm_custom_init)
 
-        inst.components.floater:SetSize("med")
+        inst.scrapbook_specialinfo = "MOONSTORMGOGGLESHAT"
+
+        inst.components.floater:SetSize("med")        
         inst.components.floater:SetScale(0.72)
 
         if not TheWorld.ismastersim then
@@ -1973,6 +2114,8 @@ local function MakeHat(name)
         inst.components.floater:SetSize("med")
         inst.components.floater:SetScale(0.72)
 
+        inst.scrapbook_specialinfo = "EYEMASKHAT"
+
         if not TheWorld.ismastersim then
             return inst
         end
@@ -1998,8 +2141,8 @@ local function MakeHat(name)
 
     local function antlion_onequip(inst, owner)
         fns.simple_onequip(inst, owner)
-        
-        if inst.components.autoterraformer ~= nil then
+
+		if inst.components.autoterraformer ~= nil and owner.components.locomotor ~= nil then
             inst.components.autoterraformer:StartTerraforming()
         end
 
@@ -2045,6 +2188,8 @@ local function MakeHat(name)
 
         inst.components.floater:SetSize("med")
         inst.components.floater:SetScale(0.72)
+
+        inst.scrapbook_specialinfo = "ANTLIONHAT"
 
         if not TheWorld.ismastersim then
             return inst
@@ -2211,6 +2356,8 @@ local function MakeHat(name)
         inst.components.floater:SetSize("med")
         inst.components.floater:SetScale(0.72)
 
+        inst.scrapbook_specialinfo = "POLLYROGERSHAT"
+
         inst.defaultanim = "anim"
 
         if not TheWorld.ismastersim then
@@ -2247,6 +2394,7 @@ local function MakeHat(name)
         inst.components.floater:SetSize("med")
 
         inst.defaultanim = "anim"
+        inst.scrapbook_specialinfo = "COSTUME"
 
         if not TheWorld.ismastersim then
             return inst
@@ -2282,6 +2430,8 @@ local function MakeHat(name)
 
         inst.components.floater:SetSize("med")
         inst.components.floater:SetScale(0.72)
+
+        inst.scrapbook_specialinfo = "MONKEYSMALLHAT"
 
         if not TheWorld.ismastersim then
             return inst
@@ -2323,6 +2473,8 @@ local function MakeHat(name)
 
         inst.components.floater:SetSize("med")
         inst.components.floater:SetScale(0.72)
+
+        inst.scrapbook_specialinfo = "MONKEYMEDIUMHAT"
 
         if not TheWorld.ismastersim then
             return inst
@@ -2368,6 +2520,8 @@ local function MakeHat(name)
     local function skeleton()
         local inst = simple(skeleton_custom_init)
 
+        inst.scrapbook_specialinfo = "BONEHAT"
+
         inst.components.floater:SetSize("med")
         inst.components.floater:SetScale(0.68)
 
@@ -2376,6 +2530,7 @@ local function MakeHat(name)
         end
 
         inst.components.equippable.dapperness = TUNING.CRAZINESS_MED
+        inst.components.equippable.is_magic_dapperness = true
         inst.components.equippable:SetOnEquip(skeleton_onequip)
         inst.components.equippable:SetOnUnequip(skeleton_onunequip)
 
@@ -2456,6 +2611,8 @@ local function MakeHat(name)
         inst.components.floater:SetSize("med")
         inst.components.floater:SetScale(0.68)
 
+        inst.scrapbook_specialinfo = "MERMHAT"
+
         if not TheWorld.ismastersim then
             return inst
         end
@@ -2512,6 +2669,8 @@ local function MakeHat(name)
         local inst = simple()
 
         inst.components.floater:SetSize("med")
+
+        inst.scrapbook_specialinfo = "BATNOSEHAT"
 
         if not TheWorld.ismastersim then
             return inst
@@ -2570,6 +2729,8 @@ local function MakeHat(name)
         inst.components.floater:SetSize("med")
         inst.components.floater:SetScale(0.65)
 
+        inst.scrapbook_specialinfo = "PLANTREGISTRYHAT"
+
         if not TheWorld.ismastersim then
             return inst
         end
@@ -2609,6 +2770,8 @@ local function MakeHat(name)
 
         inst.components.floater:SetSize("med")
         inst.components.floater:SetScale(0.72)
+
+        inst.scrapbook_specialinfo = "NUTRIENTHAT"
 
         if not TheWorld.ismastersim then
             return inst
@@ -2851,6 +3014,8 @@ local function MakeHat(name)
         inst.components.floater:SetSize("med")
         inst.components.floater:SetScale(0.68)
 
+        inst.scrapbook_specialinfo = "ALTERGUARDIANHAT"
+
         if not TheWorld.ismastersim then
             return inst
         end
@@ -2875,6 +3040,448 @@ local function MakeHat(name)
 
         return inst
     end
+
+	local function dreadstone_getsetbonusequip(inst, owner)
+		local body = owner.components.inventory ~= nil and owner.components.inventory:GetEquippedItem(EQUIPSLOTS.BODY) or nil
+		return body ~= nil and body.prefab == "armordreadstone" and body or nil
+	end
+
+	local function dreadstone_doregen(inst, owner)
+		if owner.components.sanity ~= nil and owner.components.sanity:IsInsanityMode() then
+			local setbonus = inst.components.setbonus ~= nil and inst.components.setbonus:IsEnabled(EQUIPMENTSETNAMES.DREADSTONE) and TUNING.ARMOR_DREADSTONE_REGEN_SETBONUS or 1
+			local rate = 1 / Lerp(1 / TUNING.ARMOR_DREADSTONE_REGEN_MAXRATE, 1 / TUNING.ARMOR_DREADSTONE_REGEN_MINRATE, owner.components.sanity:GetPercent())
+			inst.components.armor:Repair(inst.components.armor.maxcondition * rate * setbonus)
+		end
+		if not inst.components.armor:IsDamaged() then
+			inst.regentask:Cancel()
+			inst.regentask = nil
+		end
+	end
+
+	local function dreadstone_startregen(inst, owner)
+		if inst.regentask == nil then
+			inst.regentask = inst:DoPeriodicTask(TUNING.ARMOR_DREADSTONE_REGEN_PERIOD, dreadstone_doregen, nil, owner)
+		end
+	end
+
+	local function dreadstone_stopregen(inst)
+		if inst.regentask ~= nil then
+			inst.regentask:Cancel()
+			inst.regentask = nil
+		end
+	end
+
+	local function dreadstone_onequip(inst, owner)
+		_onequip(inst, owner)
+
+		if owner.components.sanity ~= nil and inst.components.armor:IsDamaged() then
+			dreadstone_startregen(inst, owner)
+		else
+			dreadstone_stopregen(inst)
+		end
+	end
+
+	local function dreadstone_onunequip(inst, owner)
+		_onunequip(inst, owner)
+		dreadstone_stopregen(inst)
+	end
+
+	local function dreadstone_ontakedamage(inst, amount)
+		if inst.regentask == nil and inst.components.equippable:IsEquipped() then
+			local owner = inst.components.inventoryitem.owner
+			if owner ~= nil and owner.components.sanity ~= nil then
+				dreadstone_startregen(inst, owner)
+			end
+		end
+	end
+
+	local function dreadstone_calcdapperness(inst, owner)
+		local insanity = owner.components.sanity ~= nil and owner.components.sanity:IsInsanityMode()
+		local other = dreadstone_getsetbonusequip(inst, owner)
+		if other ~= nil then
+			return (insanity and (inst.regentask ~= nil or other.regentask ~= nil) and TUNING.CRAZINESS_MED or 0) * 0.5
+		end
+		return insanity and inst.regentask ~= nil and TUNING.CRAZINESS_MED or 0
+	end
+
+	local function dreadstone_custom_init(inst)
+		inst:AddTag("dreadstone")
+		inst:AddTag("shadow_item")
+
+		--waterproofer (from waterproofer component) added to pristine state for optimization
+		inst:AddTag("waterproofer")
+
+		--shadowlevel (from shadowlevel component) added to pristine state for optimization
+		inst:AddTag("shadowlevel")
+	end
+
+	fns.dreadstone = function()
+		local inst = simple(dreadstone_custom_init)
+
+        inst.scrapbook_specialinfo = "DREADSTONEHAT"
+
+		if not TheWorld.ismastersim then
+			return inst
+		end
+
+		inst:AddComponent("armor")
+		inst.components.armor:InitCondition(TUNING.ARMOR_DREADSTONEHAT, TUNING.ARMOR_DREADSTONEHAT_ABSORPTION)
+		inst.components.armor.ontakedamage = dreadstone_ontakedamage
+
+		inst.components.equippable.dapperfn = dreadstone_calcdapperness
+		inst.components.equippable.is_magic_dapperness = true
+		inst.components.equippable:SetOnEquip(dreadstone_onequip)
+		inst.components.equippable:SetOnUnequip(dreadstone_onunequip)
+
+		inst:AddComponent("planardefense")
+		inst.components.planardefense:SetBaseDefense(TUNING.ARMOR_DREADSTONEHAT_PLANAR_DEF)
+
+		inst:AddComponent("waterproofer")
+		inst.components.waterproofer:SetEffectiveness(TUNING.WATERPROOFNESS_SMALL)
+
+		inst:AddComponent("damagetyperesist")
+		inst.components.damagetyperesist:AddResist("shadow_aligned", inst, TUNING.ARMOR_DREADSTONEHAT_SHADOW_RESIST)
+
+		inst:AddComponent("shadowlevel")
+		inst.components.shadowlevel:SetDefaultLevel(TUNING.DREADSTONEHAT_SHADOW_LEVEL)
+
+        local setbonus = inst:AddComponent("setbonus")
+        setbonus:SetSetName(EQUIPMENTSETNAMES.DREADSTONE)
+
+		MakeHauntableLaunch(inst)
+
+		return inst
+	end
+
+	local function lunarplant_onequip(inst, owner)
+		fns.fullhelm_onequip(inst, owner)
+
+		if inst.fx ~= nil then
+			inst.fx:Remove()
+		end
+		inst.fx = SpawnPrefab("lunarplanthat_fx")
+		inst.fx:AttachToOwner(owner)
+		owner.AnimState:SetSymbolLightOverride("swap_hat", .1)
+		if owner.components.grue ~= nil then
+			owner.components.grue:AddImmunity("lunarplanthat")
+		end
+	end
+
+	local function lunarplant_onunequip(inst, owner)
+		fns.fullhelm_onunequip(inst, owner)
+
+		if inst.fx ~= nil then
+			inst.fx:Remove()
+			inst.fx = nil
+		end
+		owner.AnimState:SetSymbolLightOverride("swap_hat", 0)
+		if owner.components.grue ~= nil then
+			owner.components.grue:RemoveImmunity("lunarplanthat")
+		end
+	end
+
+    local function lunarplant_onsetbonus_enabled(inst)
+		inst.components.damagetyperesist:AddResist("lunar_aligned", inst, TUNING.ARMOR_LUNARPLANT_SETBONUS_LUNAR_RESIST, "setbonus")
+    end
+
+    local function lunarplant_onsetbonus_disabled(inst)
+        inst.components.damagetyperesist:RemoveResist("lunar_aligned", inst, "setbonus")
+    end
+
+	local lunarplant_swap_data_broken = { bank = "hat_lunarplant", anim = "broken" }
+
+	local function lunarplant_onbroken(inst)
+		if inst.components.equippable ~= nil then
+			inst:RemoveComponent("equippable")
+			inst.AnimState:PlayAnimation("broken")
+			inst.components.floater:SetSwapData(lunarplant_swap_data_broken)
+			inst:AddTag("broken")
+			inst.components.inspectable.nameoverride = "BROKEN_FORGEDITEM"
+		end
+	end
+
+	local function lunarplant_onrepaired(inst)
+		if inst.components.equippable == nil then
+			inst:AddComponent("equippable")
+			inst.components.equippable.equipslot = EQUIPSLOTS.HEAD
+			inst.components.equippable:SetOnEquip(lunarplant_onequip)
+			inst.components.equippable:SetOnUnequip(lunarplant_onunequip)
+			inst.components.equippable:SetOnEquipToModel(fns.simple_onequiptomodel)
+			inst.AnimState:PlayAnimation("anim")
+			inst.components.floater:SetSwapData(swap_data)
+			inst:RemoveTag("broken")
+			inst.components.inspectable.nameoverride = nil
+		end
+	end
+
+	local function lunarplant_custom_init(inst)
+		inst:AddTag("lunarplant")
+		inst:AddTag("gestaltprotection")
+		inst:AddTag("goggles")
+		inst:AddTag("show_broken_ui")
+
+		--waterproofer (from waterproofer component) added to pristine state for optimization
+		inst:AddTag("waterproofer")
+	end
+
+	fns.lunarplant = function()
+		local inst = simple(lunarplant_custom_init)
+
+		inst.components.floater:SetSize("med")
+		inst.components.floater:SetVerticalOffset(0.25)
+		inst.components.floater:SetScale(.75)
+
+        inst.scrapbook_specialinfo = "LUNARPLANTHAT"
+
+		if not TheWorld.ismastersim then
+			return inst
+		end
+
+		inst:AddComponent("armor")
+		inst.components.armor:InitCondition(TUNING.ARMOR_LUNARPLANT_HAT, TUNING.ARMOR_LUNARPLANT_HAT_ABSORPTION)
+
+		inst.components.equippable:SetOnEquip(lunarplant_onequip)
+		inst.components.equippable:SetOnUnequip(lunarplant_onunequip)
+
+		inst:AddComponent("planardefense")
+		inst.components.planardefense:SetBaseDefense(TUNING.ARMOR_LUNARPLANT_HAT_PLANAR_DEF)
+
+		inst:AddComponent("waterproofer")
+		inst.components.waterproofer:SetEffectiveness(TUNING.WATERPROOFNESS_SMALLMED)
+
+		inst:AddComponent("damagetyperesist")
+		inst.components.damagetyperesist:AddResist("lunar_aligned", inst, TUNING.ARMOR_LUNARPLANT_LUNAR_RESIST)
+
+        local setbonus = inst:AddComponent("setbonus")
+        setbonus:SetSetName(EQUIPMENTSETNAMES.LUNARPLANT)
+        setbonus:SetOnEnabledFn(lunarplant_onsetbonus_enabled)
+        setbonus:SetOnDisabledFn(lunarplant_onsetbonus_disabled)
+
+		MakeForgeRepairable(inst, FORGEMATERIALS.LUNARPLANT, lunarplant_onbroken, lunarplant_onrepaired)
+		MakeHauntableLaunch(inst)
+
+		return inst
+	end
+
+	local function voidcloth_applyitembuff(inst, item, stacks)
+		if item.components.planardamage ~= nil then
+			if stacks > 0 then
+				local bonus = Remap(stacks, 0, TUNING.ARMOR_VOIDCLOTH_SETBONUS_PLANARDAMAGE_MAX_HITS, 0, TUNING.ARMOR_VOIDCLOTH_SETBONUS_PLANARDAMAGE_MAX)
+				item.components.planardamage:AddBonus(inst, bonus, "voidclothhat_rampingbuff")
+			else
+				item.components.planardamage:RemoveBonus(inst, "voidclothhat_rampingbuff")
+			end
+		end
+	end
+
+	local function voidcloth_setbuffitem(inst, item)
+		if inst.buff_item ~= item then
+			if inst.buff_item ~= nil then
+				voidcloth_applyitembuff(inst, inst.buff_item, 0)
+			end
+			inst.buff_item = item
+			if item ~= nil then
+				voidcloth_applyitembuff(inst, item, inst.buff_stacks)
+			end
+		end
+	end
+
+	local function voidcloth_resetbuff(inst)
+		if inst.decaystacktask ~= nil then
+			inst.decaystacktask:Cancel()
+			inst.decaystacktask = nil
+		end
+
+		inst.buff_stacks = 0
+		if inst.buff_item ~= nil then
+			voidcloth_applyitembuff(inst, inst.buff_item, 0)
+		end
+
+		if inst.fx ~= nil then
+			inst.fx.buffed:set(false)
+		end
+	end
+
+	local function voidcloth_onattackother(inst)
+		if inst.buff_item == nil then
+			return
+		end
+
+		if inst.decaystacktask ~= nil then
+			inst.decaystacktask:Cancel()
+		end
+		inst.decaystacktask = inst:DoTaskInTime(TUNING.ARMOR_VOIDCLOTH_SETBONUS_PLANARDAMAGE_DECAY_TIME, voidcloth_resetbuff)
+
+		if inst.buff_stacks < TUNING.ARMOR_VOIDCLOTH_SETBONUS_PLANARDAMAGE_MAX_HITS then
+			inst.buff_stacks = inst.buff_stacks + 1
+			if inst.buff_item ~= nil then
+				voidcloth_applyitembuff(inst, inst.buff_item, inst.buff_stacks)
+			end
+		end
+
+		if inst.fx ~= nil then
+			inst.fx.buffed:set(true)
+		end
+	end
+
+	local function voidcloth_setbuffowner(inst, owner)
+		if inst._owner ~= owner then
+			if inst._owner ~= nil then
+				inst:RemoveEventCallback("equip", inst._onownerequip, inst._owner)
+				inst:RemoveEventCallback("unequip", inst._onownerunequip, inst._owner)
+				inst:RemoveEventCallback("attacked", inst._onattacked, inst._owner)
+				inst:RemoveEventCallback("onattackother", inst._onattackother, inst._owner)
+				inst._onownerunequip = nil
+				inst._onattacked = nil
+				inst._onattackother = nil
+
+				voidcloth_setbuffitem(inst, nil)
+				voidcloth_resetbuff(inst)
+				inst.buff_stacks = nil
+			end
+			inst._owner = owner
+			if owner ~= nil then
+				inst._onownerequip = function(owner, data)
+					if data ~= nil and data.eslot == EQUIPSLOTS.HANDS then
+						if data.item ~= nil and data.item.components.planardamage ~= nil and data.item:HasTag("shadow_item") then
+							voidcloth_setbuffitem(inst, data.item)
+						else
+							voidcloth_setbuffitem(inst, nil)
+						end
+					end
+				end
+				inst._onownerunequip = function(owner, data)
+					if data ~= nil and data.eslot == EQUIPSLOTS.HANDS then
+						voidcloth_setbuffitem(inst, nil)
+					end
+				end
+				inst._onattacked = function(owner)
+					voidcloth_resetbuff(inst)
+				end
+				inst._onattackother = function(owner)
+					voidcloth_onattackother(inst)
+				end
+				inst:ListenForEvent("equip", inst._onownerequip, owner)
+				inst:ListenForEvent("unequip", inst._onownerunequip, owner)
+				inst:ListenForEvent("onattacked", inst._onattacked, owner)
+				inst:ListenForEvent("onattackother", inst._onattackother, owner)
+
+				inst.buff_stacks = 0
+				local weapon = owner.components.inventory:GetEquippedItem(EQUIPSLOTS.HANDS)
+				if weapon ~= nil and weapon.components.planardamage ~= nil and weapon:HasTag("shadow_item") then
+					voidcloth_setbuffitem(inst, weapon)
+				end
+			end
+		end
+	end
+
+	fns.voidcloth_onequip = function(inst, owner)
+		fns.fullhelm_onequip(inst, owner)
+
+		if inst.fx ~= nil then
+			inst.fx:Remove()
+		end
+		inst.fx = SpawnPrefab("voidclothhat_fx")
+		inst.fx:AttachToOwner(owner)
+
+		voidcloth_setbuffowner(inst, owner)
+	end
+
+	fns.voidcloth_onunequip = function(inst, owner)
+		fns.fullhelm_onunequip(inst, owner)
+
+		if inst.fx ~= nil then
+			inst.fx:Remove()
+			inst.fx = nil
+		end
+
+		voidcloth_setbuffowner(inst, nil)
+	end
+
+	local voidcloth_swap_data_broken = { bank = "hat_voidcloth", anim = "broken" }
+
+	fns.voidcloth_onbroken = function(inst)
+		if inst.components.equippable ~= nil then
+			inst:RemoveComponent("equippable")
+			inst.AnimState:PlayAnimation("broken")
+			inst.components.floater:SetSwapData(voidcloth_swap_data_broken)
+			inst:AddTag("broken")
+			inst.components.inspectable.nameoverride = "BROKEN_FORGEDITEM"
+		end
+	end
+
+	fns.voidcloth_onrepaired = function(inst)
+		if inst.components.equippable == nil then
+			inst:AddComponent("equippable")
+			inst.components.equippable.equipslot = EQUIPSLOTS.HEAD
+			inst.components.equippable:SetOnEquip(fns.voidcloth_onequip)
+			inst.components.equippable:SetOnUnequip(fns.voidcloth_onunequip)
+			inst.components.equippable:SetOnEquipToModel(fns.simple_onequiptomodel)
+			inst.AnimState:PlayAnimation("anim")
+			inst.components.floater:SetSwapData(swap_data)
+			inst:RemoveTag("broken")
+			inst.components.inspectable.nameoverride = nil
+		end
+	end
+
+	fns.voidcloth_custom_init = function(inst)
+		inst:AddTag("cloth")
+		inst:AddTag("shadow_item")
+		inst:AddTag("show_broken_ui")
+		inst:AddTag("miasmaimmune")
+
+		--shadowlevel (from shadowlevel component) added to pristine state for optimization
+		inst:AddTag("shadowlevel")
+	end
+
+    fns.voidcloth_onsetbonus_enabled = function(inst)
+        inst.components.damagetyperesist:AddResist("shadow_aligned", inst, TUNING.ARMOR_VOIDCLOTH_SETBONUS_SHADOW_RESIST, "setbonus")
+    end
+
+    fns.voidcloth_onsetbonus_disabled = function(inst)
+        inst.components.damagetyperesist:RemoveResist("shadow_aligned", inst, "setbonus")
+    end
+
+	fns.voidcloth = function()
+		local inst = simple(fns.voidcloth_custom_init)
+
+		inst.components.floater:SetSize("med")
+		inst.components.floater:SetVerticalOffset(0.1)
+		inst.components.floater:SetScale(.75)
+
+        inst.scrapbook_specialinfo = "VOIDCLOTHHAT"
+
+		if not TheWorld.ismastersim then
+			return inst
+		end
+
+		inst:AddComponent("armor")
+		inst.components.armor:InitCondition(TUNING.ARMOR_VOIDCLOTH_HAT, TUNING.ARMOR_VOIDCLOTH_HAT_ABSORPTION)
+
+		inst.components.equippable:SetOnEquip(fns.voidcloth_onequip)
+		inst.components.equippable:SetOnUnequip(fns.voidcloth_onunequip)
+
+		inst:AddComponent("planardefense")
+		inst.components.planardefense:SetBaseDefense(TUNING.ARMOR_VOIDCLOTH_HAT_PLANAR_DEF)
+
+		inst:AddComponent("damagetyperesist")
+		inst.components.damagetyperesist:AddResist("shadow_aligned", inst, TUNING.ARMOR_VOIDCLOTH_SHADOW_RESIST)
+
+		inst:AddComponent("shadowlevel")
+		inst.components.shadowlevel:SetDefaultLevel(TUNING.VOIDCLOTHHAT_SHADOW_LEVEL)
+
+        local setbonus = inst:AddComponent("setbonus")
+        setbonus:SetSetName(EQUIPMENTSETNAMES.VOIDCLOTH)
+        setbonus:SetOnEnabledFn(fns.voidcloth_onsetbonus_enabled)
+        setbonus:SetOnDisabledFn(fns.voidcloth_onsetbonus_disabled)
+
+		MakeForgeRepairable(inst, FORGEMATERIALS.VOIDCLOTH, fns.voidcloth_onbroken, fns.voidcloth_onrepaired)
+		MakeHauntableLaunch(inst)
+
+        inst.voidcloth_onattackother = voidcloth_onattackother -- Mods
+
+		return inst
+	end
 
     local fn = nil
     local assets = { Asset("ANIM", "anim/"..fname..".zip") }
@@ -3017,6 +3624,21 @@ local function MakeHat(name)
         fn = fns.mask
     elseif name == "mask_fool" then
         fn = fns.mask        
+    elseif name == "nightcap" then
+        fn = fns.nightcap
+    elseif name == "dreadstone" then
+    	fn = fns.dreadstone
+    elseif name == "lunarplant" then
+    	prefabs = { "lunarplanthat_fx" }
+    	fn = fns.lunarplant
+    elseif name == "voidcloth" then
+    	prefabs = { "voidclothhat_fx" }
+    	fn = fns.voidcloth
+    elseif name == "woodcarved" then
+    	fn = fns.woodcarved
+    elseif name == "lunarplant_wormwood" then
+    	prefabs = { "lunarplanthat_fx" }
+    	fn = fns.lunarplant
     end
 
     table.insert(ALL_HAT_PREFAB_NAMES, prefabname)
@@ -3072,6 +3694,172 @@ local function alterguardianhatlightfn()
 
     return inst
 end
+
+--------------------------------------------------------------------------
+
+local function lunarplanthat_CreateFxFollowFrame(i)
+	local inst = CreateEntity()
+
+	--[[Non-networked entity]]
+	inst.entity:AddTransform()
+	inst.entity:AddAnimState()
+	inst.entity:AddFollower()
+
+	inst:AddTag("FX")
+
+	inst.AnimState:SetBank("lunarplanthat")
+	inst.AnimState:SetBuild("hat_lunarplant")
+	inst.AnimState:PlayAnimation("idle"..tostring(i), true)
+	inst.AnimState:SetSymbolBloom("glow01")
+	inst.AnimState:SetSymbolBloom("float_top")
+	inst.AnimState:SetSymbolLightOverride("glow01", .5)
+	inst.AnimState:SetSymbolLightOverride("float_top", .5)
+	inst.AnimState:SetSymbolMultColour("float_top", 1, 1, 1, .6)
+	inst.AnimState:SetLightOverride(.1)
+
+	inst:AddComponent("highlightchild")
+
+	inst.persists = false
+
+	return inst
+end
+
+local function voidclothhat_CreateFxFollowFrame(i)
+	local inst = CreateEntity()
+
+	--[[Non-networked entity]]
+	inst.entity:AddTransform()
+	inst.entity:AddAnimState()
+	inst.entity:AddFollower()
+
+	inst:AddTag("FX")
+
+	inst.AnimState:SetBank("voidclothhat")
+	inst.AnimState:SetBuild("hat_voidcloth")
+	inst.anim = "idle"..tostring(i)
+	inst.AnimState:PlayAnimation(inst.anim, true)
+
+	inst:AddComponent("highlightchild")
+
+	inst.persists = false
+
+	return inst
+end
+
+local function voidclothhat_fx_buffeddirty(inst)
+	if inst.fx ~= nil then
+		if inst.buffed:value() then
+			for i, v in ipairs(inst.fx) do
+				local anim = v.anim.."_powerup"
+				if not v.AnimState:IsCurrentAnimation(anim) then
+					v.AnimState:PlayAnimation(anim.."_pre")
+					v.AnimState:PushAnimation(anim)
+				end
+			end
+		else
+			for i, v in ipairs(inst.fx) do
+				if not v.AnimState:IsCurrentAnimation(v.anim) then
+					v.AnimState:PlayAnimation(v.anim.."_powerup_pst")
+					v.AnimState:PushAnimation(v.anim)
+				end
+			end
+		end
+	end
+end
+
+local function voidclothhat_fx_common_postinit(inst)
+	inst.buffed = net_bool(inst.GUID, "voidclothhat_fx.buffed", "buffeddirty")
+	if not TheNet:IsDedicated() then
+		inst:ListenForEvent("buffeddirty", voidclothhat_fx_buffeddirty)
+	end
+end
+
+--------------------------------------------------------------------------
+
+local function FollowFx_OnRemoveEntity(inst)
+	for i, v in ipairs(inst.fx) do
+		v:Remove()
+	end
+end
+
+local function FollowFx_ColourChanged(inst, r, g, b, a)
+	for i, v in ipairs(inst.fx) do
+		v.AnimState:SetAddColour(r, g, b, a)
+	end
+end
+
+local function SpawnFollowFxForOwner(inst, owner, createfn, framebegin, frameend, isfullhelm)
+	local follow_symbol = isfullhelm and owner:HasTag("player") and owner.AnimState:BuildHasSymbol("headbase_hat") and "headbase_hat" or "swap_hat"
+	inst.fx = {}
+	local frame
+	for i = framebegin, frameend do
+		local fx = createfn(i)
+		frame = frame or math.random(fx.AnimState:GetCurrentAnimationNumFrames()) - 1
+		fx.entity:SetParent(owner.entity)
+		fx.Follower:FollowSymbol(owner.GUID, follow_symbol, nil, nil, nil, true, nil, i - 1)
+		fx.AnimState:SetFrame(frame)
+		fx.components.highlightchild:SetOwner(owner)
+		table.insert(inst.fx, fx)
+	end
+	inst.components.colouraddersync:SetColourChangedFn(FollowFx_ColourChanged)
+	inst.OnRemoveEntity = FollowFx_OnRemoveEntity
+end
+
+local function MakeFollowFx(name, data)
+	local function OnEntityReplicated(inst)
+		local owner = inst.entity:GetParent()
+		if owner ~= nil then
+			SpawnFollowFxForOwner(inst, owner, data.createfn, data.framebegin, data.frameend, data.isfullhelm)
+		end
+	end
+
+	local function AttachToOwner(inst, owner)
+		inst.entity:SetParent(owner.entity)
+		if owner.components.colouradder ~= nil then
+			owner.components.colouradder:AttachChild(inst)
+		end
+		--Dedicated server does not need to spawn the local fx
+		if not TheNet:IsDedicated() then
+			SpawnFollowFxForOwner(inst, owner, data.createfn, data.framebegin, data.frameend, data.isfullhelm)
+		end
+	end
+
+	local function fn()
+		local inst = CreateEntity()
+
+		inst.entity:AddTransform()
+		inst.entity:AddNetwork()
+
+		inst:AddTag("FX")
+
+		inst:AddComponent("colouraddersync")
+
+		if data.common_postinit ~= nil then
+			data.common_postinit(inst)
+		end
+
+		inst.entity:SetPristine()
+
+		if not TheWorld.ismastersim then
+			inst.OnEntityReplicated = OnEntityReplicated
+
+			return inst
+		end
+
+		inst.AttachToOwner = AttachToOwner
+		inst.persists = false
+
+		if data.master_postinit ~= nil then
+			data.master_postinit(inst)
+		end
+
+		return inst
+	end
+
+	return Prefab(name, fn, data.assets, data.prefabs)
+end
+
+--------------------------------------------------------------------------
 
 local function tophatcontainerfn()
 	local inst = CreateEntity()
@@ -3154,6 +3942,30 @@ return  MakeHat("straw"),
         MakeHat("monkey_medium"),
         MakeHat("monkey_small"),
         MakeHat("polly_rogers"),
+
+        MakeHat("nightcap"),
+
+        MakeHat("dreadstone"),
+        MakeHat("lunarplant"),
+        MakeHat("voidcloth"),
+
+        MakeHat("woodcarved"),
+
+		MakeFollowFx("lunarplanthat_fx", {
+			createfn = lunarplanthat_CreateFxFollowFrame,
+			framebegin = 1,
+			frameend = 3,
+			isfullhelm = true,
+			assets = { Asset("ANIM", "anim/hat_lunarplant.zip") },
+		}),
+		MakeFollowFx("voidclothhat_fx", {
+			createfn = voidclothhat_CreateFxFollowFrame,
+			common_postinit = voidclothhat_fx_common_postinit,
+			framebegin = 1,
+			frameend = 3,
+			isfullhelm = true,
+			assets = { Asset("ANIM", "anim/hat_voidcloth.zip") }
+		}),
 
         Prefab("minerhatlight", minerhatlightfn),
         Prefab("alterguardianhatlight", alterguardianhatlightfn),

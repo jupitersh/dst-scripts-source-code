@@ -42,8 +42,11 @@ local function potion_fn(anim, buff_prefab)
     inst.AnimState:SetBank("halloween_potions")
     inst.AnimState:SetBuild("halloween_potions")
     inst.AnimState:PlayAnimation(anim)
+    inst.scrapbook_anim = anim
 
     MakeInventoryFloatable(inst, "small", 0.15, 0.65)
+
+    inst.scrapbook_specialinfo = "HALLOWEENPOTIONFIRE"
 
     inst.entity:SetPristine()
 

@@ -302,6 +302,8 @@ local function water_common(data)
     inst.AnimState:SetBuild(data.build)
     inst.AnimState:PlayAnimation("idle_loop")
 
+    inst.scrapbook_anim = "idle_ground"
+
     inst.AnimState:SetSortOrder(ANIM_SORT_ORDER_BELOW_GROUND.UNDERWATER)
 	inst.AnimState:SetLayer(LAYER_WIP_BELOW_OCEAN)
 
@@ -409,6 +411,8 @@ local function inv_common(fish_def)
     inst.AnimState:SetBank(fish_def.bank)
     inst.AnimState:SetBuild(fish_def.build)
     inst.AnimState:PlayAnimation("flop_pst")
+
+    inst.scrapbook_anim = "idle_ground"
 
 	if fish_def.dynamic_shadow then
 	    inst.DynamicShadow:SetSize(fish_def.dynamic_shadow[1], fish_def.dynamic_shadow[2])
@@ -552,6 +556,8 @@ local function MakeFish(data)
 
 	table.insert(fish_prefabs, Prefab(data.prefab, function() return water_common(data) end, assets, prefabs))
 	table.insert(fish_prefabs, Prefab(data.prefab.."_inv", function() return inv_common(data) end))
+    -- NOTES(JBK): Use this to help export the bottom table to make this file findable.
+    --print(string.format("%s %s", data.edible_values.foodtype or FOODTYPE.MEAT, data.prefab))
 end
 
 for _, fish_def in pairs(FISH_DATA.fish) do
@@ -559,3 +565,25 @@ for _, fish_def in pairs(FISH_DATA.fish) do
 end
 
 return unpack(fish_prefabs)
+
+-- NOTES(JBK): These are here to make this file findable.
+--[[
+FOODTYPE.MEAT oceanfish_medium_1
+FOODTYPE.MEAT oceanfish_medium_2
+FOODTYPE.MEAT oceanfish_medium_3
+FOODTYPE.MEAT oceanfish_medium_4
+FOODTYPE.MEAT oceanfish_medium_6
+FOODTYPE.MEAT oceanfish_medium_7
+FOODTYPE.MEAT oceanfish_medium_8
+FOODTYPE.MEAT oceanfish_medium_9
+FOODTYPE.MEAT oceanfish_small_1
+FOODTYPE.MEAT oceanfish_small_2
+FOODTYPE.MEAT oceanfish_small_3
+FOODTYPE.MEAT oceanfish_small_4
+FOODTYPE.MEAT oceanfish_small_6
+FOODTYPE.MEAT oceanfish_small_7
+FOODTYPE.MEAT oceanfish_small_8
+FOODTYPE.MEAT oceanfish_small_9
+FOODTYPE.VEGGIE oceanfish_medium_5
+FOODTYPE.VEGGIE oceanfish_small_5
+]]

@@ -32,6 +32,7 @@ local PRECIP_TYPE_NAMES =
 {
     "none",
     "rain",
+    "acidrain",
 }
 local PRECIP_TYPES = table.invert(PRECIP_TYPE_NAMES)
 
@@ -145,12 +146,14 @@ local _temperature = TUNING.STARTING_TEMP
 local _rainsound = false
 local _treerainsound = nil
 local _umbrellarainsound = false
+local _barriersound = false
 local _seasonprogress = 0
 local _groundoverlay = nil
 
 --Dedicated server does not need to spawn the local fx
 local _hasfx = not TheNet:IsDedicated()
 local _rainfx = _hasfx and SpawnPrefab("caverain") or nil
+local _acidrainfx = _hasfx and SpawnPrefab("caveacidrain") or nil
 
 --Light
 local _daylight = true
@@ -230,6 +233,20 @@ local function StopUmbrellaRainSound()
     end
 end
 
+local function StartBarrierSound()
+	if not _barriersound then
+		_barriersound = true
+		TheFocalPoint.SoundEmitter:PlaySound("meta2/voidcloth_umbrella/barrier_amb", "barriersound")
+	end
+end
+
+local function StopBarrierSound()
+	if _barriersound then
+		_barriersound = false
+		TheFocalPoint.SoundEmitter:KillSound("barriersound")
+	end
+end
+
 local function SetGroundOverlay(overlay, level)
     if _groundoverlay ~= overlay then
         _groundoverlay = overlay
@@ -300,7 +317,12 @@ local StartPrecipitation = _ismastersim and function(temperature)
     _moisture:set(_moistureceil:value())
     _moisturefloor:set(RandomizeMoistureFloor(_season))
     _peakprecipitationrate:set(RandomizePeakPrecipitationRate(_season))
-    _preciptype:set(PRECIP_TYPES.rain)
+    local riftspawner = _world.components.riftspawner
+    if riftspawner and riftspawner:IsShadowPortalActive() then
+        _preciptype:set(PRECIP_TYPES.acidrain)
+    else
+        _preciptype:set(PRECIP_TYPES.rain)
+    end
 end or nil
 
 local StopPrecipitation = _ismastersim and function()
@@ -369,6 +391,7 @@ local function OnPlayerActivated(src, player)
     _activatedplayer = player
     if _hasfx then
         _rainfx.entity:SetParent(player.entity)
+        _acidrainfx.entity:SetParent(player.entity)
         self:OnPostInit()
     end
 end
@@ -379,6 +402,7 @@ local function OnPlayerDeactivated(src, player)
     end
     if _hasfx then
         _rainfx.entity:SetParent(nil)
+        _acidrainfx.entity:SetParent(nil)
     end
 end
 
@@ -435,6 +459,8 @@ if _hasfx then
     --Initialize rain particles
     _rainfx.particles_per_tick = 0
     _rainfx.splashes_per_tick = 0
+    _acidrainfx.particles_per_tick = 0
+    _acidrainfx.splashes_per_tick = 0
 end
 
 --Register network variable sync events
@@ -480,6 +506,8 @@ inst:StartUpdatingComponent(self)
 if _hasfx then function self:OnPostInit()
     if _preciptype:value() == PRECIP_TYPES.rain then
         _rainfx:PostInit()
+    elseif _preciptype:value() == PRECIP_TYPES.acidrain then
+        _acidrainfx:PostInit()
     end
 end end
 
@@ -490,6 +518,9 @@ end end
 if _hasfx then function self:OnRemoveEntity()
     if _rainfx.entity:IsValid() then
         _rainfx:Remove()
+    end
+    if _acidrainfx.entity:IsValid() then
+        _acidrainfx:Remove()
     end
 end end
 
@@ -558,17 +589,40 @@ function self:OnUpdate(dt)
     end
 
     --Update precipitation effects
-    if _preciptype:value() == PRECIP_TYPES.rain then
+    if _preciptype:value() == PRECIP_TYPES.none then
+        StopAmbientRainSound()
+        StopTreeRainSound()
+        StopUmbrellaRainSound()
+		if _activatedplayer ~= nil and _activatedplayer.components.raindomewatcher ~= nil and _activatedplayer.components.raindomewatcher:IsUnderRainDome() then
+			StartBarrierSound()
+		else
+			StopBarrierSound()
+		end
+        if _hasfx then
+            _rainfx.particles_per_tick = 0
+            _rainfx.splashes_per_tick = 0
+            _acidrainfx.particles_per_tick = 0
+            _acidrainfx.splashes_per_tick = 0
+        end
+    elseif _preciptype:value() == PRECIP_TYPES.rain or _preciptype:value() == PRECIP_TYPES.acidrain then
         local preciprate_sound = preciprate
         if _activatedplayer == nil then
             StopTreeRainSound()
             StopUmbrellaRainSound()
+			StopBarrierSound()
+		elseif _activatedplayer.components.raindomewatcher ~= nil and _activatedplayer.components.raindomewatcher:IsUnderRainDome() then
+			StopTreeRainSound()
+			StopUmbrellaRainSound()
+			StartBarrierSound()
+			preciprate_sound = math.min(.1, preciprate_sound * .5)
         elseif _activatedplayer.replica.sheltered ~= nil and _activatedplayer.replica.sheltered:IsSheltered() then
             StartTreeRainSound()
             StopUmbrellaRainSound()
-            preciprate_sound = preciprate_sound - .4
+			StopBarrierSound()
+			preciprate_sound = preciprate_sound - .4
         else
             StopTreeRainSound()
+			StopBarrierSound()
             if _activatedplayer.replica.inventory:EquipHasTag("umbrella") then
                 preciprate_sound = preciprate_sound - .4
                 StartUmbrellaRainSound()
@@ -576,18 +630,23 @@ function self:OnUpdate(dt)
                 StopUmbrellaRainSound()
             end
         end
-        StartAmbientRainSound(preciprate_sound)
+		if preciprate_sound > 0 then
+			StartAmbientRainSound(preciprate_sound)
+		else
+			StopAmbientRainSound()
+		end
         if _hasfx then
-            _rainfx.particles_per_tick = 5 * preciprate
-            _rainfx.splashes_per_tick = 2 * preciprate
-        end
-    else
-        StopAmbientRainSound()
-        StopTreeRainSound()
-        StopUmbrellaRainSound()
-        if _hasfx then
-            _rainfx.particles_per_tick = 0
-            _rainfx.splashes_per_tick = 0
+            if _preciptype:value() == PRECIP_TYPES.rain then
+                _rainfx.particles_per_tick = 5 * preciprate
+                _rainfx.splashes_per_tick = 2 * preciprate
+                _acidrainfx.particles_per_tick = 0
+                _acidrainfx.splashes_per_tick = 0
+            else
+                _rainfx.particles_per_tick = 0
+                _rainfx.splashes_per_tick = 0
+                _acidrainfx.particles_per_tick = 5 * preciprate
+                _acidrainfx.splashes_per_tick = 2 * preciprate
+            end
         end
     end
 

@@ -804,6 +804,13 @@ local fx =
         anim = "idle",
     },
     {
+        name = "werebeaver_groundpound_fx",
+        bank = "bearger_ground_fx",
+        build = "bearger_ground_fx",
+        sound = "meta2/woodie/ground_fx",
+        anim = "idle",
+    },
+    {
         name = "lavaarena_portal_player_fx",
         bank = "lavaarena_player_teleport",
         build = "lavaarena_player_teleport",
@@ -1274,6 +1281,12 @@ local fx =
         build = "redpouch",
         anim = "unwrap",
     },
+    {
+        name = "redpouch_yotr_unwrap",
+        bank = "redpouch_yotr",
+        build = "redpouch_yotr",
+        anim = "unwrap",
+    },    
     {
         name = "yotc_seedpacket_unwrap",
         bank = "bundle",
@@ -2695,6 +2708,80 @@ local fx =
         bank = "turf_smoke_fx",
         build = "turf_smoke_fx",
         anim = "fx",
+    },
+    {
+        name = "pillowfight_confetti_fx",
+        bank = "pillowfight_confetti",
+        build = "pillowfight_confetti",
+        anim = "out",
+        fn = FinalOffsetNegative1,
+        sound = "summerevent/cannon/fire1",
+    },
+
+    {
+        name = "mining_crystal_fx",
+        bank = "mining_crystal_fx",
+        build = "mining_crystal_fx",
+        anim = "anim",
+    },
+	{
+		name = "planar_resist_fx",
+		bank = "planar_resist_fx",
+		build = "planar_resist_fx",
+		anim = "deflect",
+		sound = "rifts/fx/planar_resist_fx",
+		fn = function(inst)
+			local scale = .8 + math.random() * .4
+			inst.AnimState:SetScale(math.random() < .5 and scale or -scale, scale)
+		end,
+	},
+	{
+		name = "planar_hit_fx",
+		bank = "planar_damage_fx",
+		build = "planar_damage_fx",
+		anim = "damage2",
+		fn = function(inst)
+			local scale = 1.2 + math.random() * .2
+			inst.AnimState:SetScale(math.random() < .5 and scale or -scale, scale)
+			inst.AnimState:SetFinalOffset(7)
+		end,
+	},
+	{
+		name = "fire_fail_fx",
+		bank = "fire_fail_fx",
+		build = "fire_fail_fx",
+		anim = "fx",
+		sound = "dontstarve/common/fireOut",
+		fn = function(inst)
+			inst.AnimState:SetSymbolBloom("flame01")
+			inst.AnimState:SetSymbolLightOverride("flame01", 1)
+		end,
+	},
+    {
+        name = "fused_shadeling_spawn_fx",
+        bank = "fused_shadeling",
+        build = "fused_shadeling",
+        anim = "spawn_fx",
+    },
+    {
+        name = "dreadstone_spawn_fx",
+        bank = "mutate_fx",
+        build = "mutate_fx",
+        anim = "mutate",
+        nofaced = true,
+        fn = function(inst)
+            inst.AnimState:SetMultColour(0, 0, 0, 1)
+            inst.AnimState:SetFinalOffset(1)
+        end,
+    },
+    {
+        name = "wormwood_lunar_transformation_finish",
+        bank = "fx_moon_tea",
+        build = "moon_tea_fx",
+        anim = "puff",
+        bloom = true,
+		sound = "meta2/wormwood/animation_dropdown",
+        fn = FinalOffset1,
     },
 }
 

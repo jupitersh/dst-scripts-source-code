@@ -50,6 +50,9 @@ local events =
     EventHandler("startwork", function(inst, target)
         inst.sg:GoToState("capture_appearandwork", target)
     end),
+    EventHandler("continuework", function(inst)
+        inst.sg:GoToState("capture_appearandwork", "continuework")
+    end),
 }
 
 local ERODEOUT_DATA =
@@ -251,7 +254,7 @@ local states =
 
     State{
         name = "capture_appearandwork",
-        tags = {"busy"},
+        tags = {},
 
         onenter = function(inst, target)
             inst.Physics:Stop()
@@ -261,12 +264,46 @@ local states =
             inst.AnimState:PlayAnimation("build_pre")
             inst.AnimState:PushAnimation("build_loop", true)
 
-            if target ~= nil and target:IsValid() then
-                inst:ForceFacePoint(target.Transform:GetWorldPosition())
-                inst.sg.statemem.target = target
+            if target ~= nil then 
+                if type(target) == "string" then
+                    inst.sg.statemem.notimeout = true
+                elseif target:IsValid() then
+                    inst:ForceFacePoint(target.Transform:GetWorldPosition())
+                    inst.sg.statemem.target = target
+                end
             end
 
-            inst.sg:SetTimeout(4)
+            if TUNING.SPAWN_RIFTS == 1 and TheWorld.components.riftspawner and not TheWorld.components.riftspawner:GetLunarRiftsEnabled()  then
+                if not inst.sg.statemem.notimeout then
+                    inst.sg:SetTimeout(119)
+                end
+
+                if TheWorld.components.riftspawner and not TheWorld.components.riftspawner:GetLunarRiftsEnabled() then
+                    inst.sg.statemem.request = 1
+					if inst.components.trader ~= nil then
+						inst.components.trader:Enable()
+					end
+					if inst.components.constructionsite ~= nil then
+						inst.components.constructionsite:Enable()
+					end
+                    inst.request_task = inst:DoPeriodicTask(10,inst.doplayerrequest)
+                end
+            else
+                inst.sg:SetTimeout(4)
+            end
+        end,
+
+        onexit = function(inst)
+			if inst.components.trader ~= nil then
+				inst.components.trader:Disable()
+			end
+			if inst.components.constructionsite ~= nil then
+				inst.components.constructionsite:Disable()
+			end
+            if inst.request_task then
+                inst.request_task:Cancel()
+                inst.request_task = nil
+            end
         end,
 
         ontimeout = function(inst)
@@ -297,13 +334,40 @@ local states =
         events =
         {
             EventHandler("animover", function(inst)
-                inst.components.talker:Say(STRINGS.WAGSTAFF_NPC_CAPTURESTOP)
-                inst.sg:GoToState("talk", "capture_emotebuffer")
+                if inst.rifts_are_open then
+                    inst.components.talker:Say(STRINGS.WAGSTAFF_NPC_CAPTURESTOP1)
+                    inst.sg:GoToState("talk", "capture_emotebuffer_bonus")
+                else
+                    inst.components.talker:Say(STRINGS.WAGSTAFF_NPC_CAPTURESTOP)
+                    inst.sg:GoToState("talk", "capture_emotebuffer")
+                end
             end),
         },
 
         ontimeout = function(inst)
-            inst.sg:GoToState("capture_emotebuffer")
+            if inst.rifts_are_open then
+                inst.sg:GoToState("capture_emotebuffer_bonus")
+            else
+                inst.sg:GoToState("capture_emotebuffer")
+            end
+        end,
+    },
+
+    State{
+        name = "capture_emotebuffer_bonus",
+        tags = {"busy"},
+
+        onenter = function(inst)
+            inst.Physics:Stop()
+
+            inst.AnimState:PlayAnimation("emote_impatient", true)
+
+            inst.sg:SetTimeout(0.3)
+        end,
+
+        ontimeout = function(inst)
+            inst.components.talker:Say(STRINGS.WAGSTAFF_NPC_CAPTURESTOP)
+            inst.sg:GoToState("talk", "capture_emotebuffer")
         end,
     },
 
@@ -320,7 +384,11 @@ local states =
         end,
 
         ontimeout = function(inst)
-            inst.components.talker:Say(STRINGS.WAGSTAFF_NPC_CAPTURESTOP2)
+            if inst:HasTag("shard_recieved") then
+                inst.components.talker:Say(STRINGS.WAGSTAFF_NPC_CAPTURESTOP3)
+            else
+                inst.components.talker:Say(STRINGS.WAGSTAFF_NPC_CAPTURESTOP2)
+            end
             inst.sg:GoToState("talk", "capture_emote")
         end,
     },
@@ -329,12 +397,13 @@ local states =
         name = "capture_emote",
         tags = {"busy"},
 
-        onenter = function(inst)
+		onenter = function(inst, norelocate)
             inst.Physics:Stop()
             inst.AnimState:PlayAnimation("dial_loop")
             inst.AnimState:PushAnimation("research", true)
 
             inst.sg:SetTimeout(15)
+			inst.sg.statemem.norelocate = norelocate
         end,
 
         ontimeout = function(inst)
@@ -344,7 +413,13 @@ local states =
         timeline =
         {
             TimeEvent(1.0, function(inst)
-                inst:PushEvent("doerode", ERODEOUT_DATA)
+				if inst.sg.statemem.norelocate then
+					local data = shallowcopy(ERODEOUT_DATA)
+					data.norelocate = true
+					inst:PushEvent("doerode", data)
+				else
+					inst:PushEvent("doerode", ERODEOUT_DATA)
+				end
             end),
         },
     },

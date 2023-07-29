@@ -168,7 +168,8 @@ local function onattack_blue(inst, attacker, target, skipsanity)
         target:PushEvent("attacked", { attacker = attacker, damage = 0, weapon = inst })
     end
 
-    if target.components.freezable ~= nil then
+	--V2C: valid check in case any of the previous callbacks or events removed the target
+	if target.components.freezable ~= nil and target:IsValid() then
         target.components.freezable:AddColdness(1)
         target.components.freezable:SpawnShatterFX()
     end
@@ -286,18 +287,21 @@ local function teleport_continue(teleportee, locpos, loctarget, staff)
     end
 end
 
-local function teleport_start(teleportee, staff, caster, loctarget, target_in_ocean)
+local function teleport_start(teleportee, staff, caster, loctarget, target_in_ocean, no_teleport)
     local ground = TheWorld
 
     --V2C: Gotta do this RIGHT AWAY in case anything happens to loctarget or caster
-    local locpos = teleportee.components.teleportedoverride ~= nil and teleportee.components.teleportedoverride:GetDestPosition()
-				or loctarget == nil and getrandomposition(caster, teleportee, target_in_ocean)
-				or loctarget.teletopos ~= nil and loctarget:teletopos()
-				or loctarget:GetPosition()
+	local locpos
+	if not no_teleport then
+		locpos = (teleportee.components.teleportedoverride ~= nil and teleportee.components.teleportedoverride:GetDestPosition())
+			or (loctarget == nil and getrandomposition(caster, teleportee, target_in_ocean))
+			or (loctarget.teletopos ~= nil and loctarget:teletopos())
+			or loctarget:GetPosition()
 
-    if teleportee.components.locomotor ~= nil then
-        teleportee.components.locomotor:StopMoving()
-    end
+		if teleportee.components.locomotor ~= nil then
+			teleportee.components.locomotor:StopMoving()
+		end
+	end
 
     staff.components.finiteuses:Use(1)
 
@@ -307,18 +311,21 @@ local function teleport_start(teleportee, staff, caster, loctarget, target_in_oc
         return
     end
 
-    local isplayer = teleportee:HasTag("player")
-    if isplayer then
-        teleportee.sg:GoToState("forcetele")
-    else
-        if teleportee.components.health ~= nil then
-            teleportee.components.health:SetInvincible(true)
-        end
-        if teleportee.DynamicShadow ~= nil then
-            teleportee.DynamicShadow:Enable(false)
-        end
-        teleportee:Hide()
-    end
+	local is_teleporting_player
+	if not no_teleport then
+		if teleportee:HasTag("player") then
+			is_teleporting_player = true
+			teleportee.sg:GoToState("forcetele")
+		else
+			if teleportee.components.health ~= nil then
+				teleportee.components.health:SetInvincible(true)
+			end
+			if teleportee.DynamicShadow ~= nil then
+				teleportee.DynamicShadow:Enable(false)
+			end
+			teleportee:Hide()
+		end
+	end
 
     --#v2c hacky way to prevent lightning from igniting us
     local preventburning = teleportee.components.burnable ~= nil and not teleportee.components.burnable.burning
@@ -340,11 +347,13 @@ local function teleport_start(teleportee, staff, caster, loctarget, target_in_oc
 
     ground:PushEvent("ms_deltamoisture", TUNING.TELESTAFF_MOISTURE)
 
-    if isplayer then
-        teleportee.sg.statemem.teleport_task = teleportee:DoTaskInTime(3, teleport_continue, locpos, loctarget, staff)
-    else
-        teleport_continue(teleportee, locpos, loctarget, staff)
-    end
+	if not no_teleport then
+		if is_teleporting_player then
+			teleportee.sg.statemem.teleport_task = teleportee:DoTaskInTime(3, teleport_continue, locpos, loctarget, staff)
+		else
+			teleport_continue(teleportee, locpos, loctarget, staff)
+		end
+	end
 end
 
 local function teleport_targets_sort_fn(a, b)
@@ -352,22 +361,25 @@ local function teleport_targets_sort_fn(a, b)
 end
 
 local TELEPORT_MUST_TAGS = { "locomotor" }
-local TELEPORT_CANT_TAGS = { "playerghost", "INLIMBO" }
+local TELEPORT_CANT_TAGS = { "playerghost", "INLIMBO", "noteleport" }
 local function teleport_func(inst, target, pos, caster)
 	target = target or caster
 
     local x, y, z = target.Transform:GetWorldPosition()
 	local target_in_ocean = target.components.locomotor ~= nil and target.components.locomotor:IsAquatic()
+	local no_teleport = target:HasTag("noteleport") --targetable by spell, but don't actually teleport
+	local loctarget
+	if not no_teleport then
+		loctarget = (target.components.minigame_participator ~= nil and target.components.minigame_participator:GetMinigame())
+				or (target.components.teleportedoverride ~= nil and target.components.teleportedoverride:GetDestTarget())
+				or (target.components.hitchable ~= nil and target:HasTag("hitched") and target.components.hitchable.hitched)
+				or nil
 
-	local loctarget = target.components.minigame_participator ~= nil and target.components.minigame_participator:GetMinigame()
-						or target.components.teleportedoverride ~= nil and target.components.teleportedoverride:GetDestTarget()
-                        or target.components.hitchable ~= nil and target:HasTag("hitched") and target.components.hitchable.hitched
-						or nil
-
-	if loctarget == nil and not target_in_ocean then
-		loctarget = FindNearestActiveTelebase(x, y, z, nil, 1)
+		if loctarget == nil and not target_in_ocean then
+			loctarget = FindNearestActiveTelebase(x, y, z, nil, 1)
+		end
 	end
-    teleport_start(target, inst, caster, loctarget, target_in_ocean)
+	teleport_start(target, inst, caster, loctarget, target_in_ocean, no_teleport)
 end
 
 local function onhauntpurple(inst)
@@ -420,7 +432,7 @@ local function blinkstaff_reticuletargetfn()
     rotation = rotation * DEGREES
     for r = 13, 1, -1 do
         local numtries = 2 * PI * r
-        local offset = FindWalkableOffset(pos, rotation, r, numtries, false, true, NoHoles)
+        local offset = FindWalkableOffset(pos, rotation, r, numtries, false, true, NoHoles, false, true)
         if offset ~= nil then
             pos.x = pos.x + offset.x
             pos.y = 0
@@ -616,6 +628,10 @@ local function destroystructure(staff, target)
         target.components.stewer:Harvest()
     end
 
+	if target.components.constructionsite ~= nil then
+		target.components.constructionsite:DropAllMaterials()
+	end
+
    	target:PushEvent("ondeconstructstructure", caster)
 
     if target.components.stackable ~= nil then
@@ -712,6 +728,7 @@ local function commonfn(colour, tags, hasskin, hasshadowlevel)
     inst.AnimState:SetBank("staffs")
     inst.AnimState:SetBuild("staffs")
     inst.AnimState:PlayAnimation(colour.."staff")
+    inst.scrapbook_anim = colour.."staff"
 
     if tags ~= nil then
         for i, v in ipairs(tags) do
@@ -789,6 +806,8 @@ local function red()
 
     inst.projectiledelay = FRAMES
 
+    inst.scrapbook_specialinfo = "REDSTAFF"
+
     if not TheWorld.ismastersim then
         return inst
     end
@@ -824,6 +843,8 @@ local function blue()
 
     inst.projectiledelay = FRAMES
 
+    inst.scrapbook_specialinfo = "BLUESTAFF"
+
     if not TheWorld.ismastersim then
         return inst
     end
@@ -847,6 +868,8 @@ end
 
 local function purple()
 	local inst = commonfn("purple", { "nopunch" }, true, true)
+
+    inst.scrapbook_specialinfo = "PURPLESTAFF"
 
     if not TheWorld.ismastersim then
         return inst
@@ -876,6 +899,8 @@ local function yellow()
     inst.components.reticule.targetfn = light_reticuletargetfn
     inst.components.reticule.ease = true
     inst.components.reticule.ispassableatallpoints = true
+
+    inst.scrapbook_specialinfo = "YELLOWSTAFF"
 
     if not TheWorld.ismastersim then
         return inst
@@ -910,6 +935,8 @@ end
 local function green()
 	local inst = commonfn("green", { "nopunch" }, true, true)
 
+    inst.scrapbook_specialinfo = "GREENSTAFF"
+
     if not TheWorld.ismastersim then
         return inst
     end
@@ -936,6 +963,8 @@ local function orange()
     inst:AddComponent("reticule")
     inst.components.reticule.targetfn = blinkstaff_reticuletargetfn
     inst.components.reticule.ease = true
+
+    inst.scrapbook_specialinfo = "ORANGESTAFF"
 
     if not TheWorld.ismastersim then
         return inst
@@ -970,6 +999,8 @@ local function opal()
     inst.components.reticule.targetfn = light_reticuletargetfn
     inst.components.reticule.ease = true
     inst.components.reticule.ispassableatallpoints = true
+
+    inst.scrapbook_specialinfo = "OPALSTAFF"
 
     if not TheWorld.ismastersim then
         return inst

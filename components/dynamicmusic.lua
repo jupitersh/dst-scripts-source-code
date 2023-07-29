@@ -123,6 +123,11 @@ local TRIGGERED_DANGER_MUSIC =
         "monkeyisland/warning_music/warning_combo",
     },
 
+	daywalker =
+	{
+		"dontstarve/music/music_epicfight_daywalker",
+	},
+
     default =
     {
         "dontstarve/music/music_epicfight_ruins",
@@ -146,6 +151,7 @@ local BUSYTHEMES = {
     STAGEPLAY_HAPPY = 13,
     STAGEPLAY_MYSTERIOUS = 14,
     STAGEPLAY_DRAMATIC = 15,
+    PILLOWFIGHT = 16,
 }
 
 --------------------------------------------------------------------------
@@ -391,6 +397,14 @@ local function StartStageplayMusic(player, mood_index)
     StartBusyTheme(player, theme, sound, 2)
 end
 
+local function StartPillowFightMusic(player)
+    if _dangertask or _pirates_near then
+        return
+    end
+
+    StartBusyTheme(player, BUSYTHEMES.PILLOWFIGHT, "yotr_2023/common/music_pillowfight", 2)
+end
+
 local function ExtendBusy()
     if _busytask ~= nil then
         _extendtime = math.max(_extendtime, GetTime() + 10)
@@ -595,7 +609,7 @@ local function OnHasInspirationBuff(player, data)
 end
 
 local function OnInsane()
-    if _dangertask == nil and _isenabled then
+    if _dangertask == nil and _isenabled and (_extendtime == 0 or GetTime() >= _extendtime) then
         _soundemitter:PlaySound("dontstarve/sanity/gonecrazy_stinger")
         StopBusy()
         --Repurpose this as a delay before stingers or busy can start again
@@ -605,7 +619,7 @@ end
 
 local function OnEnlightened()
 	-- TEMP
-    if _dangertask == nil and _isenabled then
+    if _dangertask == nil and _isenabled and (_extendtime == 0 or GetTime() >= _extendtime) then
         _soundemitter:PlaySound("dontstarve/sanity/gonecrazy_stinger")
         StopBusy()
         --Repurpose this as a delay before stingers or busy can start again
@@ -631,6 +645,7 @@ local function StartPlayerListeners(player)
     inst:ListenForEvent("hasinspirationbuff", OnHasInspirationBuff, player)
     inst:ListenForEvent("playcarnivalmusic", StartCarnivalMusic, player)
     inst:ListenForEvent("stageplaymusic", StartStageplayMusic, player)
+    inst:ListenForEvent("playpillowfightmusic", StartPillowFightMusic, player)
 end
 
 local function StopPlayerListeners(player)
@@ -651,6 +666,7 @@ local function StopPlayerListeners(player)
     inst:RemoveEventCallback("hasinspirationbuff", OnHasInspirationBuff, player)
     inst:RemoveEventCallback("playcarnivalmusic", StartCarnivalMusic, player)
     inst:RemoveEventCallback("stageplaymusic", StartStageplayMusic, player)
+    inst:RemoveEventCallback("playpillowfightmusic", StartPillowFightMusic, player)
 end
 
 local function OnPhase(inst, phase)

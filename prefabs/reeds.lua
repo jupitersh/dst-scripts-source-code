@@ -27,11 +27,6 @@ local function makeemptyfn(inst)
     inst.AnimState:PlayAnimation("picked")
 end
 
-local function OnBurnt(inst)
-	TheWorld:PushEvent("beginregrowth", inst)
-    DefaultBurntFn(inst)
-end
-
 local function MakeReeds(name, build, icon)
     local function fn()
         local inst = CreateEntity()
@@ -57,7 +52,7 @@ local function MakeReeds(name, build, icon)
             return inst
         end
     
-        inst.AnimState:SetTime(math.random() * 2)
+		inst.AnimState:SetFrame(math.random(inst.AnimState:GetCurrentAnimationNumFrames()) - 1)
         local color = 0.75 + math.random() * 0.25
         inst.AnimState:SetMultColour(color, color, color, 1)
     
@@ -75,7 +70,7 @@ local function MakeReeds(name, build, icon)
         inst.components.fuel.fuelvalue = TUNING.SMALL_FUEL
     
         MakeSmallBurnable(inst, TUNING.SMALL_FUEL)
-        inst.components.burnable:SetOnBurntFn(OnBurnt)
+        AddToRegrowthManager(inst)
         MakeSmallPropagator(inst)
         MakeNoGrowInWinter(inst)
         MakeHauntableIgnite(inst)

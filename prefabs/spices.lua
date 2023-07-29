@@ -17,12 +17,28 @@ local function MakeSpice(name)
         inst.AnimState:SetBuild("spices")
         inst.AnimState:PlayAnimation("idle")
         inst.AnimState:OverrideSymbol("swap_spice", "spices", name)
+        inst.scrapbook_overridedata={"swap_spice", "spices", name}
 
         inst:AddTag("spice")
 
         MakeInventoryFloatable(inst, "med", nil, (name == "spice_garlic" and 0.85) or 0.7)
 
+        if name == "spice_garlic" then
+            inst.scrapbook_specialinfo = "SPICEGARLIC"
+        end
+        if name == "spice_sugar" then
+            inst.scrapbook_specialinfo = "SPICESUGAR"
+        end
+        if name == "spice_chili" then
+            inst.scrapbook_specialinfo = "SPICECHILI"
+        end
+        if name == "spice_salt" then
+            inst.scrapbook_specialinfo = "SPICESALT"
+        end
+
         inst.entity:SetPristine()
+
+        inst.scrapbook_adddeps = {"portableblender_item"}
 
         if not TheWorld.ismastersim then
             return inst

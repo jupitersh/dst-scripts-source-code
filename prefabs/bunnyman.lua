@@ -316,6 +316,8 @@ local function fn()
     inst.AnimState:SetBank("manrabbit")
     inst.AnimState:PlayAnimation("idle_loop", true)
     inst.AnimState:Hide("hat")
+    inst.AnimState:Hide("ARM_carry")
+    inst.AnimState:Hide("HAIR_HAT")
 
     inst.AnimState:SetClientsideBuildOverride("insane", "manrabbit_build", "manrabbit_beard_build")
 
@@ -330,6 +332,8 @@ local function fn()
     inst.components.talker.font = TALKINGFONT
     inst.components.talker.offset = Vector3(0, -500, 0)
     inst.components.talker:MakeChatter()
+
+    inst.scrapbook_hide = {"hat","ARM_carry","HAIR_HAT"}
 
     inst.entity:SetPristine()
 

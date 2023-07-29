@@ -53,7 +53,7 @@ local events=
     EventHandler("onsink", function(inst, data)
         if (inst.components.health == nil or not inst.components.health:IsDead()) and not inst.sg:HasStateTag("drowning") and (inst.components.drownable ~= nil and inst.components.drownable:ShouldDrown()) then
                 SpawnPrefab("splash_green").Transform:SetPosition(inst.Transform:GetWorldPosition())
-                inst:dropInventory()
+				inst.components.inventory:DropEverything(true)
                 inst:Remove()
             end
     end),
@@ -252,8 +252,9 @@ local states =
             end),
 
             TimeEvent(25*FRAMES, function(inst)
-                if inst.components.crewmember and inst.components.crewmember.boat then
-                    inst.components.crewmember.boat.components.boatcrew:CrewCheer()
+                local crewmember = inst.components.crewmember
+                if crewmember and crewmember.boat and crewmember.boat.components.boatcrew then
+                    crewmember.boat.components.boatcrew:CrewCheer()
                 end
                 PlayFootstep(inst)
             end),
@@ -443,9 +444,7 @@ local states =
                 else
                     SpawnPrefab("splash_green").Transform:SetPosition(inst.Transform:GetWorldPosition())
 
-                    if TheWorld.components.piratespawner then
-                        TheWorld.components.piratespawner:StashLoot(inst)
-                    end
+					inst.components.inventory:DropEverything(true)
                     inst:Remove()
                 end
             end),

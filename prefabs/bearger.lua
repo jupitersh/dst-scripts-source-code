@@ -329,7 +329,7 @@ local function OnKilledOther(inst, data)
         end
         if data.victim == inst.components.combat.target then
             inst:RemoveEventCallback("dropitem", inst._OnTargetDropItem, data.victim)
-            inst.components.combat.target = nil
+			inst.components.combat:DropTarget()
             inst.components.locomotor.walkspeed = TUNING.BEARGER_CALM_WALK_SPEED
         end
     end
@@ -352,6 +352,7 @@ local function fn()
     inst.AnimState:SetBank("bearger")
     inst.AnimState:SetBuild(IsSpecialEventActive(SPECIAL_EVENTS.WINTERS_FEAST) and "bearger_yule" or "bearger_build")
     inst.AnimState:PlayAnimation("idle_loop", true)
+    inst.scrapbook_anim = "idle_loop"
 
     ------------------------------------------
 

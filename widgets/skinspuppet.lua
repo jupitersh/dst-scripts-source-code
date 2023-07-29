@@ -7,6 +7,7 @@ require "components/skinner"
 
 local emotes_to_choose = { "emoteXL_waving1", "emoteXL_waving2", "emoteXL_waving3" }
 local player_emotes_to_choose = {
+	wilson = "idle_wilson",
 	walter = "idle_walter",
 	wathgrithr = "idle_wathgrithr",
 	warly = "idle_warly",
@@ -68,8 +69,10 @@ local SkinsPuppet = Class(Button, function(self, emote_min_time, emote_max_time)
 	self.anim:SetFacing(FACING_DOWN)
 
     self.animstate:Hide("ARM_carry")
-    self.animstate:Hide("head_hat")
     self.animstate:Hide("HAIR_HAT")
+	self.animstate:Hide("HEAD_HAT")
+	self.animstate:Hide("HEAD_HAT_NOHELM")
+	self.animstate:Hide("HEAD_HAT_HELM")
 
     self.anim:SetScale(.25)
 

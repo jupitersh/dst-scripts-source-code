@@ -44,6 +44,9 @@ end
 -- To repeat a periodic announcement: c_announce(msg, interval)
 -- To cancel a periodic announcement: c_announce()
 function c_announce(msg, interval, category)
+    msg = type(msg) == "string" and msg or tostring(msg)
+    interval = type(interval) == "number" and interval or nil
+    category = type(category) == "string" and category or nil
     if msg == nil then
         if TheWorld.__announcementtask ~= nil then
             TheWorld.__announcementtask:Cancel()
@@ -450,6 +453,10 @@ function c_setmoisture(n)
 end
 
 function c_settemperature(n)
+    if type(n) ~= "number" then
+        print("c_settemperature expects a number value for its argument:", n)
+        return
+    end
     local player = ConsoleCommandPlayer()
     if player ~= nil and player.components.temperature ~= nil and not player:HasTag("playerghost") then
         SuUsed("c_settemperature", true)
@@ -1422,6 +1429,23 @@ function c_makeboat()
 	inst.components.stackable:SetStackSize(20)
 end
 
+function c_makegrassboat()
+	local x, y, z = ConsoleWorldPosition():Get()
+
+	local inst = SpawnPrefab("boat_grass")
+	inst.Transform:SetPosition(x, y, z)
+
+	local inst = SpawnPrefab("mast")
+	inst.Transform:SetPosition(x, y, z)
+	inst = SpawnPrefab("steeringwheel")
+	inst.Transform:SetPosition(x + 1, y, z)
+	inst = SpawnPrefab("anchor")
+	inst.Transform:SetPosition(x - 1, y, z + 1)
+
+	inst = SpawnPrefab("oar_driftwood")
+	inst.Transform:SetPosition(x + 1, y, z - 1)
+end
+
 function c_makecrabboat()
     local x, y, z = ConsoleWorldPosition():Get()
 
@@ -1921,7 +1945,58 @@ function c_record()
 end
 -- ========================================
 
+function c_spawnrift()
+    local pos = ConsoleWorldPosition()
+    if TheWorld.components.riftspawner then
+        TheWorld.components.riftspawner:SpawnRift(pos)
+    end
+end
 
+local _showradius_ent =  nil
+
+function c_showradius(radius, parent)
+    if checknumber(radius) then
+        -- Sqrt because Transform applies scaling exponentially.
+        --  300: Game Unit to Pixel conversion.
+        -- 1900: Firefighter texture size.
+        local scale = math.sqrt(radius * 300 / 1900)
+
+        if _showradius_ent == nil then
+            _showradius_ent = CreateEntity()
+
+            --[[Non-networked entity]]
+            _showradius_ent.entity:SetCanSleep(false)
+            _showradius_ent.persists = false
+
+            _showradius_ent.entity:AddTransform()
+            _showradius_ent.entity:AddAnimState()
+
+            _showradius_ent:AddTag("CLASSIFIED")
+            _showradius_ent:AddTag("NOCLICK")
+
+            _showradius_ent.AnimState:SetBank("firefighter_placement")
+            _showradius_ent.AnimState:SetBuild("firefighter_placement")
+            _showradius_ent.AnimState:PlayAnimation("idle")
+            _showradius_ent.AnimState:SetLightOverride(1)
+            _showradius_ent.AnimState:SetOrientation(ANIM_ORIENTATION.OnGround)
+            _showradius_ent.AnimState:SetLayer(LAYER_BACKGROUND)
+            _showradius_ent.AnimState:SetSortOrder(1)
+            _showradius_ent.AnimState:SetAddColour(0, .2, .5, 0)
+
+            _showradius_ent.entity:SetParent(ConsoleCommandPlayer().entity)
+        end
+
+        if parent ~= nil then
+            _showradius_ent.entity:SetParent(parent.entity)
+        end
+
+        _showradius_ent.Transform:SetScale(scale, scale, scale)
+
+    elseif _showradius_ent ~= nil then
+        _showradius_ent:Remove()
+        _showradius_ent = nil
+    end
+end
 
 -- Nuke any controller mappings, for when people get in a hairy situation with a controller mapping that is totally busted.
 function ResetControllersAndQuitGame()

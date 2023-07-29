@@ -30,6 +30,7 @@ local PlayerProfile = Class(function(self)
         self.persistdata.volume_ambient = 7
         self.persistdata.volume_sfx = 7
         self.persistdata.volume_music = 7
+		self.persistdata.volume_muteonfocuslost = false
         self.persistdata.HUDSize = 5
         self.persistdata.CraftingMenuSize = 5
         self.persistdata.CraftingMenuNumPinPages = 3
@@ -59,6 +60,7 @@ local PlayerProfile = Class(function(self)
         self.persistdata.profanityfilter_chat = true
 		self.persistdata.usezipfilefornormalsaves = false
 		self.persistdata.defaultcloudsaves = false
+		self.persistdata.scrapbookhuddisplay = true
     end
 
     self.dirty = true
@@ -80,6 +82,7 @@ function PlayerProfile:Reset()
         self.persistdata.volume_ambient = 7
         self.persistdata.volume_sfx = 7
         self.persistdata.volume_music = 7
+		self.persistdata.volume_muteonfocuslost = false
         self.persistdata.HUDSize = 5
         self.persistdata.CraftingMenuSize = 5
         self.persistdata.CraftingMenuNumPinPages = 3
@@ -108,6 +111,7 @@ function PlayerProfile:Reset()
 		self.persistdata.hide_pause_underlay = false
 		self.persistdata.usezipfilefornormalsaves = false
 		self.persistdata.defaultcloudsaves = true
+		self.persistdata.scrapbookhuddisplay = true
     end
 
     --self.persistdata.starts = 0 -- save starts?
@@ -131,6 +135,7 @@ function PlayerProfile:SoftReset()
         self.persistdata.volume_ambient = 7
         self.persistdata.volume_sfx = 7
         self.persistdata.volume_music = 7
+		self.persistdata.volume_muteonfocuslost = false
         self.persistdata.HUDSize = 5
         self.persistdata.CraftingMenuSize = 5
         self.persistdata.CraftingMenuNumPinPages = 3
@@ -147,6 +152,7 @@ function PlayerProfile:SoftReset()
         self.persistdata.warneddifficultyrog = false
         self.persistdata.controller_popup = false
         self.persistdata.warn_mods_enabled = true
+        self.persistdata.scrapbookhuddisplay = true
     end
     -- and apply these values
     local str = json.encode(self.persistdata)
@@ -500,6 +506,15 @@ function PlayerProfile:SetVolume(ambient, sfx, music)
 	end
 end
 
+function PlayerProfile:SetMuteOnFocusLost(value)
+	if USE_SETTINGS_FILE then
+		TheSim:SetSetting("audio", "volume_muteonfocuslost", tostring(value))
+	else
+		self:SetValue("volume_muteonfocuslost", value)
+		self.dirty = true
+	end
+end
+
 function PlayerProfile:SetScreenFlash(value)
  	if USE_SETTINGS_FILE then
 		TheSim:SetSetting("graphics", "screenflash", tostring(value))
@@ -581,6 +596,23 @@ function PlayerProfile:GetCraftingNumPinnedPages()
 		return tonumber(TheSim:GetSetting("misc", "CraftingMenuNumPinPages") or 3)
 	else
 		return tonumber(self:GetValue("CraftingMenuNumPinPages") or 3)
+	end
+end
+
+function PlayerProfile:GetScrapbookHudDisplay()
+ 	if USE_SETTINGS_FILE then
+		return TheSim:GetSetting("misc", "scrapbookhuddisplay") ~= "false"
+	else
+		return self:GetValue("scrapbookhuddisplay") ~= false
+	end
+end
+
+function PlayerProfile:SetScrapbookHudDisplay(enabled)
+ 	if USE_SETTINGS_FILE then
+		TheSim:SetSetting("misc", "scrapbookhuddisplay", tostring(enabled))
+	else
+		self:SetValue("scrapbookhuddisplay", enabled)
+		self.dirty = true
 	end
 end
 
@@ -1367,6 +1399,14 @@ function PlayerProfile:GetVolume()
 	end
 end
 
+function PlayerProfile:GetMuteOnFocusLost()
+	if USE_SETTINGS_FILE then
+		return TheSim:GetSetting("audio", "volume_muteonfocuslost") == "true"
+	else
+		return GetValueOrDefault(self.persistdata.volume_muteonfocuslost, false)
+	end
+end
+
 
 function PlayerProfile:SetRenderQuality(quality)
 	self:SetValue("render_quality", quality)
@@ -1517,6 +1557,7 @@ function PlayerProfile:Set(str, callback, minimal_load)
                 self.persistdata.volume_ambient = 7
                 self.persistdata.volume_sfx = 7
                 self.persistdata.volume_music = 7
+				self.persistdata.volume_muteonfocuslost = false
                 self.persistdata.HUDSize = 5
                 self.persistdata.CraftingMenuSize = 5
                 self.persistdata.CraftingMenuNumPinPages = 3
@@ -1526,6 +1567,7 @@ function PlayerProfile:Set(str, callback, minimal_load)
                 self.persistdata.vibration = true
                 self.persistdata.showpassword = false
                 self.persistdata.movementprediction = true
+                self.persistdata.scrapbookhuddisplay = true
 		    end
 		end
 

@@ -43,9 +43,12 @@ local function fn()
     inst.AnimState:PlayAnimation("anim")
 
     inst:AddTag("marble")
+	inst:AddTag("heavyarmor")
+
+    inst.scrapbook_specialinfo = "ARMORMARBLE"
 
     inst.foleysound = "dontstarve/movement/foley/marblearmour"
-    
+
     local swap_data = {bank = "armor_marble", anim = "anim"}
     MakeInventoryFloatable(inst, "small", 0.2, 0.80, nil, nil, swap_data)
 

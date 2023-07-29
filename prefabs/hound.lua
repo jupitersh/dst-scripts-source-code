@@ -4,15 +4,14 @@ local assets =
     Asset("ANIM", "anim/hound_basic_water.zip"),
     Asset("ANIM", "anim/hound.zip"),
     Asset("ANIM", "anim/hound_ocean.zip"),
-    Asset("ANIM", "anim/hound_red.zip"),
+    Asset("PKGREF", "anim/hound_red.zip"),
     Asset("ANIM", "anim/hound_red_ocean.zip"),
-    Asset("ANIM", "anim/hound_ice.zip"),
+    Asset("PKGREF", "anim/hound_ice.zip"),
     Asset("ANIM", "anim/hound_ice_ocean.zip"),
     Asset("ANIM", "anim/hound_mutated.zip"),
-    Asset("ANIM", "anim/hound_hedge.zip"),
     Asset("ANIM", "anim/hound_hedge_ocean.zip"),
     Asset("ANIM", "anim/hound_hedge_action.zip"),
-    Asset("ANIM", "anim/hound_action_water.zip"),
+    Asset("ANIM", "anim/hound_hedge_action_water.zip"),
     Asset("SOUND", "sound/hound.fsb"),
 }
 
@@ -444,6 +443,11 @@ local function fncommon(bank, build, morphlist, custombrain, tag, data)
     inst.AnimState:SetBuild(build)
     inst.AnimState:PlayAnimation("idle")
 
+	if data.amphibious and build ~= "hound_ocean" then
+		inst.AnimState:OverrideSymbol("shadow_ripple", "hound_ocean", "shadow_ripple")
+		inst.AnimState:OverrideSymbol("water_ripple", "hound_ocean", "water_ripple")
+	end
+
     inst:AddComponent("spawnfader")
 
     inst.entity:SetPristine()
@@ -454,10 +458,7 @@ local function fncommon(bank, build, morphlist, custombrain, tag, data)
 
 	inst._CanMutateFromCorpse = data.canmutatefn
 
-    inst.sounds = (tag == "clay" and sounds_clay)
-            or (build == "hound_mutated" and sounds_mutated)
-            or (build == "hound_hedge" and sounds_hedge)
-            or sounds
+	inst.sounds = sounds
 
     inst:AddComponent("locomotor") -- locomotor must be constructed before the stategraph
     inst.components.locomotor.runspeed = tag == "clay" and TUNING.CLAYHOUND_SPEED or TUNING.HOUND_SPEED
@@ -492,8 +493,6 @@ local function fncommon(bank, build, morphlist, custombrain, tag, data)
 
 		inst.components.locomotor.pathcaps = { allowocean = true }
 	end
-
-
 
     inst:SetBrain(custombrain or brain)
 
@@ -563,6 +562,8 @@ end
 local function fndefault()
     local inst = fncommon("hound", "hound_ocean", { "firehound", "icehound" }, nil, nil, {amphibious = true, canmutatefn = CanMutateFromCorpse})
 
+    inst.scrapbook_removedeps = {"bluegem", "redgem"}
+
     if not TheWorld.ismastersim then
         return inst
     end
@@ -582,6 +583,8 @@ end
 
 local function fnfire()
     local inst = fncommon("hound", "hound_red_ocean", { "hound", "icehound" }, nil, nil, {amphibious = true})
+
+    inst.scrapbook_removedeps = {"bluegem"}
 
     if not TheWorld.ismastersim then
         return inst
@@ -620,6 +623,8 @@ end
 
 local function fncold()
     local inst = fncommon("hound", "hound_ice_ocean", { "firehound", "hound" }, nil, nil, {amphibious = true})
+
+    inst.scrapbook_removedeps = {"redgem"}
 
     if not TheWorld.ismastersim then
         return inst
@@ -660,7 +665,7 @@ end
 local function fnmoon()
     local inst = fncommon("hound", "hound", nil, moonbrain, "moonbeast", false)
 
-    inst:SetPrefabNameOverride("hound")
+    inst:SetPrefabNameOverride("hound")    
 
     if not TheWorld.ismastersim then
         return inst
@@ -705,6 +710,8 @@ local function fnclay()
         return inst
     end
 
+	inst.sounds = sounds_clay
+
     MakeMediumFreezableCharacter(inst, "hound_body")
 
     inst.components.lootdropper:SetChanceLootTable('clayhound')
@@ -719,10 +726,16 @@ end
 
 local function fnmutated()
     local inst = fncommon("hound", "hound_mutated", nil, nil, "hound_mutated", {amphibious = true})
+    
+    inst:AddTag("lunar_aligned")
+
+    inst.scrapbook_removedeps = {"redgem","bluegem"}
 
     if not TheWorld.ismastersim then
         return inst
     end
+
+	inst.sounds = sounds_mutated
 
     MakeMediumFreezableCharacter(inst, "hound_body")
     MakeMediumBurnableCharacter(inst, "hound_body")
@@ -779,6 +792,8 @@ local function fnhedge()
     if not TheWorld.ismastersim then
         return inst
     end 
+
+	inst.sounds = sounds_hedge
 
     MakeMediumFreezableCharacter(inst, "hound_body")
     MakeMediumBurnableCharacter(inst, "hound_body")

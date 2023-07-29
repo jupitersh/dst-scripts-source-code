@@ -48,6 +48,8 @@ local PIECES =
     {name="twinsofterror",	moonevent=false,    gymweight=4},
     {name="kitcoon",		moonevent=false,    gymweight=3},
     {name="catcoon",		moonevent=false,    gymweight=3},
+    {name="manrabbit",      moonevent=false,    gymweight=3},
+    {name="daywalker",      moonevent=false,    gymweight=4},
 }
 
 local MOON_EVENT_RADIUS = 12

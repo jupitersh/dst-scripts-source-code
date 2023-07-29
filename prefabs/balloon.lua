@@ -23,6 +23,7 @@ local prefabs =
 local function SetBalloonShape(inst, num)
     inst.balloon_num = num
     inst.AnimState:OverrideSymbol("swap_balloon", "balloon_shapes2", "balloon_"..tostring(num))
+   
 	inst.components.inventoryitem:ChangeImageName("balloon_"..tostring(num))
 end
 
@@ -75,11 +76,15 @@ local function fn()
 
 	BALLOONS.MakeBalloonMasterInit(inst, BALLOONS.DoPop_Floating)
 
-    inst.AnimState:SetTime(math.random() * 2)
+	inst.AnimState:SetFrame(math.random(inst.AnimState:GetCurrentAnimationNumFrames()) - 1)
 
 	SetBalloonShape(inst, math.random(NUM_BALLOON_SHAPES))
 
     BALLOONS.SetRopeShape(inst)
+
+    inst.scrapbook_overridedata={}
+    table.insert( inst.scrapbook_overridedata, {"swap_balloon", "balloon_shapes2", "balloon_1"})
+    table.insert( inst.scrapbook_overridedata, {"swap_rope", "balloon2", "rope_1"})
 
 	inst.colour_idx = BALLOONS.SetColour(inst)
 

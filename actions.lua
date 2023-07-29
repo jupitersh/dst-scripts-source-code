@@ -209,13 +209,13 @@ ACTIONS =
     READ = Action({ mount_valid=true }),
     DROP = Action({ priority=-1, mount_valid=true, encumbered_valid=true, is_relative_to_platform=true, extra_arrive_dist=ExtraDropDist }),
     TRAVEL = Action(),
-    CHOP = Action({ distance=1.75 }),
-    ATTACK = Action({priority=2, canforce=true, mount_valid=true }), -- No custom range check, attack already handles that
+	CHOP = Action({ distance=1.75, invalid_hold_action=true }),
+	ATTACK = Action({priority=2, canforce=true, mount_valid=true, invalid_hold_action=true }), -- No custom range check, attack already handles that
     EAT = Action({ mount_valid=true }),
     PICK = Action({ canforce=true, rangecheckfn=DefaultRangeCheck, extra_arrive_dist=ExtraPickupRange, mount_valid = true }),
     PICKUP = Action({ priority=1, extra_arrive_dist=ExtraPickupRange, mount_valid=true }),
-    MINE = Action(),
-    DIG = Action({ rmb=true }),
+	MINE = Action({ invalid_hold_action=true }),
+	DIG = Action({ rmb=true, invalid_hold_action=true }),
     GIVE = Action({ mount_valid=true, canforce=true, rangecheckfn=DefaultRangeCheck }),
     GIVETOPLAYER = Action({ priority=3, canforce=true, rangecheckfn=DefaultRangeCheck }),
     GIVEALLTOPLAYER = Action({ priority=3, canforce=true, rangecheckfn=DefaultRangeCheck }),
@@ -272,7 +272,7 @@ ACTIONS =
     SMOTHER = Action({ priority=1, mount_valid=true }),
     MANUALEXTINGUISH = Action({ priority=1 }),
     LAYEGG = Action(),
-    HAMMER = Action({ priority=3 }),
+	HAMMER = Action({ priority=3, invalid_hold_action=true }),
     TERRAFORM = Action({ tile_placer="gridplacer" }),
     JUMPIN = Action({ ghost_valid=true, encumbered_valid=true }),
     TELEPORT = Action({ rmb=true, distance=2 }),
@@ -285,8 +285,8 @@ ACTIONS =
     UNLOCK = Action(),
     USEKLAUSSACKKEY = Action(),
     TEACH = Action({ mount_valid=true }),
-    TURNON = Action({ priority=2 }),
-    TURNOFF = Action({ priority=2 }),
+    TURNON = Action({ priority=2, invalid_hold_action = true, }),
+    TURNOFF = Action({ priority=2, invalid_hold_action = true, }),
     SEW = Action({ mount_valid=true }),
     STEAL = Action(),
     USEITEM = Action({ priority=1, instant=true }),
@@ -349,7 +349,7 @@ ACTIONS =
     ABANDON = Action({ rmb=true }),
     PET = Action(),
     DISMANTLE = Action({ rmb=true }),
-    TACKLE = Action({ rmb=true, distance=math.huge }),
+    TACKLE = Action({ rmb=true, distance=math.huge, invalid_hold_action = true, }),
 	GIVE_TACKLESKETCH = Action(),
 	REMOVE_FROM_TROPHYSCALE = Action(),
 	CYCLE = Action({ rmb=true, priority=2 }),
@@ -381,19 +381,19 @@ ACTIONS =
     WATER_TOSS = Action({ priority=3, rmb=true, customarrivecheck=CheckOceanFishingCastRange, is_relative_to_platform=true, disable_platform_hopping=true}),
 
     -- boats
-    RAISE_SAIL = Action({ distance=1.25 }),
-    LOWER_SAIL = Action({ distance=1.25 }),
-    LOWER_SAIL_BOOST = Action({ distance=1.25 }),
-    LOWER_SAIL_FAIL = Action({ distance=1.25, do_not_locomote=true }),
-    RAISE_ANCHOR = Action({ distance=2.5 }),
-    LOWER_ANCHOR = Action({ distance=2.5 }),
-    EXTEND_PLANK = Action({ distance=2.5 }),
-    RETRACT_PLANK = Action({ distance=2.5 }),
-    ABANDON_SHIP = Action({ distance=2.5, priority=4 }),
-    MOUNT_PLANK = Action({ distance=0.5 }),
+    RAISE_SAIL = Action({ distance=1.25, invalid_hold_action = true }),
+    LOWER_SAIL = Action({ distance=1.25, invalid_hold_action = true }),
+    LOWER_SAIL_BOOST = Action({ distance=1.25, invalid_hold_action = true }),
+    LOWER_SAIL_FAIL = Action({ distance=1.25, do_not_locomote=true, invalid_hold_action = true }),
+    RAISE_ANCHOR = Action({ distance=2.5, invalid_hold_action = true }),
+    LOWER_ANCHOR = Action({ distance=2.5, invalid_hold_action = true }),
+    EXTEND_PLANK = Action({ distance=2.5, invalid_hold_action = true }),
+    RETRACT_PLANK = Action({ distance=2.5, invalid_hold_action = true }),
+    ABANDON_SHIP = Action({ distance=2.5, priority=4, invalid_hold_action = true }),
+    MOUNT_PLANK = Action({ distance=0.5, invalid_hold_action = true }),
     DISMOUNT_PLANK = Action({ distance=2.5 }),
-    REPAIR_LEAK = Action({ distance=2.5 }),
-    STEER_BOAT = Action({ distance=0.1 }),
+    REPAIR_LEAK = Action({ distance=2.5, invalid_hold_action = true }),
+    STEER_BOAT = Action({ distance=0.1, invalid_hold_action = true }),
     SET_HEADING = Action({distance=9999, do_not_locomote=true}),
     STOP_STEERING_BOAT = Action({ instant = true }),
     CAST_NET = Action({ priority=HIGH_ACTION_PRIORITY, rmb=true, distance=12, mount_valid=true, disable_platform_hopping=true }),
@@ -474,9 +474,9 @@ ACTIONS =
 
     -- WX78
     APPLYMODULE = Action({ mount_valid=true }),
-    APPLYMODULE_FAIL = Action({ mount_valid=true }),
+	APPLYMODULE_FAIL = Action({ mount_valid=true, instant = true }),
     REMOVEMODULES = Action({ mount_valid=true }),
-    REMOVEMODULES_FAIL = Action({ mount_valid=true }),
+	REMOVEMODULES_FAIL = Action({ mount_valid=true, instant = true }),
     CHARGE_FROM = Action({ mount_valid=false }),
 
     ROTATE_FENCE = Action({ rmb=true }),
@@ -487,6 +487,16 @@ ACTIONS =
 	USESPELLBOOK = Action({ instant = true, mount_valid = true }),
 	CLOSESPELLBOOK = Action({ instant = true, mount_valid = true }),
 	CAST_SPELLBOOK = Action({ mount_valid = true }),
+
+    -- WOODIE
+    USE_WEREFORM_SKILL = Action({ rmb=true, distance=math.huge }),
+
+    -- WORMWOOD
+    IDENTIFY_PLANT = Action({priority=-1, rmb=true, mount_valid=true}),
+
+    -- Rifts
+    SCYTHE = Action({ rmb=true, distance=1.8, rangecheckfn=DefaultRangeCheck, invalid_hold_action=true }),
+	SITON = Action(),
 }
 
 ACTIONS_BY_ACTION_CODE = {}
@@ -585,6 +595,9 @@ end
 
 ACTIONS.UNEQUIP.fn = function(act)
     if act.invobject ~= nil and act.doer.components.inventory ~= nil then
+        if act.invobject.components.equippable ~= nil and act.invobject.components.equippable:ShouldPreventUnequipping() then
+            return nil
+        end
         if act.invobject.components.inventoryitem.cangoincontainer and not GetGameModeProperty("non_item_equips") then
             act.doer.components.inventory:GiveItem(act.invobject)
         else
@@ -608,7 +621,7 @@ ACTIONS.PICKUP.fn = function(act)
         (act.target.components.inventoryitem.canbepickedup or
         (act.target.components.inventoryitem.canbepickedupalive and not act.doer:HasTag("player"))) and
         not (act.target:IsInLimbo() or
-            (act.target.components.burnable ~= nil and act.target.components.burnable:IsBurning()) or
+			(act.target.components.burnable ~= nil and act.target.components.burnable:IsBurning() and act.target.components.lighter == nil) or
             (act.target.components.projectile ~= nil and act.target.components.projectile:IsThrown())) then
 
         if act.doer.components.itemtyperestrictions ~= nil and not act.doer.components.itemtyperestrictions:IsAllowed(act.target) then
@@ -684,20 +697,27 @@ ACTIONS.REPAIR.strfn = function(act)
 end
 
 ACTIONS.REPAIR.fn = function(act)
-    if act.target ~= nil and act.target.components.repairable ~= nil then
-        local material
-        if act.doer ~= nil and
-            act.doer.components.inventory ~= nil and
-            act.doer.components.inventory:IsHeavyLifting() and
-            not (act.doer.components.rider ~= nil and
-                act.doer.components.rider:IsRiding()) then
-            material = act.doer.components.inventory:GetEquippedItem(EQUIPSLOTS.BODY)
-        else
-            material = act.invobject
-        end
-        if material ~= nil and material.components.repairer ~= nil then
-            return act.target.components.repairable:Repair(act.doer, material)
-        end
+	if act.target ~= nil then
+		if act.target.components.repairable ~= nil then
+			local material
+			if act.doer ~= nil and
+				act.doer.components.inventory ~= nil and
+				act.doer.components.inventory:IsHeavyLifting() and
+				not (act.doer.components.rider ~= nil and
+				act.doer.components.rider:IsRiding()) then
+				material = act.doer.components.inventory:GetEquippedItem(EQUIPSLOTS.BODY)
+			else
+				material = act.invobject
+			end
+			if material ~= nil and material.components.repairer ~= nil then
+				return act.target.components.repairable:Repair(act.doer, material)
+			end
+		elseif act.target.components.forgerepairable ~= nil then
+			local material = act.invobject
+			if material ~= nil and material.components.forgerepair ~= nil then
+				return act.target.components.forgerepairable:Repair(act.doer, material)
+			end
+		end
     end
 end
 
@@ -751,6 +771,12 @@ ACTIONS.RUMMAGE.fn = function(act)
             if owner ~= nil and (targ.components.quagmire_stewer ~= nil or targ.components.container.droponopen) then
                 if owner == act.doer then
                     owner.components.inventory:DropItem(targ, true, true)
+				elseif owner:HasTag("pocketdimension_container") then
+					--V2C: skipped IsOpenedBy(act.doer) check because magician's top hat
+					--     closes when performing actions, but it's pretty safe to assume
+					--     this action is valid.
+					local x, y, z = (act.doer.components.inventory ~= nil and act.doer.components.inventory:GetOpenContainerProxyFor(owner) or act.doer).Transform:GetWorldPosition()
+					owner.components.container:DropItemAt(targ, x, y, z)
                 elseif owner.components.container ~= nil and owner.components.container:IsOpenedBy(act.doer) then
                     owner.components.container:DropItem(targ)
                 else
@@ -789,6 +815,12 @@ ACTIONS.RUMMAGE.strfn = function(act)
 end
 
 ACTIONS.DROP.fn = function(act)
+    if act.invobject ~= nil and act.invobject.components.equippable ~= nil and
+        act.invobject.components.equippable:IsEquipped() and
+        act.invobject.components.equippable:ShouldPreventUnequipping() then
+        return nil
+    end
+
     return act.doer.components.inventory ~= nil
         and act.doer.components.inventory:DropItem(
                 act.invobject,
@@ -1146,23 +1178,34 @@ local function DoToolWork(act, workaction)
     if act.target.components.workable ~= nil and
         act.target.components.workable:CanBeWorked() and
         act.target.components.workable:GetWorkAction() == workaction then
-        act.target.components.workable:WorkedBy(
-            act.doer,
-            (   (   act.invobject ~= nil and
-                act.invobject.components.tool ~= nil and
-                act.invobject.components.tool:GetEffectiveness(workaction)
-            ) or
-            (   act.doer ~= nil and
-                act.doer.components.worker ~= nil and
-                act.doer.components.worker:GetEffectiveness(workaction)
-            ) or
-            1
-            ) *
-            (   act.doer.components.workmultiplier ~= nil and
-                act.doer.components.workmultiplier:GetMultiplier(workaction) or
-                1
-        )
-        )
+
+		local numworks =
+			(	(	act.invobject ~= nil and
+				act.invobject.components.tool ~= nil and
+				act.invobject.components.tool:GetEffectiveness(workaction)
+			) or
+			(	act.doer ~= nil and
+				act.doer.components.worker ~= nil and
+				act.doer.components.worker:GetEffectiveness(workaction)
+			) or
+			1
+			) *
+			(	act.doer.components.workmultiplier ~= nil and
+				act.doer.components.workmultiplier:GetMultiplier(workaction) or
+				1
+			)
+
+		local recoil
+		recoil, numworks = act.target.components.workable:ShouldRecoil(act.doer, act.invobject, numworks)
+		if recoil and act.doer.sg ~= nil and act.doer.sg.statemem.recoilstate ~= nil then
+			act.doer.sg:GoToState(act.doer.sg.statemem.recoilstate, { target = act.target })
+			if numworks == 0 then
+				act.doer:PushEvent("tooltooweak", { workaction = workaction })
+			end
+		end
+		--V2C: Call the "internal" function directly since we've already accounted for recoil.
+		--     Chose the "internal" naming to discourage more places from calling it directly.
+		act.target.components.workable:WorkedBy_Internal(act.doer, numworks)
         return true
     end
     return false
@@ -1577,6 +1620,7 @@ ACTIONS.ADDWETFUEL.fn = ACTIONS.ADDFUEL.fn
 ACTIONS.GIVE.strfn = function(act)
     return act.target ~= nil
         and ((act.target:HasTag("gemsocket") and "SOCKET") or
+            (act.target:HasTag("trader_just_show") and "SHOW")or
             (act.target:HasTag("moontrader") and "CELESTIAL"))
         or nil
 end
@@ -2057,6 +2101,17 @@ ACTIONS.SHAVE.fn = function(act)
     end
 end
 
+ACTIONS.PLAY.strfn = function(act)
+	if act.invobject ~= nil then
+		if act.invobject:HasTag("coach_whistle") then
+			if act.doer:HasTag("wolfgang_coach") and act.doer:HasTag("mightiness_normal") then
+				return act.doer:HasTag("coaching") and "COACH_OFF" or "COACH_ON"
+			end
+			return "TWEET"
+		end
+	end
+end
+
 ACTIONS.PLAY.fn = function(act)
     if act.invobject and act.invobject.components.instrument then
         return act.invobject.components.instrument:Play(act.doer)
@@ -2328,13 +2383,18 @@ ACTIONS.USEKLAUSSACKKEY.fn = function(act)
 end
 
 ACTIONS.TEACH.strfn = function(act)
+    if act.invobject:HasTag("scrapbook_data") then
+        return "SCRAPBOOK"
+    end
 	return act.invobject ~= nil and act.invobject.components.mapspotrevealer ~= nil and "READ" or nil
 end
 
 ACTIONS.TEACH.fn = function(act)
     if act.invobject ~= nil then
         local target = act.target or act.doer
-        if act.invobject.components.teacher ~= nil then
+        if act.invobject.components.scrapbookable ~= nil then
+            return act.invobject.components.scrapbookable:Teach(act.doer)
+        elseif act.invobject.components.teacher ~= nil then
             return act.invobject.components.teacher:Teach(target)
         elseif act.invobject.components.maprecorder ~= nil then
             local success, reason = act.invobject.components.maprecorder:TeachMap(target)
@@ -2382,7 +2442,7 @@ ACTIONS.USEITEM.fn = function(act)
 		--V2C: kinda hack since USEITEM is instant action, and the useableitem will
 		--     liklely force state change (bad!) instead.
 		act.doer.sg.statemem.is_going_to_action_state = true
-		local ret = act.invobject.components.useableitem:StartUsingItem()
+		local ret = act.invobject.components.useableitem:StartUsingItem(act.doer)
 		--And clear it now in case no state change happened
 		act.doer.sg.statemem.is_going_to_action_state = nil
 		return ret
@@ -2800,10 +2860,18 @@ ACTIONS.FAN.fn = function(act)
 end
 
 ACTIONS.TOSS.fn = function(act)
-    if act.invobject and act.doer then
-        if act.invobject.components.complexprojectile and act.doer.components.inventory and (act.invobject.components.equippable == nil or not act.invobject.components.equippable:IsRestricted(act.doer)) then
-            local projectile = act.doer.components.inventory:DropItem(act.invobject, false)
-            if projectile then
+	if act.doer ~= nil and act.doer.components.inventory ~= nil then
+		local projectile = act.invobject
+		if projectile == nil then
+			--for Special action TOSS, we can also use equipped item.
+			projectile = act.doer.components.inventory:GetEquippedItem(EQUIPSLOTS.HANDS)
+			if projectile ~= nil and not projectile:HasTag("special_action_toss") then
+				projectile = nil
+			end
+		end
+		if projectile ~= nil and projectile.components.complexprojectile ~= nil and not (projectile.components.equippable ~= nil and (projectile.components.equippable:IsRestricted(act.doer) or projectile.components.equippable:ShouldPreventUnequipping())) then
+			projectile = act.doer.components.inventory:DropItem(projectile, false)
+			if projectile ~= nil then
                 local pos = nil
                 if act.target then
                     pos = act.target:GetPosition()
@@ -3117,7 +3185,16 @@ ACTIONS.CONSTRUCT.stroverridefn = function(act)
 end
 
 ACTIONS.CONSTRUCT.strfn = function(act)
-    return act.invobject ~= nil and act.target:HasTag("constructionsite") and "STORE" or nil
+    return act.invobject ~= nil
+        and (
+                (act.target:HasTag("offerconstructionsite") and "OFFER") or
+                (act.target:HasTag("constructionsite")      and "STORE")
+            )
+        or  (
+				(act.target:HasTag("offerconstructionsite") and "OFFER_TO") or
+				(act.target:HasTag("repairconstructionsite") and "REPAIR")
+            )
+        or nil
 end
 
 ACTIONS.CONSTRUCT.fn = function(act)
@@ -3133,11 +3210,6 @@ ACTIONS.CONSTRUCT.fn = function(act)
         --Silent fail for construction in the dark
         if not CanEntitySeeTarget(act.doer, target) then
             return true
-        end
-
-        -- DANY: open sound here.
-        if act.doer == ThePlayer then
-            act.doer.SoundEmitter:PlaySound("dontstarve/wilson/chest_open")
         end
 
         local item = act.invobject
@@ -3192,17 +3264,24 @@ ACTIONS.STOPCONSTRUCTION.stroverridefn = function(act)
     end
 end
 
+ACTIONS.STOPCONSTRUCTION.strfn = function(act)
+	return (act.target:HasTag("offerconstructionsite") and "OFFER")
+		or (act.target:HasTag("repairconstructionsite") and "REPAIR")
+		or nil
+end
+
 ACTIONS.STOPCONSTRUCTION.fn = function(act)
     if act.doer ~= nil and act.doer.components.constructionbuilder ~= nil then
         act.doer.components.constructionbuilder:StopConstruction()
-
-        -- DANY: close sound here.
-        if act.doer == ThePlayer then
-            act.doer.SoundEmitter:PlaySound("dontstarve/wilson/chest_close")
-        end
-
     end
     return true
+end
+
+ACTIONS.APPLYCONSTRUCTION.strfn = function(act)
+	print(act.target, act.target:HasTag("repairconstructionsite"))
+	return (act.target:HasTag("offerconstructionsite") and "OFFER")
+		or (act.target:HasTag("repairconstructionsite") and "REPAIR")
+		or nil
 end
 
 ACTIONS.APPLYCONSTRUCTION.fn = function(act)
@@ -3231,6 +3310,15 @@ ACTIONS.CASTAOE.fn = function(act)
     if act.invobject ~= nil and act.invobject.components.aoespell ~= nil and act.invobject.components.aoespell:CanCast(act.doer, act_pos) then
 		return act.invobject.components.aoespell:CastSpell(act.doer, act_pos)
     end
+end
+
+ACTIONS.SCYTHE.fn = function(act)
+    if act.invobject ~= nil and act.invobject.DoScythe then
+        act.invobject:DoScythe(act.target, act.doer)
+        return true
+    end
+
+    return false
 end
 
 ACTIONS.DISMANTLE.fn = function(act)
@@ -4403,6 +4491,9 @@ ACTIONS.APPLYMODULE.fn = function(act)
 end
 
 ACTIONS.APPLYMODULE_FAIL.fn = function(act)
+	if act.doer.components.talker ~= nil then
+		act.doer.components.talker:Say(GetActionFailString(act.doer, "APPLYMODULE", "NOTENOUGHSLOTS"))
+	end
     return true
 end
 
@@ -4430,6 +4521,9 @@ ACTIONS.REMOVEMODULES.fn = function(act)
 end
 
 ACTIONS.REMOVEMODULES_FAIL.fn = function(act)
+	if act.doer.components.talker ~= nil then
+		act.doer.components.talker:Say(GetActionFailString(act.doer, "REMOVEMODULES", "NO_MODULES"))
+	end
     return true
 end
 
@@ -4524,4 +4618,39 @@ ACTIONS.CAST_SPELLBOOK.fn = function(act)
 		then
 		return act.invobject.components.spellbook:CastSpell(act.doer)
 	end
+end
+
+ACTIONS.SITON.fn = function(act)
+	if act.doer ~= nil and
+		act.doer.sg ~= nil and
+		act.doer.sg.currentstate.name == "start_sitting" then
+		if act.target ~= nil and
+			act.target.components.sittable ~= nil and
+			not act.target.components.sittable:IsOccupied() then
+			act.target.components.sittable:SetOccupier(act.doer)
+			return true
+		end
+	end
+end
+
+ACTIONS.USE_WEREFORM_SKILL.fn = function(act)
+    return act.doer ~= nil and act.doer:UseWereFormSkill(act)
+end
+
+ACTIONS.IDENTIFY_PLANT.fn = function(act)
+    local target = act.target
+    if target then
+        local target_prefab = (target.BeIdentified and target:BeIdentified(act.doer))
+            or target.prefab
+
+        if target_prefab and act.doer then
+            local description = GetString(act.doer, "DESCRIBE_PLANT_IDENTIFIED")
+            if description and act.doer.components.talker then
+                description = subfmt(description, {plantname = STRINGS.NAMES[string.upper(target_prefab)]})
+                act.doer.components.talker:Say(description)
+            end
+        end
+        return true
+    end
+    return false
 end

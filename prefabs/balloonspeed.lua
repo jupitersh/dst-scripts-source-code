@@ -141,6 +141,8 @@ local function fn()
 
     inst.displaynamefn = DisplayNameFn
 
+    inst.scrapbook_specialinfo = "SPEEDYBALLOON"
+
     inst.entity:SetPristine()
 
     if not TheWorld.ismastersim then
@@ -169,6 +171,10 @@ local function fn()
 	inst.components.fueled:StartConsuming()
 
     BALLOONS.SetRopeShape(inst)
+
+    inst.scrapbook_overridedata={}
+    table.insert( inst.scrapbook_overridedata, {"swap_balloon", "balloon_shapes_speed", "balloon_4"})
+    table.insert( inst.scrapbook_overridedata, {"swap_rope", "balloon2", "rope_1"})
 
 	inst.balloon_num = #balloon_speeds
 

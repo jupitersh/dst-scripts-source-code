@@ -18,6 +18,7 @@ local AVAILABLE_TECH =
     "CARRATOFFERING",
     "BEEFOFFERING",
 	"CATCOONOFFERING",
+    "RABBITOFFERING",
 	"MADSCIENCE",
 	"CARNIVAL_PRIZESHOP",
 	"CARNIVAL_HOSTSHOP",
@@ -30,6 +31,8 @@ local AVAILABLE_TECH =
     "SPIDERCRAFT",
     "ROBOTMODULECRAFT",
     "BOOKCRAFT",
+	"LUNARFORGING",
+	"SHADOWFORGING",
 }
 
 -- only these tech trees can have tech bonuses added to them

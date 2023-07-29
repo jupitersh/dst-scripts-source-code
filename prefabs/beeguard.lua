@@ -10,6 +10,8 @@ local prefabs =
     "bee_poof_big",
     "bee_poof_small",
     "stinger",
+	"ocean_splash_med1",
+	"ocean_splash_med2",
 }
 
 --------------------------------------------------------------------------
@@ -407,7 +409,7 @@ local function OnGotCommander(inst, data)
 				if realqueen and v:IsAsleep() then
 					if v.components.health:IsDead() or v.sg:HasStateTag("flight") then
 						v:Remove()
-					elseif not v:HasTag("rooted") then
+					elseif v.components.rooted == nil then
 						v.Physics:Teleport(qx + offset.x, qy + offset.y, qz + offset.z)
 						if not data.commander:IsAsleep() then
 							v.sg:GoToState("spawnin", data.commander)
@@ -488,6 +490,8 @@ local function fn()
     inst:AddTag("__follower")
 
     inst.entity:SetPristine()
+
+    inst.scrapbook_removedeps = {"stinger"}
 
     if not TheWorld.ismastersim then
         return inst

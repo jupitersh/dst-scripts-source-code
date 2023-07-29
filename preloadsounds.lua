@@ -82,6 +82,9 @@ local MainSounds =
     "yotb_2021.fev",
     "yotb_2021.fsb",
 
+    "yotr_2023.fev",
+    "yotr_2023.fsb",
+
     "hookline_2.fev",
     "hookline_2.fsb",
 
@@ -187,6 +190,24 @@ local MainSounds =
 
     "maxwell_rework.fev",
     "maxwell_rework.fsb",
+
+    "daywalker.fev",
+    "daywalker.fsb",
+
+    "wilson_rework.fev",
+    "wilson_rework.fsb",
+
+    "rifts.fev",
+    "rifts.fsb",
+
+    "aqol.fev",
+    "aqol.fsb",
+
+    "rifts2.fev",
+    "rifts2.fsb",
+
+    "meta2.fev",
+    "meta2.fsb",
 }
 
 function PreloadSoundList(list)
@@ -207,6 +228,7 @@ function PreloadSounds()
     --      access the constants within function calls.
     PreloadSoundList({
         (FESTIVAL_EVENT_MUSIC[WORLD_FESTIVAL_EVENT] ~= nil and FESTIVAL_EVENT_MUSIC[WORLD_FESTIVAL_EVENT].bank) or
+        WORLD_SPECIAL_EVENT ~= SPECIAL_EVENTS.CARNIVAL and -- FIXME(JBK): Remove this line when the shadow rift update is done.
         (SPECIAL_EVENT_MUSIC[WORLD_SPECIAL_EVENT] ~= nil and SPECIAL_EVENT_MUSIC[WORLD_SPECIAL_EVENT].bank) or
         "music_frontend.fsb",
     })

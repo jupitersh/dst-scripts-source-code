@@ -215,11 +215,6 @@ local function GetStatus(inst)
     return inst.respawntask ~= nil and "WAITING" or nil
 end
 
-local function onstashed(inst)
-    StopRespawn(inst)
-end
-
-
 local function fn()
     local inst = CreateEntity()
 
@@ -236,6 +231,8 @@ local function fn()
     inst.AnimState:SetBank("eyebone")
     inst.AnimState:SetBuild("chester_eyebone_build")
     inst.AnimState:PlayAnimation("dead", true)
+    inst.scrapbook_anim = "dead"
+    inst.scrapbook_specialinfo = "EYEBONE"
 
     inst.entity:SetPristine()
 
@@ -268,8 +265,6 @@ local function fn()
 
     inst.OnLoad = OnLoad
     inst.OnSave = OnSave
-
-    inst.onstashed = onstashed
 
     inst.fixtask = inst:DoTaskInTime(1, FixChester)
 

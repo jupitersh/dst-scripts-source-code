@@ -159,10 +159,6 @@ local function OnPlayerJoined(src, player)
         end
     end
     table.insert(_activeplayers, player)
-
-	if TheWorld.net.components.moonstorms and next(TheWorld.net.components.moonstorms._moonstorm_nodes:value()) ~= nil then
-		player.components.moonstormwatcher:ToggleMoonstorms({setting=true})
-	end
 end
 
 local function OnPlayerLeft(src, player)
@@ -814,6 +810,7 @@ function self:OnLoad(data)
 			if _alterguardian_defeated_count > 0 then
 				self.inst:DoTaskInTime(0,function()
 					TheWorld:PushEvent("ms_setmoonphasestyle", {style = "glassed_default"})
+                    TheWorld:PushEvent("ms_moonboss_was_defeated", {count = _alterguardian_defeated_count})
 				end)
 			end
 		end

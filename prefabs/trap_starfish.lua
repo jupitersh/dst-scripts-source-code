@@ -99,7 +99,7 @@ end
 local function on_sprung(inst)
     inst.AnimState:PlayAnimation("trap_idle", true)
 
-    inst.AnimState:SetTime(math.random() * inst.AnimState:GetCurrentAnimationLength())
+	inst.AnimState:SetFrame(math.random(inst.AnimState:GetCurrentAnimationNumFrames()) - 1)
 
     inst:RemoveEventCallback("animover", on_anim_over)
 
@@ -165,6 +165,7 @@ local function trap_starfish()
     inst.AnimState:SetBuild("star_trap")
     inst.AnimState:PlayAnimation("idle", true)
 
+
     inst:AddTag("trap")
     inst:AddTag("trapdamage")
     inst:AddTag("birdblocker")
@@ -203,7 +204,7 @@ local function trap_starfish()
     reset(inst)
 
     -- Stop the starfish from idling in unison.
-    inst.AnimState:SetTime(math.random() * inst.AnimState:GetCurrentAnimationLength())
+	inst.AnimState:SetFrame(math.random(inst.AnimState:GetCurrentAnimationNumFrames()) - 1)
 
     -- Start the task for the characterizing additional idles.
     inst:ListenForEvent("animover", on_anim_over)
@@ -240,6 +241,8 @@ local function dug_trap_starfish()
     inst.AnimState:SetBank("star_trap")
     inst.AnimState:SetBuild("star_trap")
     inst.AnimState:PlayAnimation("inactive", true)
+    inst.scrapbook_anim = "inactive"
+    inst.scrapbook_scale = 2
 
     MakeInventoryFloatable(inst, "med")
 
@@ -250,7 +253,7 @@ local function dug_trap_starfish()
     end
 
     -- Stop the starfish from idling in unison.
-    inst.AnimState:SetTime(math.random() * inst.AnimState:GetCurrentAnimationLength())
+	inst.AnimState:SetFrame(math.random(inst.AnimState:GetCurrentAnimationNumFrames()) - 1)
 
     inst:AddComponent("inspectable")
     inst.components.inspectable.nameoverride = "TRAP_STARFISH"

@@ -86,6 +86,7 @@ local function fn()
     inst:AddTag("shadow")
     inst:AddTag("notraptrigger")
     inst:AddTag("notarget")
+    inst:AddTag("shadow_aligned")
 
     inst.AnimState:SetBank("shadow_channeler")
     inst.AnimState:SetBuild("shadow_channeler")
@@ -99,6 +100,9 @@ local function fn()
         inst.components.transparentonsanity.osc_amp = .1
         inst.components.transparentonsanity:ForceUpdate()
     end
+
+	--Higher priority as if it is always targeting player
+	inst.controller_priority_override_is_targeting_player = true
 
     inst.entity:SetPristine()
 

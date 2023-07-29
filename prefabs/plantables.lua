@@ -26,6 +26,10 @@ local function make_plantable(data)
                 --     one just for this sound!
                 deployer.SoundEmitter:PlaySound("dontstarve/common/plant")
             end
+
+            if TheWorld.components.lunarthrall_plantspawner and tree:HasTag("lunarplant_target") then
+                TheWorld.components.lunarthrall_plantspawner:setHerdsOnPlantable(tree)
+            end
         end
     end
 
@@ -44,11 +48,28 @@ local function make_plantable(data)
         inst.AnimState:SetBank(data.bank or data.name)
         inst.AnimState:SetBuild(data.build or data.name)
         inst.AnimState:PlayAnimation("dropped")
+        inst.scrapbook_anim = "dropped"
 
         if data.floater ~= nil then
             MakeInventoryFloatable(inst, data.floater[1], data.floater[2], data.floater[3])
         else
             MakeInventoryFloatable(inst)
+        end
+
+        if data.name == "berrybush" or 
+           data.name == "berrybush2" or 
+           data.name == "berrybush_juicy" or
+           data.name == "grass" or
+           data.name == "monkeytail" or
+           data.name == "bananabush" or
+           data.name == "rock_avocado_bush" then
+            inst.scrapbook_specialinfo = "PLANTABLE_FERTILIZE"
+        end
+
+        if data.name == "sapling" or
+           data.name == "sapling_moon" or
+           data.name == "marsh_bush" then
+            inst.scrapbook_specialinfo = "PLANTABLE"
         end
 
         inst.entity:SetPristine()

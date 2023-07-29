@@ -25,7 +25,7 @@ function Launch(inst, launcher, basespeed)
         local angle =
             spd > 0 and
             math.atan2(vz / spd, vx / spd) + (math.random() * 20 - 10) * DEGREES or
-            math.random() * 2 * PI
+            math.random() * TWOPI
         spd = (basespeed or 5) + math.random() * 2
         inst.Physics:Teleport(x, .1, z)
         inst.Physics:SetVel(math.cos(angle) * spd, 10, math.sin(angle) * spd)
@@ -44,7 +44,7 @@ function Launch2(inst, launcher, basespeed, speedmult, startheight, startradius,
 				local dist = math.sqrt(dsq)
 				angle = math.atan2(dz / dist, dx / dist) + (math.random() * 20 - 10) * DEGREES
 			else
-				angle = 2 * PI * math.random()
+				angle = TWOPI * math.random()
 			end
 		end
 		local sina, cosa = math.sin(angle), math.cos(angle)

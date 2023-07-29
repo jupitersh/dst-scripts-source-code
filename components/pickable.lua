@@ -457,6 +457,10 @@ function Pickable:MakeEmpty()
     end
 end
 
+-- NOTES(JBK): Added TheWorld behaviour.
+-- If picker is nil it will not produce items.
+-- If picker is TheWorld it will drop items at the inst. This will NOT fire the regular event picked but will fire pickedbyworld instead to differentiate the type of pick.
+-- If picker is something with an inventory it will harvest normally.
 function Pickable:Pick(picker)
     if self.canbepicked and self.caninteractwith then
         if self.transplanted and self.cycles_left ~= nil then
@@ -474,45 +478,57 @@ function Pickable:Pick(picker)
         end
 
         local loot = nil
-        if picker ~= nil and picker.components.inventory ~= nil and (self.product ~= nil or self.use_lootdropper_for_product ~= nil) then
+        local worldpicker = picker == TheWorld
+        if self.product ~= nil or self.use_lootdropper_for_product ~= nil then
+            local inventorypicker = picker ~= nil and picker.components.inventory ~= nil
+            local pt = self.inst:GetPosition()
             if self.droppicked and self.inst.components.lootdropper ~= nil then
-				local pt = self.inst:GetPosition()
-				pt.y = pt.y + (self.dropheight or 0)
-				if self.use_lootdropper_for_product then
-					self.inst.components.lootdropper:DropLoot(pt)
-				else
-					local num = self.numtoharvest or 1
-					for i = 1, num do
-						self.inst.components.lootdropper:SpawnLootPrefab(self.product, pt)
-					end
-				end
+                pt.y = pt.y + (self.dropheight or 0)
+                if self.use_lootdropper_for_product then
+                    self.inst.components.lootdropper:DropLoot(pt)
+                else
+                    local num = self.numtoharvest or 1
+                    for i = 1, num do
+                        self.inst.components.lootdropper:SpawnLootPrefab(self.product, pt)
+                    end
+                end
             else
-				if self.use_lootdropper_for_product then
-					loot = {}
-					for _, prefab in ipairs(self.inst.components.lootdropper:GenerateLoot()) do
-						table.insert(loot, self.inst.components.lootdropper:SpawnLootPrefab(prefab))
-					end
-					if not IsTableEmpty(loot) then
-						picker:PushEvent("picksomething", { object = self.inst, loot = loot })
+                if self.use_lootdropper_for_product then
+                    loot = {}
+                    for _, prefab in ipairs(self.inst.components.lootdropper:GenerateLoot()) do
+                        table.insert(loot, self.inst.components.lootdropper:SpawnLootPrefab(prefab))
+                    end
+                    if not IsTableEmpty(loot) then
+                        if inventorypicker then
+                            picker:PushEvent("picksomething", { object = self.inst, loot = loot })
+                        end
                     end
                     for i, item in ipairs(loot) do
-						if item.components.inventoryitem ~= nil then
-	                        picker.components.inventory:GiveItem(item, nil, self.inst:GetPosition())
-						end
+                        if inventorypicker then
+                            if item.components.inventoryitem ~= nil then
+                                picker.components.inventory:GiveItem(item, nil, pt)
+                            end
+                        elseif worldpicker then
+                            item.Transform:SetPosition(pt:Get())
+                        end
                     end
-				else
-					loot = SpawnPrefab(self.product)
-					if loot ~= nil then
-						if loot.components.inventoryitem ~= nil then
-							loot.components.inventoryitem:InheritMoisture(TheWorld.state.wetness, TheWorld.state.iswet)
-						end
-						if self.numtoharvest > 1 and loot.components.stackable ~= nil then
-							loot.components.stackable:SetStackSize(self.numtoharvest)
-						end
-						picker:PushEvent("picksomething", { object = self.inst, loot = loot })
-						picker.components.inventory:GiveItem(loot, nil, self.inst:GetPosition())
-					end
-				end
+                else
+                    loot = SpawnPrefab(self.product)
+                    if loot ~= nil then
+                        if loot.components.inventoryitem ~= nil then
+							loot.components.inventoryitem:InheritWorldWetnessAtTarget(self.inst)
+                        end
+                        if self.numtoharvest > 1 and loot.components.stackable ~= nil then
+                            loot.components.stackable:SetStackSize(self.numtoharvest)
+                        end
+                        if inventorypicker then
+                            picker:PushEvent("picksomething", { object = self.inst, loot = loot })
+                            picker.components.inventory:GiveItem(loot, nil, pt)
+                        elseif worldpicker then
+                            loot.Transform:SetPosition(pt:Get())
+                        end
+                    end
+                end
             end
         end
 
@@ -539,13 +555,13 @@ function Pickable:Pick(picker)
             end
         end
 
-        self.inst:PushEvent("picked", { picker = picker, loot = loot, plant = self.inst })
+        self.inst:PushEvent(worldpicker and "pickedbyworld" or "picked", { picker = picker, loot = loot, plant = self.inst })
 
 		if self.remove_when_picked then
 			self.inst:Remove()
 		end
 
-		return true
+        return true, EntityScript.is_instance(loot) and {loot} or loot
     end
 end
 

@@ -4,6 +4,14 @@ local Image = require "widgets/image"
 local Widget = require "widgets/widget"
 local UIAnim = require "widgets/uianim"
 
+local function DoInspected(invitem, tried)
+    if ThePlayer then
+        TheScrapbookPartitions:SetInspectedByCharacter(invitem.prefab, ThePlayer.prefab)
+    elseif not tried then
+        invitem:DoTaskInTime(0, DoInspected, true) -- Delay a frame in case of load order desync only try once and then giveup.
+    end
+end
+
 local ItemTile = Class(Widget, function(self, invitem)
     Widget._ctor(self, "ItemTile")
     self.item = invitem
@@ -26,14 +34,18 @@ local ItemTile = Class(Widget, function(self, invitem)
         return
     end
 
-    if self.item:HasTag("show_spoiled") or self:HasSpoilage() then
-            self.bg = self:AddChild(Image(HUD_ATLAS, "inv_slot_spoiled.tex"))
+    DoInspected(invitem)
+
+	local show_spoiled_meter = self:HasSpoilage() or self.item:HasTag("show_broken_ui")
+
+	if show_spoiled_meter or self.item:HasTag("show_spoiled") then
+		self.bg = self:AddChild(Image(HUD_ATLAS, "inv_slot_spoiled.tex"))
         self.bg:SetClickable(false)
     end
 
     self.basescale = 1
 
-    if self:HasSpoilage() then
+	if show_spoiled_meter then
         self.spoilage = self:AddChild(UIAnim())
         self.spoilage:GetAnimState():SetBank("spoiled_meter")
         self.spoilage:GetAnimState():SetBuild("spoiled_meter")
@@ -399,6 +411,15 @@ function ItemTile:SetPercent(percent)
 			val_to_show = 1
 		end
 		self.percent:SetString(string.format("%2.0f%%", val_to_show))
+		if not self.dragging and self.item:HasTag("show_broken_ui") then
+			if percent > 0 then
+				self.bg:Hide()
+				self.spoilage:Hide()
+			else
+				self.bg:Show()
+				self:SetPerishPercent(0)
+			end
+		end
     end
 end
 
@@ -454,6 +475,7 @@ end
 --]]
 
 function ItemTile:StartDrag()
+	self.dragging = true
     --self:SetScale(1,1,1)
     if self.item.replica.inventoryitem ~= nil then -- HACK HACK: items without an inventory component won't have any of these
         if self.spoilage ~= nil then

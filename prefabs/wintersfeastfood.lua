@@ -32,6 +32,7 @@ local function MakeFood(num)
         inst.AnimState:SetBank("winter_ornaments")
         inst.AnimState:SetBuild("winter_ornaments")
         inst.AnimState:PlayAnimation("food"..tostring(num))
+        inst.scrapbook_anim = "food"..tostring(num)
 
         inst:AddTag("cattoy")
         inst:AddTag("wintersfeastfood")
@@ -81,6 +82,8 @@ local function MakeFood(num)
         return inst
     end
 
+    -- NOTES(JBK): Use this to help export the bottom table to make this file findable.
+    --print(string.format("%s %s", foodinfo[num].food or FOODTYPE.GENERIC, "winter_food"..tostring(num)))
     return Prefab("winter_food"..tostring(num), fn, assets)
 end
 
@@ -90,3 +93,16 @@ for k = 1, NUM_WINTERFOOD do
 end
 
 return unpack(ret)
+
+-- NOTES(JBK): These are here to make this file findable.
+--[[
+FOODTYPE.GOODIES winter_food1
+FOODTYPE.GOODIES winter_food2
+FOODTYPE.GOODIES winter_food3
+FOODTYPE.GOODIES winter_food5
+FOODTYPE.GOODIES winter_food8
+FOODTYPE.MEAT winter_food9
+FOODTYPE.VEGGIE winter_food4
+FOODTYPE.VEGGIE winter_food6
+FOODTYPE.VEGGIE winter_food7
+]]

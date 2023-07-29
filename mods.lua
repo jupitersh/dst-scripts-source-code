@@ -35,6 +35,11 @@ AddModReleaseID( "R22_PIRATEMONKEYS" )
 AddModReleaseID( "R23_REFRESH_WICKERBOTTOM" )
 AddModReleaseID( "R24_STS_ALITTLEDRAMA" )
 AddModReleaseID( "R25_REFRESH_WAXWELL" )
+AddModReleaseID( "R26_LOBBY_NETWORKQOL" )
+AddModReleaseID( "R27_REFRESH_WILSON" )
+AddModReleaseID( "R28_LUNAR_RIFT" )
+AddModReleaseID( "R29_SHADOW_RIFT" )
+AddModReleaseID( "R30_ST_WOODWOLFWORM" ) -- Keep worm and wood separate to lower confusion.
 
 -----------------------------------------------------------------------------------------------
 

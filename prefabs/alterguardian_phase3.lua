@@ -27,6 +27,7 @@ local prefabs =
 SetSharedLootTable("alterguardian_phase3",
 {
     {"chesspiece_guardianphase3_sketch", 1.00},
+    {"alterguardianhatshard", 1.00},
     {"moonglass",           1.00},
     {"moonglass",           1.00},
     {"moonglass",           1.00},
@@ -132,10 +133,6 @@ local function KeepTarget(inst, target)
         and target:GetDistanceSqToPoint(inst.Transform:GetWorldPosition()) < MAX_KEEPTARGET_DSQ
 end
 
-local function OnAttacked(inst, data)
-    inst.components.combat:SuggestTarget(data.attacker)
-end
-
 local function NoHoles(pt)
     return not TheWorld.Map:IsPointNearHole(pt)
 end
@@ -224,6 +221,8 @@ end
 local function OnSave(inst, data)
     data.loot_dropped = inst._loot_dropped
 
+    data.attackerUSERIDs = inst.attackerUSERIDs or nil
+
     data.traps = {}
     local ents = {}
     if GetTableSize(inst._traps) > 0 then
@@ -233,7 +232,7 @@ local function OnSave(inst, data)
                 table.insert(ents, trap.GUID)
             end
         end
-    end
+    end    
 
     return ents
 end
@@ -241,6 +240,7 @@ end
 local function OnLoad(inst, data)
     if data ~= nil then
         inst._loot_dropped = data.loot_dropped
+        inst.attackerUSERIDs = data.attackerUSERIDs or {}
     end
 end
 
@@ -326,6 +326,29 @@ local function dropLootFn(lootdropper)
         end
 end
 
+local function trackattackers(inst,data)
+    if data.attacker and data.attacker:HasTag("player") then
+        inst.attackerUSERIDs[data.attacker.userid] = true
+    end
+end
+
+local function OnDead(inst,data)
+    trackattackers(inst,data)
+    for ID, data in pairs(inst.attackerUSERIDs) do
+        for i, player in ipairs(AllPlayers) do
+            if player.userid == ID then 
+                SendRPCToClient(CLIENT_RPC.UpdateAccomplishment, player.userid, "celestialchampion_killed")
+                break
+            end
+        end
+    end
+end
+
+local function OnAttacked(inst, data)
+    trackattackers(inst,data)
+    inst.components.combat:SuggestTarget(data.attacker)
+end
+
 local function fn()
     local inst = CreateEntity()
 
@@ -361,6 +384,7 @@ local function fn()
     inst:AddTag("noepicmusic")
     inst:AddTag("scarytoprey")
     inst:AddTag("soulless")
+    inst:AddTag("lunar_aligned")
 
     inst._musicdirty = net_event(inst.GUID, "alterguardian_phase3._musicdirty", "musicdirty")
     inst._playingmusic = false
@@ -435,7 +459,10 @@ local function fn()
     inst.TrackTrap = track_trap
     inst._traps = {}
 
+    inst.attackerUSERIDs = {}
+
     inst:ListenForEvent("attacked", OnAttacked)
+    inst:ListenForEvent("death", OnDead)
 
     inst.OnSave = OnSave
     inst.OnLoad = OnLoad

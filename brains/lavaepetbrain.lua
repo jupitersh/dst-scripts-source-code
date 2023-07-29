@@ -1,8 +1,8 @@
 require "behaviours/chaseandattack"
 require "behaviours/wander"
-require "behaviours/panic"
 require "behaviours/faceentity"
 require "behaviours/follow"
+local BrainCommon = require("brains/braincommon")
 
 local MIN_FOLLOW_DIST = 0
 local MAX_FOLLOW_DIST = 8
@@ -14,7 +14,11 @@ local FIND_FOOD_ACTION_DIST = 12
 
 local function GetOwner(inst)
     local leader = inst.components.follower.leader
-    return leader ~= nil and leader.components.inventoryitem ~= nil and leader.components.inventoryitem:GetGrandOwner() or nil
+    local owner = leader ~= nil and leader.components.inventoryitem ~= nil and leader.components.inventoryitem:GetGrandOwner() or nil
+    if owner ~= nil and owner:HasTag("pocketdimension_container") then
+        return nil
+    end
+    return owner
 end
 
 local GetFaceTargetFn = GetOwner
@@ -94,8 +98,7 @@ end)
 function LavaePetBrain:OnStart()
     local root =
     PriorityNode({
-
-        WhileNode(function() return self.inst.components.hauntable ~= nil and self.inst.components.hauntable.panic end, "PanicHaunted", Panic(self.inst)),
+		BrainCommon.PanicTrigger(self.inst),
 
         WhileNode(function() return self.inst.components.hunger:GetPercent() < 0.05 end, "STARVING BABY ALERT!",
             PriorityNode{
@@ -110,7 +113,7 @@ function LavaePetBrain:OnStart()
                 },
             }),
 
-        Follow(self.inst, function() return self.inst.components.follower.leader end, MIN_FOLLOW_DIST, TARGET_FOLLOW_DIST, MAX_FOLLOW_DIST),
+        Follow(self.inst, function() return GetOwner(self.inst) end, MIN_FOLLOW_DIST, TARGET_FOLLOW_DIST, MAX_FOLLOW_DIST),
 
         DoAction(self.inst, EatFoodAction),
 
@@ -121,7 +124,6 @@ function LavaePetBrain:OnStart()
                 WaitNode(4),
                 DoAction(self.inst, LoveOwner),
             }),
-
     }, 1)
     self.bt = BT(self.inst, root)
 end

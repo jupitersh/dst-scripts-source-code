@@ -328,10 +328,6 @@ function EntityScript:Show()
     self.entity:Show(false)
 end
 
-function EntityScript:IsOnWater()
-    return not self:GetCurrentPlatform() and not TheWorld.Map:IsVisualGroundAtPoint(self.Transform:GetWorldPosition())
-end
-
 function EntityScript:IsInLimbo()
     --V2C: faster than checking tag, but only valid on mastersim
     return self.inlimbo
@@ -685,8 +681,14 @@ function EntityScript:GetAdjectivedName()
                 return ConstructAdjectivedName(self, name, STRINGS.WET_PREFIX.FUEL)
             end
         end
+		--broken
+		if self:HasTag("broken") then
+			return ConstructAdjectivedName(self, ConstructAdjectivedName(self, name, STRINGS.WET_PREFIX.GENERIC), STRINGS.BROKENITEM)
+		end
         --generic
         return ConstructAdjectivedName(self, name, STRINGS.WET_PREFIX.GENERIC)
+	elseif self:HasTag("broken") then
+		return ConstructAdjectivedName(self, name, STRINGS.BROKENITEM)
     end
     return name
 end
@@ -713,7 +715,9 @@ function EntityScript:GetIsWet()
     if replica ~= nil then
         return replica:IsWet()
     end
-    return self:HasTag("wet") or TheWorld.state.iswet or (self:HasTag("swimming") and not self:HasTag("likewateroffducksback"))
+	return self:HasTag("wet")
+		or (TheWorld.state.iswet and not self:HasTag("rainimmunity"))
+		or (self:HasTag("swimming") and not self:HasTag("likewateroffducksback"))
 end
 
 function EntityScript:GetSkinBuild()
@@ -1190,9 +1194,11 @@ function EntityScript:GetAngleToPoint(x, y, z)
         return 0
     elseif y == nil and z == nil then
         x, y, z = x:Get()
-    end    
+    end
     local x1, y1, z1 = self.Transform:GetWorldPosition()
-    return math.atan2(z1 - z, x - x1) / DEGREES
+	return x1 == x and z1 == z
+		and self.Transform:GetRotation()
+		or math.atan2(z1 - z, x - x1) * RADIANS
 end
 
 function EntityScript:GetPositionAdjacentTo(target, distance)
@@ -1259,6 +1265,9 @@ function EntityScript:FaceAwayFromPoint(dest, force)
         return
     end
     local x, y, z = self.Transform:GetWorldPosition()
+	if x == dest.x and z == dest.z then
+		return
+	end
     self.Transform:SetRotation(math.atan2(z - dest.z, dest.x - x) / DEGREES + 180)
 end
 
@@ -1615,6 +1624,9 @@ function EntityScript:IsOnOcean(allow_boats)
     return TheWorld.Map:IsOceanAtPoint(x, y, z, allow_boats)
 end
 
+--deprecated
+EntityScript.IsOnWater = EntityScript.IsOnOcean
+
 function EntityScript:GetCurrentPlatform()
     if TheWorld.ismastersim then
         if self.parent then
@@ -1669,18 +1681,26 @@ function EntityScript:GetCurrentTileType()
     --print (string.format("(%d+%d, %d+%d), (%2.2f, %2.2f), %d", tx, x_off, ty, y_off, xpercent, ypercent, actual_tile))
 end
 
-function EntityScript:PutBackOnGround()
+-- NOTES(JBK): This function will return true if the entity is now on valid ground, false if it could not find a suitable location.
+function EntityScript:PutBackOnGround(radius)
+    radius = radius or 8
 	local x, y, z = self.Transform:GetWorldPosition()
-    if not TheWorld.Map:IsPassableAtPoint(x, y, z, true) then
-        local dest = FindNearbyLand(self:GetPosition(), 8) or FindNearbyOcean(self:GetPosition(), 8)
+    if TheWorld.Map:IsPassableAtPoint(x, y, z, true) then
+        return true
+    else
+        local pt = Point(x, y, z)
+        local dest = FindNearbyLand(pt, radius) or FindNearbyOcean(pt, radius)
         if dest ~= nil then
             if self.Physics ~= nil then
                 self.Physics:Teleport(dest:Get())
+                return true
             elseif self.Transform ~= nil then
                 self.Transform:SetPosition(dest:Get())
+                return true
             end
         end
     end
+    return false
 end
 
 function EntityScript:GetPersistData()

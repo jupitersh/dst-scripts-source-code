@@ -1904,6 +1904,14 @@ function TintBackground( bg )
     --end
 end
 
+-- NOTES(JBK): Keeping this for PC Steam/RAIL only for now.
+local platforms_supporting_audio_focus = {
+    ["WIN32_STEAM"] = true,
+    ["WIN32_RAIL"] = true,
+    ["LINUX_STEAM"] = true,
+    ["OSX_STEAM"] = true,
+}
+
 -- Global for saving game on Android focus lost event
 function OnFocusLost()
     --check that we are in gameplay, not main menu
@@ -1911,14 +1919,18 @@ function OnFocusLost()
         SetPause(true)
         ShardGameIndex:SaveCurrent()
     end
+    if platforms_supporting_audio_focus[PLATFORM] and Profile:GetMuteOnFocusLost() then
+        TheMixer:SetLevel("master", 0)
+    end
 end
 
 function OnFocusGained()
     --check that we are in gameplay, not main menu
-    if inGamePlay then
-        if PLATFORM == "ANDROID" then
-            SetPause(false)
-        end
+    if PLATFORM == "ANDROID" and inGamePlay then
+        SetPause(false)
+    end
+    if platforms_supporting_audio_focus[PLATFORM] and Profile:GetMuteOnFocusLost() then
+        TheMixer:SetLevel("master", 1)
     end
 end
 
@@ -1943,8 +1955,19 @@ local function OnUserPickedCharacter(char, skin_base, clothing_body, clothing_ha
                 starting_skins[item] = skin_name
             end
         end
+        local selection = TheSkillTree:GetPlayerSkillSelection(char)
+        local has_selection = false
+        for _, v in ipairs(selection) do
+            if v ~= 0 then
+                has_selection = true
+                break
+            end
+        end
+        if not has_selection then
+            selection = nil
+        end
 
-        TheNet:SendSpawnRequestToServer(char, skin_base, clothing_body, clothing_hand, clothing_legs, clothing_feet, starting_skins)
+        TheNet:SendSpawnRequestToServer(char, skin_base, clothing_body, clothing_hand, clothing_legs, clothing_feet, starting_skins, selection)
     end
 
     TheFrontEnd:Fade(FADE_OUT, 1, doSpawn, nil, nil, "white")
@@ -2221,3 +2244,103 @@ RCIFileLock = RCINIL
 RCIFileUnlock = RCINIL
 
 require("dlcsupport")
+
+function ShowBadHashUI()
+    if HashesMessageState ~= "SHOW_WARNING" then
+        return
+    end
+    -- Backend does not want to see errors when a game client is in an unstable state.
+    HashesMessageState = "SHOWING_POPUP"
+    --TheNet:SetQuietBackendErrorsReason(HashesMessageState) We faked the HashesMessageState prior to this callback.
+
+    SetGlobalErrorWidget(STRINGS.UI.MAINSCREEN.BAD_HASHES_TITLE, STRINGS.UI.MAINSCREEN.BAD_HASHES_BODY, {
+        {
+            text = STRINGS.UI.MAINSCREEN.BAD_HASHES_PLAY,
+            cb = function()
+                -- Backend especially does not want to see errors when a player chooses to play anyway with an unstable game state.
+                HashesMessageState = "CHOSE_TO_PLAY_ANYWAY"
+                TheNet:SetQuietBackendErrorsReason(HashesMessageState)
+                global_error_widget:GoAway()
+            end
+        },{
+            text = STRINGS.UI.MAINSCREEN.BAD_HASHES_INSTRUCTIONS,
+            cb = function()
+                VisitURL("https://support.klei.com/hc/en-us/articles/360029555352-DST-Is-Crashing-DST-Won-t-Start")
+            end
+        },{
+            text = STRINGS.UI.MAINSCREEN.ASKQUIT,
+            cb = function()
+                RequestShutdown()
+            end
+        },
+    })
+end
+
+-- Login flow sync.
+local login_button = nil
+local function TurnOffLoginButton()
+    if login_button then
+        login_button:_TurnOff()
+    end
+end
+local function TurnOnLoginButton()
+    if login_button then
+        login_button:_TurnOn()
+    end
+end
+function HookLoginButtonForDataBundleFileHashes(button)
+    login_button = button
+end
+
+-- Integrity check callbacks.
+function BeginDataBundleFileHashes()
+    -- The integrity checker is running things use this to let the game try to be synchronous and wait for its completion before login flow starts.
+    IsIntegrityChecking = true
+    TurnOffLoginButton()
+end
+
+function DataBundleFileHashes(calculatedhashes)
+    -- NOTES(JBK): General integrity check in case the platform did not patch the files in data/databundles/*.zip properly.
+    -- Generally the game binary always succeeds in patching and sometimes the databundles do not.
+    -- This is made in the hope that players will be able to self serve a fix before experiencing issues when loading a game world or inside a game world.
+    -- If a player chooses to play anyway we do not want to see errors pop up from malformed backend requests that are harder to debug.
+    -- This function is only currently being called for platforms that allow the macro DO_GAMEFILE_INTEGRITY_CHECKS.
+    IsIntegrityChecking = nil -- This is the response we are done here.
+    TurnOnLoginButton()
+    login_button = nil
+    local hashesfile = io.open("databundles/hashes.txt", "r")
+    if hashesfile == nil then
+        -- No hash file to do basic checks with bail out and quiet backend errors.
+        HashesMessageState = "MISSING_HASHES"
+        TheNet:SetQuietBackendErrorsReason(HashesMessageState)
+        return
+    end
+
+    for line in hashesfile:lines() do
+        local filename, hash = line:match("^(.+) (.-)$")
+        if filename and hash then
+            hash = hash:gsub("[\r\n]", "") -- Remove any newlines from the over extending pattern above.
+            hash = hash:gsub("\\", "/") -- Consistent path delimiters.
+            if hash ~= "" then
+                local calculatedhash = calculatedhashes[filename]
+                if calculatedhash then
+                    if calculatedhash ~= hash then
+                        print("A bad filehash was detected for:", filename, hash, "got this:", calculatedhash)
+                        HashesMessageState = "SHOW_WARNING"
+                        TheNet:SetQuietBackendErrorsReason("SHOWING_POPUP") -- Fake the value of HashesMessageState we do not differentiate if the warning is pending to show.
+                    end
+                elseif HashesMessageState ~= "SHOW_WARNING" then
+                    -- We have a hash in hashes.txt that we did not calculate a hash for.
+                    -- This can happen if a player extracts a databundle for modding and deletes the zip.
+                    -- If this happens it is highly likely the player manually deleted a databundle zip and should know that crashes are from their activities.
+                    -- Backend team does not want to get alerted to these crashes.
+                    HashesMessageState = "MISSING_DATABUNDLES"
+                    TheNet:SetQuietBackendErrorsReason(HashesMessageState)
+                end
+            end
+        end
+    end
+
+    io.close(hashesfile)
+    hashesfile = nil
+end

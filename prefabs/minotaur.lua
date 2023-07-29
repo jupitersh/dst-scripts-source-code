@@ -33,6 +33,7 @@ local prefabs =
     "minotaur_blood2",
     "minotaur_blood3",
     "minotaur_blood_big",
+    "support_pillar_scaffold_blueprint",
 }
 
 local prefabs_chest =
@@ -53,6 +54,7 @@ SetSharedLootTable('minotaur',
     {"meat",        1.00},
     {"meat",        1.00},
     {"meat",        1.00},
+    {"support_pillar_scaffold_blueprint", 1.00},
     {"minotaurhorn",1.00},
     {"chesspiece_minotaur_sketch", 1.00},
 })
@@ -174,8 +176,10 @@ local function checkfortentacledrop(inst)
 end
 
 local function OnAttacked(inst, data)
-    if inst.components.health:GetPercent() < PHASE1 then
+    if inst.components.health:GetPercent() < PHASE1 and not inst.atphase2 then
+        inst.atphase2 = true
         inst.AnimState:SetBuild("rook_rhino_damaged_build")
+        inst:AddTag("shadow_aligned")
     end
 
     local attacker = data ~= nil and data.attacker or nil

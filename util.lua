@@ -460,20 +460,21 @@ function MergeKeyValueList(...)
 end
 
 function SubtractMapKeys(base, subtract)
-    local ret = {}
-    for k,v in pairs(base) do
-        if subtract[k] ~= nil then
-            if type(subtract[k]) == "table" then
-                local subtable = SubtractMapKeys(v, subtract[k])
-                if GetTableSize(subtable) > 0 then
-                    ret[k] = subtable
-                end
-            elseif subtract[k] == nil then
-                ret[k] = v
-            end
-        end
-    end
-    return ret
+	local ret = {}
+	for k, v in pairs(base) do
+		local subtract_v = subtract[k]
+		if subtract_v == nil then
+			--no subtract entry => keep key+value in ret table
+			ret[k] = v
+		elseif type(subtract_v) == "table" and type(v) == "table" then
+			local subtable = SubtractMapKeys(v, subtract_v)
+			if next(subtable) ~= nil then
+				ret[k] = subtable
+			end
+		end
+		--otherwise, subtract entry exists => drop key+value from ret table
+	end
+	return ret
 end
 
 -- Adds 'addition' to the end of 'orig', 'mult' times.
@@ -773,7 +774,6 @@ end
 local env = {  -- add functions you know are safe here
     loadstring=loadstring -- functions can get serialized to text, this is required to turn them back into functions
  }
-
 
 function RunInEnvironment(fn, fnenv)
 	setfenv(fn, fnenv)
@@ -1399,6 +1399,20 @@ function table.findpath(Table,Names,indx)
         end
     end
     return nil
+end
+
+function table.keysareidentical(a, b)
+    for k, _ in pairs(a) do
+        if b[k] == nil then
+            return false
+        end
+    end
+    for k, _ in pairs(b) do
+        if a[k] == nil then
+            return false
+        end
+    end
+    return true
 end
 
 function TrackMem()

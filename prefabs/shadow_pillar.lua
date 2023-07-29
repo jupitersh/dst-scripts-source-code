@@ -248,16 +248,15 @@ local function Pillar_OnLoad(inst, data)
 		--pillar pre is 24 * FRAMES
 		--pillar pre is delayed 7 * FRAMES
 		inst.AnimState:PlayAnimation("idle"..tostring(inst.variation), true)
-		local rnd = math.random()
-		local t = inst.AnimState:GetCurrentAnimationLength() * rnd
-		inst.AnimState:SetTime(t)
+		local fr = math.random(inst.AnimState:GetCurrentAnimationNumFrames()) - 1
+		inst.AnimState:SetFrame(fr)
 		if inst.base == nil then
 			inst.base = SpawnPrefab("shadow_pillar_base_fx")
 			inst.base.entity:SetParent(inst.entity)
 			inst.base.Transform:SetRotation(math.random() * 360)
 		end
 		inst.base.AnimState:PlayAnimation("idle", true)
-		inst.base.AnimState:SetTime(t + 7 * FRAMES)
+		inst.base.AnimState:SetFrame(fr + 7)
 		if not inst.components.timer:TimerExists("warningtime") then
 			local target = inst.components.entitytracker:GetEntity("target")
 			if target ~= nil and not (target.components.health ~= nil and target.components.health:IsDead()) then
@@ -479,15 +478,10 @@ local function Target_Update(inst, x, z, target, attackers)
 end
 
 local function Target_OnSetTarget(inst, target)
-	if target.Physics ~= nil then
-		target.Physics:Stop()
-		target.Physics:SetTempMass0(true)
-		target:AddTag("rooted")
-		target:PushEvent("rooted")
+	if target.components.rooted == nil then
+		target:AddComponent("rooted")
 	end
-	if target.components.locomotor ~= nil then
-		target.components.locomotor:SetExternalSpeedMultiplier(inst, "rooted", 0)
-	end
+	target.components.rooted:AddSource(inst)
 
 	local function onremovetarget() inst:Remove() end
 	inst:ListenForEvent("onremove", onremovetarget, target)
@@ -539,15 +533,6 @@ local function Target_SetTarget(inst, target, radius, hasplatform)
 	end
 end
 
-local function Target_OnRemoveEntity(inst)
-	local target = inst.components.entitytracker:GetEntity("target")
-	if target ~= nil and target.Physics ~= nil then
-		target.Physics:SetTempMass0(false)
-		target:RemoveTag("rooted")
-		target:PushEvent("unrooted")
-	end
-end
-
 local function Target_OnSave(inst, data)
 	data.hasplatform = not inst:HasTag("ignorewalkableplatforms") or nil
 end
@@ -596,7 +581,6 @@ local function target_fn()
 
 	inst.SetDelay = Target_SetDelay
 	inst.SetTarget = Target_SetTarget
-	inst.OnRemoveEntity = Target_OnRemoveEntity
 	inst.OnSave = Target_OnSave
 	inst.OnLoad = Target_OnLoad
 	inst.OnLoadPostPass = Target_OnLoadPostPass

@@ -11,10 +11,13 @@ local BloodOver = require "widgets/bloodover"
 local BeefBloodOver = require "widgets/beefbloodover"
 local HeatOver = require "widgets/heatover"
 local FumeOver = require "widgets/fumeover"
+local MiasmaOver = require("widgets/miasmaover")
+local MiasmaCloudsOver = require("widgets/miasmacloudsover")
 local SandOver = require "widgets/sandover"
 local SandDustOver = require "widgets/sanddustover"
 local MoonstormOver = require "widgets/moonstormover"
 local MoonstormOver_Lightning = require "widgets/moonstormover_lightning"
+local RainDomeOver = require("widgets/raindomeover")
 local Leafcanopy = require "widgets/leafcanopy"
 local MindControlOver = require "widgets/mindcontrolover"
 local InkOver = require "widgets/inkover"
@@ -32,6 +35,8 @@ local PlayerStatusScreen = require "screens/playerstatusscreen"
 local InputDialogScreen = require "screens/inputdialog"
 local CookbookPopupScreen = require "screens/cookbookpopupscreen"
 local PlantRegistryPopupScreen = require "screens/plantregistrypopupscreen"
+local PlayerInfoPopupScreen = require "screens/playerinfopopupscreen"
+local ScrapbookScreen = require "screens/redux/scrapbookscreen"
 
 local TargetIndicator = require "widgets/targetindicator"
 
@@ -81,6 +86,8 @@ local PlayerHud = Class(Screen, function(self)
                 self.playerstatusscreen:CloseUserCommandPickerScreen()
             end
         end, TheWorld)
+    else
+        self.inst:ListenForEvent("ms_closepopups", self.onclosepopups)
     end
 end)
 
@@ -116,17 +123,23 @@ function PlayerHud:CreateOverlays(owner)
     self.drops_alpha= 0
 
     self.inst:ListenForEvent("moisturedelta", function(inst, data)
-            if data.new > data.old then
+			if owner.components.raindomewatcher ~= nil and owner.components.raindomewatcher:IsUnderRainDome() then
+				self.dropsplash = nil
+				if self.droptask ~= nil then
+					self.droptask:Cancel()
+					self.droptask = nil
+				end
+			elseif data.new > data.old then
                 self.dropsplash = true
                 if self.droptask then
                     self.droptask:Cancel()
-                    self.droptask = nil
                 end
                 self.droptask = self.inst:DoSimTaskInTime(3,function() self.dropsplash = nil end)
             end
         end, owner)
 
     self.leafcanopy = self.overlayroot:AddChild(Leafcanopy(owner))
+    self.raindomeover = self.overlayroot:AddChild(RainDomeOver(owner))
 
     self.storm_root = self.over_root:AddChild(Widget("storm_root"))
     self.storm_overlays = self.storm_root:AddChild(Widget("storm_overlays"))
@@ -144,6 +157,8 @@ function PlayerHud:CreateOverlays(owner)
     self.moonstormdust:SetClickable(false)
     self.moonstormover_lightning = self.storm_overlays:AddChild(MoonstormOver_Lightning(owner))
 
+	self.miasmaclouds = self.storm_overlays:AddChild(MiasmaCloudsOver(owner))
+
     self.mindcontrolover = self.over_root:AddChild(MindControlOver(owner))
 
     if IsSpecialEventActive(SPECIAL_EVENTS.HALLOWED_NIGHTS) then
@@ -151,6 +166,7 @@ function PlayerHud:CreateOverlays(owner)
     end
     self.sandover = self.overlayroot:AddChild(SandOver(owner, self.sanddustover))
     self.moonstormover = self.overlayroot:AddChild(MoonstormOver(owner, self.moonstormdust))
+	self.miasmaover = self.overlayroot:AddChild(MiasmaOver(owner, self.miasmaclouds))
 
     self.gogglesover = self.overlayroot:AddChild(GogglesOver(owner, self.storm_overlays))
     self.nutrientsover = self.overlayroot:AddChild(NutrientsOver(owner))
@@ -183,6 +199,7 @@ function PlayerHud:CreateOverlays(owner)
     self.serverpause_underlay:SetScaleMode(SCALEMODE_FILLSCREEN)
     self.serverpause_underlay:SetTint(0,0,0,0.5)
 	self.serverpause_underlay:Hide()
+	self.serverpaused = false
     self:SetServerPaused(TheNet:IsServerPaused(true))
 
     self.eventannouncer = self.under_root:AddChild(Widget("eventannouncer_root"))
@@ -225,6 +242,7 @@ function PlayerHud:OnLoseFocus()
     if self.controls ~= nil then
         self.controls.hover:Hide()
         self.controls.item_notification:ToggleHUDFocus(false)
+        self.controls.skilltree_notification:ToggleHUDFocus(false)
 
         local resurrectbutton = self.controls.status:GetResurrectButton()
         if resurrectbutton ~= nil then
@@ -246,6 +264,7 @@ function PlayerHud:OnGainFocus()
             self.controls.hover:Show()
         end
         self.controls.item_notification:ToggleHUDFocus(true)
+        self.controls.skilltree_notification:ToggleHUDFocus(true)
         local resurrectbutton = self.controls.status:GetResurrectButton()
         if resurrectbutton ~= nil then
             resurrectbutton:ToggleHUDFocus(true)
@@ -329,6 +348,8 @@ local function OpenContainerWidget(self, container, side)
     local containerwidget = ContainerWidget(self.owner)
 	local parent = side and self.controls.containerroot_side
 					or (container.replica.container ~= nil and container.replica.container.type == "hand_inv") and self.controls.inv.hand_inv
+                    or (container.replica.container ~= nil and container.replica.container.type == "side_inv") and self.controls.secondary_status.side_inv
+                    or (container.replica.container ~= nil and container.replica.container.type == "side_inv_behind") and self.controls.containerroot_side_behind
 					or self.controls.containerroot
 
 	parent:AddChild(containerwidget)
@@ -356,31 +377,21 @@ function PlayerHud:OpenContainer(container, side)
     end
 end
 
-function PlayerHud:TogglePlayerAvatarPopup(player_name, data, show_net_profile, force)
-    if self.playeravatarpopup ~= nil and
-        self.playeravatarpopup.started and
-        self.playeravatarpopup.inst:IsValid() then
-        self.playeravatarpopup:Close()
-        if player_name == nil or
-            data == nil or
-            (data.userid ~= nil and self.playeravatarpopup.userid == data.userid) or --if we have a userid, test for that
-            (data.userid == nil and self.playeravatarpopup.target == data.inst) then --if no userid, then compare inst
-            self.playeravatarpopup = nil
-            return
-        end
-    end
+function PlayerHud:RemoveDressupWidget()
+    if self.dressupAvatarPopUpcreen then
+        self.dressupAvatarPopUpcreen:Kill()
+        self.dressupAvatarPopUpcreen = nil
+    end 
+end
 
-    if not force and GetGameModeProperty("no_avatar_popup") then
-        return
+function PlayerHud:TogglePlayerInfoPopup(player_name, data, show_net_profile, force)
+    if self.dressupAvatarPopUpcreen ~= nil then
+        self.dressupAvatarPopUpcreen:Close()
+        self.dressupAvatarPopUpcreen = nil
+    elseif self.OpenPlayerInfoScreen ~= nil then
+        POPUPS.PLAYERINFO:Close(self.owner)
+        self:OpenPlayerInfoScreen(player_name, data, show_net_profile, force)
     end
-
-    -- Don't show steam button for yourself or targets without a userid(skeletons)
-    self.playeravatarpopup = self.controls.right_root:AddChild(
-        data.inst ~= nil and
-        data.inst:HasTag("dressable") and
-        DressupAvatarPopup(self.owner, player_name, data) or
-        PlayerAvatarPopup(self.owner, player_name, data, show_net_profile and data.userid ~= nil and data.userid ~= self.owner.userid)
-    )
 end
 
 --ThePlayer.HUD:ShowEndOfMatchPopup({victory=true})
@@ -588,6 +599,44 @@ function PlayerHud:ClosePlantRegistryScreen()
             TheFrontEnd:PopScreen(self.plantregistryscreen)
 		end
         self.plantregistryscreen = nil
+    end
+end
+
+function PlayerHud:OpenPlayerInfoScreen(player_name, data, show_net_profile, force)
+    self:ClosePlayerInfoScreen()
+    if data and data.inst ~= nil and data.inst:HasTag("dressable") then
+        self.dressupAvatarPopUpcreen = self.controls.right_root:AddChild( DressupAvatarPopup(self.owner, player_name, data) )
+        self.dressupAvatarPopUpcreen.started = false
+        self.dressupAvatarPopUpcreen:Start()
+    else
+        self.playerinfoscreen = PlayerInfoPopupScreen(self.owner, player_name, data, show_net_profile, force)
+        self:OpenScreenUnderPause(self.playerinfoscreen)
+        return true
+    end
+end
+
+function PlayerHud:ClosePlayerInfoScreen()
+    if self.playerinfoscreen ~= nil then
+        if self.playerinfoscreen.inst:IsValid() then
+            TheFrontEnd:PopScreen(self.playerinfoscreen)
+        end
+        self.playerinfoscreen = nil
+    end
+end
+
+function PlayerHud:OpenScrapbookScreen(player_name, data, show_net_profile, force)
+    self:CloseScrapbookScreen()
+    self.scrapbookscreen = ScrapbookScreen(self.owner)
+    self:OpenScreenUnderPause(self.scrapbookscreen)
+    return true
+end
+
+function PlayerHud:CloseScrapbookScreen()
+    if self.scrapbookscreen ~= nil then
+        if self.scrapbookscreen.inst:IsValid() then
+            TheFrontEnd:PopScreen(self.scrapbookscreen)
+        end
+        self.scrapbookscreen = nil
     end
 end
 
@@ -799,6 +848,7 @@ function PlayerHud:OpenControllerInventory()
     self.controls.inv:OpenControllerInventory()
     self.controls.item_notification:ToggleController(true)
     self.controls.yotb_notification:ToggleController(true)
+    self.controls.skilltree_notification:ToggleController(true)
     self.controls:ShowStatusNumbers()
 
     self.owner.components.playercontroller:OnUpdate(0)
@@ -812,6 +862,7 @@ function PlayerHud:CloseControllerInventory()
     self.controls.inv:CloseControllerInventory()
     self.controls.item_notification:ToggleController(false)
     self.controls.yotb_notification:ToggleController(false)
+    self.controls.skilltree_notification:ToggleController(false)
 end
 
 function PlayerHud:HasInputFocus()
@@ -916,6 +967,11 @@ function PlayerHud:IsPlayerAvatarPopUpOpen()
         and self.playeravatarpopup.inst:IsValid()
 end
 
+function PlayerHud:IsPlayerInfoPopUpOpen()
+    return self.PlayerInfoPopupScreen ~= nil
+        and self.PlayerInfoPopupScreen.inst:IsValid()
+end
+
 function PlayerHud:OpenCrafting(search)
 	if not self:IsCraftingOpen() and not GetGameModeProperty("no_crafting") then
 		self:CloseSpellWheel()
@@ -928,6 +984,7 @@ function PlayerHud:OpenCrafting(search)
 
 		self.controls.item_notification:ToggleController(true)
 		self.controls.yotb_notification:ToggleController(true)
+        self.controls.skilltree_notification:ToggleController(true)
 	end
 end
 
@@ -938,6 +995,7 @@ function PlayerHud:CloseCrafting()
 
 		self.controls.item_notification:ToggleController(false)
 		self.controls.yotb_notification:ToggleController(false)
+        self.controls.skilltree_notification:ToggleController(false)
     end
 end
 
@@ -1024,7 +1082,7 @@ function PlayerHud:InspectSelf()
         local client_obj = TheNet:GetClientTableForUser(self.owner.userid)
         if client_obj ~= nil then
             --client_obj.inst = self.owner --don't track yourself
-            self:TogglePlayerAvatarPopup(client_obj.name, client_obj) -- don't show steam button for yourself
+            self:TogglePlayerInfoPopup(client_obj.name, client_obj)
             return true
         end
     end
@@ -1034,15 +1092,19 @@ function PlayerHud:OnControl(control, down)
     if PlayerHud._base.OnControl(self, control, down) then
         return true
     elseif not self.shown then
+		if self.serverpaused and down and control == CONTROL_SERVER_PAUSE then
+			SetServerPaused(false)
+			return true
+		end
         return
     end
 
     if down then
         if control == CONTROL_INSPECT then
             if self:IsVisible() and
-                self:IsPlayerAvatarPopUpOpen() and
+                self:IsPlayerInfoPopUpOpen() and
                 self.owner.components.playercontroller:IsEnabled() then
-                self:TogglePlayerAvatarPopup()
+                self:TogglePlayerInfoPopup()
                 return true
             elseif self.controls.votedialog:CheckControl(control, down) then
                 return true
@@ -1076,8 +1138,8 @@ function PlayerHud:OnControl(control, down)
 				self:CloseSpellWheel()
 				closed = true
 			end
-			if self:IsPlayerAvatarPopUpOpen() then
-                self:TogglePlayerAvatarPopup()
+			if self:IsPlayerInfoPopUpOpen() and
+                self:TogglePlayerInfoPopup() then
                 closed = true
 			end
 			if not closed then
@@ -1106,6 +1168,8 @@ function PlayerHud:OnControl(control, down)
         return true
     elseif self.controls.item_notification:CheckControl(control, down) then
         return true
+    elseif self.controls.skilltree_notification:CheckControl(control, down) then
+        return true        
     elseif not down then
         if control == CONTROL_MAP then
             if not self:IsMapScreenOpen() then
@@ -1337,6 +1401,7 @@ function PlayerHud:SetServerPaused(paused)
     else
         self.serverpause_underlay:Hide()
     end
+	self.serverpaused = paused
 end
 
 function PlayerHud:OffsetServerPausedWidget(serverpausewidget)

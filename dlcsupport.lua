@@ -103,17 +103,15 @@ function GetActiveCharacterList()
 end
 
 function GetSelectableCharacterList()
-    local all = JoinArrays(DST_CHARACTERLIST, MODCHARACTERLIST)
-    RemoveByValue(all, "wonkey") --users can't select wonkey
-    return all 
+    -- NOTES(JBK): Players are not allowed to pick SEAMLESSSWAP_CHARACTERLIST and must be done through in game methods.
+    return ExceptionArrays(JoinArrays(DST_CHARACTERLIST, MODCHARACTERLIST), SEAMLESSSWAP_CHARACTERLIST)
 end
 
 function GetFEVisibleCharacterList()
-    local kv = TheInventory:GetLocalGenericKV()
     local all = {}    
     for i,character in ipairs(DST_CHARACTERLIST) do
         local add_char = true
-        if character == "wonkey" and kv.wonkey_played ~= "played" then --only show wonkey if we've played him
+        if character == "wonkey" and TheGenericKV:GetKV("wonkey_played") ~= "played" then --only show wonkey if we've played him
             add_char = false
         end
         if add_char then

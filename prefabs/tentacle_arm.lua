@@ -109,6 +109,7 @@ local function fn()
     inst.AnimState:SetScale(ARM_SCALE, ARM_SCALE)
     inst.AnimState:SetBuild("tentacle_arm_build")
     inst.AnimState:PlayAnimation("breach_pre")
+    inst.scrapbook_anim = "atk_idle"
     -- inst.AnimState:SetMultColour(.2, 1, .2, 1.0)
 
     inst:AddTag("monster")
@@ -116,6 +117,8 @@ local function fn()
     inst:AddTag("tentacle_pillar_arm")
     inst:AddTag("wet")
     inst:AddTag("soulless")
+
+    inst.scrapbook_removedeps = {"monstermeat"}
 
     inst.entity:SetPristine()
 
