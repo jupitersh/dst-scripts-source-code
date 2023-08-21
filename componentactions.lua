@@ -260,7 +260,7 @@ local COMPONENT_ACTIONS =
         end,
 
         constructionsite = function(inst, doer, actions)
-            if not inst:HasTag("burnt") and not inst:HasTag("smolder") and not inst:HasTag("fire") then
+            if not inst:HasTag("burnt") and not inst:HasTag("smolder") and (not inst:HasTag("fire") or inst:HasTag("campfire")) then
 				local constructionsite = inst.replica.constructionsite
 				if constructionsite:IsEnabled() then
 					table.insert(actions,
@@ -337,10 +337,6 @@ local COMPONENT_ACTIONS =
 
             if inst:HasTag("tendable_farmplant") and not doer:HasTag("mime") then
                 table.insert(actions, ACTIONS.INTERACT_WITH)
-            end
-
-            if right and inst:HasTag("israndomseed") and doer:HasTag("farmplantidentifier") then
-                table.insert(actions, ACTIONS.IDENTIFY_PLANT)
             end
         end,
 

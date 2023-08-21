@@ -1846,6 +1846,7 @@ function Tune(overrides)
         {
             CARNIVAL_GAMETOKEN = 1,
             ANTLION = 1,
+            COTL_TRINKET = 8,
             MEAT = 1,
             RAREMEAT = 5,
             YOTB_BEEFALO_DOLL = 3,
@@ -3188,7 +3189,7 @@ function Tune(overrides)
         ANTLION_RAGE_TIME_MIN = 1 * total_day_time,
         ANTLION_RAGE_TIME_MAX = 6 * total_day_time,
         ANTLION_RAGE_TIME_FAILURE_SCALE = 0.8,
-        ANTLION_TRIBUTE_TO_RAGE_TIME = .33 * total_day_time,
+        ANTLION_TRIBUTE_TO_RAGE_TIME = 1/3 * total_day_time,
         ANTLION_RAGE_TIME_UNHAPPY_PERCENT = 0.6,
         ANTLION_RAGE_TIME_HAPPY_PERCENT = 0.95,
         ANTLION_TRIBUTER_TALKER_TIME = 8,
@@ -6446,6 +6447,28 @@ function Tune(overrides)
         ANTLIONHAT_USES = 400,
         NIGHTMAREFUEL_FINITEUSESREPAIRVALUE = 50,
 
+		-- Cult of the Lamb        
+        COTL_TABERNACLE_1 = {
+			RAIN_RATE = 2,
+			FUEL_SECTIONS = 1,
+			FUEL_MAX = total_day_time*0.25,
+			BONUS_MULT = 1,
+		},
+
+        COTL_TABERNACLE_2 = {
+			RAIN_RATE = 2,
+			FUEL_SECTIONS = 2,
+			FUEL_MAX = total_day_time*0.5,
+			BONUS_MULT = 1,
+		},
+
+        COTL_TABERNACLE_3 = {
+			RAIN_RATE = 2,
+			FUEL_SECTIONS = 3,
+			FUEL_MAX = total_day_time,
+			BONUS_MULT = 1,
+		},
+
         -- Setting the Stage
         STAGEUSHER_ATTACK_PERIOD = 8,
         STAGEUSHER_ATTACK_DAMAGE = 80,
@@ -6876,6 +6899,8 @@ function Tune(overrides)
         WORMWOOD_ROOT_TIME = 6,
         WORMWOOD_ROOT_DAMAGE = 10,
 
+        WORMWOOD_ARMOR_BRAMBLE_RELEASE_SPIKES_HITCOUNT = 3,
+
         WORMWOOD_TRAP_BRAMBLE_AUTO_RESET_COOLDOWN = 3, -- seconds.
 
         IPECAC_POOP_COUNT = 15,
@@ -6894,12 +6919,17 @@ function Tune(overrides)
         WORMWOOD_PET_FRUITDRAGON_LIFETIME = 2 * total_day_time,
 
         WORMWOOD_PET_FRUITDRAGON_HEALTH = 600,
+        WORMWOOD_PET_FRUITDRAGON_HEALTH_REGEN_AMOUNT = 5,
+        WORMWOOD_PET_FRUITDRAGON_HEALTH_REGEN_PERIOD = 2.5,
         WORMWOOD_PET_FRUITDRAGON_ATTACK_PERIOD = 2,
         WORMWOOD_PET_FRUITDRAGON_DAMAGE = 40,
         WORMWOOD_PET_FRUITDRAGON_WALK_SPEED = 1,
         WORMWOOD_PET_FRUITDRAGON_RUN_SPEED = 3,
 
         QUAKE_BLOCKER_RANGE = 40,
+		SUPPORT_PILLAR_REINFORCED_LEVELS = 10,
+		SUPPORT_PILLAR_DREADSTONE_REGEN_PERIOD = 2 * total_day_time,
+		SUPPORT_PILLAR_DREADSTONE_AURA_RADIUS = 8, -- This has exponential falloff.
         DUMBBELL_HEAT_MAX_USES = 150,
 
         WOLFGANG_COACH_BUFF = 2,

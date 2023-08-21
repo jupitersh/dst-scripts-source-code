@@ -491,9 +491,6 @@ ACTIONS =
     -- WOODIE
     USE_WEREFORM_SKILL = Action({ rmb=true, distance=math.huge }),
 
-    -- WORMWOOD
-    IDENTIFY_PLANT = Action({priority=-1, rmb=true, mount_valid=true}),
-
     -- Rifts
     SCYTHE = Action({ rmb=true, distance=1.8, rangecheckfn=DefaultRangeCheck, invalid_hold_action=true }),
 	SITON = Action(),
@@ -1181,14 +1178,14 @@ local function DoToolWork(act, workaction)
 
 		local numworks =
 			(	(	act.invobject ~= nil and
-				act.invobject.components.tool ~= nil and
-				act.invobject.components.tool:GetEffectiveness(workaction)
-			) or
-			(	act.doer ~= nil and
-				act.doer.components.worker ~= nil and
-				act.doer.components.worker:GetEffectiveness(workaction)
-			) or
-			1
+					act.invobject.components.tool ~= nil and
+					act.invobject.components.tool:GetEffectiveness(workaction)
+				) or
+				(	act.doer ~= nil and
+					act.doer.components.worker ~= nil and
+					act.doer.components.worker:GetEffectiveness(workaction)
+				) or
+				1
 			) *
 			(	act.doer.components.workmultiplier ~= nil and
 				act.doer.components.workmultiplier:GetMultiplier(workaction) or
@@ -1197,6 +1194,11 @@ local function DoToolWork(act, workaction)
 
 		local recoil
 		recoil, numworks = act.target.components.workable:ShouldRecoil(act.doer, act.invobject, numworks)
+
+		if act.doer.components.workmultiplier ~= nil then
+			numworks = act.doer.components.workmultiplier:ResolveSpecialWorkAmount(workaction, act.target, act.invobject, numworks, recoil)
+		end
+
 		if recoil and act.doer.sg ~= nil and act.doer.sg.statemem.recoilstate ~= nil then
 			act.doer.sg:GoToState(act.doer.sg.statemem.recoilstate, { target = act.target })
 			if numworks == 0 then
@@ -4635,22 +4637,4 @@ end
 
 ACTIONS.USE_WEREFORM_SKILL.fn = function(act)
     return act.doer ~= nil and act.doer:UseWereFormSkill(act)
-end
-
-ACTIONS.IDENTIFY_PLANT.fn = function(act)
-    local target = act.target
-    if target then
-        local target_prefab = (target.BeIdentified and target:BeIdentified(act.doer))
-            or target.prefab
-
-        if target_prefab and act.doer then
-            local description = GetString(act.doer, "DESCRIBE_PLANT_IDENTIFIED")
-            if description and act.doer.components.talker then
-                description = subfmt(description, {plantname = STRINGS.NAMES[string.upper(target_prefab)]})
-                act.doer.components.talker:Say(description)
-            end
-        end
-        return true
-    end
-    return false
 end

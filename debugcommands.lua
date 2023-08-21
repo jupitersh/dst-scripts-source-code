@@ -231,6 +231,15 @@ function d_riftspawns()
     end)
 end
 
+function d_lunarrift()
+    local riftspawner = TheWorld.components.riftspawner
+    riftspawner:EnableLunarRifts()
+    local pos = ConsoleWorldPosition()
+    local x, y, z = TheWorld.Map:GetTileCenterPoint(pos:Get())
+    pos.x, pos.y, pos.z = x, y, z
+    riftspawner:SpawnRift(pos)
+end
+
 function d_shadowrift()
     local riftspawner = TheWorld.components.riftspawner
     riftspawner:EnableShadowRifts()
@@ -243,9 +252,7 @@ end
 function d_resetskilltree()
     local player = ConsoleCommandPlayer()
 
-    if not player then
-        -- To use when we change a skill name and have saved data that cause a crash.
-        ErasePersistentString("skilltree", c_reset)
+    if not (player and TheWorld.ismastersim) then
         return
     end
 

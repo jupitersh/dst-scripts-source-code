@@ -127,6 +127,7 @@ local function fn()
     inst:AddTag("NOBLOCK")
     inst:AddTag("notraptrigger")
     inst:AddTag("wormwood_pet")
+    inst:AddTag("noauradamage")
 
     MakeInventoryFloatable(inst)
 
@@ -167,7 +168,8 @@ local function fn()
     MakeSmallBurnableCharacter(inst, "lightbulb")
     MakeSmallFreezableCharacter(inst, "lightbulb")
 
-    inst:AddComponent("follower")
+    local follower = inst:AddComponent("follower")
+    follower:KeepLeaderOnAttacked()
 
     inst.SoundEmitter:PlaySound("grotto/creatures/light_bug/fly_LP", "loop")
 

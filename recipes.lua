@@ -222,7 +222,7 @@ Recipe2("wormwood_juicyberrybush",		{Ingredient(CHARACTER_INGREDIENT.HEALTH, 10)
 Recipe2("wormwood_reeds", 				{Ingredient(CHARACTER_INGREDIENT.HEALTH, 15), Ingredient("cave_banana", 1 ), Ingredient("cutreeds", 4)},		TECH.NONE,	{builder_tag="reedscrafter",          product="dug_monkeytail",      sg_state="form_monkey", actionstr="GROW", allowautopick = true, no_deconstruction=true, description="wormwood_reeds"})
 Recipe2("wormwood_lureplant", 			{Ingredient(CHARACTER_INGREDIENT.HEALTH, 25), Ingredient("compostwrap", 2 ), Ingredient("plantmeat", 5)},		TECH.NONE,	{builder_tag="lureplantcrafter",      product="lureplantbulb",       sg_state="form_bulb",   actionstr="GROW", allowautopick = true, no_deconstruction=true, description="wormwood_lureplantbulb"})
 Recipe2("wormwood_carrat",				{Ingredient(CHARACTER_INGREDIENT.HEALTH, 5),  Ingredient("carrot", 1)},											TECH.NONE,	{builder_tag="carratcrafter",      product="wormwood_mutantproxy_carrat",      sg_state="spawn_mutated_creature", actionstr="TRANSFORM", no_deconstruction=true, dropitem=true, nameoverride = "carrat", description="wormwood_carrat", canbuild = function(inst, builder) return (builder.components.petleash and not builder.components.petleash:IsFullForPrefab("wormwood_carrat")), "HASPET" end}) -- FIXME(JBK): "HASPET" to its own thing.
-Recipe2("wormwood_lightflier",			{Ingredient(CHARACTER_INGREDIENT.HEALTH, 15), Ingredient("lightbulb", 1)},										TECH.NONE,	{builder_tag="lightfliercrafter",  product="wormwood_mutantproxy_lightflier",  sg_state="spawn_mutated_creature", actionstr="TRANSFORM", no_deconstruction=true, dropitem=true, nameoverride = "lightflier", description="wormwood_lightflier", canbuild = function(inst, builder) return (builder.components.petleash and not builder.components.petleash:IsFullForPrefab("wormwood_lightflier")), "HASPET" end})
+Recipe2("wormwood_lightflier",			{Ingredient(CHARACTER_INGREDIENT.HEALTH, 10), Ingredient("lightbulb", 1)},										TECH.NONE,	{builder_tag="lightfliercrafter",  product="wormwood_mutantproxy_lightflier",  sg_state="spawn_mutated_creature", actionstr="TRANSFORM", no_deconstruction=true, dropitem=true, nameoverride = "lightflier", description="wormwood_lightflier", canbuild = function(inst, builder) return (builder.components.petleash and not builder.components.petleash:IsFullForPrefab("wormwood_lightflier")), "HASPET" end})
 Recipe2("wormwood_fruitdragon",			{Ingredient(CHARACTER_INGREDIENT.HEALTH, 25), Ingredient("dragonfruit", 1)},									TECH.NONE,	{builder_tag="fruitdragoncrafter", product="wormwood_mutantproxy_fruitdragon", sg_state="spawn_mutated_creature", actionstr="TRANSFORM", no_deconstruction=true, dropitem=true, nameoverride = "fruitdragon", description="wormwood_fruitdragon", canbuild = function(inst, builder) return (builder.components.petleash and not builder.components.petleash:IsFullForPrefab("wormwood_fruitdragon")), "HASPET" end})
 
 -- Wanda --
@@ -436,6 +436,7 @@ Recipe2("punchingbag_lunar",				{Ingredient("cutgrass", 3), Ingredient("boards",
 Recipe2("punchingbag_shadow",				{Ingredient("cutgrass", 3), Ingredient("boards", 1), Ingredient("horrorfuel", 1)},				TECH.MAGIC_TWO,				{placer="punchingbag_shadow_placer"})
 
 Recipe2("support_pillar_scaffold",			{Ingredient("cutstone", 1), Ingredient("boards", 2)},											TECH.LOST,					{placer="support_pillar_scaffold_placer", testfn = function(pt) return TheWorld.Map:GetPlatformAtPoint(pt.x, 0, pt.z, 0.5) == nil end})
+Recipe2("support_pillar_dreadstone_scaffold",{Ingredient("dreadstone", 4), Ingredient("boards", 2)},										TECH.LOST,					{placer="support_pillar_dreadstone_scaffold_placer", testfn = function(pt) return TheWorld.Map:GetPlatformAtPoint(pt.x, 0, pt.z, 0.5) == nil end})
 
 Recipe2("tent",								{Ingredient("silk", 6),Ingredient("twigs", 4),Ingredient("rope", 3)},									TECH.SCIENCE_TWO,			{placer="tent_placer"})
 Recipe2("siestahut",						{Ingredient("silk", 2),Ingredient("boards", 4),Ingredient("rope", 3)},									TECH.SCIENCE_TWO,			{placer="siestahut_placer"})
@@ -729,7 +730,10 @@ Recipe2("hermitshop_supertacklecontainer",				{Ingredient("messagebottleempty", 
 Recipe2("hermitshop_winter_ornament_boss_hermithouse",	{Ingredient("messagebottleempty", 4)},														TECH.LOST,					{nounlock = true, sg_state="give", product="winter_ornament_boss_hermithouse"})
 Recipe2("hermitshop_winter_ornament_boss_pearl",		{Ingredient("messagebottleempty", 8)}, 														TECH.LOST,					{nounlock = true, sg_state="give", product="winter_ornament_boss_pearl"})
 
-
+-- Cult of the Lamb
+Recipe2("turf_cotl_gold",								{Ingredient("rocks", 1), Ingredient("goldnugget", 1)},										TECH.LOST,					{numtogive=4})
+Recipe2("turf_cotl_brick",								{Ingredient("cutstone", 1), Ingredient("flint", 2)},										TECH.LOST,					{numtogive=4})
+Recipe2("cotl_tabernacle_level1",						{Ingredient("rocks", 10), Ingredient("log", 2)},											TECH.LOST,					{placer="cotl_tabernacle_level1_placer",})
 
 ------------------------------- SPECIAL EVENTS -------------------------------
 
@@ -993,8 +997,14 @@ CONSTRUCTION_PLANS =
 	["wagstaff_npc_pstboss"] =		{ Ingredient("alterguardianhatshard", 1) },
 
 	["support_pillar"] =			{ Ingredient("rocks", 40) },
+	["support_pillar_dreadstone"] =	{ Ingredient("dreadstone", 40) },
+
+	--Cult of the Lamb
+	["cotl_tabernacle_level1"] = { Ingredient("cutstone", 5), Ingredient("log", 1) },
+	["cotl_tabernacle_level2"] = { Ingredient("goldnugget", 10), Ingredient("cutstone", 10), Ingredient("log", 1) },
 }
 CONSTRUCTION_PLANS["support_pillar_scaffold"] = CONSTRUCTION_PLANS["support_pillar"]
+CONSTRUCTION_PLANS["support_pillar_dreadstone_scaffold"] = CONSTRUCTION_PLANS["support_pillar_dreadstone"]
 
 ---- Deconstruction Recipes----
 --NOTE: These recipes are for overriding the items returned when something is deconstructed or hammered.

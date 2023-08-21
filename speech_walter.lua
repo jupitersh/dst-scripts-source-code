@@ -4586,6 +4586,26 @@ return{
         TWINOFTERROR1 = "Somewhere, some poor giant robot is walking around completely blind...",
         TWINOFTERROR2 = "Somewhere, some poor giant robot is walking around completely blind...",
 
+		-- Cult of the Lamb
+		COTL_TRINKET = "I hope whoever lost it isn't missing it too much.",
+		TURF_COTL_GOLD = "That's a pretty fancy floor!",
+		TURF_COTL_BRICK = "A brick floor.",
+		COTL_TABERNACLE_LEVEL1 =
+		{
+			LIT = "That's one neat way to have a campfire!",
+			GENERIC = "Come on Woby, we need to find some kindling!",
+		},
+		COTL_TABERNACLE_LEVEL2 =
+		{
+			LIT = "Wow, it looks so nice it's kind of hard to leave!",
+			GENERIC = "Come on Woby, we need to find some kindling!",
+		},
+		COTL_TABERNACLE_LEVEL3 =
+		{
+			LIT = "I think I'll stay here and watch it... just a bit longer.",
+			GENERIC = "Come on Woby, we need to find some kindling!",
+		},
+
         -- Year of the Catcoon
         CATTOY_MOUSE = "Sorry Woby, that's for the kits to play with.",
         KITCOON_NAMETAG = "It looks almost like yours, Woby!",
@@ -4886,7 +4906,7 @@ return{
 		SUPPORT_PILLAR_DREADSTONE_SCAFFOLD = "I bet there's some interesting secrets hiding under there!",
 		SUPPORT_PILLAR_DREADSTONE = "Don't worry Woby, I'm sure it'll be fine!",
 		SUPPORT_PILLAR_DREADSTONE_COMPLETE = "Absolutely indestructible!",
-		SUPPORT_PILLAR_DREADSTONE_BROKEN = "How could it be so desctructible?",
+		SUPPORT_PILLAR_DREADSTONE_BROKEN = "How could it be so destructible?",
 
         WOLFGANG_WHISTLE = "We're ready, coach! Right, Woby?",
     },
@@ -4905,7 +4925,6 @@ return{
     DESCRIBE_PLANTSTRESSORMOISTURE = "Do you think it needs some water, Woby?",
     DESCRIBE_PLANTSTRESSORNUTRIENTS = "Maybe it needs some better soil...",
     DESCRIBE_PLANTSTRESSORHAPPINESS = "I think it needs a story or two to cheer it up!",
-    DESCRIBE_PLANT_IDENTIFIED = "only_used_by_wormwood",
 
     EAT_FOOD =
     {

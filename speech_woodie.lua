@@ -4587,6 +4587,26 @@ return{
         TWINOFTERROR1 = "Lucy, I think I'm seeing double!",
         TWINOFTERROR2 = "Lucy, I think I'm seeing double!",
 
+		-- Cult of the Lamb
+		COTL_TRINKET = "They don't make headwear like that in Canada.",
+		TURF_COTL_GOLD = "That's one fancy floor, eh?",
+		TURF_COTL_BRICK = "I prefer wooden floorboards.",
+		COTL_TABERNACLE_LEVEL1 =
+		{
+			LIT = "It's kinda cute, eh?",
+			GENERIC = "It could use some wood to burn.",
+		},
+		COTL_TABERNACLE_LEVEL2 =
+		{
+			LIT = "That statue cleaned up nice.",
+			GENERIC = "It could use some wood to burn.",
+		},
+		COTL_TABERNACLE_LEVEL3 =
+		{
+			LIT = "Gleamin' like a sunrise over a glacier.",
+			GENERIC = "It could use some wood to burn.",
+		},
+
         -- Year of the Catcoon
         CATTOY_MOUSE = "It's pretty convincing.",
         KITCOON_NAMETAG = "Thought up any good names, Luce?",
@@ -4906,7 +4926,6 @@ return{
     DESCRIBE_PLANTSTRESSORMOISTURE = "It could use some more water, eh?",
     DESCRIBE_PLANTSTRESSORNUTRIENTS = "Might not be enough nutrients in the soil...",
     DESCRIBE_PLANTSTRESSORHAPPINESS = "Maybe it just needs a little pep talk, eh?",
-    DESCRIBE_PLANT_IDENTIFIED = "only_used_by_wormwood",
 
     EAT_FOOD =
     {

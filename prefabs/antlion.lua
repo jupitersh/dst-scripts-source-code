@@ -26,6 +26,10 @@ local prefabs =
     "trinket_9",
     "antliontrinket",
 	"chesspiece_antlion_sketch",
+
+	"turf_cotl_gold",
+	"turf_cotl_brick",
+	"cotl_tabernacle_level1",
 }
 
 SetSharedLootTable('antlion',
@@ -113,7 +117,8 @@ local function AcceptTest(inst, item)
 end
 
 local function OnGivenItem(inst, giver, item)
-    if item.prefab == "heatrock" and item.currentTempRange ~= nil then
+    if item.currentTempRange ~= nil then
+        -- NOTES(JBK): currentTempRange is only on heatrock and now dumbbell_heat no need to check prefab here.
         local trigger =
             (item.currentTempRange <= 1 and "freeze") or
             (item.currentTempRange >= 4 and "burn") or
@@ -127,6 +132,7 @@ local function OnGivenItem(inst, giver, item)
     inst.tributer = giver
     inst.pendingrewarditem =
         (item.prefab == "antliontrinket" and {"townportal_blueprint", "antlionhat_blueprint"}) or
+		(item.prefab == "cotl_trinket" and {"turf_cotl_brick_blueprint", "turf_cotl_gold_blueprint", "cotl_tabernacle_level1_blueprint"}) or
         (item.components.tradable.goldvalue > 0 and "townportaltalisman") or
         nil
 
