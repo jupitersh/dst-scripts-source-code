@@ -81,7 +81,7 @@ local function AddChair(ret, name, bank, build, hasback)
 	if hasback then
 		local function OnBackReplicated(inst)
 			local parent = inst.entity:GetParent()
-			if parent ~= nil and (parent.prefab == inst.prefab:sub(1, -5)) then
+			if parent ~= nil and (parent.prefab == inst.prefab:sub(1, -6)) then
 				parent.highlightchildren = { inst }
 			end
 		end
@@ -153,6 +153,8 @@ local function AddChair(ret, name, bank, build, hasback)
 			inst.back.entity:SetParent(inst.entity)
 			inst.highlightchildren = { inst.back }
 		end
+
+		inst.scrapbook_facing  = FACING_DOWN
 
 		inst:AddComponent("inspectable")
         inst.components.inspectable.nameoverride = "WOOD_CHAIR"

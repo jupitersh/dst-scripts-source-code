@@ -61,7 +61,7 @@ local sounds =
 
 local RETARGET_ONEOF_TAGS = {"player", "monster"}
 local function Retarget(inst)
-    return FindEntity(
+	return not inst:IsInLimbo() and FindEntity(
         inst,
         TUNING.SPAT_TARGET_DIST,
         function(guy)
@@ -70,11 +70,11 @@ local function Retarget(inst)
         nil,
         nil,
         RETARGET_ONEOF_TAGS
-    )
+	) or nil
 end
 
 local function KeepTarget(inst, target)
-    return target:IsNear(inst, TUNING.SPAT_CHASE_DIST)
+	return not inst:IsInLimbo() and target:IsNear(inst, TUNING.SPAT_CHASE_DIST)
 end
 
 local function OnAttacked(inst, data)
@@ -178,22 +178,25 @@ local function PropCreationFn(inst)
 end
 
 local function OnSpawnedForHunt(inst, data)
-    if data == nil or not data.isfork then
+    if data == nil then
         return
     end
 
-    -- NOTES(JBK): This came from a fork investigation so let us make it a bit more special.
+    -- NOTES(JBK): This came from a hunt investigation so let us make it a bit more special.
 
     -- First spawn meats from a fake koalefant.
     SimulateKoalefantDrops(inst)
 
     -- Then check if this is spring loaded.
-    if data.iswrongfork and inst.components.prophider ~= nil then
-        -- The wrong fork set up an ambush!
-        inst.components.prophider:HideWithProp()
-    else
-        -- The right fork set up sleepy!
+    if data.action == HUNT_ACTIONS.PROP then
+        -- Took too long, make it an ambush!
+        if inst.components.prophider ~= nil then
+            inst.components.prophider:HideWithProp()
+        end
+    elseif data.action == HUNT_ACTIONS.SLEEP or data.action == HUNT_ACTIONS.SUCCESS then
         inst:DoTaskInTime(0, OnForceSleep) -- NOTES(JBK): Delay a frame for initialization to complete.
+    else
+        -- FIXME(JBK): Unhandled state.
     end
 end
 

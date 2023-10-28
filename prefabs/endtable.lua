@@ -34,6 +34,15 @@ local function RemoveFlower(inst)
 end
 
 local function WiltFlower(inst)
+    if inst._hack_do_not_wilt then
+        if inst.task ~= nil then
+            inst.task:Cancel()
+            inst.task = nil
+        end
+        inst.task = inst:DoTaskInTime(inst._hack_do_not_wilt, WiltFlower)
+        return
+    end
+
     inst.AnimState:ShowSymbol("swap_flower")
     inst.AnimState:OverrideSymbol("swap_flower", "swap_flower", "f"..tostring(inst.flowerid).."_wilt")
     inst.AnimState:SetLightOverride(0)
@@ -80,13 +89,16 @@ local function GiveFlower(inst, flowerid, lifespan, giver)
         inst.AnimState:SetLightOverride(0.3)
         inst.Light:Enable(true)
         inst.lighttask = inst:DoPeriodicTask(TUNING.ENDTABLE_LIGHT_UPDATE + math.random(), updatelight, 0)
+        inst._hack_do_not_wilt = nil
     else
         inst.AnimState:SetLightOverride(0)
         inst.Light:Enable(false)
+        inst._hack_do_not_wilt = lifespan
     end
 
     if inst.task ~= nil then
         inst.task:Cancel()
+        inst.task = nil
     end
     inst.task = inst:DoTaskInTime(lifespan, WiltFlower)
 end
@@ -134,6 +146,7 @@ local function onignite(inst)
     end
 
     if inst.flowerid ~= nil then
+        inst._hack_do_not_wilt = nil
         WiltFlower(inst)
     end
 

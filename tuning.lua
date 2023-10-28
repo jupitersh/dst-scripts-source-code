@@ -932,8 +932,10 @@ function Tune(overrides)
         HUNT_COOLDOWNDEVIATION = total_day_time*0.3,
         HUNT_ALTERNATE_BEAST_CHANCE_MIN = 0.05,
         HUNT_ALTERNATE_BEAST_CHANCE_MAX = 0.33,
-        HUNT_SCORE_TIME_PER_NODE = 10,
-        HUNT_SCORE_TIME_PER_NODE_MAX = 20, -- Keep below 1.25 * SEG_TIME
+        HUNT_SCORE_TIME_PER_NODE = 8,
+        HUNT_SCORE_TIME_PER_NODE_MAX = 10, -- Keep below 1.25 * SEG_TIME
+        HUNT_SCORE_PROP_RATIO = 0.25,
+        HUNT_SCORE_SLEEP_RATIO = 0.4, -- Keep bigger than HUNT_SCORE_PROP_RATIO.
 
         HUNT_RESET_TIME = 5,
         HUNT_SPRING_RESET_TIME = total_day_time * 3,
@@ -1411,6 +1413,8 @@ function Tune(overrides)
         HOUND_SPEED = 10,
         HOUND_SWIM_SPEED = 3.5,
         CLAYHOUND_SPEED = 8.5,
+
+		HOUND_FIND_CARCASS_DELAY = 10,
 
         HOUND_FOLLOWER_TARGET_DIST = 10,
         HOUND_FOLLOWER_TARGET_KEEP = 20,
@@ -6986,7 +6990,7 @@ function Tune(overrides)
 		MUTATED_WARG_PLANAR_DAMAGE = 30,
 		MUTATED_WARG_FLAMETHROWER_DAMAGE = 20,
 
-		KOALEFANT_CARCASS_MEAT_PER_LEVEL = 10, --3 levels
+		KOALEFANT_CARCASS_MEAT_PER_LEVEL = 14, --3 levels
 		KOALEFANT_CARCASS_DECAY_TIME = total_day_time * 0.5,
 
         CORPSE_GESTALT_WALK_SPEED = 15,

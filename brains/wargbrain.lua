@@ -6,6 +6,7 @@
 require "behaviours/standstill"
 require "behaviours/chaseandattack"
 require "behaviours/leash"
+require("behaviours/wander")
 local BrainCommon = require("brains/braincommon")
 
 local WargBrain = Class(Brain, function(self, inst)
@@ -86,7 +87,7 @@ function WargBrain:OnStart()
 			function()
 				return not ismutated and (
 					not self.inst.components.combat:HasTarget() or
-					self.inst.components.combat:GetLastAttackedTime() + 10 < GetTime()
+					self.inst.components.combat:GetLastAttackedTime() + TUNING.HOUND_FIND_CARCASS_DELAY < GetTime()
 				)
 			end,
 			"not attacked",
@@ -117,7 +118,7 @@ function WargBrain:OnStart()
                 StandStill(self.inst),
             }),
 
-        StandStill(self.inst),
+		Wander(self.inst),
     }, .25)
 
     self.bt = BT(self.inst, root)
