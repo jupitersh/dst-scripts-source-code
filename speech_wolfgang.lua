@@ -67,6 +67,7 @@ return{
 			KITCOON_HIDEANDSEEK_ONE_GAME_PER_DAY = "Is enough games for Wolfgang.",
             MANNEQUIN_EQUIPSWAPFAILED = "Is not for cloth man. Wolfgang will keep.",
             PILLOWFIGHT_NO_HANDPILLOW = "Wolfgang needs pillow for fighting!",
+            NOTMYBERNIE = "Giant murder bear only follow to tiny torchlady.",
 		},
 		OPEN_CRAFTING =
 		{
@@ -395,6 +396,10 @@ return{
 		CASTAOE =
 		{
 --fallback to speech_wilson.lua 			NO_MAX_SANITY = "only_used_by_waxwell",
+            NOT_ENOUGH_EMBERS = "only_used_by_willow",
+            NO_TARGETS = "only_used_by_willow",
+            CANT_SPELL_MOUNTED = "only_used_by_willow",
+            SPELL_ON_COOLDOWN = "only_used_by_willow", 
 		},
     },
 
@@ -793,8 +798,10 @@ return{
 	},
 
 --fallback to speech_wilson.lua     ANNOUNCE_NOINSPIRATION = "only_used_by_wathgrithr",
+--fallback to speech_wilson.lua     ANNOUNCE_NOTSKILLEDENOUGH = "only_used_by_wathgrithr",
 --fallback to speech_wilson.lua     ANNOUNCE_BATTLESONG_INSTANT_TAUNT_BUFF = "only_used_by_wathgrithr",
 --fallback to speech_wilson.lua     ANNOUNCE_BATTLESONG_INSTANT_PANIC_BUFF = "only_used_by_wathgrithr",
+--fallback to speech_wilson.lua     ANNOUNCE_BATTLESONG_INSTANT_REVIVE_BUFF = "only_used_by_wathgrithr",
 
 --fallback to speech_wilson.lua     ANNOUNCE_WANDA_YOUNGTONORMAL = "only_used_by_wanda",
 --fallback to speech_wilson.lua     ANNOUNCE_WANDA_NORMALTOOLD = "only_used_by_wanda",
@@ -5024,6 +5031,29 @@ return{
         WAGPUNKBITS_KIT = "Is robot armor fixer.",
 
         WAGSTAFF_MUTATIONS_NOTE = "Wolfgang has no interest in old man scribblemarks.",
+
+        -- Meta 3
+
+        BATTLESONG_INSTANT_REVIVE = "Stronglady have voice as powerful as her muscles!",
+
+        WATHGRITHR_IMPROVEDHAT = "Ah yes, Stronglady hat. She not mind if Wolfgang wear?",
+        SPEAR_WATHGRITHR_LIGHTNING = "Wolfgang prefer fight with bare hands but this will do.",
+
+        BATTLESONG_CONTAINER = "For collection of Stronglady greatest hits.",
+
+        SADDLE_WATHGRITHR = "Ride into battle... in style!",
+
+        WATHGRITHR_SHIELD = "Wolfgang only carry shield for accessorize.",
+
+        BATTLESONG_SHADOWALIGNED = "Stronglady have voice as powerful as her muscles!",
+        BATTLESONG_LUNARALIGNED = "Stronglady have voice as powerful as her muscles!",
+
+		SHARKBOI = "Wolfgang is stronger than any fish!",
+        BOOTLEG = "Is not Wolfgang's size.",
+        OCEANWHIRLPORTAL = "Wolfgang does not run! He makes courageous escape!",
+
+        EMBERLIGHT = "Tiny torchlady makes good fires.",
+        WILLOW_EMBER = "only_used_by_willow",
     },
 
     DESCRIBE_GENERIC = "What is this thing?",

@@ -29,6 +29,7 @@ local function ConfigurePlayerLocomotor(inst)
     inst.components.locomotor:SetTriggersCreep(not inst:HasTag("spiderwhisperer"))
     inst.components.locomotor:SetAllowPlatformHopping(true)
 	inst.components.locomotor.hop_distance_fn = GetHopDistance
+	inst.components.locomotor.pusheventwithdirection = true
 end
 
 local function ConfigureGhostLocomotor(inst)
@@ -39,6 +40,7 @@ local function ConfigureGhostLocomotor(inst)
     inst.components.locomotor.fasteronroad = false
     inst.components.locomotor:SetTriggersCreep(false)
     inst.components.locomotor:SetAllowPlatformHopping(false)
+	inst.components.locomotor.pusheventwithdirection = true
 end
 
 --------------------------------------------------------------------------
@@ -217,6 +219,8 @@ local function CommonActualRez(inst)
     inst:AddComponent("grogginess")
     inst.components.grogginess:SetResistance(3)
     inst.components.grogginess:SetKnockOutTest(ShouldKnockout)
+
+	inst:AddComponent("slipperyfeet")
 
     inst.components.moisture:ForceDry(false, inst)
 
@@ -549,6 +553,7 @@ local function CommonPlayerDeath(inst)
     inst:RemoveComponent("propagator")
 
     inst:RemoveComponent("grogginess")
+	inst:RemoveComponent("slipperyfeet")
 
     inst.components.moisture:ForceDry(true, inst)
 

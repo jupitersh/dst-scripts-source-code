@@ -67,6 +67,7 @@ return{
 			KITCOON_HIDEANDSEEK_ONE_GAME_PER_DAY = "Glurgh. Bored of this game.",
             MANNEQUIN_EQUIPSWAPFAILED = "Not supposed to put that there.",
             PILLOWFIGHT_NO_HANDPILLOW = "WAIT!! Forgot pillow!",
+            NOTMYBERNIE = "Where fire lady? Big bear not listen!",
 		},
 		OPEN_CRAFTING =
 		{
@@ -395,6 +396,10 @@ return{
 		CASTAOE =
 		{
 --fallback to speech_wilson.lua 			NO_MAX_SANITY = "only_used_by_waxwell",
+            NOT_ENOUGH_EMBERS = "only_used_by_willow",
+            NO_TARGETS = "only_used_by_willow",
+            CANT_SPELL_MOUNTED = "only_used_by_willow",
+            SPELL_ON_COOLDOWN = "only_used_by_willow", 
 		},
     },
 
@@ -792,8 +797,10 @@ return{
 	},
 
 --fallback to speech_wilson.lua     ANNOUNCE_NOINSPIRATION = "only_used_by_wathgrithr",
+--fallback to speech_wilson.lua     ANNOUNCE_NOTSKILLEDENOUGH = "only_used_by_wathgrithr",
 --fallback to speech_wilson.lua     ANNOUNCE_BATTLESONG_INSTANT_TAUNT_BUFF = "only_used_by_wathgrithr",
 --fallback to speech_wilson.lua     ANNOUNCE_BATTLESONG_INSTANT_PANIC_BUFF = "only_used_by_wathgrithr",
+--fallback to speech_wilson.lua     ANNOUNCE_BATTLESONG_INSTANT_REVIVE_BUFF = "only_used_by_wathgrithr",
 
 --fallback to speech_wilson.lua     ANNOUNCE_WANDA_YOUNGTONORMAL = "only_used_by_wanda",
 --fallback to speech_wilson.lua     ANNOUNCE_WANDA_NORMALTOOLD = "only_used_by_wanda",
@@ -5023,6 +5030,29 @@ return{
         WAGPUNKBITS_KIT = "It good at fixing. Like Weenowna-lady!",
 
         WAGSTAFF_MUTATIONS_NOTE = "Moo-tay-shuns... studdy? Glurgh, this one really hard!",
+
+        -- Meta 3
+
+        BATTLESONG_INSTANT_REVIVE = "Someone drew bunch of flies stuck in Spiderfolk webs, florpt.",
+
+        WATHGRITHR_IMPROVEDHAT = "Many wings on Viking lady hat.",
+        SPEAR_WATHGRITHR_LIGHTNING = "Ooh, stabby AND sparky.",
+
+        BATTLESONG_CONTAINER = "Who care what inside? Not me!",
+
+        SADDLE_WATHGRITHR = "Me next, ride big fuzzy!",
+
+        WATHGRITHR_SHIELD = "Round wall for carry.",
+
+        BATTLESONG_SHADOWALIGNED = "Someone drew bunch of flies stuck in Spiderfolk webs, florpt.",
+        BATTLESONG_LUNARALIGNED = "Someone drew bunch of flies stuck in Spiderfolk webs, florpt.",
+
+		SHARKBOI = "Grrr, bad fishie!",
+        BOOTLEG = "Oooh, bones!",
+        OCEANWHIRLPORTAL = "Wheeeeeeee!!",
+
+        EMBERLIGHT = "Pretty...",
+        WILLOW_EMBER = "only_used_by_willow",
     },
 
     DESCRIBE_GENERIC = "What that?",

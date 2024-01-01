@@ -53,6 +53,37 @@ local function OnEquipChanged(inst)
     end
 end
 
+local function PullUpMap(inst, invobject)
+    -- NOTES(JBK): This is assuming inst is the local client on call with a check to inst.HUD not being nil.
+    if inst.HUD:IsCraftingOpen() then
+        inst.HUD:CloseCrafting()
+    end
+    if inst.HUD:IsSpellWheelOpen() then
+        inst.HUD:CloseSpellWheel()
+    end
+    if inst.HUD:IsControllerInventoryOpen() then
+        inst.HUD:CloseControllerInventory()
+    end
+    -- Pull up map now.
+    if not inst.HUD:IsMapScreenOpen() then
+        inst.HUD.controls:ToggleMap()
+        if inst.HUD:IsMapScreenOpen() then -- Just in case.
+            local mapscreen = TheFrontEnd:GetActiveScreen()
+            mapscreen._hack_ignore_held_controls = 0.1
+            mapscreen._hack_ignore_ups_for = {}
+            local min_dist = invobject.map_remap_min_dist
+            if min_dist then
+                min_dist = min_dist + 0.1 -- Padding for floating point precision.
+                local x, y, z = inst.Transform:GetWorldPosition()
+                local rotation = inst.Transform:GetRotation() * DEGREES
+                local wx, wz = x + math.cos(rotation) * min_dist, z - math.sin(rotation) * min_dist -- Z offset is negative to desired from Transform coordinates.
+                inst.HUD.controls:FocusMapOnWorldPosition(mapscreen, wx, wz)
+            end
+            -- Do not have to take into account max_dist because the map automatically centers on the player when opened.
+        end
+    end
+end
+
 local function OnInit(inst, self)
     inst:ListenForEvent("equip", OnEquipChanged)
     inst:ListenForEvent("unequip", OnEquipChanged)
@@ -722,6 +753,13 @@ function PlayerController:DoControllerActionButton()
         return
     end
 
+    if act.invobject ~= nil and act.invobject:HasTag("action_pulls_up_map") then
+        if self.inst.HUD ~= nil then
+            PullUpMap(self.inst, act.invobject)
+            return
+        end
+    end
+
     if self.ismastersim then
         self.inst.components.combat:SetTarget(nil)
     elseif self.deployplacer ~= nil then
@@ -927,6 +965,13 @@ function PlayerController:DoControllerAltActionButton()
 
 	if self.reticule ~= nil and self.reticule.reticule ~= nil and self.reticule.reticule.entity:IsVisible() then
 		self.reticule:PingReticuleAt(act:GetDynamicActionPoint())
+    end
+
+    if act.invobject ~= nil and act.invobject:HasTag("action_pulls_up_map") then
+        if self.inst.HUD ~= nil then
+            PullUpMap(self.inst, act.invobject)
+            return
+        end
     end
 
     if self.ismastersim then
@@ -3088,7 +3133,7 @@ function PlayerController:OnRemotePredictOverrideLocomote(dir)
 			if self.inst.sg:HasStateTag("canrotate") then
 				self.inst.Transform:SetRotation(dir)
 			end
-			self.inst:PushEvent("locomote", { remoteoverridelocomote = true })
+			self.inst:PushEvent("locomote", { dir = dir, remoteoverridelocomote = true })
 		end
 	end
 end
@@ -3929,8 +3974,16 @@ function PlayerController:OnRightClick(down)
 		end
 		if not closed then
 			self.inst.replica.inventory:ReturnActiveItem()
-			self:TryAOETargeting()
+			local rider = self.inst.replica.rider
+			if not (rider and rider:IsRiding()) then
+				self:TryAOETargeting()
+			end
 		end
+    elseif act.invobject ~= nil and act.invobject:HasTag("action_pulls_up_map") then
+        if self.inst.HUD ~= nil then
+            PullUpMap(self.inst, act.invobject)
+            return
+        end
     else
         if self.reticule ~= nil and self.reticule.reticule ~= nil then
 			self.reticule:PingReticuleAt(act:GetDynamicActionPoint())
@@ -4445,12 +4498,12 @@ function PlayerController:OnRemoteBufferedAction()
 				--excludes self:IsLocalOrRemoteHopping() as well, ie. y ~= 6
 				local x, y, z = self.inst.Transform:GetWorldPosition()
 				if x ~= self.remote_vector.x or z ~= self.remote_vector.z then
+					local dir = math.atan2(z - self.remote_vector.z, self.remote_vector.x - x) * RADIANS
 					if self.inst.sg:HasStateTag("canrotate") then
-						local dir = math.atan2(z - self.remote_vector.z, self.remote_vector.x - x) / DEGREES
 						self.inst.Transform:SetRotation(dir)
 					end
 					--Force us to interrupt and go to movement state immediately
-					self.inst.sg:HandleEvent("locomote", { force_idle_state = true }) --force idle state in case this tiny motion was meant to cancel an action
+					self.inst.sg:HandleEvent("locomote", { dir = dir, force_idle_state = true }) --force idle state in case this tiny motion was meant to cancel an action
 					self.inst.Transform:SetPosition(self.remote_vector.x, 0, self.remote_vector.z)
 				end
 			end

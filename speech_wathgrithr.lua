@@ -67,6 +67,7 @@ return{
 			KITCOON_HIDEANDSEEK_ONE_GAME_PER_DAY = "Let us reprise another time.",
             MANNEQUIN_EQUIPSWAPFAILED = "It is not trained to carry such things.",
             PILLOWFIGHT_NO_HANDPILLOW = "Thou wouldst send me into the fray unarmed?",
+            NOTMYBERNIE = "This beautiful beast only obeys its master.",
 		},
 		OPEN_CRAFTING =
 		{
@@ -395,6 +396,10 @@ return{
 		CASTAOE =
 		{
 --fallback to speech_wilson.lua 			NO_MAX_SANITY = "only_used_by_waxwell",
+            NOT_ENOUGH_EMBERS = "only_used_by_willow",
+            NO_TARGETS = "only_used_by_willow",
+            CANT_SPELL_MOUNTED = "only_used_by_willow",
+            SPELL_ON_COOLDOWN = "only_used_by_willow", 
 		},
     },
 
@@ -792,8 +797,10 @@ return{
 	},
 
     ANNOUNCE_NOINSPIRATION = "I must warm up my voice... in the heat of battle!",
+    ANNOUNCE_NOTSKILLEDENOUGH = "I... I fear I lack the skill to perform this piece...",
     ANNOUNCE_BATTLESONG_INSTANT_TAUNT_BUFF = "\"You scullion! You rampallian! You fustilarian! I'll tickle your catastrophe!\"",
     ANNOUNCE_BATTLESONG_INSTANT_PANIC_BUFF = "\"By the pricking of my thumbs, something wicked this way comes!\"",
+    ANNOUNCE_BATTLESONG_INSTANT_REVIVE_BUFF = "\"Death, a necessary end, will come when it will come,\" but not today, my allies!",
 
 --fallback to speech_wilson.lua     ANNOUNCE_WANDA_YOUNGTONORMAL = "only_used_by_wanda",
 --fallback to speech_wilson.lua     ANNOUNCE_WANDA_NORMALTOOLD = "only_used_by_wanda",
@@ -5023,6 +5030,29 @@ return{
         WAGPUNKBITS_KIT = "How may one kill with this?",
 
         WAGSTAFF_MUTATIONS_NOTE = "Save it for the scholars!",
+
+        -- Meta 3
+
+        BATTLESONG_INSTANT_REVIVE = "A melody lively enough to rouse the dead!",
+
+        WATHGRITHR_IMPROVEDHAT = "The unicorn hath bestowed its power onto me.",
+        SPEAR_WATHGRITHR_LIGHTNING = "The power of Thor courses through it.",
+
+        BATTLESONG_CONTAINER = "It holds my music like arrows in a quiver.",
+
+        SADDLE_WATHGRITHR = "We ride to victory!",
+
+        WATHGRITHR_SHIELD = "I shall defend my allies with spear and shield!",
+
+        BATTLESONG_SHADOWALIGNED = "I shall sing of sweet darkness.",
+        BATTLESONG_LUNARALIGNED = "Do not fear, my song shall show us the light.",
+
+		SHARKBOI = "Whether land or sea, a shallow grave waits for thee.",
+        BOOTLEG = "Retreat is the way of cowards!",
+        OCEANWHIRLPORTAL = "Oh, beautiful maelström. Into thy hungry mouth we doth sail.",
+
+        EMBERLIGHT = "My ally's flame burns bright as her fighting spirit.",
+        WILLOW_EMBER = "only_used_by_willow",
     },
 
     DESCRIBE_GENERIC = "It is an artifact of this realm.",

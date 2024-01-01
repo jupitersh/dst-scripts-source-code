@@ -44,6 +44,7 @@ local mutated_prefabs =
 	"purebrilliance",
 	"ice",
 	"chesspiece_deerclops_mutated_sketch",
+	"winter_ornament_boss_mutateddeerclops",
 }
 
 local normal_sounds =
@@ -615,6 +616,7 @@ end
 
 local function mutatedcommonfn(inst)
     inst:AddTag("lunar_aligned")
+	inst:AddTag("noepicmusic")
 
 	inst.AnimState:Hide("gestalt_eye")
 

@@ -1,6 +1,7 @@
 require "behaviours/wander"
 require "behaviours/follow"
 
+
 local BernieBrain = Class(Brain, function(self, inst)
     Brain._ctor(self,inst)
     self._targets = nil
@@ -60,7 +61,7 @@ local function FindLeader(self)
     local x, y, z = self.inst.Transform:GetWorldPosition()
     local my_platform = self.inst:GetCurrentPlatform()
     for i, v in ipairs(AllPlayers) do
-        if v.components.sanity:IsCrazy() and v.entity:IsVisible() and my_platform == v:GetCurrentPlatform() then
+        if (self.inst.isleadercrazy(self.inst,v) or self.inst:hotheaded(v)) and v.entity:IsVisible() and my_platform == v:GetCurrentPlatform() then
             local distsq = v:GetDistanceSqToPoint(x, y, z)
             if distsq < rangesq then
                 rangesq = distsq
@@ -75,19 +76,35 @@ local function GetLeader(self)
     if self._leader ~= nil and
         not (self._leader:IsValid() and
             self._leader.entity:IsVisible() and
-            self._leader.components.sanity:IsCrazy()) then
+            self.inst.isleadercrazy(self.inst,self._leader) and
+            self.inst:hotheaded(self._leader)  ) then --self._leader.components.sanity:IsCrazy())
         self._leader = nil
     end
     return self._leader
 end
 
+local function countbigbernies(leader)
+    local count = 0
+
+    if leader.bigbernies then
+        for bernie,i in pairs(leader.bigbernies)do
+            count = count + 1
+        end
+    end
+
+    return count
+end
+
 local function ShouldGoBig(self)
     local x, y, z = self.inst.Transform:GetWorldPosition()
+
+    self._leader = nil
+
     for i, v in ipairs(AllPlayers) do
         if v:HasTag("bernieowner") and
             v.bigbernies == nil and
-            v.blockbigbernies == nil and
-            v.components.sanity:IsCrazy() and
+            v.blockbigbernies == nil and            
+            (self.inst.isleadercrazy(self.inst,v) or self.inst:hotheaded(v)) and
             v.entity:IsVisible() and
             v:GetDistanceSqToPoint(x, y, z) < BIG_LEADER_DIST_SQ then
             self._leader = v
@@ -101,15 +118,19 @@ local function OnEndBlockBigBernies(leader)
     leader.blockbigbernies = nil
 end
 
-local function DoGoBig(inst, leader)
-    if leader ~= nil then
-        if leader.blockbigbernies ~= nil then
-            leader.blockbigbernies:Cancel()
+local function DoGoBig(inst,leader)
+    if leader and not leader.bigbernies then
+        if  leader ~= nil then
+            if  leader.blockbigbernies ~= nil then
+                 leader.blockbigbernies:Cancel()
+            end
+            --V2C: block other big bernies from triggering, since brain needs time to detect initial leader
+             leader.blockbigbernies =  leader:DoTaskInTime(.5, OnEndBlockBigBernies)
         end
-        --V2C: block other big bernies from triggering, since brain needs time to detect initial leader
-        leader.blockbigbernies = leader:DoTaskInTime(.5, OnEndBlockBigBernies)
+        inst:GoBig( leader )        
+    else 
+        leader = nil
     end
-    inst:GoBig()
 end
 
 function BernieBrain:OnStart()

@@ -67,6 +67,7 @@ return{
 			KITCOON_HIDEANDSEEK_ONE_GAME_PER_DAY = "They look pretty tired, let's see if they wanna play again tomorrow.",
             MANNEQUIN_EQUIPSWAPFAILED = "Just kiddin'!",
             PILLOWFIGHT_NO_HANDPILLOW = "Err, I think I'm missin' something.",
+            NOTMYBERNIE = "Whoa. Take it easy, big fella.",
 		},
 		OPEN_CRAFTING =
 		{
@@ -395,6 +396,10 @@ return{
 		CASTAOE =
 		{
 --fallback to speech_wilson.lua 			NO_MAX_SANITY = "only_used_by_waxwell",
+            NOT_ENOUGH_EMBERS = "only_used_by_willow",
+            NO_TARGETS = "only_used_by_willow",
+            CANT_SPELL_MOUNTED = "only_used_by_willow",
+            SPELL_ON_COOLDOWN = "only_used_by_willow", 
 		},
     },
 
@@ -798,8 +803,10 @@ return{
 	},
 
 --fallback to speech_wilson.lua     ANNOUNCE_NOINSPIRATION = "only_used_by_wathgrithr",
+--fallback to speech_wilson.lua     ANNOUNCE_NOTSKILLEDENOUGH = "only_used_by_wathgrithr",
 --fallback to speech_wilson.lua     ANNOUNCE_BATTLESONG_INSTANT_TAUNT_BUFF = "only_used_by_wathgrithr",
 --fallback to speech_wilson.lua     ANNOUNCE_BATTLESONG_INSTANT_PANIC_BUFF = "only_used_by_wathgrithr",
+--fallback to speech_wilson.lua     ANNOUNCE_BATTLESONG_INSTANT_REVIVE_BUFF = "only_used_by_wathgrithr",
 
 --fallback to speech_wilson.lua     ANNOUNCE_WANDA_YOUNGTONORMAL = "only_used_by_wanda",
 --fallback to speech_wilson.lua     ANNOUNCE_WANDA_NORMALTOOLD = "only_used_by_wanda",
@@ -5029,6 +5036,29 @@ return{
         WAGPUNKBITS_KIT = "Nifty!",
 
         WAGSTAFF_MUTATIONS_NOTE = "Some interestin' theories here...",
+
+        -- Meta 3
+
+        BATTLESONG_INSTANT_REVIVE = "Opera's a bit hoity-toity for me.",
+
+        WATHGRITHR_IMPROVEDHAT = "Wonder if it's made from real unicorn...",
+        SPEAR_WATHGRITHR_LIGHTNING = "A lightning spear? What will they think of next?",
+
+        BATTLESONG_CONTAINER = "That is some fancy song holder.",
+
+        SADDLE_WATHGRITHR = "Goin' for that understated look, I see.",
+
+        WATHGRITHR_SHIELD = "Nothin' more practical than a good sturdy shield.",
+
+        BATTLESONG_SHADOWALIGNED = "Opera's a bit hoity-toity for me.",
+        BATTLESONG_LUNARALIGNED = "Opera's a bit hoity-toity for me.",
+
+		SHARKBOI = "You picked the wrong gal to mess with!",
+        BOOTLEG = "Guess I'd better shake a leg. Ha!",
+        OCEANWHIRLPORTAL = "Alright, time to sink or swim!",
+
+        EMBERLIGHT = "Nice and toasty.",
+        WILLOW_EMBER = "only_used_by_willow",
     },
 
     DESCRIBE_GENERIC = "Incredible! I have no idea what that is.",
