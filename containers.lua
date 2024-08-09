@@ -412,6 +412,9 @@ end
 params.construction_repair_container = deepcopy(params.construction_container)
 params.construction_repair_container.widget.buttoninfo.text = STRINGS.ACTIONS.APPLYCONSTRUCTION.REPAIR
 
+params.construction_rebuild_container = deepcopy(params.construction_container)
+params.construction_rebuild_container.widget.buttoninfo.text = STRINGS.ACTIONS.APPLYCONSTRUCTION.REBUILD
+
 --------------------------------------------------------------------------
 --[[ enable_shadow_rift_construction_container ]]
 --------------------------------------------------------------------------
@@ -600,6 +603,141 @@ function params.sisturn.itemtestfn(container, item, slot)
 end
 
 --------------------------------------------------------------------------
+--[[ offering pot ]]
+--------------------------------------------------------------------------
+
+params.offering_pot =
+{
+    widget =
+    {
+        slotpos =
+        {
+            Vector3(-37.5, 32 + 4, 0),
+            Vector3(37.5, 32 + 4, 0),
+            Vector3(-37.5, -(32 + 4), 0),
+            Vector3(37.5, -(32 + 4), 0),
+        },
+        slotbg =
+        {
+            { image = "inv_slot_kelp.tex", atlas = "images/hud2.xml" },
+            { image = "inv_slot_kelp.tex", atlas = "images/hud2.xml" },
+            { image = "inv_slot_kelp.tex", atlas = "images/hud2.xml" },
+            { image = "inv_slot_kelp.tex", atlas = "images/hud2.xml" },
+        },
+        animbank = "ui_chest_2x2",
+        animbuild = "ui_chest_2x2",
+        pos = Vector3(200, 0, 0),
+        side_align_tip = 120,
+    },
+    acceptsstacks = false,
+    type = "cooker",
+}
+
+function params.offering_pot.itemtestfn(container, item, slot)
+    return not container.inst:HasTag("burnt") and item.prefab == "kelp"
+end
+
+--------------------------------------------------------------------------
+--[[ offering pot II ]]
+--------------------------------------------------------------------------
+
+params.offering_pot_upgraded =
+{
+    widget =
+    {
+        slotpos =
+        {            
+            Vector3(-75, 32 + 4, 0),
+            Vector3(0, 32 + 4, 0),
+            Vector3(75, 32 + 4, 0),
+            Vector3(-75, -(32 + 4), 0),
+            Vector3(0, -(32 + 4), 0),
+            Vector3(75, -(32 + 4), 0),
+        },
+        slotbg =
+        {
+            { image = "inv_slot_kelp.tex", atlas = "images/hud2.xml" },
+            { image = "inv_slot_kelp.tex", atlas = "images/hud2.xml" },
+            { image = "inv_slot_kelp.tex", atlas = "images/hud2.xml" },
+            { image = "inv_slot_kelp.tex", atlas = "images/hud2.xml" },
+            { image = "inv_slot_kelp.tex", atlas = "images/hud2.xml" },
+            { image = "inv_slot_kelp.tex", atlas = "images/hud2.xml" },
+        },
+        animbank = "ui_chest_3x2",
+        animbuild = "ui_chest_3x2",
+        pos = Vector3(200, 0, 0),
+        side_align_tip = 120,
+    },
+    acceptsstacks = false,
+    type = "cooker",
+}
+
+params.offering_pot_upgraded.itemtestfn = params.offering_pot.itemtestfn
+
+--------------------------------------------------------------------------
+--[[ merm_toolshed ]]
+--------------------------------------------------------------------------
+
+params.merm_toolshed =
+{
+    widget =
+    {
+        slotpos =
+        {
+            Vector3(0,   32 + 4,  0),
+            Vector3(0, -(32 + 4), 0),
+        },
+        slotbg =
+        {
+            { image = "inv_slot_twigs.tex", atlas = "images/hud2.xml" },
+            { image = "inv_slot_rocks.tex", atlas = "images/hud2.xml" },
+        },
+        animbank = "ui_chest_1x2",
+        animbuild = "ui_chest_1x2",
+        pos = Vector3(200, 0, 0),
+        side_align_tip = 100,
+        opensound = "meta4/mermery/open",
+        closesound = "meta4/mermery/close",
+    },
+    usespecificslotsforitems = true,
+    type = "cooker",
+}
+
+function params.merm_toolshed.itemtestfn(container, item, slot)
+    return
+        not container.inst:HasTag("burnt") and (
+            (slot == 1 and item.prefab == "twigs") or
+            (slot == 2 and item.prefab == "rocks") or
+            (slot == nil and (item.prefab == "twigs" or item.prefab == "rocks"))
+        )
+end
+
+params.merm_toolshed_upgraded = deepcopy(params.merm_toolshed)
+
+--------------------------------------------------------------------------
+--[[ merm_armory ]]
+--------------------------------------------------------------------------
+
+params.merm_armory = deepcopy(params.merm_toolshed)
+
+params.merm_armory.widget.slotbg =
+{
+    { image = "inv_slot_log.tex",       atlas = "images/hud2.xml" },
+    { image = "inv_slot_cutgrass.tex" , atlas = "images/hud2.xml"},
+}
+
+function params.merm_armory.itemtestfn(container, item, slot)
+    return
+        not container.inst:HasTag("burnt") and (
+            (slot == 1 and item.prefab == "log") or
+            (slot == 2 and item.prefab == "cutgrass") or
+            (slot == nil and (item.prefab == "log" or item.prefab == "cutgrass"))
+        )
+end
+
+params.merm_armory_upgraded = deepcopy(params.merm_armory)
+
+--------------------------------------------------------------------------
 --[[ livingtree_halloween ]]
 --------------------------------------------------------------------------
 
@@ -784,6 +922,8 @@ params.treasurechest =
         slotpos = {},
         animbank = "ui_chest_3x3",
         animbuild = "ui_chest_3x3",
+        animbank_upgraded = "ui_chest_upgraded_3x3",
+        animbuild_upgraded = "ui_chest_upgraded_3x3",
         pos = Vector3(0, 200, 0),
         side_align_tip = 160,
     },
@@ -805,12 +945,25 @@ params.quagmire_safe = deepcopy(params.treasurechest)
 params.quagmire_safe.widget.animbank = "quagmire_ui_chest_3x3"
 params.quagmire_safe.widget.animbuild = "quagmire_ui_chest_3x3"
 
+params.boat_ancient_container = deepcopy(params.treasurechest)
+params.boat_ancient_container.widget.animbank = "ui_boat_ancient_4x4"
+params.boat_ancient_container.widget.animbuild = "ui_boat_ancient_4x4"
+params.boat_ancient_container.widget.slotpos = {}
+
+for y = 3, 0, -1 do
+    for x = 0, 3 do
+        table.insert(params.boat_ancient_container.widget.slotpos, Vector3(80 * x - 80 * 2.5 + 80, 80 * y - 80 * 2.5 + 80, 0))
+    end
+end
+
 --------------------------------------------------------------------------
 --[[ dragonflychest ]]
 --------------------------------------------------------------------------
 
-params.dragonflychest = params.shadowchester
 params.minotaurchest = params.shadowchester
+params.dragonflychest = deepcopy(params.shadowchester)
+params.dragonflychest.widget.animbank_upgraded = "ui_chester_upgraded_3x4"
+params.dragonflychest.widget.animbuild_upgraded = "ui_chester_upgraded_3x4"
 
 --------------------------------------------------------------------------
 --[[ antlionhat ]]
@@ -1389,6 +1542,57 @@ end
 function params.battlesong_container.itemtestfn(container, item, slot)
     -- Battlesongs.
     return item:HasTag("battlesong")
+end
+
+--------------------------------------------------------------------------
+--[[ dragonflyfurnace ]]
+--------------------------------------------------------------------------
+
+params.dragonflyfurnace =
+{
+    widget =
+    {
+        slotpos =
+        {
+            Vector3(-37.5,   32 + 4,  0),
+            Vector3( 37.5,   32 + 4,  0),
+            Vector3(-37.5, -(32 + 4), 0),
+            Vector3( 37.5, -(32 + 4), 0),
+        },
+        slotbg =
+        {
+            { image = "inv_slot_dragonflyfurnace.tex", atlas = "images/hud2.xml" },
+            { image = "inv_slot_dragonflyfurnace.tex", atlas = "images/hud2.xml" },
+            { image = "inv_slot_dragonflyfurnace.tex", atlas = "images/hud2.xml" },
+            { image = "inv_slot_dragonflyfurnace.tex", atlas = "images/hud2.xml" },
+        },
+        animbank = "ui_dragonflyfurnace_2x2",
+        animbuild = "ui_dragonflyfurnace_2x2",
+        pos = Vector3(200, 0, 0),
+        side_align_tip = 120,
+        buttoninfo =
+        {
+            text = STRINGS.ACTIONS.INCINERATE,
+            position = Vector3(0, -100, 0),
+        }
+    },
+    type = "cooker",
+}
+
+function params.dragonflyfurnace.itemtestfn(container, item, slot)
+    return not item:HasTag("irreplaceable")
+end
+
+function params.dragonflyfurnace.widget.buttoninfo.fn(inst, doer)
+    if inst.components.container ~= nil then
+        BufferedAction(doer, inst, ACTIONS.INCINERATE):Do()
+    elseif inst.replica.container ~= nil and not inst.replica.container:IsBusy() then
+        SendRPCToServer(RPC.DoWidgetButtonAction, ACTIONS.INCINERATE.code, inst, ACTIONS.INCINERATE.mod_name)
+    end
+end
+
+function params.dragonflyfurnace.widget.buttoninfo.validfn(inst)
+    return inst.replica.container ~= nil and not inst.replica.container:IsEmpty()
 end
 
 --------------------------------------------------------------------------

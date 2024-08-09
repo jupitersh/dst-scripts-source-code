@@ -396,6 +396,11 @@ function Builder:AddRecipe(recname)
     self.inst.replica.builder:AddRecipe(recname)
 end
 
+function Builder:RemoveRecipe(recname)
+	table.removearrayvalue(self.recipes, recname)
+	self.inst.replica.builder:RemoveRecipe(recname)
+end
+
 function Builder:UnlockRecipe(recname)
     local recipe = GetValidRecipe(recname)
     if recipe ~= nil and not recipe.nounlock then
@@ -565,7 +570,7 @@ end
 
 function Builder:DoBuild(recname, pt, rotation, skin)
     local recipe = GetValidRecipe(recname)
-    if recipe ~= nil and (self:IsBuildBuffered(recname) or self:HasIngredients(recipe)) then
+    if recipe ~= nil and (self:IsBuildBuffered(recname) or self:HasIngredients(recipe)) and not PREFAB_SKINS_SHOULD_NOT_SELECT[skin] then
         if recipe.placer ~= nil and
             self.inst.components.rider ~= nil and
             self.inst.components.rider:IsRiding() then
@@ -751,6 +756,8 @@ function Builder:KnowsRecipe(recipe, ignore_tempbonus)
 		return true
 	elseif recipe.builder_tag ~= nil and not self.inst:HasTag(recipe.builder_tag) then -- builder_tag cehck is require due to character swapping
 		return false
+    elseif recipe.builder_skill ~= nil and not self.inst.components.skilltreeupdater:IsActivated(recipe.builder_skill) then -- builder_skill check is require due to character swapping
+        return false
 	elseif self.station_recipes[recipe.name] or table.contains(self.recipes, recipe.name) then
 		return true
 	end
@@ -807,8 +814,8 @@ end
 function Builder:CanLearn(recname)
     local recipe = GetValidRecipe(recname)
     return recipe ~= nil
-        and (recipe.builder_tag == nil or
-            self.inst:HasTag(recipe.builder_tag))
+        and (recipe.builder_tag == nil or self.inst:HasTag(recipe.builder_tag))
+        and (recipe.builder_skill == nil or self.inst.components.skilltreeupdater:IsActivated(recipe.builder_skill))
 end
 
 function Builder:LongUpdate(dt)

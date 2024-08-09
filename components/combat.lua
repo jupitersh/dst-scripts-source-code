@@ -260,7 +260,7 @@ function Combat:SetRetargetFunction(period, fn)
         self.retargettask = nil
     end
 
-    if period ~= nil and fn ~= nil then
+	if period and fn and not self.inst:IsAsleep() then
         self.retargettask = self.inst:DoPeriodicTask(period, dotryretarget, period*math.random(), self)
     end
 end
@@ -505,10 +505,10 @@ function Combat:BattleCry()
         if self.nextbattlecrytime == nil or t > self.nextbattlecrytime then
             self:ResetBattleCryCooldown(t)
             if self.inst.components.talker ~= nil then
-                local cry, strid = self:GetBattleCryString(self.target)
+                local cry, strid, echotochatpriority = self:GetBattleCryString(self.target)
                 if cry ~= nil then
                     if strid ~= nil then
-                        self.inst.components.talker:Chatter(cry, strid, 2)
+                        self.inst.components.talker:Chatter(cry, strid, 2, nil, echotochatpriority)
                     else
                         self.inst.components.talker:Say(cry, 2)
                     end
@@ -543,7 +543,7 @@ function Combat:GetAttacked(attacker, damage, weapon, stimuli, spdamage)
 
     if self.inst.components.health ~= nil and damage ~= nil and damageredirecttarget == nil then
         if self.inst.components.attackdodger ~= nil and self.inst.components.attackdodger:CanDodge(attacker) then
-            self.inst.components.attackdodger:Dodge()
+            self.inst.components.attackdodger:Dodge(attacker)
             damage, spdamage = 0, nil
         end
 

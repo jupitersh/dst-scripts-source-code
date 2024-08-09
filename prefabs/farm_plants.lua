@@ -1,5 +1,3 @@
-
-
 local PLANT_DEFS = require("prefabs/farm_plant_defs").PLANT_DEFS
 
 local grow_sounds =
@@ -803,6 +801,7 @@ local function MakePlant(plant_def)
         inst.AnimState:SetBuild(plant_def.build)
         inst.AnimState:OverrideSymbol("soil01", "farm_soil", "soil01")
 
+		inst:SetDeploySmartRadius(0.5) --match visuals, seeds use CUSTOM spacing
         inst:SetPhysicsRadiusOverride(TUNING.FARM_PLANT_PHYSICS_RADIUS)
 
         inst:AddTag("plantedsoil")
@@ -907,6 +906,8 @@ local function MakePlant(plant_def)
         if plant_def.is_randomseed then
             inst.BeIdentified = randomseed_become_identified
         end
+
+        MakeWaxablePlant(inst)
 
         inst:WatchWorldState("isnight", OnIsDark)
         inst:DoTaskInTime(0, OnIsDark)

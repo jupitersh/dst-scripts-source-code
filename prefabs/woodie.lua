@@ -387,11 +387,9 @@ end
 
 local function SetWereVision(inst, mode)
     if IsWereMode(mode) then
-        inst.components.playervision:ForceNightVision(true)
-        inst.components.playervision:SetCustomCCTable(BEAVERVISION_COLOURCUBES)
+        inst.components.playervision:PushForcedNightVision(inst, 2, BEAVERVISION_COLOURCUBES, false)
     else
-        inst.components.playervision:ForceNightVision(false)
-        inst.components.playervision:SetCustomCCTable(nil)
+        inst.components.playervision:PopForcedNightVision(inst)
     end
 end
 
@@ -906,9 +904,8 @@ local function SetWereFighter(inst, mode)
         local planardefense_skill = skilltreeupdater:IsActivated("woodie_curse_epic_moose")
 
         if healthregen_skill then
-            -- FIXME(JBK): Change this to a buff and remove health StartRegen StopRegen calls.
             local regendata = TUNING.SKILLS.WOODIE.MOOSE_HEALTH_REGEN
-            inst.components.health:StartRegen(regendata.amount, regendata.period)
+            inst.components.health:AddRegenSource(inst, regendata.amount, regendata.period, "weremoose_skill")
         end
 
         if planardefense_skill then
@@ -931,8 +928,7 @@ local function SetWereFighter(inst, mode)
         end
 
         inst.components.planardefense:RemoveBonus(inst, "weremoose_skill")
-        -- FIXME(JBK): Change this to a buff and remove health StartRegen StopRegen calls.
-        inst.components.health:StopRegen()
+        inst.components.health:RemoveRegenSource(inst, "weremoose_skill")
     end
 end
 
@@ -1541,7 +1537,7 @@ local function OnTakeDrowningDamage(inst, tuning)
     end
 end
 
-local function GetDowningDamgeTunings(inst)
+local function GetDrowningDamageTunings(inst)
     return TUNING.DROWNING_DAMAGE[IsWereMode(inst.weremode:value()) and "WEREWOODIE" or "WOODIE"]
 end
 
@@ -1655,10 +1651,6 @@ local function UseWereFormSkill(inst, act)
             inst.Physics:Teleport(pos.x, 0, pos.z)
             inst:ResetMinimapOffset()
             inst:SnapCamera()
-
-            if TheWorld and TheWorld.components.walkableplatformmanager then -- NOTES(JBK): Workaround for teleporting too far causing the client to lose sync.
-                TheWorld.components.walkableplatformmanager:PostUpdate(0)
-            end
         end
     end
 end
@@ -1784,7 +1776,7 @@ local function master_postinit(inst)
 
         if inst.components.drownable ~= nil then
             inst.components.drownable:SetOnTakeDrowningDamageFn(OnTakeDrowningDamage)
-            inst.components.drownable:SetCustomTuningsFn(GetDowningDamgeTunings)
+            inst.components.drownable:SetCustomTuningsFn(GetDrowningDamageTunings)
         end
 
         inst.IsWerebeaver = IsWerebeaver

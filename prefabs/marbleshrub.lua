@@ -1,4 +1,3 @@
-
 local assets =
 {
     Asset("ANIM", "anim/marbleshrub.zip"),
@@ -162,6 +161,7 @@ local function MakeShrub(name, growthstage)
 		inst.entity:AddNetwork()
 
 		MakeObstaclePhysics(inst, 0.1)
+		inst:SetDeploySmartRadius(DEPLOYSPACING_RADIUS[DEPLOYSPACING.DEFAULT] / 2) --seed/planted_tree deployspacing/2
 
 		inst.MiniMapEntity:SetIcon("marbleshrub1.png")
 		inst.MiniMapEntity:SetPriority(-1)
@@ -202,6 +202,8 @@ local function MakeShrub(name, growthstage)
 
 		MakeHauntableWork(inst)
 		MakeSnowCovered(inst)
+
+		MakeWaxablePlant(inst)
 
 		inst.OnSave = onsave
 		inst.OnLoad = onload

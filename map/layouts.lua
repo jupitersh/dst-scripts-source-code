@@ -1,5 +1,21 @@
 require("constants")
 
+local function grass_area()
+	local grass = {}
+
+	for i=1,math.random(4) do
+		table.insert(grass,"grass")
+	end
+
+	for i=1,math.random(3) do
+		if math.random() < 0.5 then
+			table.insert(grass,"evergreen_stump")
+		end
+	end
+
+	return grass
+end
+
 local function waterlogged_tree_area()
 	local stuff = {}
 
@@ -716,6 +732,7 @@ local ExampleLayout =
 		layout_position = LAYOUT_POSITION.CENTER,
 		disable_transform = true
     }),
+    ["skeleton_notplayer"] = StaticLayout.Get("map/static_layouts/skeleton_notplayer" ),
 
 --------------------------------------------------------------------------------
 -- RUINS
@@ -1084,6 +1101,40 @@ local ExampleLayout =
 		},
 	}),
 
+	["AbandonedBoat1"] = StaticLayout.Get("map/static_layouts/abandonedboat",
+	{
+		start_mask = PLACE_MASK.IGNORE_IMPASSABLE_BARREN_RESERVED,
+		fill_mask = PLACE_MASK.IGNORE_IMPASSABLE_BARREN_RESERVED,
+		areas = 
+		{
+			item_area1 = function() return {math.random() >= .5 and "spoiled_fish_small" or "spoiled_fish"} end,
+			item_area2 = function() return {math.random() >= .5 and "twigs" or "cutgrass"} end,
+			mast_area = {"mast_broken"},
+			fishing_item_area = {"chum"},
+			seastack_area = function() return math.random() < 0.9 and {"seastack"} or nil end
+		},
+	}),
+
+	["AbandonedBoat2"] = StaticLayout.Get("map/static_layouts/abandonedboat",
+	{
+		start_mask = PLACE_MASK.IGNORE_IMPASSABLE_BARREN_RESERVED,
+		fill_mask = PLACE_MASK.IGNORE_IMPASSABLE_BARREN_RESERVED,
+		areas = 
+		{
+			item_area1 = function() return {math.random() >= .5 and "oar" or "oar_driftwood"} end,
+			item_area2 = function() return {math.random() >= .5 and "twigs" or "cutgrass"} end,
+			mast_area = {},
+			fishing_item_area = function() return {math.random() >= .5 and "oceanfishinglure_hermit_snow" or "oceanfishinglure_hermit_heavy"} end,
+			seastack_area = function() return math.random() < 0.9 and {"seastack"} or nil end
+		},
+	}),
+
+	["OceanMonument"] = StaticLayout.Get("map/static_layouts/oceanmonument",
+	{
+		start_mask = PLACE_MASK.IGNORE_IMPASSABLE_BARREN_RESERVED,
+		fill_mask = PLACE_MASK.IGNORE_IMPASSABLE_BARREN_RESERVED,
+	}),
+
 --------------------------------------------------------------------------------
 -- Grotto
 --------------------------------------------------------------------------------
@@ -1229,7 +1280,20 @@ local ExampleLayout =
             monkeyhut_area = monkeyhut_area,
         },
 	}),
+
 --------------------------------------------------------------------------------
+-- Junk Yard
+--------------------------------------------------------------------------------
+	["junk_yard"] = StaticLayout.Get("map/static_layouts/junk_yard1", 
+	{
+		areas =
+		{
+			wobot_area = { "storage_robot" },
+			grass_area = grass_area,
+		}
+	}),
+
+--------------------------------------------------------------------------------	
 
 }
 

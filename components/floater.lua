@@ -1,7 +1,8 @@
 local Floater = Class(function(self, inst)
     self.inst = inst
 
-    if TheNet:GetIsMasterSimulation() then
+    self.ismastersim = TheNet:GetIsMasterSimulation()
+    if self.ismastersim then
         self.inst:ListenForEvent("on_landed", function() self:OnLandedServer() end)
         self.inst:ListenForEvent("on_no_longer_landed", function() self:OnNoLongerLandedServer() end)
         self.inst:ListenForEvent("onremove", function() self:OnNoLongerLandedServer() end)
@@ -13,6 +14,15 @@ local Floater = Class(function(self, inst)
                 self:OnLandedClient()
             else
                 self:OnNoLongerLandedClient()
+            end
+        end)
+        self.inst:ListenForEvent("erodetimedirty", function()
+            local erode_time = self._erode_time:value()
+            if self.front_fx ~= nil then
+                ErodeAway(self.front_fx, erode_time)
+            end
+            if self.back_fx ~= nil then
+                ErodeAway(self.back_fx, erode_time)
             end
         end)
     end
@@ -31,7 +41,12 @@ local Floater = Class(function(self, inst)
     self.splash = true
 
     self._is_landed = net_bool(inst.GUID, "floater._is_landed", "landeddirty")
+    self._erode_time = net_float(inst.GUID, "floater._erode_time", "erodetimedirty")
 end)
+
+function Floater:SetIsObstacle(bool)
+	self.is_obstable = bool ~= false
+end
 
 --small/med/large
 function Floater:SetSize(size)
@@ -84,8 +99,9 @@ end
 function Floater:ShouldShowEffect()
 	local pos_x, pos_y, pos_z = self.inst.Transform:GetWorldPosition()
 
-	return  not TheWorld.Map:IsPassableAtPoint(pos_x, 0, pos_z) and
-            not TheWorld.Map:IsVisualGroundAtPoint(pos_x, 0, pos_z)
+	return
+        not TheWorld.Map:IsPassableAtPoint(pos_x, 0, pos_z, nil, self.is_obstable) and
+        not TheWorld.Map:IsVisualGroundAtPoint(pos_x, 0, pos_z)
 end
 
 function Floater:AttachEffect(effect)
@@ -133,7 +149,7 @@ function Floater:OnLandedServer()
         -- update the inventory component to represent the associated wetness.
         -- Don't apply the wetness to something held by someone, though.
         if self.inst.components.inventoryitem ~= nil and not self.inst.components.inventoryitem:IsHeld() and not self.inst:HasTag("likewateroffducksback") then
-            self.inst.components.inventoryitem:AddMoisture(TUNING.OCEAN_WETNESS)
+			self.inst.components.inventoryitem:MakeMoistureAtLeast(TUNING.OCEAN_WETNESS)
         end
 
         if self.splash and (not self.inst.components.inventoryitem or not self.inst.components.inventoryitem:IsHeld()) then
@@ -176,6 +192,12 @@ function Floater:SwitchToDefaultAnim(force_switch)
         if self.swap_data ~= nil then
             self.inst.AnimState:ClearOverrideSymbol("swap_spear")
         end
+    end
+end
+
+function Floater:Erode(erode_time)
+    if self.ismastersim and self.showing_effect then
+        self._erode_time:set(erode_time)
     end
 end
 

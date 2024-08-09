@@ -120,16 +120,21 @@ local function onpickup(inst, picker)
     local item = nil
     for i, v in ipairs(inst.loot) do
         item = SpawnPrefab(v)
-        item.Transform:SetPosition(x, y, z)
-        if item.components.inventoryitem ~= nil and item.components.inventoryitem.ondropfn ~= nil then
-            item.components.inventoryitem.ondropfn(item)
-        end
-        if inst.lootaggro[i] and item.components.combat ~= nil and picker ~= nil then
-            if not (
-                item:HasTag("spider") and (picker:HasTag("spiderwhisperer") or picker:HasTag("spiderdisguise") or (picker:HasTag("monster") and not picker:HasTag("player"))) or
-                item:HasTag("frog") and picker:HasTag("merm")
-            ) then
-                item.components.combat:SuggestTarget(picker)
+        
+        if item ~= nil then
+            item.Transform:SetPosition(x, y, z)
+
+            if item.components.inventoryitem ~= nil and item.components.inventoryitem.ondropfn ~= nil then
+                item.components.inventoryitem.ondropfn(item)
+            end
+
+            if inst.lootaggro[i] and item.components.combat ~= nil and picker ~= nil then
+                if not (
+                    item:HasTag("spider") and (picker:HasTag("spiderwhisperer") or picker:HasTag("spiderdisguise") or (picker:HasTag("monster") and not picker:HasTag("player"))) or
+                    item:HasTag("frog") and picker:HasTag("merm")
+                ) then
+                    item.components.combat:SuggestTarget(picker)
+                end
             end
         end
     end
@@ -250,7 +255,7 @@ local function spawnash(inst)
     ash.Transform:SetPosition(x, y, z)
 
     if inst.components.stackable ~= nil then
-        ash.components.stackable.stacksize = math.min(ash.components.stackable.maxsize, inst.components.stackable.stacksize)
+		ash.components.stackable:SetStackSize(math.min(ash.components.stackable.maxsize, inst.components.stackable.stacksize))
     end
 
     inst:PushEvent("detachchild")
@@ -348,7 +353,7 @@ local function OnEntityWake(inst)
     end)
 end
 
-local function OnLongAction(inst)
+local function OnLongAction(inst)--, doer)
     inst.Physics:Stop()
     inst.components.blowinwind:Stop()
     inst:RemoveEventCallback("animover", startmoving)

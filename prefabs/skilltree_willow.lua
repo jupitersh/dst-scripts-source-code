@@ -101,15 +101,10 @@ local function BuildSkillsData(SkillTreeFns)
             pos = {CAT1+WGAP+L2X+27,TOP-HGAP-HGAP-HGAP+L2Y+12},
             group = "lighter",
             tags = {"lighter"},
-            onactivate = function(inst, fromload)
-                    if inst.updatelighters then
-                        inst:updatelighters()
-                    end
-                end,
             connects = {
                 "willow_embers",
             },
-            root = true,            
+            root = true,
         },
 
         willow_embers = {
@@ -121,9 +116,6 @@ local function BuildSkillsData(SkillTreeFns)
             tags = {"lighter"},
             onactivate = function(inst, fromload)
                     inst:AddTag("ember_master")
-                    if inst.updateembers then
-                        inst.updateembers(inst)
-                    end
                 end,
             connects = {
                 "willow_fire_burst",
@@ -139,11 +131,6 @@ local function BuildSkillsData(SkillTreeFns)
             pos = {CAT1+L2X,TOP-HGAP-HGAP-HGAP-HGAP-HGAP+L2Y},
             group = "lighter",
             tags = {"lighter"},
-            onactivate = function(inst, fromload)
-                    if inst.updateembers then
-                        inst.updateembers(inst)
-                    end            
-                end,
         },
 
         willow_fire_ball = {
@@ -153,11 +140,6 @@ local function BuildSkillsData(SkillTreeFns)
             pos = {CAT1+WGAP+L2X,TOP-HGAP-HGAP-HGAP-HGAP-HGAP+L2Y},
             group = "lighter",
             tags = {"lighter"},
-            onactivate = function(inst, fromload)
-                    if inst.updateembers then
-                        inst.updateembers(inst)
-                    end            
-                end,
         },
 
         willow_fire_frenzy = {
@@ -167,11 +149,6 @@ local function BuildSkillsData(SkillTreeFns)
             pos = {CAT1+WGAP+WGAP+L2X,TOP-HGAP-HGAP-HGAP-HGAP-HGAP+L2Y},
             group = "lighter",
             tags = {"lighter"},
-            onactivate = function(inst, fromload)
-                    if inst.updateembers then
-                        inst.updateembers(inst)
-                    end            
-                end,
         },        
  
         willow_lightradius_1 = {
@@ -181,18 +158,11 @@ local function BuildSkillsData(SkillTreeFns)
             pos = {CAT1+WGAP+WGAP-NUDGE+L3X,TOP+L3Y},
             group = "lighter",
             tags = {"lighter"},
-            onactivate = function(inst, fromload)
-                    if not fromload then
-                        local equipped = inst.components.inventory:GetEquippedItem(EQUIPSLOTS.HANDS)
-                        if equipped and equipped.applyskilleffect then
-                            equipped:applyskilleffect("willow_lightradius_1", inst)
-                        end
-                    end
-                end,
             root = true,
             connects = {
                 "willow_lightradius_2",
             },
+            defaultfocus = true,
         },
 
         willow_lightradius_2 = {
@@ -202,14 +172,6 @@ local function BuildSkillsData(SkillTreeFns)
             pos = {CAT1+WGAP+WGAP-NUDGE+L3X,TOP-HGAP+L3Y-4},
             group = "lighter",
             tags = {"lighter"},
-            onactivate = function(inst, fromload)
-                    if not fromload then
-                        local equipped = inst.components.inventory:GetEquippedItem(EQUIPSLOTS.HANDS)
-                        if equipped and equipped.applyskilleffect then
-                            equipped:applyskilleffect("willow_lightradius_2", inst)
-                        end
-                    end
-                end,
         },
 
         -- BERNIE
@@ -329,15 +291,9 @@ local function BuildSkillsData(SkillTreeFns)
             group = "bernie",
             tags = {"lock"},
             root = true,
-            lock_open = function(prefabname, activatedskills, readonly) 
-                if readonly then
-                    return "question"
-                end
-
+            lock_open = function(prefabname, activatedskills, readonly)
                 local bernie_skills = SkillTreeFns.CountTags(prefabname, "bernie", activatedskills)
                 return bernie_skills >= 4
-
-                --return true
             end,            
             onactivate = function(inst, fromload)
                     --inst:AddTag("alchemist")
@@ -389,15 +345,9 @@ local function BuildSkillsData(SkillTreeFns)
             group = "bernie",
             tags = {"lock"},
             root = true,
-            lock_open = function(prefabname, activatedskills, readonly) 
-                if readonly then
-                    return "question"
-                end
-
+            lock_open = function(prefabname, activatedskills, readonly)
                 local bernie_skills = SkillTreeFns.CountTags(prefabname, "bernie", activatedskills)
                 return bernie_skills >= 8
-
-                --return true
             end,            
             onactivate = function(inst, fromload)
                     --inst:AddTag("alchemist")
@@ -407,6 +357,7 @@ local function BuildSkillsData(SkillTreeFns)
             },                
         },
 
+        -- FIXME(JBK): This is a typo 'burnign' only fix this when something else in the skill tree gets fixed and players need respec.
         willow_burnignbernie = {
             title = STRINGS.SKILLTREE.WILLOW.WILLOW_BURNINGBERNIE_TITLE,
             desc = STRINGS.SKILLTREE.WILLOW.WILLOW_BURNINGBERNIE_DESC,
@@ -432,14 +383,17 @@ local function BuildSkillsData(SkillTreeFns)
             group = "allegiance",
             tags = {"allegiance","lock"},
             root = true,
-            lock_open = function(prefabname, activatedskills, readonly) 
+            lock_open = function(prefabname, activatedskills, readonly)
+                local lunar_skills = SkillTreeFns.CountTags(prefabname, "lunar_favor", activatedskills)
+                if lunar_skills > 0 then
+                    return false
+                end
+
                 if readonly then
                     return "question"
                 end
-                local lunar_skills = SkillTreeFns.CountTags(prefabname, "lunar_favor", activatedskills)
 
-                return lunar_skills <=0 and TheGenericKV:GetKV("fuelweaver_killed") == "1"
-                --return true
+                return TheGenericKV:GetKV("fuelweaver_killed") == "1"
             end,            
             onactivate = function(inst, fromload)
                     --inst:AddTag("alchemist")
@@ -458,13 +412,8 @@ local function BuildSkillsData(SkillTreeFns)
             tags = {"allegiance","lock"},
             root = true,            
             lock_open = function(prefabname, activatedskills, readonly) 
-                if readonly then
-                    return "question"
-                end
-
                 local bernie_skills = SkillTreeFns.CountTags(prefabname, "bernie", activatedskills)
                 return bernie_skills >= 6
-                --return true
             end,            
             onactivate = function(inst, fromload)
                     --inst:AddTag("alchemist")
@@ -482,14 +431,8 @@ local function BuildSkillsData(SkillTreeFns)
             tags = {"allegiance","lock"},
             root = true,
             lock_open = function(prefabname, activatedskills, readonly) 
-                if readonly then
-                    return "question"
-                end
-                
                 local lighter_skills = SkillTreeFns.CountTags(prefabname, "lighter", activatedskills)
                 return lighter_skills >= 7
-
-                --return true
             end,            
             onactivate = function(inst, fromload)
                     --inst:AddTag("alchemist")
@@ -509,10 +452,6 @@ local function BuildSkillsData(SkillTreeFns)
             tags = {"allegiance","shadow_favor"},
             locks = {"willow_allegiance_lock_1", "willow_allegiance_lock_3"},
             onactivate = function(inst, fromload)
-                    if inst.updateembers then
-                        inst.updateembers(inst)
-                    end
-
                     if not inst.components.skilltreeupdater:IsActivated("willow_allegiance_shadow_bernie") then
                         inst:AddTag("player_shadow_aligned")
                         local damagetyperesist = inst.components.damagetyperesist
@@ -563,15 +502,17 @@ local function BuildSkillsData(SkillTreeFns)
             group = "allegiance",
             tags = {"allegiance","lock"},
             root = true,
-            lock_open = function(prefabname, activatedskills, readonly) 
+            lock_open = function(prefabname, activatedskills, readonly)
+                local shadow_skills = SkillTreeFns.CountTags(prefabname, "shadow_favor", activatedskills)
+                if shadow_skills > 0 then
+                    return false
+                end
+
                 if readonly then
                     return "question"
                 end
-                local shadow_skills = SkillTreeFns.CountTags(prefabname, "shadow_favor", activatedskills)
 
-                return shadow_skills <= 0 and TheGenericKV:GetKV("celestialchampion_killed") == "1"
-
-                --return true
+                return TheGenericKV:GetKV("celestialchampion_killed") == "1"
             end,            
             onactivate = function(inst, fromload)
                     --inst:AddTag("alchemist")
@@ -589,14 +530,8 @@ local function BuildSkillsData(SkillTreeFns)
             tags = {"allegiance","lock"},
             root = true,
             lock_open = function(prefabname, activatedskills, readonly) 
-                if readonly then
-                    return "question"
-                end
-                
                 local lighter_skills = SkillTreeFns.CountTags(prefabname, "lighter", activatedskills)
                 return lighter_skills >= 7
-
-                --return true
             end,            
             onactivate = function(inst, fromload)
                     --inst:AddTag("alchemist")
@@ -613,15 +548,9 @@ local function BuildSkillsData(SkillTreeFns)
             group = "allegiance",
             tags = {"allegiance","lock"},
             root = true,
-            lock_open = function(prefabname, activatedskills, readonly) 
-                if readonly then
-                    return "question"
-                end
-
+            lock_open = function(prefabname, activatedskills, readonly)
                 local bernie_skills = SkillTreeFns.CountTags(prefabname, "bernie", activatedskills)
                 return bernie_skills >= 6
-
-                --return true
             end,            
             onactivate = function(inst, fromload)
                     --inst:AddTag("alchemist")
@@ -641,10 +570,6 @@ local function BuildSkillsData(SkillTreeFns)
             tags = {"allegiance","lunar_favor"},            
             locks = {"willow_allegiance_lock_4", "willow_allegiance_lock_5"},
             onactivate = function(inst, fromload)
-                    if inst.updateembers then
-                        inst.updateembers(inst)
-                    end
-
                     if not inst.components.skilltreeupdater:IsActivated("willow_allegiance_lunar_bernie") then
                         inst:AddTag("player_lunar_aligned")
                         local damagetyperesist = inst.components.damagetyperesist

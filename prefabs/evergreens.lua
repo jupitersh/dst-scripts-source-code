@@ -534,7 +534,7 @@ end
 
 local function onpineconetask(inst)
     local pt = inst:GetPosition()
-    local angle = math.random() * 2 * PI
+    local angle = math.random() * TWOPI
     pt.x = pt.x + math.cos(angle)
     pt.z = pt.z + math.sin(angle)
     inst.components.lootdropper:DropLoot(pt)
@@ -807,6 +807,8 @@ local function tree(name, build, stage, data)
 
         MakeObstaclePhysics(inst, .25)
 
+		inst:SetDeploySmartRadius(DEPLOYSPACING_RADIUS[DEPLOYSPACING.DEFAULT] / 2) --seed/planted_tree deployspacing/2
+
         if build == "twiggy" then
 
             inst:AddTag("renewable")
@@ -915,6 +917,9 @@ local function tree(name, build, stage, data)
         inst.OnLoad = onload
 
         MakeSnowCovered(inst)
+
+        MakeWaxablePlant(inst)
+
         ---------------------
 
         if GetBuild(inst).rebirth_loot ~= nil then

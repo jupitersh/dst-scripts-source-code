@@ -28,6 +28,7 @@ local function ConfigurePlayerLocomotor(inst)
     inst.components.locomotor:SetFasterOnCreep(inst:HasTag("spiderwhisperer"))
     inst.components.locomotor:SetTriggersCreep(not inst:HasTag("spiderwhisperer"))
     inst.components.locomotor:SetAllowPlatformHopping(true)
+	inst.components.locomotor:EnableHopDelay(true)
 	inst.components.locomotor.hop_distance_fn = GetHopDistance
 	inst.components.locomotor.pusheventwithdirection = true
 end
@@ -132,6 +133,10 @@ local function OnPlayerDied(inst, data)
     inst:DoTaskInTime(3, FadeOutDeadPlayer, data ~= nil and data.skeleton)
 end
 
+local function IsCharlieRose(item)
+	return item.prefab == "charlierose"
+end
+
 --Player has initiated death sequence
 local function OnPlayerDeath(inst, data)
     if inst:HasTag("playerghost") then
@@ -145,11 +150,26 @@ local function OnPlayerDeath(inst, data)
 
     inst:ClearBufferedAction()
 
-    if inst.components.revivablecorpse ~= nil then
+    if inst.components.revivablecorpse then
         inst.components.inventory:Hide()
-    else
-        inst.components.inventory:Close()
-        inst.components.age:PauseAging()
+	else
+		if inst.components.skilltreeupdater:IsActivated("winona_charlie_2") then
+			local rose = inst.components.inventory:FindItem(IsCharlieRose)
+			if rose then
+				if rose.components.stackable then
+					rose.components.stackable:Get():Remove()
+                else
+                    rose:Remove()
+				end
+				inst.charlie_vinesave = true
+			end
+		end
+		if inst.charlie_vinesave then
+			inst.components.inventory:Hide()
+		else
+			inst.components.inventory:Close()
+			inst.components.age:PauseAging()
+		end
     end
     inst:PushEvent("ms_closepopups")
 
@@ -175,7 +195,7 @@ local function OnPlayerDeath(inst, data)
         inst.deathpkname = killer:HasTag("player") and killer:GetDisplayName() or nil
     end
 
-    if not inst.ghostenabled and inst.components.revivablecorpse == nil then
+	if not (inst.ghostenabled or inst.components.revivablecorpse or inst.charlie_vinesave) then
         if inst.deathcause ~= "file_load" then
             inst.player_classified:AddMorgueRecord()
 
@@ -717,6 +737,61 @@ local function OnMakePlayerCorpse(inst, data)
     end
 end
 
+local function OnDeathTriggerVineSave(inst)
+	local announcement_string = GetNewDeathAnnouncementString(inst, inst.deathcause, inst.deathpkname, inst.deathbypet)
+	if announcement_string ~= "" then
+		TheNet:AnnounceDeath(announcement_string, inst.entity)
+	end
+	inst.player_classified:AddMorgueRecord()
+	SerializeUserSession(inst)
+end
+
+local function OnRespawnFromVineSave(inst)
+	inst.charlie_vinesave = nil
+
+	inst.deathclientobj = nil
+	inst.deathcause = nil
+	inst.deathpkname = nil
+	inst.deathbypet = nil
+
+	inst.rezsource = nil
+	inst.remoterezsource = nil
+
+	inst.last_death_position = nil
+	inst.last_death_shardid = nil
+
+	if inst.components.talker then
+		inst.components.talker:ShutUp()
+	end
+
+	inst.components.inventory:Show()
+
+	inst.components.burnable:Extinguish(true, 0)
+	inst.components.freezable:Reset()
+	inst.components.grogginess:ResetGrogginess()
+	inst.components.moisture:ForceDry(true, inst)
+	inst.components.moisture:ForceDry(false, inst)
+	inst.components.temperature:SetTemperature(TUNING.STARTING_TEMP)
+
+	inst.components.debuffable:Enable(false) --removes all debuffs
+	inst.components.debuffable:Enable(true)
+
+	if inst.components.sanity:GetRealPercent() < TUNING.SANITY_BECOME_SANE_THRESH then
+		inst.components.sanity:SetPercent(TUNING.SANITY_BECOME_SANE_THRESH, true)
+	end
+
+	if inst.components.hunger:GetPercent() < 0.2 then
+		inst.components.hunger:SetPercent(0.2, true)
+	end
+
+	inst.components.health:SetCurrentHealth(TUNING.RESURRECT_HEALTH * (inst.resurrect_multiplier or 1))
+	inst.components.health:ForceUpdateHUD(true)
+
+	local announcement_string = GetNewRezAnnouncementString(inst, STRINGS.NAMES.CHARLIE)
+	if announcement_string ~= "" then
+		TheNet:AnnounceResurrect(announcement_string, inst.entity)
+	end
+end
 
 local function GivePlayerStartingItems(inst, items, starting_item_skins)
     if items ~= nil and #items > 0 and inst.components.inventory ~= nil then
@@ -877,6 +952,39 @@ local function StopStageActing(inst)
     end
 end
 
+local function SynchronizeOneClientAuthoritativeSetting(inst, variable, value)
+    inst:SetClientAuthoritativeSetting(variable, value)
+    if not TheWorld.ismastersim then
+        SendRPCToServer(RPC.SetClientAuthoritativeSetting, variable, value)
+    end
+end
+
+local function SynchronizeAllClientAuthoritativeSettings(inst)
+    -- NOTES(JBK): We have client settings data that the server should know about because of the server only components.
+    inst:SynchronizeOneClientAuthoritativeSetting(CLIENTAUTHORITATIVESETTINGS.PLATFORMHOPDELAY, Profile:GetBoatHopDelay())
+end
+
+local function SetClientAuthoritativeSetting(inst, variable, value)
+    -- NOTES(JBK): Check passed in variables here using common RPC checks.
+    -- Do not trust the data in here at all it could be anything.
+    -- This function can be run on both client and server to store the information onto the player entity.
+    -- If there are too many variables later add a component and refactor.
+    if not checkuint(variable) then
+        return
+    end
+
+    if variable == CLIENTAUTHORITATIVESETTINGS.PLATFORMHOPDELAY then
+        if not checkuint(value) then
+            return
+        end
+        if value ~= TUNING.PLATFORM_HOP_DELAY_TICKS then
+            inst.forced_platformhopdelay = value
+        else
+            inst.forced_platformhopdelay = nil
+        end
+    end
+end
+
 local function OnPostActivateHandshake_Client(inst, state) -- NOTES(JBK): Use PostActivateHandshake.
     --print("[OPA_C]", state)
     if state <= inst._PostActivateHandshakeState_Client or state > POSTACTIVATEHANDSHAKE.READY then -- Forward unique states only.
@@ -887,6 +995,7 @@ local function OnPostActivateHandshake_Client(inst, state) -- NOTES(JBK): Use Po
 
     if state == POSTACTIVATEHANDSHAKE.CTS_LOADED then
         TheSkillTree:OPAH_DoBackup()
+        SynchronizeAllClientAuthoritativeSettings(inst) -- Make this the last call for this if block.
     elseif state == POSTACTIVATEHANDSHAKE.STC_SENDINGSTATE then
         inst:PostActivateHandshake(POSTACTIVATEHANDSHAKE.READY)
     elseif state == POSTACTIVATEHANDSHAKE.READY then
@@ -910,6 +1019,7 @@ local function OnPostActivateHandshake_Server(inst, state) -- NOTES(JBK): Use Po
         skilltreeupdater:SendFromSkillTreeBlob(inst)
     elseif state == POSTACTIVATEHANDSHAKE.READY then
         -- Good state.
+		inst:PushEvent("ms_skilltreeinitialized")
     else
         print("OnPostActivateHandshake_Server got a bad state:", inst, state)
     end
@@ -964,6 +1074,8 @@ return
     OnMakePlayerCorpse          = OnMakePlayerCorpse,
     OnRespawnFromGhost          = OnRespawnFromGhost,
     OnRespawnFromPlayerCorpse   = OnRespawnFromPlayerCorpse,
+	OnDeathTriggerVineSave		= OnDeathTriggerVineSave,
+	OnRespawnFromVineSave		= OnRespawnFromVineSave,
     OnSpooked                   = OnSpooked,
 	OnLearnCookbookRecipe		= OnLearnCookbookRecipe,
 	OnLearnCookbookStats		= OnLearnCookbookStats,
@@ -982,6 +1094,8 @@ return
     StopStageActing             = StopStageActing,
     OnPostActivateHandshake_Client = OnPostActivateHandshake_Client,
     OnPostActivateHandshake_Server = OnPostActivateHandshake_Server,
+    SetClientAuthoritativeSetting = SetClientAuthoritativeSetting,
+    SynchronizeOneClientAuthoritativeSetting = SynchronizeOneClientAuthoritativeSetting,
     PostActivateHandshake       = PostActivateHandshake,
     OnClosePopups               = OnClosePopups,
     UpdateScrapbook             = UpdateScrapbook,

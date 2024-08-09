@@ -3,14 +3,21 @@ local FISH_DATA = require("prefabs/oceanfishdef")
 local function UpdateFishNetAnim(inst, data)
     -- Swap out the fish net anim depending on the number of fish caught
     local container = inst.components.container
+    local symbolname
     if inst.components.oceantrawler:HasFishEscaped() then
-        inst.AnimState:OverrideSymbol("net_empty", "ocean_trawler", "net_untied")
+        symbolname = "net_untied"
     elseif container:IsEmpty() then
-        inst.AnimState:OverrideSymbol("net_empty", "ocean_trawler", "net_empty")
+        symbolname = "net_empty"
     elseif container:IsFull() then
-        inst.AnimState:OverrideSymbol("net_empty", "ocean_trawler", "net_full")
+        symbolname = "net_full"
     else
-        inst.AnimState:OverrideSymbol("net_empty", "ocean_trawler", "net_medium")
+        symbolname = "net_medium"
+    end
+    local skinbuild = inst.AnimState:GetSkinBuild()
+    if skinbuild and skinbuild ~= "" then
+        inst.AnimState:OverrideItemSkinSymbol("net_empty", skinbuild, symbolname, inst.GUID, "ocean_trawler")
+    else
+        inst.AnimState:OverrideSymbol("net_empty", "ocean_trawler", symbolname)
     end
 end
 
@@ -164,22 +171,6 @@ local function launch_away(inst, launch_height, speed_xz, speed_y)
     local angle = (180 - math.random() * 360) * DEGREES
     local sina, cosa = math.sin(angle), math.cos(angle)
     inst.Physics:SetVel(speed_xz * cosa, speed_y, speed_xz * sina)
-
-    -- Add a drop shadow component to the item as it flies through the air, then remove it when it lands
-    if inst.components.inventoryitem then
-        if not TheNet:IsDedicated() then
-            inst:AddComponent("groundshadowhandler")
-            inst.components.groundshadowhandler:SetSize(1, 0.5)
-            inst.components.inventoryitem:SetLanded(false, true)
-            inst:ListenForEvent("on_landed",
-                function(inst)
-                    if inst:IsOnOcean() then
-                        SpawnPrefab("wave_splash").Transform:SetPosition(inst.Transform:GetWorldPosition())
-                    end
-                    inst:RemoveComponent("groundshadowhandler")
-                end)
-        end
-    end
 end
 
 function OceanTrawler:ReleaseOverflowFish()

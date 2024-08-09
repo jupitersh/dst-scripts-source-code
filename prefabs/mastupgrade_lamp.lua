@@ -3,6 +3,11 @@ local assets =
     Asset("ANIM", "anim/mastupgrade_lamp.zip"),
 }
 
+local yotd_assets =
+{
+    Asset("ANIM", "anim/yotd_mastupgrade_lamp.zip"),
+}
+
 local prefabs =
 {
 	"collapse_small",
@@ -53,8 +58,21 @@ end
 
 local function OnEntityReplicated(inst)
     local parent = inst.entity:GetParent()
-    if parent ~= nil and parent.prefab == "mast" or parent.prefab == "mast_malbatross" then
-        parent.highlightchildren = { inst }
+
+    if parent ~= nil and parent:HasTag("mast") then
+        if parent.highlightchildren ~= nil then
+            table.insert(parent.highlightchildren, inst)
+        else
+            parent.highlightchildren = { inst }
+        end
+    end
+end
+
+local function CLIENT_OnRemoveEntity(inst)
+    local parent = inst.entity:GetParent()
+
+    if parent ~= nil and parent.highlightchildren ~= nil then
+        table.removearrayvalue(parent.highlightchildren, inst)
     end
 end
 
@@ -77,6 +95,8 @@ local function fn()
     inst:AddTag("DECOR")
 
     inst.scrapbook_inspectonseen = true
+
+    inst.OnRemoveEntity = CLIENT_OnRemoveEntity
 
     inst.entity:SetPristine()
 
@@ -126,21 +146,48 @@ local function itemfn()
         return inst
     end
 
+    inst.scrapbook_animoffsety = 65
+
     inst:AddComponent("tradable")
 
     inst:AddComponent("inspectable")
 
-    inst:AddComponent("inventoryitem")
-    inst.components.inventoryitem:SetSinks(false)
+    local inventoryitem = inst:AddComponent("inventoryitem")
+    inventoryitem:SetSinks(false)
 
-    inst:AddComponent("upgrader")
-    inst.components.upgrader.upgradetype = UPGRADETYPES.MAST
-    inst.components.upgrader.upgradevalue = 1
+    local upgrader = inst:AddComponent("upgrader")
+    upgrader.upgradetype = UPGRADETYPES.MAST
+    upgrader.upgradevalue = 1
 
     MakeHauntableLaunchAndSmash(inst)
 
     return inst
 end
 
+local function yotd_fn()
+    local inst = fn()
+
+    inst.AnimState:SetBuild("yotd_mastupgrade_lamp")
+
+    return inst
+end
+
+local function yotd_itemfn()
+    local inst = itemfn()
+
+    inst.AnimState:SetBuild("yotd_mastupgrade_lamp")
+
+    if not TheWorld.ismastersim then
+        return inst
+    end
+
+    inst.upgrade_override = "mastupgrade_lamp_yotd"
+
+    return inst
+end
+
 return Prefab("mastupgrade_lamp_item", itemfn, assets, prefabs),
-    Prefab("mastupgrade_lamp", fn, assets)
+    Prefab("mastupgrade_lamp", fn, assets),
+
+    Prefab("mastupgrade_lamp_item_yotd", yotd_itemfn, yotd_assets, prefabs),
+    Prefab("mastupgrade_lamp_yotd", yotd_fn, yotd_assets, prefabs)

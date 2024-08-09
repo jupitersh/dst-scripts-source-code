@@ -44,15 +44,16 @@ return{
 			GENERIC = "Nuh-uh.",
 			INUSE = "You find something good?",
             NOTMASTERCHEF = "Fancy cooking man can do it, florpt.",
+            NOTAMERM = "Unused_by_wurt",
 		},
 		UNLOCK =
         {
---fallback to speech_wilson.lua         	WRONGKEY = "I can't do that.",
+--fallback to speech_wilson.lua             WRONGKEY = "I can't do that.",
         },
 		USEKLAUSSACKKEY =
         {
-        	WRONGKEY = "Grrr, key not work!",
-        	KLAUS = "Not good time, florp!",
+            WRONGKEY = "Grrr, key not work!",
+            KLAUS = "Not good time, florp!",
 			QUAGMIRE_WRONGKEY = "Grrr, key not work!",
         },
 		ACTIVATE =
@@ -68,6 +69,9 @@ return{
             MANNEQUIN_EQUIPSWAPFAILED = "Not supposed to put that there.",
             PILLOWFIGHT_NO_HANDPILLOW = "WAIT!! Forgot pillow!",
             NOTMYBERNIE = "Where fire lady? Big bear not listen!",
+            NOTMERM = "Florp?",
+            NOKELP = "Needs more snacks.",
+            HASMERMLEADER = "Glurgh. Gotta wait, other Mermfolk using it.",
 		},
 		OPEN_CRAFTING =
 		{
@@ -85,7 +89,7 @@ return{
             NO_RACERS = "Can't start yet! Need veggie rats!",
         },
 
-		DISMANTLE =
+		DISMANTLE = 
 		{
 			COOKING = "Wait, it making food!",
 			INUSE = "Gotta wait.",
@@ -127,6 +131,7 @@ return{
             GHOSTHEART = "Errmmm... don't think so, florp.",
             NOTGEM = "Don't fit.",
             WRONGGEM = "Glorp? This not right gem.",
+			NOGENERATORSKILL = "Don't fit.",
             NOTSTAFF = "Don't look right.",
             MUSHROOMFARM_NEEDSSHROOM = "Need to find mushroom!",
             MUSHROOMFARM_NEEDSLOG = "Oooh, need creepy log for this.",
@@ -238,7 +243,7 @@ return{
         },
         SAIL =
         {
-        	REPAIR = "It good enough.",
+            REPAIR = "It good enough.",
         },
         ROW_FAIL =
         {
@@ -393,13 +398,46 @@ return{
 --fallback to speech_wilson.lua 			NO_TOPHAT = "only_used_by_waxwell",
 		},
 
+        CASTSPELL =
+        {
+            TERRAFORM_TOO_SOON = "No rush me, flort! Magic hard!",
+        },
+
 		CASTAOE =
 		{
 --fallback to speech_wilson.lua 			NO_MAX_SANITY = "only_used_by_waxwell",
             NOT_ENOUGH_EMBERS = "only_used_by_willow",
             NO_TARGETS = "only_used_by_willow",
             CANT_SPELL_MOUNTED = "only_used_by_willow",
-            SPELL_ON_COOLDOWN = "only_used_by_willow", 
+            SPELL_ON_COOLDOWN = "only_used_by_willow",
+			NO_BATTERY = "only_used_by_winona",
+			NO_CATAPULTS = "only_used_by_winona",
+		},
+
+        PICK =
+        {
+            NOTHING_INSIDE = "No stuff.",
+        },
+
+        HEAL =
+        {
+            NOT_MERM = "Not work? Glorph. Guess only for Mermfolk.",
+        },
+
+		LOOKAT = --fail strings for close inspection
+		{
+			-- Winona specific
+--fallback to speech_wilson.lua 			ROSEGLASSES_INVALID = "only_used_by_winona",
+--fallback to speech_wilson.lua 			ROSEGLASSES_COOLDOWN = "only_used_by_winona",
+--fallback to speech_wilson.lua             ROSEGLASSES_DISMISS = "only_used_by_winona",
+--fallback to speech_wilson.lua             ROSEGLASSES_STUMPED = "only_used_by_winona",
+			--
+		},
+
+		REMOTE_TELEPORT =
+		{
+			NOSKILL = "only_used_by_winona",
+			NODEST = "only_used_by_winona",
 		},
     },
 
@@ -471,6 +509,21 @@ return{
 --fallback to speech_wilson.lua     ANNOUNCE_CHARGE = "only_used_by_wx78",
 --fallback to speech_wilson.lua 	ANNOUNCE_DISCHARGE = "only_used_by_wx78",
 
+    -- Winona specific
+--fallback to speech_wilson.lua     ANNOUNCE_ROSEGLASSES = 
+--fallback to speech_wilson.lua     {
+--fallback to speech_wilson.lua         "only_used_by_winona",
+--fallback to speech_wilson.lua         "only_used_by_winona",
+--fallback to speech_wilson.lua         "only_used_by_winona",
+--fallback to speech_wilson.lua     },
+    ANNOUNCE_CHARLIESAVE = 
+    {
+        "only_used_by_winona",
+    },
+	ANNOUNCE_ENGINEERING_CAN_UPGRADE = "only_used_by_winona",
+	ANNOUNCE_ENGINEERING_CAN_DOWNGRADE = "only_used_by_winona",
+	ANNOUNCE_ENGINEERING_CAN_SIDEGRADE = "only_used_by_winona",
+
 	ANNOUNCE_EAT =
 	{
 		GENERIC = "Mmm-mmmm!",
@@ -523,6 +576,7 @@ return{
 	ANNOUNCE_HIGHRESEARCH = "Head feels so full of smarts, florp!",
 	ANNOUNCE_HOUNDS = "Glurp... doggies coming...",
 	ANNOUNCE_WORMS = "Glurt?",
+    ANNOUNCE_ACIDBATS = "Don't like.",
 	ANNOUNCE_HUNGRY = "Want food!",
 	ANNOUNCE_HUNT_BEAST_NEARBY = "Where these footprints go?",
 	ANNOUNCE_HUNT_LOST_TRAIL = "No more prints, flort.",
@@ -552,7 +606,7 @@ return{
 	ANNOUNCE_PECKED = "Ow! OW! Ouchie!",
 	ANNOUNCE_QUAKE = "Ground shaking!",
 	ANNOUNCE_RESEARCH = "Head getting full of smarts, flurp!",
-	ANNOUNCE_SHELTER = "Why not play in rain, florp?",
+	ANNOUNCE_SHELTER = "Thanks tree, florp!",
 	ANNOUNCE_THORNS = "Ouchie!",
 	ANNOUNCE_BURNT = "Glorpt!! Hot!!",
 	ANNOUNCE_TORCH_OUT = "Hey, where fire go, florp?",
@@ -562,6 +616,7 @@ return{
 	ANNOUNCE_TRAP_WENT_OFF = "....Glop.",
 	ANNOUNCE_UNIMPLEMENTED = "Trap not ready!",
 	ANNOUNCE_WORMHOLE = "Wheeeeee!",
+--fallback to speech_wilson.lua     ANNOUNCE_WORMHOLE_SAMESPOT = "only_used_by_winona",
 	ANNOUNCE_TOWNPORTALTELEPORT = "Glorp... felt weird!",
 	ANNOUNCE_CANFIX = "\nCan fix easy, florp!",
 	ANNOUNCE_ACCOMPLISHMENT = "Did it!",
@@ -762,6 +817,7 @@ return{
         BOOK_RESEARCH_STATION = "It really hard to read, but feel smart holding it, florp!",
         BOOK_LIGHT_UPGRADED = "There more than one kind of words to learn?! Glurgh...",
     },
+
     ANNOUNCE_WEAK_RAT = "It not look so good...",
 
     ANNOUNCE_CARRAT_START_RACE = "Go! Go! Go!",
@@ -904,6 +960,8 @@ return{
 
     ANNOUNCE_CHAIR_ON_FIRE = "This not fine!!",
 
+    ANNOUNCE_HEALINGSALVE_ACIDBUFF_DONE = "Uh oh... better stay out of stingy rain, florp.",
+
     ANNOUNCE_COACH = 
     {
         "only_used_by_wolfgang",
@@ -926,6 +984,15 @@ return{
         "only_used_by_wolfang",
         "only_used_by_wolfang",
     },
+
+    ANNOUNCE_YOTD_NOBOATS = "Gotta get closer to start, florp!",
+    ANNOUNCE_YOTD_NOCHECKPOINTS = "Hey! Race not even set up yet!!",
+    ANNOUNCE_YOTD_NOTENOUGHBOATS = "Glurgh. No room for anybody else to race.",
+
+    ANNOUNCE_OTTERBOAT_OUTOFSHALLOWS = "Glorp! Back to shallow, back to shallow!",
+    ANNOUNCE_OTTERBOAT_DENBROKEN = "No fair! Didn't know wasn't supposed to break fishrat house!",
+
+    ANNOUNCE_GATHER_MERM = "Come, hungry Mermfolk! Feast and follow me! Flort!",
 
 	BATTLECRY =
 	{
@@ -1441,18 +1508,25 @@ return{
         {
             GENERIC = "It grow so big!",
             BLOOM = "Something falling off it.",
+            ACIDCOVERED = "Smell... different. Still tasty?",
         },
         MUSHTREE_MEDIUM =
         {
             GENERIC = "Look kinda tasty, florp.",
             BLOOM = "Pretty!",
+            ACIDCOVERED = "Smell... different. Still tasty?",
         },
         MUSHTREE_SMALL =
         {
             GENERIC = "Short and stumpy.",
             BLOOM = "Floaty lights!",
+            ACIDCOVERED = "Smell... different. Still tasty?",
         },
-        MUSHTREE_TALL_WEBBED = "This one claimed by Spiderfolk.",
+        MUSHTREE_TALL_WEBBED =
+        {
+            GENERIC = "This one claimed by Spiderfolk.",
+            ACIDCOVERED = "Smell... different. Still tasty?",
+        },
         SPORE_TALL =
         {
             GENERIC = "Pretty!",
@@ -1715,7 +1789,7 @@ return{
             RARE = "Look really complicated, florp.",
         },
         SKETCH = "Oooh, picture!",
-		COOKINGRECIPECARD = 
+		COOKINGRECIPECARD =
 		{
 			GENERIC = "Glurgh... can't read it!",
 		},
@@ -1841,9 +1915,10 @@ return{
         CHESSPIECE_EYEOFTERROR = "Oh no... got dried out, glorp...",
         CHESSPIECE_TWINSOFTERROR = "Ha ha, they just rocks now!",
         CHESSPIECE_DAYWALKER = "Grrr... why we have nasty Pig statue?!",
-        CHESSPIECE_DEERCLOPS_MUTATED = "Bye bye deer. No more eye pokey",
-        CHESSPIECE_WARG_MUTATED = "Poor doggy. Not so bad",
-        CHESSPIECE_BEARGER_MUTATED = "Remember bad teddy",
+        CHESSPIECE_DEERCLOPS_MUTATED = "Bye bye deer. No more eye pokey.",
+        CHESSPIECE_WARG_MUTATED = "Poor doggy. Not so bad.",
+        CHESSPIECE_BEARGER_MUTATED = "Remember bad teddy.",
+        CHESSPIECE_SHARKBOI = "Haha! Bad fishie frozen.",
 
         CHESSJUNK1 = "It all broken.",
         CHESSJUNK2 = "Didn't do it!!",
@@ -1932,7 +2007,11 @@ return{
 		DRAGONFLY = "Scaled-folk shouldn't fight, florp!",
 		ARMORDRAGONFLY = "More scales!!",
 		DRAGON_SCALES = "Pretty...",
-		DRAGONFLYCHEST = "Like look of this box, florpt.",
+		DRAGONFLYCHEST =
+		{
+			GENERIC = "Like look of this box, florpt.",
+            UPGRADED_STACKSIZE = "Could fit a whole me inside, florp!",
+		},
 		DRAGONFLYFURNACE =
 		{
 			HAMMERED = "Broke it...",
@@ -2582,6 +2661,7 @@ return{
 		SILK = "Spiderfolk loogies!",
 		SKELETON = "It dead.",
 		SCORCHED_SKELETON = "Got too close to campfire, florp.",
+        SKELETON_NOTPLAYER = "Glorpt. Can't tell if Mermfolk or Pigfolk...",
 		SKULLCHEST = "Maybe something good inside!", --removed
 		SMALLBIRD =
 		{
@@ -2698,8 +2778,11 @@ return{
 		{
 			GENERIC = "Oooooh, box for things!",
 			BURNT = "Noooo!",
+            UPGRADED_STACKSIZE = "Big box for things!",
 		},
 		TREASURECHEST_TRAP = "Treasure!",
+        CHESTUPGRADE_STACKSIZE = "Make boxes bigger? Glurgh. More fun to leave stuff on ground.", -- Describes the kit upgrade item.
+		COLLAPSEDCHEST = "Didn't do it!!",
 		SACRED_CHEST =
 		{
 			GENERIC = "Wonder what inside?",
@@ -2821,13 +2904,13 @@ return{
         },
         CLAYWARG =
         {
-        	GENERIC = "Big teeth!",
-        	STATUE = "Have weird feeling, florp.",
+            GENERIC = "Big teeth!",
+            STATUE = "Have weird feeling, florp.",
         },
         CLAYHOUND =
         {
-        	GENERIC = "Glurp! Bitey!",
-        	STATUE = "Who make you, florp?",
+            GENERIC = "Glurp! Bitey!",
+            STATUE = "Who make you, florp?",
         },
         HOUNDWHISTLE = "It make no sound?",
         CHESSPIECE_CLAYHOUND = "Bad doggy.",
@@ -2998,6 +3081,8 @@ return{
 		WALL_MOONROCK_ITEM = "Tough rocks.",
 		WALL_DREADSTONE = "Pretty wall!",
 		WALL_DREADSTONE_ITEM = "Will be good wall, florp.",
+        WALL_SCRAP = "Pretty wall, flort!",
+        WALL_SCRAP_ITEM = "Make pretty wall, flort!",
 		FENCE = "Keep out nasty Pigfolk, florp.",
         FENCE_ITEM = "For building fence!",
         FENCE_GATE = "Oooh smart, put door in fence.",
@@ -3427,6 +3512,7 @@ return{
         	OFF = "Why it not work?",
         	BURNING = "It look super dangerous now!",
         	BURNT = "Awww...",
+			SLEEP = "Rock thrower! Rock thrower!",
         },
         WINONA_SPOTLIGHT =
         {
@@ -3434,6 +3520,7 @@ return{
         	OFF = "Think it tired.",
         	BURNING = "That not right kind of light.",
         	BURNT = "Not gonna help now, florp.",
+			SLEEP = "What this thing?",
         },
         WINONA_BATTERY_LOW =
         {
@@ -3445,12 +3532,64 @@ return{
         },
         WINONA_BATTERY_HIGH =
         {
-        	GENERIC = "What it do?",
-        	LOWPOWER = "It looking tired.",
-        	OFF = "It supposed to be doing something?",
-        	BURNING = "It supposed to do that, florp?",
-        	BURNT = "Oh well.",
+			GENERIC = "What it do?",
+			LOWPOWER = "It looking tired.",
+			OFF = "It supposed to be doing something?",
+			BURNING = "It supposed to do that, florp?",
+			BURNT = "Oh well.",
+			OVERLOADED = "Glorp! Hot! Hot!",
         },
+		--v3 Winona
+		WINONA_REMOTE =
+		{
+			GENERIC = "Glurph. But it not even look like a hand?",
+			OFF = "Why it not work?",
+			CHARGING = "Glurph. But it not even look like a hand?",
+			CHARGED = "Glurph. But it not even look like a hand?",
+		},
+		WINONA_TELEBRELLA =
+		{
+			GENERIC = "Wonder where it make the stuff go?",
+--fallback to speech_wilson.lua             MISSINGSKILL = "only_used_by_winona",
+			OFF = "It supposed to be doing something?",
+			CHARGING = "Wonder where it make the stuff go?",
+			CHARGED = "Wonder where it make the stuff go?",
+		},
+		WINONA_TELEPORT_PAD_ITEM =
+		{
+			GENERIC = "Sometimes free stuff appear!",
+--fallback to speech_wilson.lua             MISSINGSKILL = "only_used_by_winona",
+			OFF = "Not working, florp.",
+			BURNING = "Don't think that how it supposed to look, florp.",
+			BURNT = "Oh well. Gone now.",
+		},
+		WINONA_STORAGE_ROBOT =
+		{
+			GENERIC = "Weenowna-lady make Ironfolk?",
+			OFF = "Hey! Wake up, flort!",
+			SLEEP = "Weenowna-lady make Ironfolk?",
+			CHARGING = "Hey! Wake up, flort!",
+			CHARGED = "Hey! Wake up, flort!",
+		},
+		INSPECTACLESBOX = "only_used_by_winona",
+		INSPECTACLESBOX2 = "only_used_by_winona",
+		INSPECTACLESHAT = 
+        {
+            GENERIC = "Weenowna-lady Ironfolk eyes!",
+            MISSINGSKILL = "only_used_by_winona",
+        },
+		ROSEGLASSESHAT =
+        {
+            GENERIC = "It Weenonwna-lady's plant eyes!",
+            MISSINGSKILL = "only_used_by_winona",
+        },
+		CHARLIERESIDUE = "only_used_by_winona",
+		CHARLIEROSE = "only_used_by_winona",
+        WINONA_MACHINEPARTS_1 = "only_used_by_winona",
+        WINONA_MACHINEPARTS_2 = "only_used_by_winona",
+		WINONA_RECIPESCANNER = "only_used_by_winona",
+		WINONA_HOLOTELEPAD = "only_used_by_winona",
+		WINONA_HOLOTELEBRELLA = "only_used_by_winona",
 
         --Wormwood
         COMPOSTWRAP = "(Sniff) Glurgh!!",
@@ -3628,7 +3767,7 @@ return{
 		KELP_DRIED = "Salty crunchies.",
 
 		GESTALT = "They want to tell story.",
-        GESTALT_GUARD = "Not as strong as Mermfold guard, florp!",
+        GESTALT_GUARD = "Not as strong as Mermfolk guard, florp!",
 
 		COOKIECUTTER = "It look friendly.",
 		COOKIECUTTERSHELL = "Ha ha! Mine now!",
@@ -3932,12 +4071,17 @@ return{
         WEREITEM_GOOSE = "Wanna play with doll!",
         WEREITEM_MOOSE = "Wicker-lady say should eat with mouth closed.",
 
-        MERMHAT = "Make scale-less look like friendly Mermfolk!",
+        MERMHAT = "Make scale-less look like friendly Mermfolk!",        
         MERMTHRONE =
         {
             GENERIC = "Good seat for Merm King!",
             BURNT = "WHO DO THIS?!",
         },
+        MOSQUITOMUSK = "Lil' Itchy wanna play with friends?",
+        MOSQUITOBOMB = "Hee-hee-hee... catch!",
+        MOSQUITOFERTILIZER = "Made dirt snack for plants, florp!",
+        MOSQUITOMERMSALVE = "Mermfolk medicine, florp!",
+
         MERMTHRONE_CONSTRUCTION =
         {
             GENERIC = "There lots of Kings in fairy stories... look easy to make!",
@@ -4108,6 +4252,7 @@ return{
         DUSTMERINGUE = "Throw it on floor, then don't have to eat it.",
 
         SHROOMCAKE = "It best cake ever!",
+        SHROOMBAIT = "Nope.",
 
         NIGHTMAREGROWTH = "Glurp... something bad happening!",
 
@@ -4690,6 +4835,9 @@ return{
         BOAT_BUMPER_KELP_KIT = "Gonna decorate boat, florp.",
 		BOAT_BUMPER_SHELL = "Pretty decorations!",
         BOAT_BUMPER_SHELL_KIT = "Gonna decorate boat, florp.",
+        BOAT_BUMPER_CRABKING = "Pretty decorations!",
+        BOAT_BUMPER_CRABKING_KIT = "Gonna decorate boat, florp.",
+
         BOAT_CANNON = {
             GENERIC = "It not ready yet!",
             AMMOLOADED = "Wanna play, wanna play!",
@@ -4837,6 +4985,12 @@ return{
 		{
 			GENERIC = "Heehee, stinky Pig all locked up!",
 			EXPOSED = "Rock too hard for breaking, florp.",
+		},
+		DAYWALKER2 =
+		{
+			GENERIC = "I don't like him.",
+			BURIED = "No, thank you. Flort!",
+			HOSTILE = "See? Never trust a stinky Pig.",
 		},
 		ARMORDREADSTONE = "So pretty... it mine!",
 		DREADSTONEHAT = "It real good for headbutting, flort!",
@@ -5053,6 +5207,142 @@ return{
 
         EMBERLIGHT = "Pretty...",
         WILLOW_EMBER = "only_used_by_willow",
+
+        -- Year of the Dragon
+        YOTD_DRAGONSHRINE =
+        {
+            GENERIC = "Gimme stuff!",
+            EMPTY = "Want burny stuff? Say \"please\"!",
+            BURNT = "Maybe it like it that way?",
+        },
+
+        DRAGONBOAT_KIT = "Gonna be best boat. Because it mine!",
+        DRAGONBOAT_PACK = "My boat, all mine!",
+
+        BOATRACE_CHECKPOINT = "It show the way!",
+        BOATRACE_CHECKPOINT_THROWABLE_DEPLOYKIT = "Gonna put it in best spot. Not telling where.",
+        BOATRACE_START = "This the start place.",
+        BOATRACE_START_THROWABLE_DEPLOYKIT = "Hurry up, wanna start race!!",
+
+        BOATRACE_PRIMEMATE = "You gonna lose! Nyeeeehhh!!",
+        BOATRACE_SPECTATOR_DRAGONLING = "Gonna win, just watch, florp!",
+
+        YOTD_STEERINGWHEEL = "Me steer, me steer!",
+        YOTD_STEERINGWHEEL_ITEM = "This go on boat?",
+        YOTD_OAR = "Gonna have claws just as big one day, you gonna see!",
+        YOTD_ANCHOR = "Carful not to hurt any fishies on way down, florp!",
+        YOTD_ANCHOR_ITEM = "Can make boat-stopper!",
+        MAST_YOTD = "Everything better with scales.",
+        MAST_YOTD_ITEM = "Pieces for boat thing.",
+        BOAT_BUMPER_YOTD = "Grrr! Boat gonna bite you!",
+        BOAT_BUMPER_YOTD_KIT = "Gonna decorate boat, florp.",
+        BOATRACE_SEASTACK = "Glorp! Don't hit boat!",
+        BOATRACE_SEASTACK_THROWABLE_DEPLOYKIT = "Don't worry, won't throw in front of your boat! (Hee-hee...)",
+        BOATRACE_SEASTACK_MONKEY = "Glorp! Don't hit boat!",
+        BOATRACE_SEASTACK_MONKEY_THROWABLE_DEPLOYKIT = "Don't worry, won't throw in front of your boat! (Hee-hee...)",
+        MASTUPGRADE_LAMP_YOTD = "Have pretty glowy eyes.",
+        MASTUPGRADE_LAMP_ITEM_YOTD = "Tall boat light!",
+        WALKINGPLANK_YOTD = "Ooooh, fancy jumpy board!",
+        CHESSPIECE_YOTD = "Why it not start? Wanna race again!",
+
+        -- Rifts / Meta QoL
+
+        HEALINGSALVE_ACID = "Slimy!",
+
+        BEESWAX_SPRAY = "Glurgh... stink spray!",
+        WAXED_PLANT = "Plant gonna be stuck like that forever?", -- Used for all waxed plants, from farm plants to trees.
+
+        STORAGE_ROBOT = {
+            GENERIC = "Clean mess, baby Ironfolk!",
+            BROKEN = "Didn't break baby Ironfolk. Found like that.",
+        },
+
+        SCRAP_MONOCLEHAT = "Can see everything!",
+        SCRAPHAT = "Blegh, still smell like nasty Pigman!",
+
+        FENCE_JUNK = "Made of bunch of metal bits.",
+        JUNK_PILE = "If anything good in there, it mine!",
+        JUNK_PILE_BIG = "Glurp... look like it gonna fall!",
+
+        ARMOR_LUNARPLANT_HUSK = "Plant's killing shirt!",
+
+        -- Meta 4 / Ocean QoL
+
+        OTTER = "Fishrat!",
+        OTTERDEN = {
+            GENERIC = "Glorp! No fishrat stuff!",
+            HAS_LOOT = "Play stealing game with fishrat, flort!",
+        },
+        OTTERDEN_DEAD = "Uh oh... that a lot of water.",
+
+        BOAT_ANCIENT_ITEM = "Why make boat that already old, florp?",
+        BOAT_ANCIENT_CONTAINER = "Hidey-hole for stuff.",
+        WALKINGPLANK_ANCIENT = "Jumpy board!",
+
+        ANCIENTTREE_SEED = "Don't know if too tasty to plant.",
+
+        ANCIENTTREE_GEM = {
+            GENERIC = "Even Wicker-lady don't know if rock or tree.",
+            STUMP = "Just rocks now.",
+        },
+
+        ANCIENTTREE_SAPLING_ITEM = "Where put Plant's friend?",
+
+        ANCIENTTREE_SAPLING = {
+            GENERIC = "Plant's friend growing!",
+            WRONG_TILE = "Glorp! Who put Plant's friend wrong place?",
+            WRONG_SEASON = "Wrong when, florp!",
+        },
+ 
+        ANCIENTTREE_NIGHTVISION = {
+            GENERIC = "Nice horns, florp!",
+            STUMP = "Glorp. Horn tree gone.",
+        },
+
+        ANCIENTFRUIT_GEM = "Grrrr, too hard to eat!",
+        ANCIENTFRUIT_NIGHTVISION = "Squirminess add more flavor, florp.",
+        ANCIENTFRUIT_NIGHTVISION_COOKED = "Glorp! Why not squirmy anymore?",
+
+        BOATPATCH_KELP = "Maybe fix boat for now, be snack for later?",
+
+        CRABKING_MOB = "Glurgh. Crabfolk so pinchy.",
+        CRABKING_MOB_KNIGHT = "Another cranky Crabfolk! Glorp!",
+        CRABKING_CANNONTOWER = "Hate skyrocks.",
+        CRABKING_ICEWALL = "Why not wait for melt?",
+
+        SALTLICK_IMPROVED = "Mmm, salty!",
+
+        OFFERING_POT =
+        {
+            GENERIC = "Hey!! There no sea snacks in here!",
+            SOME_KELP = "Not full yet, need more yummies!",
+            LOTS_OF_KELP = "Enough for all Mermfolk to share, florp.",
+        },
+
+        OFFERING_POT_UPGRADED =
+        {
+            GENERIC = "Hey!! There no sea snacks in here!",
+            SOME_KELP = "Not full yet, need more yummies!",
+            LOTS_OF_KELP = "Enough for all Mermfolk to share, florp.",
+        },
+
+        MERM_ARMORY = "Making Mermfolk fighting hat.",
+        MERM_ARMORY_UPGRADED = "Best Mermfolk fighting hat here!",
+        MERM_TOOLSHED = "Mermfolk tools inside.",
+        MERM_TOOLSHED_UPGRADED = "These Mermfolk tools better.",
+        MERMARMORHAT = "Only for big Mermfolk, glorp…",
+        MERMARMORUPGRADEDHAT = "Only for big Mermfolk, glorp…",
+        MERM_TOOL = "Made for hardworking Mermfolk!",
+        MERM_TOOL_UPGRADED = "Made for hardest working Mermfolk!",
+
+        WURT_SWAMPITEM_SHADOW = "Pretty stick!",
+        WURT_SWAMPITEM_LUNAR = "Bright stick!",
+
+        MERM_SHADOW = "Mermfolk came back!",
+        MERMGUARD_SHADOW = "Hello again, Mermfolk guard!",
+
+        MERM_LUNAR = "Spiky Mermfolk!",
+        MERMGUARD_LUNAR = "Floooorp... you most strong, most pretty Mermfolk.",
     },
 
     DESCRIBE_GENERIC = "What that?",

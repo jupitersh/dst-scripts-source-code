@@ -1,5 +1,3 @@
-
-
 local WEED_DEFS = require("prefabs/weed_defs").WEED_DEFS
 
 local function ontendto(inst, doer)
@@ -499,6 +497,7 @@ local function MakeWeed(weed_def)
         inst.AnimState:PlayAnimation("crop_small")
 		inst.AnimState:OverrideSymbol("soil01", "farm_soil", "soil01")
 
+		inst:SetDeploySmartRadius(0.5) --match visuals, seeds use CUSTOM spacing
 		inst:SetPhysicsRadiusOverride(TUNING.FARM_PLANT_PHYSICS_RADIUS)
 
         inst:AddTag("plantedsoil")
@@ -581,6 +580,8 @@ local function MakeWeed(weed_def)
 			inst.components.burnable:SetOnIgniteFn(onignite)
 			inst.components.burnable:SetOnExtinguishFn(onextinguish)
 		end
+
+		MakeWaxablePlant(inst)
 
 		inst.OnSave = OnSave
 		inst.OnPreLoad = OnPreLoad

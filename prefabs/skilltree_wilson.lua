@@ -19,9 +19,6 @@ local function BuildSkillsData(SkillTreeFns)
             --pos = {1,0},
             group = "alchemy",
             tags = {"alchemy"},
-            onactivate = function(inst, fromload)
-                    inst:AddTag("alchemist")
-                end,
             root = true,
             connects = {
                 "wilson_alchemy_2",
@@ -37,9 +34,6 @@ local function BuildSkillsData(SkillTreeFns)
             --pos = {0,-1},
             group = "alchemy",
             tags = {"alchemy"},
-            onactivate = function(inst, fromload)
-                    inst:AddTag("gem_alchemistI")
-                end,        
             connects = {
                 "wilson_alchemy_5",
             },
@@ -52,9 +46,6 @@ local function BuildSkillsData(SkillTreeFns)
             --pos = {0,-2},
             group = "alchemy",
             tags = {"alchemy"},
-            onactivate = function(inst, fromload)
-                    inst:AddTag("gem_alchemistII")
-                end,
             connects = {
                 "wilson_alchemy_6",
             },
@@ -67,9 +58,6 @@ local function BuildSkillsData(SkillTreeFns)
             --pos = {0,-3},
             group = "alchemy",
             tags = {"alchemy"},
-            onactivate = function(inst, fromload)
-                    inst:AddTag("gem_alchemistIII")
-                end,
         },
 
         wilson_alchemy_3 = {
@@ -80,9 +68,6 @@ local function BuildSkillsData(SkillTreeFns)
             --pos = {1,-1},
             group = "alchemy",
             tags = {"alchemy"},
-            onactivate = function(inst, fromload)
-                    inst:AddTag("ore_alchemistI")
-                end,
             connects = {
                 "wilson_alchemy_7",
             },
@@ -95,9 +80,6 @@ local function BuildSkillsData(SkillTreeFns)
             --pos = {1,-2},
             group = "alchemy",
             tags = {"alchemy"},
-            onactivate = function(inst, fromload)
-                    inst:AddTag("ore_alchemistII")
-                end,        
             connects = {
                 "wilson_alchemy_8",
             },
@@ -110,9 +92,6 @@ local function BuildSkillsData(SkillTreeFns)
             --pos = {1,-3},
             group = "alchemy",
             tags = {"alchemy"},
-            onactivate = function(inst, fromload)
-                    inst:AddTag("ore_alchemistIII")
-                end,
         },
 
         wilson_alchemy_4 = {
@@ -123,9 +102,6 @@ local function BuildSkillsData(SkillTreeFns)
             --pos = {2,-1},
             group = "alchemy",
             tags = {"alchemy"},
-            onactivate = function(inst, fromload)
-                    inst:AddTag("ick_alchemistI")
-                end,         
             connects = {
                 "wilson_alchemy_9",
             },
@@ -138,9 +114,6 @@ local function BuildSkillsData(SkillTreeFns)
             --pos = {2,-2},
             group = "alchemy",
             tags = {"alchemy"},
-            onactivate = function(inst, fromload)
-                    inst:AddTag("ick_alchemistII")
-                end,        
             connects = {
                 "wilson_alchemy_10",
             },
@@ -153,9 +126,6 @@ local function BuildSkillsData(SkillTreeFns)
             --pos = {2,-3},
             group = "alchemy",
             tags = {"alchemy"},
-            onactivate = function(inst, fromload)
-                    inst:AddTag("ick_alchemistIII")
-                end,
         },
 
         wilson_torch_1 = {
@@ -165,15 +135,7 @@ local function BuildSkillsData(SkillTreeFns)
             pos = {-214,176},
             --pos = {0,0},
             group = "torch",
-            tags = {"torch"},
-            onactivate = function(inst, fromload)
-                    if not fromload then
-                        local equipped = inst.components.inventory:GetEquippedItem(EQUIPSLOTS.HANDS)
-                        if equipped and equipped.applyskilleffect then
-                            equipped:applyskilleffect("wilson_torch_1", inst)
-                        end
-                    end
-                end,
+            tags = {"torch", "torch1"},
             root = true,
             connects = {
                 "wilson_torch_2",
@@ -186,15 +148,7 @@ local function BuildSkillsData(SkillTreeFns)
             pos = {-214,176-38},
             --pos = {0,-1},
             group = "torch",
-            tags = {"torch"},
-            onactivate = function(inst, fromload)
-                    if not fromload then
-                        local equipped = inst.components.inventory:GetEquippedItem(EQUIPSLOTS.HANDS)
-                        if equipped and equipped.applyskilleffect then
-                            equipped:applyskilleffect("wilson_torch_2", inst)
-                        end
-                    end
-                end,        
+            tags = {"torch", "torch1"},
             connects = {
                 "wilson_torch_3",
             },
@@ -206,15 +160,7 @@ local function BuildSkillsData(SkillTreeFns)
             pos = {-214,176-38-38},
             --pos = {0,-2},
             group = "torch",
-            tags = {"torch"},
-            onactivate = function(inst, fromload) 
-                    if not fromload then
-                        local equipped = inst.components.inventory:GetEquippedItem(EQUIPSLOTS.HANDS)
-                        if equipped and equipped.applyskilleffect then
-                            equipped:applyskilleffect("wilson_torch_3", inst)
-                        end
-                    end
-                end,
+            tags = {"torch", "torch1"},
         },
         wilson_torch_4 = {
             title = STRINGS.SKILLTREE.WILSON.WILSON_TORCH_4_TITLE,
@@ -223,19 +169,12 @@ local function BuildSkillsData(SkillTreeFns)
             pos = {-214+38,176},        
             --pos = {1,0},
             group = "torch",
-            tags = {"torch"},
-            onactivate = function(inst, fromload)
-                    if not fromload then
-                        local equipped = inst.components.inventory:GetEquippedItem(EQUIPSLOTS.HANDS)
-                        if equipped and equipped.applyskilleffect then
-                            equipped:applyskilleffect("wilson_torch_4", inst)
-                        end
-                    end
-                end,        
+            tags = {"torch", "torch1"},
             root = true,
             connects = {
                 "wilson_torch_5",
             },
+            defaultfocus = true,
         },
         wilson_torch_5 = {
             title = STRINGS.SKILLTREE.WILSON.WILSON_TORCH_5_TITLE,
@@ -244,15 +183,7 @@ local function BuildSkillsData(SkillTreeFns)
             pos = {-214+38,176-38},
             --pos = {1,-1},
             group = "torch",
-            tags = {"torch"},
-            onactivate = function(inst, fromload)
-                    if not fromload then
-                        local equipped = inst.components.inventory:GetEquippedItem(EQUIPSLOTS.HANDS)
-                        if equipped and equipped.applyskilleffect then
-                            equipped:applyskilleffect("wilson_torch_5", inst)
-                        end
-                    end
-                end,        
+            tags = {"torch", "torch1"},
             connects = {
                 "wilson_torch_6",
             },
@@ -264,15 +195,7 @@ local function BuildSkillsData(SkillTreeFns)
             pos = {-214+38,176-38-38},
             --pos = {1,-2},
             group = "torch",
-            tags = {"torch"},
-            onactivate = function(inst, fromload)
-                    if not fromload then
-                        local equipped = inst.components.inventory:GetEquippedItem(EQUIPSLOTS.HANDS)
-                        if equipped and equipped.applyskilleffect then
-                            equipped:applyskilleffect("wilson_torch_5", inst)
-                        end
-                    end
-                end,
+            tags = {"torch", "torch1"},
         }, 
 
         wilson_torch_lock_1 = {
@@ -283,7 +206,7 @@ local function BuildSkillsData(SkillTreeFns)
             tags = {"torch","lock"},
             root = true,
             lock_open = function(prefabname, activatedskills, readonly)
-                return SkillTreeFns.CountTags(prefabname, "torch", activatedskills) > 2
+                return SkillTreeFns.CountTags(prefabname, "torch1", activatedskills) > 2
             end,
             connects = {
                 "wilson_torch_7",
@@ -306,7 +229,7 @@ local function BuildSkillsData(SkillTreeFns)
             pos = {66,176},
             --pos = {0,0},
             group = "beard",
-            tags = {"beard"},
+            tags = {"beard", "beard1"},
             root = true,
             connects = {
                 "wilson_beard_2",
@@ -319,7 +242,7 @@ local function BuildSkillsData(SkillTreeFns)
             pos = {66,176-38},
             --pos = {0,-1},
             group = "beard",
-            tags = {"beard"},
+            tags = {"beard", "beard1"},
             connects = {
                 "wilson_beard_3",
             },
@@ -331,7 +254,7 @@ local function BuildSkillsData(SkillTreeFns)
             pos = {66,176-38-38},
             --pos = {0,-2},
             group = "beard",
-            tags = {"beard"},
+            tags = {"beard", "beard1"},
         },
 
         wilson_beard_4 = {
@@ -341,7 +264,7 @@ local function BuildSkillsData(SkillTreeFns)
             pos = {66+38,176},
             --pos = {1,0},
             group = "beard",
-            tags = {"beard"},
+            tags = {"beard", "beard1"},
             root = true,
             connects = {
                 "wilson_beard_5",
@@ -354,7 +277,7 @@ local function BuildSkillsData(SkillTreeFns)
             pos = {66+38,176-38},
             --pos = {1,-1},
             group = "beard",
-            tags = {"beard"},
+            tags = {"beard", "beard1"},
             connects = {
                 "wilson_beard_6",
             },
@@ -366,7 +289,7 @@ local function BuildSkillsData(SkillTreeFns)
             pos = {66+38,176-38-38},
             --pos = {1,-2},
             group = "beard",
-            tags = {"beard"},
+            tags = {"beard", "beard1"},
         },
 
         wilson_beard_lock_1 = {
@@ -377,7 +300,7 @@ local function BuildSkillsData(SkillTreeFns)
             tags = {"beard","lock"},
             root = true,
             lock_open = function(prefabname, activatedskills, readonly)
-                return SkillTreeFns.CountTags(prefabname, "beard", activatedskills) > 2
+                return SkillTreeFns.CountTags(prefabname, "beard1", activatedskills) > 2
             end,
             connects = {
                 "wilson_beard_7",
@@ -461,7 +384,6 @@ local function BuildSkillsData(SkillTreeFns)
             tags = {"allegiance","shadow","shadow_favor"},
             locks = {"wilson_allegiance_lock_1", "wilson_allegiance_lock_2", "wilson_allegiance_lock_4"},
             onactivate = function(inst, fromload)
-                inst:AddTag("skill_wilson_allegiance_shadow")
                 inst:AddTag("player_shadow_aligned")
                 local damagetyperesist = inst.components.damagetyperesist
                 if damagetyperesist then
@@ -473,7 +395,6 @@ local function BuildSkillsData(SkillTreeFns)
                 end
             end,
             ondeactivate = function(inst, fromload)
-                inst:RemoveTag("skill_wilson_allegiance_shadow")
                 inst:RemoveTag("player_shadow_aligned")
                 local damagetyperesist = inst.components.damagetyperesist
                 if damagetyperesist then
@@ -534,7 +455,6 @@ local function BuildSkillsData(SkillTreeFns)
             tags = {"allegiance","lunar","lunar_favor"},
             locks = {"wilson_allegiance_lock_1", "wilson_allegiance_lock_3","wilson_allegiance_lock_5"},
             onactivate = function(inst, fromload)
-                inst:AddTag("skill_wilson_allegiance_lunar")
                 inst:AddTag("player_lunar_aligned")
                 local damagetyperesist = inst.components.damagetyperesist
                 if damagetyperesist then
@@ -546,7 +466,6 @@ local function BuildSkillsData(SkillTreeFns)
                 end
             end,
             ondeactivate = function(inst, fromload)
-                inst:RemoveTag("skill_wilson_allegiance_lunar")
                 inst:RemoveTag("player_lunar_aligned")
                 local damagetyperesist = inst.components.damagetyperesist
                 if damagetyperesist then

@@ -13,6 +13,21 @@ local ice_assets =
     Asset("ANIM", "anim/boat_ice.zip"),
 }
 
+local yotd_assets =
+{
+    Asset("ANIM", "anim/boat_yotd.zip"),
+}
+
+local ancient_assets =
+{
+    Asset("ANIM", "anim/boat_ancient.zip"),
+}
+
+local otterden_assets =
+{
+    Asset("ANIM", "anim/boat_otterden.zip"),
+}
+
 local prefabs =
 {
 }
@@ -63,6 +78,21 @@ local function icefn()
     return commonfn("boat_ice", "boat_ice")
 end
 
+local function yotdfn()
+    return commonfn("boat_yotd", "boat_yotd")
+end
+
+local function ancientfn()
+    return commonfn("boat_yotd", "boat_ancient")
+end
+
+local function otterdenfn()
+    return commonfn("boat_otterden", "boat_otterden")
+end
+
 return Prefab("boatlip", fn, assets, prefabs),
     Prefab("boatlip_grass", grassfn, grass_assets, prefabs),
-    Prefab("boatlip_ice", icefn, ice_assets, prefabs)
+    Prefab("boatlip_ice", icefn, ice_assets, prefabs),
+    Prefab("boatlip_yotd", yotdfn, yotd_assets, prefabs),
+    Prefab("boatlip_ancient", ancientfn, ancient_assets, prefabs),
+    Prefab("boatlip_otterden", otterdenfn, otterden_assets)

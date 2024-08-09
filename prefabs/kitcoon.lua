@@ -51,7 +51,7 @@ local function TeleportHome(inst)
 	if den ~= nil then
 		if not den:IsNear(inst, TUNING.KITCOON_NEAR_DEN_DIST) then
             local den_position = den:GetPosition()
-            local offset = FindWalkableOffset(den_position, 2*PI*math.random(), 1)
+            local offset = FindWalkableOffset(den_position, TWOPI*math.random(), 1)
             local return_position = den_position + (offset or 0)
 
 			inst.Physics:Teleport(return_position:Get())
@@ -395,7 +395,7 @@ local function hider_fn()
         return inst
     end
 
-	inst.persits = false
+	inst.persists = false
 
     inst._sound_task = inst:DoPeriodicTask(TUNING.KITCOON_HIDING_SOUND_FREQUENCY, play_hider_periodic_sound, math.random(TUNING.KITCOON_HIDING_SOUND_FREQUENCY))
 
@@ -430,7 +430,7 @@ local function hide_fx_fn()
         return inst
     end
 
-	inst.persits = false
+	inst.persists = false
 
 	inst:DoTaskInTime(1, inst.Remove)
 	inst:ListenForEvent("animover", inst.Remove)

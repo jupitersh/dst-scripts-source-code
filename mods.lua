@@ -42,6 +42,8 @@ AddModReleaseID( "R29_SHADOW_RIFT" )
 AddModReleaseID( "R30_ST_WOODWOLFWORM" ) -- Keep worm and wood separate to lower confusion.
 AddModReleaseID( "R31_LUNAR_MUTANTS" )
 AddModReleaseID( "R32_ST_WATHGRITHRWILLOW" )
+AddModReleaseID( "R33_QOL_SPRINGCLEANING" )
+AddModReleaseID( "R34_OCEANQOL_WINONAWURT" )
 
 -----------------------------------------------------------------------------------------------
 

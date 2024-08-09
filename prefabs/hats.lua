@@ -345,6 +345,19 @@ local function MakeHat(name)
         inst:AddTag("waterproofer")
     end
 
+    fns.football_onequip = function(inst, owner)
+        if inst:HasTag("open_top_hat") then
+            fns.opentop_onequip(inst, owner)
+        else
+            _onequip(inst, owner)
+        end
+    end
+
+    fns.football_onunequip = function(inst, owner)
+        _onunequip(inst, owner)
+    end
+
+
     fns.football = function()
         local inst = simple(football_custom_init)
 
@@ -357,6 +370,9 @@ local function MakeHat(name)
 
         inst:AddComponent("waterproofer")
         inst.components.waterproofer:SetEffectiveness(TUNING.WATERPROOFNESS_SMALL)
+
+        inst.components.equippable:SetOnEquip(fns.football_onequip)
+        inst.components.equippable:SetOnUnequip(fns.football_onunequip)
 
         return inst
     end
@@ -1394,44 +1410,44 @@ local function MakeHat(name)
         inst:AddTag("battlehelm")
     end
 
-    fns.wathgrithr_applyskills = function(inst, owner)
-        local _skilltreeupdater = owner.components.skilltreeupdater
+	fns.wathgrithr_refreshattunedskills = function(inst, owner)
+		local skilltreeupdater = owner and owner.components.skilltreeupdater or nil
 
-        if _skilltreeupdater == nil then
-            return
-        end
+		if inst.components.armor then
+			local skill_level = skilltreeupdater and skilltreeupdater:CountSkillTag("helmetcondition") or 0
+			if skill_level > 0 then
+				inst.components.armor.conditionlossmultipliers:SetModifier(inst, TUNING.SKILLS.WATHGRITHR.WATHGRITHRHAT_DURABILITY_MOD[skill_level], "arsenal_helm")
+			else
+				inst.components.armor.conditionlossmultipliers:RemoveModifier(inst, "arsenal_helm")
+			end
+		end
 
-        local skill_level = owner.components.skilltreeupdater:CountSkillTag("helmetcondition")
+		if inst._is_improved_hat then
+			if skilltreeupdater and skilltreeupdater:IsActivated("wathgrithr_arsenal_helmet_4") then
+				inst.components.planardefense:AddBonus(inst, TUNING.SKILLS.WATHGRITHR.HELM_PLANAR_DEF, "wathgrithr_arsenal_helmet_4")
+			else
+				inst.components.planardefense:RemoveBonus(inst, "wathgrithr_arsenal_helmet_4")
+			end
 
-        if skill_level > 0 and inst.components.armor ~= nil then
-            inst.components.armor.conditionlossmultipliers:SetModifier(inst, TUNING.SKILLS.WATHGRITHR.WATHGRITHRHAT_DURABILITY_MOD[skill_level], "arsenal_helm")
-        end
+			if skilltreeupdater and skilltreeupdater:IsActivated("wathgrithr_arsenal_helmet_5") then
+				inst:AddTag("battleborn_repairable")
+			else
+				inst:RemoveTag("battleborn_repairable")
+			end
+		end
+	end
 
-        if not inst._is_improved_hat then
-            return
-        end
-
-        if _skilltreeupdater:IsActivated("wathgrithr_arsenal_helmet_4") then
-            inst.components.planardefense:AddBonus(inst, TUNING.SKILLS.WATHGRITHR.HELM_PLANAR_DEF, "wathgrithr_arsenal_helmet_4")
-        end
-
-        if _skilltreeupdater:IsActivated("wathgrithr_arsenal_helmet_5") then
-            inst:AddTag("battleborn_repairable")
-        end
-    end
-
-    fns.wathgrithr_removeskills = function(inst, owner)
-        if inst.components.armor ~= nil then
-            inst.components.armor.conditionlossmultipliers:RemoveModifier(inst, "arsenal_helm")
-        end
-
-        if not inst._is_improved_hat then
-            return
-        end
-
-        inst.components.planardefense:RemoveBonus(inst, "wathgrithr_arsenal_helmet_4")
-        inst:RemoveTag("battleborn_repairable")
-    end
+	fns.wathgrithr_watchskillrefresh = function(inst, owner)
+		if inst._owner then
+			inst:RemoveEventCallback("onactivateskill_server", inst._onskillrefresh, inst._owner)
+			inst:RemoveEventCallback("ondeactivateskill_server", inst._onskillrefresh, inst._owner)
+		end
+		inst._owner = owner
+		if owner then
+			inst:ListenForEvent("onactivateskill_server", inst._onskillrefresh, owner)
+			inst:ListenForEvent("ondeactivateskill_server", inst._onskillrefresh, owner)
+		end
+	end
 
     fns.wathgrithr_onequip = function(inst, owner)
         if inst:HasTag("open_top_hat") then
@@ -1440,13 +1456,15 @@ local function MakeHat(name)
             _onequip(inst, owner)
         end
 
-        inst:ApplySkillsChanges(owner)
+		fns.wathgrithr_watchskillrefresh(inst, owner)
+		fns.wathgrithr_refreshattunedskills(inst, owner)
     end
 
     fns.wathgrithr_onunequip = function(inst, owner)
         _onunequip(inst, owner)
 
-        inst:RemoveSkillsChanges(owner)
+		fns.wathgrithr_watchskillrefresh(inst, nil)
+		fns.wathgrithr_refreshattunedskills(inst, nil)
     end
 
     fns.wathgrithr = function()
@@ -1456,8 +1474,7 @@ local function MakeHat(name)
             return inst
         end
 
-        inst.ApplySkillsChanges  = fns.wathgrithr_applyskills
-        inst.RemoveSkillsChanges = fns.wathgrithr_removeskills
+		inst._onskillrefresh = function(owner) fns.wathgrithr_refreshattunedskills(inst, owner) end
 
         inst:AddComponent("armor")
         inst.components.armor:InitCondition(TUNING.ARMOR_WATHGRITHRHAT, TUNING.ARMOR_WATHGRITHRHAT_ABSORPTION)
@@ -1486,8 +1503,7 @@ local function MakeHat(name)
 
         inst._is_improved_hat = true
 
-        inst.ApplySkillsChanges  = fns.wathgrithr_applyskills
-        inst.RemoveSkillsChanges = fns.wathgrithr_removeskills
+		inst._onskillrefresh = function(owner) fns.wathgrithr_refreshattunedskills(inst, owner) end
 
         inst:AddComponent("armor")
         inst.components.armor:InitCondition(TUNING.ARMOR_WATHGRITHR_IMPROVEDHAT, TUNING.ARMOR_WATHGRITHR_IMPROVEDHAT_ABSORPTION)
@@ -1761,9 +1777,52 @@ local function MakeHat(name)
         return inst
     end
 
+    fns.mushroom_onattacked_moonspore_tryspawn = function(hat)
+        local periodicspawner = hat.components.periodicspawner
+        if periodicspawner == nil then
+            hat._moonspore_tryspawn_count = nil
+            return
+        end
+
+        periodicspawner:TrySpawn()
+
+        hat._moonspore_tryspawn_count = hat._moonspore_tryspawn_count - 1
+        if hat._moonspore_tryspawn_count <= 0 then
+            hat._moonspore_tryspawn_count = nil
+            return
+        end
+
+        hat:DoTaskInTime(TUNING.MUSHROOMHAT_MOONSPORE_RETALIATION_SPORE_DELAY, fns.mushroom_onattacked_moonspore_tryspawn)
+    end
+    fns.mushroom_onattacked_moonspore = function(inst, data)
+        local hat = inst.components.inventory ~= nil and inst.components.inventory:GetEquippedItem(EQUIPSLOTS.HEAD) or nil
+        if hat ~= nil then
+            if hat._moonspore_tryspawn_count == nil then
+                hat:DoTaskInTime(TUNING.MUSHROOMHAT_MOONSPORE_RETALIATION_SPORE_DELAY, fns.mushroom_onattacked_moonspore_tryspawn)
+            end
+            hat._moonspore_tryspawn_count = TUNING.MUSHROOMHAT_MOONSPORE_RETALIATION_SPORE_COUNT
+        end
+    end
+    fns.mushroom_spawnpoint_moonspore = function(inst)
+        local pos = inst:GetPosition()
+        local dist = GetRandomMinMax(0.1, 2.0)
+    
+        local offset = FindWalkableOffset(pos, math.random() * TWOPI, dist, 8)
+    
+        if offset ~= nil then
+            return pos + offset
+        end
+
+        return pos
+    end
+
     local function mushroom_onequip(inst, owner)
         _onequip(inst, owner)
         owner:AddTag("spoiler")
+        if inst._ismoonspore then
+            owner:AddTag("moon_spore_protection")
+            inst:ListenForEvent("attacked", fns.mushroom_onattacked_moonspore, owner)
+        end
 
         inst.components.periodicspawner:Start()
 
@@ -1776,7 +1835,10 @@ local function MakeHat(name)
     local function mushroom_onunequip(inst, owner)
         _onunequip(inst, owner)
         owner:RemoveTag("spoiler")
-
+        if inst._ismoonspore then
+            owner:RemoveTag("moon_spore_protection")
+            inst:RemoveEventCallback("attacked", fns.mushroom_onattacked_moonspore, owner)
+        end
         inst.components.periodicspawner:Stop()
 
         if owner.components.hunger ~= nil then
@@ -1809,8 +1871,17 @@ local function MakeHat(name)
         inst:AddTag("waterproofer")
     end
 
+    fns.mushroom_onspawn_moonspore = function(inst, spore)
+        spore._alwaysinstantpops = true
+    end
+
     local function common_mushroom(spore_prefab)
+        local ismoonspore = spore_prefab == "spore_moon"
         local inst = simple(mushroom_custom_init)
+
+        if ismoonspore then
+            inst._ismoonspore = true
+        end
 
         if not TheWorld.ismastersim then
             return inst
@@ -1827,8 +1898,14 @@ local function MakeHat(name)
 
         inst:AddComponent("periodicspawner")
         inst.components.periodicspawner:SetPrefab(spore_prefab)
-        inst.components.periodicspawner:SetRandomTimes(TUNING.MUSHROOMHAT_SPORE_TIME, 1, true)
-        --inst.components.periodicspawner:SetOnSpawnFn(onspawnfn) -- maybe we should add a spawn animation to the hat?
+        inst.components.periodicspawner:SetIgnoreFlotsamGenerator(true) -- NOTES(JBK): These spores float and self expire do not flotsam them.
+        if ismoonspore then
+            inst.components.periodicspawner:SetRandomTimes(TUNING.MUSHROOMHAT_MOONSPORE_TIME, TUNING.MUSHROOMHAT_MOONSPORE_TIME_VARIANCE, true)
+            inst.components.periodicspawner:SetOnSpawnFn(fns.mushroom_onspawn_moonspore)
+            inst.components.periodicspawner:SetGetSpawnPointFn(fns.mushroom_spawnpoint_moonspore)
+        else
+            inst.components.periodicspawner:SetRandomTimes(TUNING.MUSHROOMHAT_SPORE_TIME, 1, true)
+        end
 
         inst:AddComponent("insulator")
         inst.components.insulator:SetSummer()
@@ -1876,6 +1953,21 @@ local function MakeHat(name)
 
         inst.components.floater:SetSize("med")
         inst.components.floater:SetScale(0.7)
+
+        inst.scrapbook_specialinfo = "MUSHHAT"
+
+        if not TheWorld.ismastersim then
+            return inst
+        end
+
+        return inst
+    end
+    
+    fns.moon_mushroom = function()
+        local inst = common_mushroom("spore_moon")
+
+        inst.components.floater:SetSize("med")
+        inst.components.floater:SetScale(0.7)        
 
         inst.scrapbook_specialinfo = "MUSHHAT"
 
@@ -2315,7 +2407,8 @@ local function MakeHat(name)
     end
 
     local function polly_rogers_custom_init(inst)
-
+        --waterproofer (from waterproofer component) added to pristine state for optimization
+        inst:AddTag("waterproofer")
     end
 
     local function test_polly_spawn(inst)
@@ -2377,7 +2470,7 @@ local function MakeHat(name)
         local offset = nil
         local count = 0
         while offset == nil and count < 12 do
-            offset = FindWalkableOffset(pos, math.random()*2*PI, math.random() * 5, 12, false, false, nil, false, true)
+            offset = FindWalkableOffset(pos, math.random()*TWOPI, math.random() * 5, 12, false, false, nil, false, true)
             count = count + 1
         end
 
@@ -2446,6 +2539,9 @@ local function MakeHat(name)
         inst.components.spawner.onkilledfn = updatepolly
         inst.components.spawner.onspawnedfn = updatepolly
 
+        inst:AddComponent("waterproofer")
+        inst.components.waterproofer:SetEffectiveness(TUNING.WATERPROOFNESS_SMALLMED)
+
         inst:DoTaskInTime(0,function() update_polly_hat_art(inst) end)
 
         return inst
@@ -2475,9 +2571,9 @@ local function MakeHat(name)
 
     ---------------------- MONEY SMALL
     local function monkey_small_custom_init(inst)
-
+        --waterproofer (from waterproofer component) added to pristine state for optimization
+        inst:AddTag("waterproofer")
     end
-
 
     local function monkey_small_equip(inst,owner)
         _onequip(inst, owner)
@@ -2507,12 +2603,16 @@ local function MakeHat(name)
         inst.components.equippable:SetOnEquip(monkey_small_equip)
         inst.components.equippable:SetOnUnequip(monkey_small_unequip)
 
+        inst:AddComponent("waterproofer")
+        inst.components.waterproofer:SetEffectiveness(TUNING.WATERPROOFNESS_SMALL)
+
         return inst
     end
 
     ---------------------- MONEY MEDIUM
     local function monkey_medium_custom_init(inst)
-
+        --waterproofer (from waterproofer component) added to pristine state for optimization
+        inst:AddTag("waterproofer")
     end
 
     local function monkey_medium_equip(inst,owner)
@@ -2543,11 +2643,14 @@ local function MakeHat(name)
         inst:AddComponent("fueled")
         inst.components.fueled.fueltype = FUELTYPE.USAGE
         inst.components.fueled:InitializeFuelLevel(TUNING.MONKEY_MEDIUM_HAT_PERISHTIME)
-        inst.components.fueled:SetDepletedFn(--[[generic_perish]]inst.Remove)        
+        inst.components.fueled:SetDepletedFn(--[[generic_perish]]inst.Remove)
 
         inst.components.equippable:SetOnEquip(monkey_medium_equip)
         inst.components.equippable:SetOnUnequip(monkey_medium_unequip)
         inst.components.equippable:SetOnEquipToModel(fns.monkey_medium_onequiptomodel)
+
+        inst:AddComponent("waterproofer")
+        inst.components.waterproofer:SetEffectiveness(TUNING.WATERPROOFNESS_SMALL)
 
         return inst
     end
@@ -3028,6 +3131,11 @@ local function MakeHat(name)
 		inst:RemoveEventCallback("sanitydelta", inst._onsanitydelta, owner)
 		inst:RemoveEventCallback("onattackother", inst.alterguardian_spawngestalt_fn, owner)
 
+		if inst._task then
+			inst._task:Cancel()
+			inst._task = nil
+		end
+
         if inst._light ~= nil then
             inst._light:Remove()
             inst._light = nil
@@ -3058,6 +3166,21 @@ local function MakeHat(name)
         end
     end
 
+    fns.alterguardian_onsave = function(inst, data)
+        local equipper = inst.components.equippable:IsEquipped() and inst.components.inventoryitem:GetGrandOwner() or nil
+        local keep_closed = (equipper ~= nil and inst.components.container.opencount == 0 and equipper.userid) or inst.keep_closed -- Try to get new data and fallback to saved variable.
+
+        if keep_closed ~= nil then
+            data.owner_id = keep_closed
+        end
+    end
+
+    fns.alterguardian_onload = function(inst, data)
+        if data.owner_id ~= nil then
+            inst.keep_closed = data.owner_id
+        end
+    end
+
     fns.alterguardian = function()
         local inst = simple(alterguardian_custom_init)
 
@@ -3079,6 +3202,9 @@ local function MakeHat(name)
 
         inst:AddComponent("preserver")
         inst.components.preserver:SetPerishRateMultiplier(0)
+
+        inst.OnSave = fns.alterguardian_onsave
+		inst.OnLoad = fns.alterguardian_onload
 
         MakeHauntableLaunchAndPerish(inst)
 
@@ -4031,6 +4157,607 @@ local function MakeHat(name)
 
         return inst
     end
+
+    -----------------------------------------------------------------------------
+
+    fns.scrap_monocle_onequip = function(inst, owner)
+        fns.opentop_onequip(inst, owner)
+
+        if owner.isplayer then
+            owner:AddCameraExtraDistance(inst, TUNING.SCRAP_MONOCLE_EXTRA_VIEW_DIST)
+        end
+    end
+
+    fns.scrap_monocle_onunequip = function(inst, owner)
+        _onunequip(inst, owner)
+
+        if owner.isplayer then
+            owner:RemoveCameraExtraDistance(inst)
+        end
+    end
+
+    fns.scrap_monocle_custom_init = function(inst)
+        inst:AddTag("scrapmonolevision")
+    end
+
+    fns.scrap_monocle_dappernessfn = function(inst, owner)
+        return inst.dapperness_per_phase[TheWorld.state.phase] or TUNING.DAPPERNESS_TINY
+    end
+
+    fns.scrap_monocle = function()
+        local inst = simple(fns.scrap_monocle_custom_init)
+
+        inst.components.floater:SetSize("med")
+        inst.components.floater:SetVerticalOffset(0.1)
+        inst.components.floater:SetScale(.6)
+
+        if not TheWorld.ismastersim then
+            return inst
+        end
+
+        -- Here for mod compability.
+        inst.dapperness_per_phase = {
+            day   =   TUNING.DAPPERNESS_SMALL,
+            dusk  =   0,
+            night = - TUNING.DAPPERNESS_TINY,
+        }
+
+        inst.components.equippable:SetOnEquip(fns.scrap_monocle_onequip)
+        inst.components.equippable:SetOnUnequip(fns.scrap_monocle_onunequip)
+        inst.components.equippable:SetDappernessFn(fns.scrap_monocle_dappernessfn)
+
+        inst:AddComponent("fueled")
+        inst.components.fueled.fueltype = FUELTYPE.USAGE
+        inst.components.fueled:InitializeFuelLevel(TUNING.SCRAP_MONOCLEHAT_PERISHTIME)
+        inst.components.fueled:SetDepletedFn(--[[generic_perish]]inst.Remove)
+        inst.components.fueled.no_sewing = true
+
+        MakeHauntableLaunch(inst)
+
+        return inst
+    end
+
+    -----------------------------------------------------------------------------
+
+	fns.scrap_custom_init = function(inst)
+		inst:AddTag("junk")
+	end
+
+    fns.scrap = function()
+		local inst = simple(fns.scrap_custom_init)
+
+        inst.components.floater:SetSize("med")
+        inst.components.floater:SetVerticalOffset(0.2)
+
+        if not TheWorld.ismastersim then
+            return inst
+        end
+
+		inst:AddComponent("armor")
+		inst.components.armor:InitCondition(TUNING.ARMOR_SCRAP_HAT, TUNING.ARMOR_SCRAP_HAT_ABSORPTION)
+
+		inst:AddComponent("waterproofer")
+		inst.components.waterproofer:SetEffectiveness(TUNING.WATERPROOFNESS_SMALL)
+
+        MakeHauntableLaunch(inst)
+
+        return inst
+    end
+
+    -----------------------------------------------------------------------------
+
+    fns.inspectacles_signalpulsedirty = function(inst)
+        local owner = inst.replica.inventoryitem ~= nil and inst.entity:GetParent() or nil
+        if not owner then
+            return
+        end
+
+        local inspectaclesparticipant = owner.components.inspectaclesparticipant
+        if not inspectaclesparticipant then
+            return
+        end
+
+        inspectaclesparticipant:OnSignalPulse()
+    end
+
+    fns.inspectacles_signalleveldirty = function(inst)
+        local owner = inst.replica.inventoryitem ~= nil and inst.entity:GetParent() or nil
+        if not owner then
+            return
+        end
+
+        local level = inst.signallevel:value()
+        if owner == ThePlayer then
+            inst:PushEvent("inventoryitem_updatetooltip")
+        end
+    end
+
+	fns.inspectacles_refreshicon = function(inst)
+		local owner = inst.components.inventoryitem.owner
+		inst.components.inventoryitem:ChangeImageName(
+			owner and
+			owner.components.inspectaclesparticipant and
+			owner.components.inspectaclesparticipant:CanCreateGameInWorld() and
+			owner.components.skilltreeupdater and
+			owner.components.skilltreeupdater:IsActivated("winona_wagstaff_1") and
+			inst.signallevel:value() ~= 1 and
+			(	inst.fx and inst.fx.ledstate:value() >= 2 and
+				"inspectacleshat_equip_signal" or
+				"inspectacleshat_signal"
+			) or
+			nil
+		)
+	end
+
+    fns.inspectacles_custom_init = function(inst)
+        inst:AddTag("inspectaclesvision")
+        inst:AddTag("cannotuse")
+
+        inst.signalpulse = net_event(inst.GUID, "inspectacles.signalpulse")
+        inst.signallevel = net_tinybyte(inst.GUID, "inspectacles.signallevel", "signalleveldirty")
+        if not TheNet:IsDedicated() then
+            inst:ListenForEvent("inspectacles.signalpulse", fns.inspectacles_signalpulsedirty)
+            inst:ListenForEvent("signalleveldirty", fns.inspectacles_signalleveldirty)
+        end
+    end
+
+    fns.inspectacles_stopusingitem = function(inst, data)
+        local hat = inst.components.inventory ~= nil and inst.components.inventory:GetEquippedItem(EQUIPSLOTS.HEAD) or nil
+        if hat ~= nil and data.statename ~= "inspectacles_open" and hat:HasTag("inuse") then
+            hat.components.useableitem:StopUsingItem()
+        end
+    end
+
+    fns.inspectacles_tick_getlevel = function(inst)
+        local level = 0
+        local owner = inst.components.inventoryitem.owner
+        local inspectaclesparticipant = nil
+        if owner == nil then
+            return level, inspectaclesparticipant
+        end
+        local inspectaclesparticipant = owner.components.inspectaclesparticipant
+        if inspectaclesparticipant == nil then
+            return level, inspectaclesparticipant
+        end
+        local game, puzzle, puzzledata = inspectaclesparticipant:GetSERVERDetails()
+        if game ~= nil then
+            local hasinspectaclesvision = owner.components.inventory ~= nil and owner.components.inventory:EquipHasTag("inspectaclesvision")
+            if hasinspectaclesvision and inspectaclesparticipant:IsParticipantClose() then
+                level = 3
+            else
+                level = 2
+            end
+        elseif inspectaclesparticipant:IsInCooldown() then
+            level = 1
+        end
+        if level == 3 then
+            inst:RemoveTag("cannotuse")
+        else
+            inst:AddTag("cannotuse")
+        end
+        return level, inspectaclesparticipant
+    end
+
+	fns.inspectacles_onactivate_fx = function(fx, inst, activate)
+		if activate then
+			fx.activatetask = nil
+		else
+			fx.deactivatetask = nil
+		end
+		fx.ledstate:set(
+			(not activate and 1) or
+			(inst.signallevel:value() >= 3 and 3) or
+			2
+		)
+		fns.inspectacles_refreshicon(inst)
+	end
+
+	fns.inspectacles_activate_fx = function(inst)
+		if inst.fx then
+			if inst.fx.deactivatetask then
+				inst.fx.deactivatetask:Cancel()
+				inst.fx.deactivatetask = nil
+			elseif inst.fx.ledstate:value() < 2 and inst.fx.activatetask == nil then
+				inst.fx.activatetask = inst.fx:DoTaskInTime(0.2, fns.inspectacles_onactivate_fx, inst, true)
+			end
+		end
+	end
+
+	fns.inspectacles_deactivate_fx = function(inst)
+		if inst.fx then
+			if inst.fx.activatetask then
+				inst.fx.activatetask:Cancel()
+				inst.fx.activatetask = nil
+			elseif inst.fx.ledstate:value() >= 2 and inst.fx.deactivatetask == nil then
+				inst.fx.deactivatetask = inst.fx:DoTaskInTime(1, fns.inspectacles_onactivate_fx, inst, false)
+			end
+		end
+	end
+
+	fns.inspectacles_setsignallevel = function(inst, level)
+		inst.signallevel:set(level)
+		if level >= 2 then
+			fns.inspectacles_activate_fx(inst)
+			if inst.fx and inst.fx.ledstate:value() >= 2 then
+				inst.fx.ledstate:set(level >= 3 and 3 or 2)
+			end
+		else
+			fns.inspectacles_deactivate_fx(inst)
+		end
+		fns.inspectacles_refreshicon(inst)
+	end
+
+    fns.inspectacles_tick = function(inst)
+        inst.signalpulse:push()
+        local level, inspectaclesparticipant = fns.inspectacles_tick_getlevel(inst)
+        if inspectaclesparticipant ~= nil and inspectaclesparticipant:IsParticipantClose(PLAYER_CAMERA_SEE_DISTANCE) then
+            if inst.fasterupdatetask == nil then
+                inst.fasterupdatetask = inst:DoPeriodicTask(0.2, inst.UpdateInspectacles)
+            end
+        else
+            if inst.fasterupdatetask ~= nil then
+                inst.fasterupdatetask:Cancel()
+                inst.fasterupdatetask = nil
+            end
+        end
+		fns.inspectacles_setsignallevel(inst, level)
+    end
+
+    fns.inspectacles_updateinspectacles = function(inst)
+        local level = fns.inspectacles_tick_getlevel(inst)
+		fns.inspectacles_setsignallevel(inst, level)
+    end
+
+	fns.inspectacles_onfindgametask = function(inst, owner)
+		inst.inspectacles_findgametask = nil
+
+        local inspectaclesparticipant = owner.components.inspectaclesparticipant
+        if inspectaclesparticipant == nil then
+            return
+        end
+
+		if inst.fx and
+			inst.fx.ledstate:value() == 0 and
+			inspectaclesparticipant:CanCreateGameInWorld() and
+			owner.components.skilltreeupdater and
+			owner.components.skilltreeupdater:IsActivated("winona_wagstaff_1")
+		then
+			inst.fx.ledstate:set(1)
+		end
+
+        if not inspectaclesparticipant:CreateNewAndOrShowCurrentGame() then
+            -- Reschedule a find.
+			inst.inspectacles_findgametask = inst:DoTaskInTime(3, fns.inspectacles_onfindgametask, owner)
+            return
+        end
+
+        -- NOTES(JBK): We want the signal to happen for all players at once.
+        local tick_time = TUNING.SKILLS.WINONA.INSPECTACLES_TICK_TIME
+        local current_time = GetTime()
+        local sync_delay = math.ceil(current_time / tick_time) * tick_time - current_time
+        if inst.inspectacles_ticktask ~= nil then
+            inst.inspectacles_ticktask:Cancel()
+        end
+        inst.inspectacles_ticktask = inst:DoPeriodicTask(tick_time, fns.inspectacles_tick, sync_delay)
+    end
+
+    fns.inspectacles_onequip = function(inst, owner)
+		_onequip(inst, owner)
+
+		if inst.fx then
+			inst.fx:Remove()
+		end
+		inst.fx = SpawnPrefab("inspectacleshat_fx")
+		inst.fx:AttachToOwner(owner)
+		if inst.signallevel:value() > 1 then
+			fns.inspectacles_activate_fx(inst)
+			inst.fx.ledstate:set(1)
+		elseif inst.signallevel:value() == 1 then
+			inst.fx.ledstate:set(1)
+		end
+
+        inst:ListenForEvent("newstate", fns.inspectacles_stopusingitem, owner)
+
+		-- Delay a frame for unsafe load order.
+		if inst.inspectacles_findgametask then
+			inst.inspectacles_findgametask:Cancel()
+		end
+		inst.inspectacles_findgametask = inst:DoTaskInTime(0, fns.inspectacles_onfindgametask, owner)
+    end
+
+    fns.inspectacles_onunequip = function(inst, owner)
+        _onunequip(inst, owner)
+
+		if inst.fx then
+			inst.fx:Remove()
+			inst.fx = nil
+			fns.inspectacles_refreshicon(inst)
+		end
+
+        inst:RemoveEventCallback("newstate", fns.inspectacles_stopusingitem, owner)
+        if inst:HasTag("inuse") then
+            inst.components.useableitem:StopUsingItem()
+        end
+        inst:AddTag("cannotuse")
+        if inst.inspectacles_findgametask ~= nil then
+            inst.inspectacles_findgametask:Cancel()
+            inst.inspectacles_findgametask = nil
+        end
+        if inst.inspectacles_ticktask ~= nil then
+            inst.inspectacles_ticktask:Cancel()
+            inst.inspectacles_ticktask = nil
+        end
+        if inst.fasterupdatetask ~= nil then
+            inst.fasterupdatetask:Cancel()
+            inst.fasterupdatetask = nil
+        end
+
+        local inspectaclesparticipant = owner.components.inspectaclesparticipant
+        if inspectaclesparticipant == nil then
+            return
+        end
+
+        inspectaclesparticipant:HideCurrentGame()
+    end
+
+	fns.inspectacles_toground = function(inst)
+		fns.inspectacles_setsignallevel(inst, 0)
+	end
+
+    fns.inspectacles_onuse = function(inst)
+        local owner = inst.components.inventoryitem.owner
+        if owner == nil then
+            return false
+        end
+        local inspectaclesparticipant = owner.components.inspectaclesparticipant
+        if inspectaclesparticipant == nil then
+            return false
+        end
+        if not CanEntitySeeTarget(owner, inst) then
+            return false
+        end
+        if not inspectaclesparticipant:IsParticipantClose() then
+            return false
+        end
+
+        local game, puzzle, puzzledata = inspectaclesparticipant:GetSERVERDetails()
+        if inspectaclesparticipant:IsFreeGame(game) then
+            inspectaclesparticipant:FinishCurrentGame()
+            return true
+        end
+        owner.sg:GoToState("inspectacles_open")
+        owner:ShowPopUp(POPUPS.INSPECTACLES, true)
+        return true
+    end
+
+    fns.inspectacles_onstopuse = function(inst)
+        local owner = inst.components.inventoryitem.owner
+        if owner == nil then
+            return
+        end
+        local inspectaclesparticipant = owner.components.inspectaclesparticipant
+        if inspectaclesparticipant == nil then
+            return
+        end
+
+        owner:ShowPopUp(POPUPS.INSPECTACLES, false)
+    end
+
+    fns.inspectacles_getstatus = function(inst, viewer)
+        if viewer ~= nil and viewer:HasTag("handyperson") then
+            local skilltreeupdater = viewer.components.skilltreeupdater
+            if skilltreeupdater == nil or not skilltreeupdater:IsActivated("winona_wagstaff_1") then
+                return "MISSINGSKILL"
+            end
+        end
+
+        return nil
+    end
+
+    fns.inspectacles = function()
+        local inst = simple(fns.inspectacles_custom_init)
+
+        inst.components.floater:SetSize("med")
+        inst.components.floater:SetVerticalOffset(0.1)
+        inst.components.floater:SetScale(.6)
+
+        if not TheWorld.ismastersim then
+            return inst
+        end
+
+        inst.UpdateInspectacles = fns.inspectacles_updateinspectacles
+
+		inst.components.inventoryitem:SetOnPutInInventoryFn(fns.inspectacles_updateinspectacles)
+		inst.components.inventoryitem:SetOnDroppedFn(fns.inspectacles_toground)
+
+        inst.components.equippable.restrictedtag = "inspectacleshatuser"
+        inst.components.equippable:SetOnEquip(fns.inspectacles_onequip)
+        inst.components.equippable:SetOnUnequip(fns.inspectacles_onunequip)
+
+        inst:AddComponent("useableitem")
+        inst.components.useableitem:SetOnUseFn(fns.inspectacles_onuse)
+        inst.components.useableitem:SetOnStopUseFn(fns.inspectacles_onstopuse)
+
+        MakeHauntableLaunch(inst)
+
+        inst.components.inspectable.getstatus = fns.inspectacles_getstatus
+
+        return inst
+    end
+
+	-----------------------------------------------------------------------------
+
+	fns.roseglasses_inspecttarget = function(inst, owner, target)
+        if owner.components.roseinspectableuser == nil then
+            return false
+        end
+        return owner.components.roseinspectableuser:TryToDoRoseInspectionOnTarget(target)
+	end
+
+	fns.roseglasses_inspectpoint = function(inst, owner, pt)
+        if owner.components.roseinspectableuser == nil then
+            return false
+        end
+        return owner.components.roseinspectableuser:TryToDoRoseInspectionOnPoint(pt)
+	end
+
+	fns.roseglasses_refreshattunedskills = function(inst, owner)
+		if owner and owner.components.skilltreeupdater and owner.components.skilltreeupdater:IsActivated("winona_charlie_1") then
+			if inst.components.closeinspector == nil then
+				inst:AddComponent("closeinspector")
+				inst.components.closeinspector:SetInspectTargetFn(fns.roseglasses_inspecttarget)
+				inst.components.closeinspector:SetInspectPointFn(fns.roseglasses_inspectpoint)
+			end
+            if owner.components.skilltreeupdater:IsActivated("winona_charlie_2") then
+                owner:AddTag("wormholetracker")
+            end
+		else
+			inst:RemoveComponent("closeinspector")
+		end
+	end
+
+	fns.roseglasses_watchskillrefresh = function(inst, owner)
+		if inst._owner then
+			inst:RemoveEventCallback("onactivateskill_server", inst._onskillrefresh, inst._owner)
+			inst:RemoveEventCallback("ondeactivateskill_server", inst._onskillrefresh, inst._owner)
+            if owner == nil then
+                inst._owner:RemoveTag("wormholetracker")
+            end
+		end
+		inst._owner = owner
+		if owner then
+			inst:ListenForEvent("onactivateskill_server", inst._onskillrefresh, owner)
+			inst:ListenForEvent("ondeactivateskill_server", inst._onskillrefresh, owner)
+		end
+	end
+
+	fns.roseglasses_onequip = function(inst, owner)
+		fns.opentop_onequip(inst, owner)
+		fns.roseglasses_watchskillrefresh(inst, owner)
+		fns.roseglasses_refreshattunedskills(inst, owner)
+	end
+
+	fns.roseglasses_onunequip = function(inst, owner)
+		_onunequip(inst, owner)
+		fns.roseglasses_watchskillrefresh(inst, nil)
+		fns.roseglasses_refreshattunedskills(inst, nil)
+	end
+
+	fns.roseglasses_custom_init = function(inst)
+        inst:AddTag("roseglassesvision")
+		inst:AddTag("open_top_hat")
+	end
+
+    fns.roseglasses_getstatus = function(inst, viewer)
+        if viewer ~= nil and viewer:HasTag("handyperson") then
+            local skilltreeupdater = viewer.components.skilltreeupdater
+            if skilltreeupdater == nil or not skilltreeupdater:IsActivated("winona_charlie_1") then
+                return "MISSINGSKILL"
+            end
+        end
+
+        return nil
+    end
+
+	fns.roseglasses = function()
+		local inst = simple(fns.roseglasses_custom_init)
+
+		inst.components.floater:SetSize("med")
+		inst.components.floater:SetScale(0.68)
+
+		if not TheWorld.ismastersim then
+			return inst
+		end
+
+		inst._onskillrefresh = function(owner) fns.roseglasses_refreshattunedskills(inst, owner) end
+
+		inst.components.equippable.dapperness = TUNING.DAPPERNESS_TINY
+		inst.components.equippable:SetOnEquip(fns.roseglasses_onequip)
+		inst.components.equippable:SetOnUnequip(fns.roseglasses_onunequip)
+        inst.components.equippable.restrictedtag = "handyperson"
+
+		MakeHauntableLaunch(inst)
+
+        inst.components.inspectable.getstatus = fns.roseglasses_getstatus
+
+		return inst
+	end
+
+    -----------------------------------------------------------------------------
+    fns.mermarmor_custom_init = function(inst)
+        inst:AddTag("mermarmorhat")
+    end
+
+    fns.mermarmor_onequip = function(inst, owner)
+        if inst:HasTag("open_top_hat") then
+            fns.opentop_onequip(inst, owner)
+        else
+            _onequip(inst, owner)
+        end
+    end
+
+    fns.mermarmor_onunequip = function(inst, owner)
+        _onunequip(inst, owner)
+    end
+
+    fns.mermarmor = function()
+        local inst = simple(fns.mermarmor_custom_init)
+
+		inst.components.floater:SetScale(.85)
+		inst.components.floater:SetVerticalOffset(.05)
+
+		if not TheWorld.ismastersim then
+			return inst
+		end
+
+        inst:AddComponent("armor")
+        inst.components.armor:InitCondition(TUNING.ARMOR_MERMARMORHAT, TUNING.ARMOR_MERMARMORHAT_ABSORPTION)
+
+        inst.components.equippable:SetOnEquip(fns.mermarmor_onequip)
+        inst.components.equippable:SetOnUnequip(fns.mermarmor_onunequip)
+        inst.components.equippable.restrictedtag = "merm_npc"       
+
+        return inst
+    end
+    
+    -----------------------------------------------------------------------------
+
+    fns.mermarmorupgraded_custom_init = function(inst)
+        inst:AddTag("mermarmorupgradedhat")
+    end
+
+    fns.mermarmorupgraded_onequip = function(inst, owner)
+        if inst:HasTag("open_top_hat") then
+            fns.opentop_onequip(inst, owner)
+        else
+            _onequip(inst, owner)
+        end
+    end
+
+    fns.mermarmorupgraded_onunequip = function(inst, owner)
+        _onunequip(inst, owner)
+    end
+
+    fns.mermarmorupgraded = function()
+        local inst = simple(fns.mermarmorupgraded_custom_init)        
+
+		inst.components.floater:SetScale(.85)
+		inst.components.floater:SetVerticalOffset(.05)
+
+		if not TheWorld.ismastersim then
+			return inst
+		end
+
+        inst:AddComponent("armor")
+        inst.components.armor:InitCondition(TUNING.ARMOR_MERMARMORUPGRADEDHAT, TUNING.ARMOR_MERMARMORUPGRADEDHAT_ABSORPTION)
+
+        inst.components.equippable:SetOnEquip(fns.mermarmorupgraded_onequip)
+        inst.components.equippable:SetOnUnequip(fns.mermarmorupgraded_onunequip)
+        inst.components.equippable.restrictedtag = "merm_npc"
+
+        return inst
+    end
+
     -----------------------------------------------------------------------------
 
     local fn = nil
@@ -4100,6 +4827,8 @@ local function MakeHat(name)
         fn = fns.green_mushroom
     elseif name == "blue_mushroom" then
         fn = fns.blue_mushroom
+    elseif name == "moon_mushroom" then
+        fn = fns.moon_mushroom
     elseif name == "hive" then
         fn = fns.hive
     elseif name == "dragonhead" then
@@ -4192,6 +4921,21 @@ local function MakeHat(name)
         prefabs = { "wagpunkhat_fx", "wagpunksteam_hat_up", "wagpunksteam_hat_down", "wagpunk_bits", "wagpunkhat_classified" }
         table.insert(assets, Asset("ANIM", "anim/firefighter_placement.zip"))
         fn = fns.wagpunk
+    elseif name == "scrap_monocle" then
+        fn = fns.scrap_monocle
+    elseif name == "scrap" then
+        fn = fns.scrap
+    elseif name == "mermarmor" then
+        fn = fns.mermarmor
+    elseif name == "mermarmorupgraded" then
+        fn = fns.mermarmorupgraded
+    elseif name == "inspectacles" then
+		prefabs = { "inspectacleshat_fx" }
+        fn = fns.inspectacles
+        table.insert(assets, Asset("INV_IMAGE", "inspectacleshat_signal"))
+		table.insert(assets, Asset("INV_IMAGE", "inspectacleshat_equip_signal"))
+	elseif name == "roseglasses" then
+		fn = fns.roseglasses
     end
 
     table.insert(ALL_HAT_PREFAB_NAMES, prefabname)
@@ -4379,6 +5123,125 @@ local function voidclothhat_fx_common_postinit(inst)
 	end
 end
 
+local function inspectacleshat_CreateFxFollowFrame(i)
+	local inst = CreateEntity()
+
+	--[[Non-networked entity]]
+	inst.entity:AddTransform()
+	inst.entity:AddAnimState()
+	inst.entity:AddFollower()
+
+	inst:AddTag("FX")
+
+	inst.AnimState:SetBank("inspectacleshat")
+	inst.AnimState:SetBuild("hat_inspectacles")
+	inst.animidx = tostring(i)
+	inst.AnimState:PlayAnimation("off"..inst.animidx)
+	inst.AnimState:SetSymbolLightOverride("led_on", 0.5)
+	inst.AnimState:SetSymbolBloom("led_on")
+
+	inst:AddComponent("highlightchild")
+
+	inst.persists = false
+
+	return inst
+end
+
+local function inspectacleshat_fx_SetLedEnabled(inst, enabled)
+	if enabled then
+		inst.AnimState:OverrideSymbol("led_off", "hat_inspectacles", "led_on")
+		inst.AnimState:SetSymbolBloom("led_off")
+		inst.AnimState:SetSymbolLightOverride("led_off", 0.5)
+		inst.AnimState:SetSymbolLightOverride("inspectacles_toppart", 0.2)
+		inst.AnimState:SetSymbolLightOverride("inspectacles_dishpart", 0.1)
+		inst.AnimState:SetLightOverride(0.03)
+	else
+		inst.AnimState:ClearOverrideSymbol("led_off")
+		inst.AnimState:ClearSymbolBloom("led_off")
+		inst.AnimState:SetSymbolLightOverride("led_off", 0)
+		inst.AnimState:SetSymbolLightOverride("inspectacles_toppart", 0)
+		inst.AnimState:SetSymbolLightOverride("inspectacles_dishpart", 0)
+		inst.AnimState:SetLightOverride(0)
+	end
+end
+
+local function inspectacleshat_fx_doblink(inst, ison)
+	for i, v in ipairs(inst.fx) do
+		inspectacleshat_fx_SetLedEnabled(v, ison)
+	end
+	local delay =
+		inst.ledstate:value() == 1 and
+		(ison and 0.75 or 1.5) or
+		(ison and 0.1 or 0)
+	inst.blinktask = inst:DoTaskInTime(delay, inspectacleshat_fx_doblink, not ison)
+end
+
+local function inspectacleshat_fx_ledstatedirty(inst)
+	if inst.fx then
+		if inst.ledstate:value() >= 2 then
+			local playsound = false
+			for i, v in ipairs(inst.fx) do
+				local anim = "activate"..v.animidx
+				if not v.AnimState:IsCurrentAnimation(anim) then
+					v.AnimState:PlayAnimation(anim)
+					playsound = true
+				end
+				inspectacleshat_fx_SetLedEnabled(v, true)
+			end
+			if playsound then
+				--NOTE: this is local fx on clients
+				inst.SoundEmitter:PlaySound("meta4/wires_minigame/inspectacles/activate")
+			end
+			if inst.ledstate:value() == 2 then
+				if inst.blinktask then
+					inst.blinktask:Cancel()
+					inst.blinktask = nil
+				end
+			elseif inst.blinktask == nil then
+				inspectacleshat_fx_doblink(inst, inst.initledstate or false)
+			end
+		else
+			local playsound = false
+			for i, v in ipairs(inst.fx) do
+				--deactivated could be "off" or "deactivate", so easier to check that it's not "activate"
+				if v.AnimState:IsCurrentAnimation("activate"..v.animidx) then
+					v.AnimState:PlayAnimation("deactivate"..v.animidx)
+					playsound = true
+				end
+			end
+			if playsound then
+				--NOTE: this is local fx on clients
+				inst.SoundEmitter:PlaySound("meta4/wires_minigame/inspectacles/deactivate")
+			end
+			if inst.ledstate:value() == 0 then
+				if inst.blinktask then
+					inst.blinktask:Cancel()
+					inst.blinktask = nil
+				end
+				for i, v in ipairs(inst.fx) do
+					inspectacleshat_fx_SetLedEnabled(v, false)
+				end
+			elseif inst.blinktask == nil then
+				inspectacleshat_fx_doblink(inst, inst.initledstate or false)
+			end
+		end
+	end
+	inst.initledstate = nil
+end
+
+local function inspectacleshat_fx_common_postinit(inst)
+	inst.entity:AddSoundEmitter()
+
+	inst.ledstate = net_tinybyte(inst.GUID, "inspectacleshat_fx.ledstate", "ledstatedirty")
+	--0: off
+	--1: cooldown; dish down; blink
+	--2: on; dish up
+	if not TheNet:IsDedicated() then
+		inst.initledstate = true
+		inst:ListenForEvent("ledstatedirty", inspectacleshat_fx_ledstatedirty)
+	end
+end
+
 --------------------------------------------------------------------------
 
 local function FollowFx_OnRemoveEntity(inst)
@@ -4553,6 +5416,14 @@ return  MakeHat("straw"),
         MakeHat("lunarplant"),
         MakeHat("voidcloth"),
         MakeHat("wagpunk"),
+        MakeHat("moon_mushroom"),
+        MakeHat("scrap_monocle"),
+        MakeHat("scrap"),
+        MakeHat("mermarmor"),
+        MakeHat("mermarmorupgraded"),        
+
+        MakeHat("inspectacles"),
+		MakeHat("roseglasses"),
 
 		MakeFollowFx("lunarplanthat_fx", {
 			createfn = lunarplanthat_CreateFxFollowFrame,
@@ -4580,7 +5451,13 @@ return  MakeHat("straw"),
                        Asset("ANIM", "anim/hat_wagpunk_04.zip"),  
                        Asset("ANIM", "anim/hat_wagpunk_05.zip") },
         }),
-
+		MakeFollowFx("inspectacleshat_fx", {
+			createfn = inspectacleshat_CreateFxFollowFrame,
+			common_postinit = inspectacleshat_fx_common_postinit,
+			framebegin = 1,
+			frameend = 3,
+			assets = { Asset("ANIM", "anim/hat_inspectacles.zip") },
+		}),
 
         Prefab("minerhatlight", minerhatlightfn),
         Prefab("alterguardianhatlight", alterguardianhatlightfn),

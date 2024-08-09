@@ -1,3 +1,5 @@
+local WAXED_PLANTS = require "prefabs/waxed_plant_common"
+
 local DEBUG_MODE = BRANCH == "dev"
 
 function DefaultIgniteFn(inst)
@@ -33,7 +35,7 @@ function DefaultBurntFn(inst)
         ash.Transform:SetPosition(inst.Transform:GetWorldPosition())
 
         if inst.components.stackable ~= nil then
-            ash.components.stackable.stacksize = math.min(ash.components.stackable.maxsize, inst.components.stackable.stacksize)
+			ash.components.stackable:SetStackSize(math.min(ash.components.stackable.maxsize, inst.components.stackable.stacksize))
         end
     end
 
@@ -161,11 +163,7 @@ function MakeSmallBurnable(inst, time, offset, structure, sym)
     burnable:AddBurnFX(burnfx.generic, offset or Vector3(0, 0, 0), sym )
     burnable:SetOnIgniteFn(DefaultBurnFn)
     burnable:SetOnExtinguishFn(DefaultExtinguishFn)
-    if structure then
-        burnable:SetOnBurntFn(DefaultBurntStructureFn)
-    else
-        burnable:SetOnBurntFn(DefaultBurntFn)
-    end
+    burnable:SetOnBurntFn((structure and DefaultBurntStructureFn) or DefaultBurntFn)
 
     return burnable
 end
@@ -177,11 +175,7 @@ function MakeMediumBurnable(inst, time, offset, structure, sym)
     burnable:AddBurnFX(burnfx.generic, offset or Vector3(0, 0, 0), sym )
     burnable:SetOnIgniteFn(DefaultBurnFn)
     burnable:SetOnExtinguishFn(DefaultExtinguishFn)
-    if structure then
-        burnable:SetOnBurntFn(DefaultBurntStructureFn)
-    else
-        burnable:SetOnBurntFn(DefaultBurntFn)
-    end
+    burnable:SetOnBurntFn((structure and DefaultBurntStructureFn) or DefaultBurntFn)
 
     return burnable
 end
@@ -193,11 +187,7 @@ function MakeLargeBurnable(inst, time, offset, structure, sym)
     burnable:AddBurnFX(burnfx.generic, offset or Vector3(0, 0, 0), sym )
     burnable:SetOnIgniteFn(DefaultBurnFn)
     burnable:SetOnExtinguishFn(DefaultExtinguishFn)
-    if structure then
-        burnable:SetOnBurntFn(DefaultBurntStructureFn)
-    else
-        burnable:SetOnBurntFn(DefaultBurntFn)
-    end
+    burnable:SetOnBurntFn((structure and DefaultBurntStructureFn) or DefaultBurntFn)
 
     return burnable
 end
@@ -331,36 +321,46 @@ local shatterfx =
 }
 
 function MakeTinyFreezableCharacter(inst, sym, offset)
-    inst:AddComponent("freezable")
-    inst.components.freezable:SetShatterFXLevel(1)
-    inst.components.freezable:AddShatterFX(shatterfx.character, offset or Vector3(0, 0, 0), sym)
+    local freezable = inst:AddComponent("freezable")
+    freezable:SetShatterFXLevel(1)
+    freezable:AddShatterFX(shatterfx.character, offset or Vector3(0, 0, 0), sym)
+
+    return freezable
 end
 
 function MakeSmallFreezableCharacter(inst, sym, offset)
-    inst:AddComponent("freezable")
-    inst.components.freezable:SetShatterFXLevel(2)
-    inst.components.freezable:AddShatterFX(shatterfx.character, offset or Vector3(0, 0, 0), sym)
+    local freezable = inst:AddComponent("freezable")
+    freezable:SetShatterFXLevel(2)
+    freezable:AddShatterFX(shatterfx.character, offset or Vector3(0, 0, 0), sym)
+
+    return freezable
 end
 
 function MakeMediumFreezableCharacter(inst, sym, offset)
-    inst:AddComponent("freezable")
-    inst.components.freezable:SetShatterFXLevel(3)
-    inst.components.freezable:SetResistance(2)
-    inst.components.freezable:AddShatterFX(shatterfx.character, offset or Vector3(0, 0, 0), sym)
+    local freezable = inst:AddComponent("freezable")
+    freezable:SetShatterFXLevel(3)
+    freezable:SetResistance(2)
+    freezable:AddShatterFX(shatterfx.character, offset or Vector3(0, 0, 0), sym)
+
+    return freezable
 end
 
 function MakeLargeFreezableCharacter(inst, sym, offset)
-    inst:AddComponent("freezable")
-    inst.components.freezable:SetShatterFXLevel(4)
-    inst.components.freezable:SetResistance(3)
-    inst.components.freezable:AddShatterFX(shatterfx.character, offset or Vector3(0, 0, 0), sym)
+    local freezable = inst:AddComponent("freezable")
+    freezable:SetShatterFXLevel(4)
+    freezable:SetResistance(3)
+    freezable:AddShatterFX(shatterfx.character, offset or Vector3(0, 0, 0), sym)
+
+    return freezable
 end
 
 function MakeHugeFreezableCharacter(inst, sym, offset)
-    inst:AddComponent("freezable")
-    inst.components.freezable:SetShatterFXLevel(5)
-    inst.components.freezable:SetResistance(4)
-    inst.components.freezable:AddShatterFX(shatterfx.character, offset or Vector3(0, 0, 0), sym)
+    local freezable = inst:AddComponent("freezable")
+    freezable:SetShatterFXLevel(5)
+    freezable:SetResistance(4)
+    freezable:AddShatterFX(shatterfx.character, offset or Vector3(0, 0, 0), sym)
+
+    return freezable
 end
 
 function MakeInventoryPhysics(inst, mass, rad)
@@ -519,6 +519,24 @@ function ChangeToCharacterPhysics(inst, mass, rad)
     return phys
 end
 
+function ChangeToGiantCharacterPhysics(inst, mass, rad)
+	local phys = inst.Physics
+	if mass then
+		phys:SetMass(mass)
+		phys:SetFriction(0)
+		phys:SetDamping(5)
+	end
+	phys:SetCollisionGroup(COLLISION.GIANTS)
+	phys:ClearCollisionMask()
+	phys:CollidesWith(COLLISION.WORLD)
+	phys:CollidesWith(COLLISION.OBSTACLES)
+	phys:CollidesWith(COLLISION.CHARACTERS)
+	phys:CollidesWith(COLLISION.GIANTS)
+	if rad then
+		phys:SetCapsule(rad, 1)
+	end
+end
+
 function ChangeToObstaclePhysics(inst, rad, height)
     local phys = inst.Physics
     phys:SetCollisionGroup(COLLISION.OBSTACLES)
@@ -540,6 +558,23 @@ function ChangeToWaterObstaclePhysics(inst)
     return phys
 end
 
+function ChangeToInventoryItemPhysics(inst, mass, rad)
+    local phys = inst.Physics
+    if mass then
+        phys:SetMass(mass)
+        phys:SetFriction(.1)
+        phys:SetDamping(0)
+        phys:SetRestitution(.5)
+    end    
+    phys:SetCollisionGroup(COLLISION.ITEMS)
+    phys:SetCollisionMask(COLLISION.WORLD, COLLISION.OBSTACLES, COLLISION.SMALLOBSTACLES)
+    if rad then
+        phys:SetSphere(rad, 1)
+    end    
+    return phys
+end
+
+-- USED FOR THE DEPTH WORM
 function ChangeToInventoryPhysics(inst)
     local phys = inst.Physics
     phys:SetCollisionGroup(COLLISION.OBSTACLES)
@@ -688,6 +723,7 @@ function MakeSnowCovered(inst)
     end
 end
 
+----------------------------------------------------------------------------------------
 local function oneat(inst)
     if inst.components.perishable ~= nil then
         inst.components.perishable:SetPercent(1)
@@ -697,24 +733,39 @@ end
 local function onperish(inst)
     local owner = inst.components.inventoryitem.owner
     if owner ~= nil then
-        inst.components.inventoryitem:RemoveFromOwner(true)
-
+		local loots
         local container = owner.components.inventory or owner.components.container or nil
         if container ~= nil and inst.components.lootdropper ~= nil then
             local stacksize = inst.components.stackable ~= nil and inst.components.stackable.stacksize or 1
             if inst.components.health ~= nil then
                 owner:PushEvent("murdered", { victim = inst, stackmult = stacksize, negligent = true }) -- NOTES(JBK): This is a special case event already adding onto it.
             end
+			loots = {}
+			local loots_stackable = {}
             for i = 1, stacksize do
-                local loots = inst.components.lootdropper:GenerateLoot()
-                for k, v in pairs(loots) do
-                    local loot = SpawnPrefab(v)
-                    container:GiveItem(loot)
+				for i, v in ipairs(inst.components.lootdropper:GenerateLoot()) do
+					local stackable = loots_stackable[v]
+					if stackable then
+						if stackable:IsFull() then
+							stackable:SetIgnoreMaxSize(true)
+						end
+						stackable:SetStackSize(stackable:StackSize() + 1)
+					else
+						local loot = SpawnPrefab(v)
+						loots_stackable[v] = loot.components.stackable
+						table.insert(loots, loot)
+					end
                 end
             end
         end
 
         inst:Remove()
+
+		if loots then
+			for i, v in ipairs(loots) do
+				container:GiveItem(v)
+			end
+		end
     end
 end
 
@@ -1487,22 +1538,24 @@ function AddDefaultRippleSymbols(inst, ripple, shadow)
 end
 
 function MakeInventoryFloatable(inst, size, offset, scale, swap_bank, float_index, swap_data)
-    inst:AddComponent("floater")
-    inst.components.floater:SetSize(size or "small")
+    local floater = inst:AddComponent("floater")
+    floater:SetSize(size or "small")
 
-    if offset ~= nil then
-        inst.components.floater:SetVerticalOffset(offset)
+    if offset then
+        floater:SetVerticalOffset(offset)
     end
 
-    if scale ~= nil then
-        inst.components.floater:SetScale(scale)
+    if scale then
+        floater:SetScale(scale)
     end
 
     if swap_bank then
-        inst.components.floater:SetBankSwapOnFloat(swap_bank, float_index, swap_data)
+        floater:SetBankSwapOnFloat(swap_bank, float_index, swap_data)
     elseif swap_data then
-        inst.components.floater:SetSwapData(swap_data)
+        floater:SetSwapData(swap_data)
     end
+
+    return floater
 end
 
 --------------------------------------------------------------------------
@@ -1513,10 +1566,14 @@ local function fertilizer_ondeploy(inst, pt, deployer)
     local tile_x, tile_z = TheWorld.Map:GetTileCoordsAtPoint(pt:Get())
     local nutrients = inst.components.fertilizer.nutrients
     TheWorld.components.farming_manager:AddTileNutrients(tile_x, tile_z, nutrients[1], nutrients[2], nutrients[3])
-
+    
     inst.components.fertilizer:OnApplied(deployer)
     if deployer ~= nil and deployer.SoundEmitter ~= nil and inst.components.fertilizer.fertilize_sound ~= nil then
         deployer.SoundEmitter:PlaySound(inst.components.fertilizer.fertilize_sound)
+    end
+
+    if inst.ondeployed_fertilzier_extra_fn then
+        inst.ondeployed_fertilzier_extra_fn(inst, pt, deployer)
     end
 end
 
@@ -1532,11 +1589,13 @@ function MakeDeployableFertilizerPristine(inst)
 end
 
 function MakeDeployableFertilizer(inst)
-    inst:AddComponent("deployable")
-    inst.components.deployable:SetDeployMode(DEPLOYMODE.CUSTOM)
-    inst.components.deployable.ondeploy = fertilizer_ondeploy
-    inst.components.deployable:SetUseGridPlacer(false)
-    inst.components.deployable.keep_in_inventory_on_deploy = true
+    local deployable = inst:AddComponent("deployable")
+    deployable:SetDeployMode(DEPLOYMODE.CUSTOM)
+    deployable.ondeploy = fertilizer_ondeploy
+    deployable:SetUseGridPlacer(false)
+    deployable.keep_in_inventory_on_deploy = true
+
+    return deployable
 end
 
 --------------------------------------------------------------------------
@@ -1544,8 +1603,14 @@ local function OnStartRegrowth(inst, data)
     -- NOTES(JBK): inst will most likely be not valid right after this.
     TheWorld:PushEvent("beginregrowth", inst)
 end
+function RemoveFromRegrowthManager(inst)
+    inst:RemoveEventCallback("onremove", OnStartRegrowth)
+    inst:RemoveEventCallback("despawnedfromhaunt", RemoveFromRegrowthManager)
+    inst.OnStartRegrowth = nil
+end
 function AddToRegrowthManager(inst)
     inst:ListenForEvent("onremove", OnStartRegrowth)
+    inst:ListenForEvent("despawnedfromhaunt", RemoveFromRegrowthManager)
     inst.OnStartRegrowth = OnStartRegrowth -- For any special cases that need to call this.
 end
 
@@ -1587,3 +1652,9 @@ function MakeForgeRepairable(inst, material, onbroken, onrepaired)
 end
 
 --------------------------------------------------------------------------
+
+function MakeWaxablePlant(inst)
+    local waxable = inst:AddComponent("waxable")
+    waxable:SetWaxfn(WAXED_PLANTS.WaxPlant)
+    waxable:SetNeedsSpray()
+end

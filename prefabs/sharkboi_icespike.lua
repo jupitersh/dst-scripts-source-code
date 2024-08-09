@@ -73,7 +73,7 @@ local function SpikeLaunch(inst, launcher, basespeed, startheight, startradius)
 		local dist = math.sqrt(dsq)
 		angle = math.atan2(dz / dist, dx / dist) + (math.random() * 20 - 10) * DEGREES
 	else
-		angle = 2 * PI * math.random()
+		angle = TWOPI * math.random()
 	end
 	local sina, cosa = math.sin(angle), math.cos(angle)
 	local speed = basespeed + math.random()
@@ -127,15 +127,7 @@ local function DoDamage(inst)
 						v:Remove()
 					end
 				elseif v.components.pickable and v.components.pickable:CanBePicked() and not v:HasTag("intense") then
-					local num = v.components.pickable.numtoharvest or 1
-					local product = v.components.pickable.product
-					local x1, y1, z1 = v.Transform:GetWorldPosition()
-					v.components.pickable:Pick(inst) -- only calling this to trigger callbacks on the object
-					if product and num > 0 then
-						for i = 1, num do
-							SpawnPrefab(product).Transform:SetPosition(x1, 0, z1)
-						end
-					end
+					v.components.pickable:Pick(inst)
 				end
 			end
 			if inst.targets then

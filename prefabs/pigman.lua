@@ -559,6 +559,8 @@ local function CustomOnHaunt(inst)
     end
 end
 
+local SCRAPBOOK_HIDE_SYMBOLS = { "hat", "ARM_carry_up" }
+
 local function common(moonbeast)
     local inst = CreateEntity()
 
@@ -579,6 +581,7 @@ local function common(moonbeast)
     inst.AnimState:SetBank("pigman")
     inst.AnimState:PlayAnimation("idle_loop", true)
     inst.AnimState:Hide("hat")
+    inst.AnimState:Hide("ARM_carry_up")
 
     if IsSpecialEventActive(SPECIAL_EVENTS.YOTB) then
         inst.AnimState:AddOverrideBuild("pigman_yotb")
@@ -615,6 +618,8 @@ local function common(moonbeast)
     if not TheWorld.ismastersim then
         return inst
     end
+
+    inst.scrapbook_hide = SCRAPBOOK_HIDE_SYMBOLS
 
     inst.scrapbook_removedeps = { "strawhat", "tophat" }
     inst.scrapbook_adddeps = { "gargoyle_werepigdeath" }

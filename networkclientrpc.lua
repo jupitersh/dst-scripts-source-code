@@ -374,6 +374,17 @@ local RPC_HANDLERS =
 		end
 	end,
 
+	StrafeFacing = function(player, dir)
+		if not checknumber(dir) then
+			printinvalid("StrafeFacing", player)
+			return
+		end
+		local locomotor = player.components.locomotor
+		if locomotor and not (player.sg and player.sg:HasStateTag("busy")) then
+			locomotor:OnStrafeFacingChanged(dir)
+		end
+	end,
+
     StartHop = function(player, x, z, platform, has_platform)
         if not (checknumber(x) and
                 checknumber(z) and
@@ -795,9 +806,9 @@ local RPC_HANDLERS =
             printinvalid("SetMovementPredictionEnabled", player)
             return
         end
-        local pc = player.components.playercontroller
-        if pc ~= nil then
-            player.components.playercontroller:OnRemoteToggleMovementPrediction(enabled)
+		local playercontroller = player.components.playercontroller
+		if playercontroller then
+			playercontroller:OnRemoteToggleMovementPrediction(enabled)
         end
     end,
 
@@ -953,16 +964,17 @@ local RPC_HANDLERS =
     end,
 
     -- NOTES(JBK): OnMap RPCs are always world relative.
-    DoActionOnMap = function(player, action, x, z)
-        if not (checknumber(action) and
+    DoActionOnMap = function(player, actioncode, x, z, maptarget)
+        if not (checknumber(actioncode) and
                 checknumber(x) and
-                checknumber(z)) then
+                checknumber(z) and
+                optentity(maptarget)) then
             printinvalid("DoActionOnMap PARAMS", player)
             return
         end
-        local pc = player.components.playercontroller
-        if pc then
-            pc:OnMapAction(action, Vector3(x, 0, z))
+		local playercontroller = player.components.playercontroller
+		if playercontroller then
+			playercontroller:OnMapAction(actioncode, Vector3(x, 0, z), maptarget)
         end
     end,
 
@@ -1021,6 +1033,11 @@ local RPC_HANDLERS =
         if inst.OnScrapbookDataTaught then
             inst:OnScrapbookDataTaught(player, response)
         end
+    end,
+
+    SetClientAuthoritativeSetting = function(player, variable, value)
+        -- NOTES(JBK): Check passed in variables in the callback not in the RPC here.
+        player:SetClientAuthoritativeSetting(variable, value)
     end,
 
     -- NOTES(JBK): RPC limit is at 128, with 1-127 usable.
@@ -1206,6 +1223,24 @@ local SHARD_RPC_HANDLERS =
 
     ResyncWorldSettings = function(shardid)
         Shard_SyncWorldSettings(shardid, true)
+    end,
+
+    SyncBossDefeated = function(shardid, bossprefab) -- NOTES(JBK): This should not be called often enough to warrant a lookup table for bossprefab as an enum.
+        Shard_SyncBossDefeated(bossprefab, shardid)
+    end,
+
+    SyncMermKingExists = function(shardid, exists)
+        Shard_SyncMermKingExists(exists, shardid)
+    end,
+
+    SyncMermKingTrident = function(shardid, exists)
+        Shard_SyncMermKingTrident(exists, shardid)
+    end,
+    SyncMermKingCrown = function(shardid, exists)
+        Shard_SyncMermKingCrown(exists, shardid)
+    end,
+    SyncMermKingPauldron = function(shardid, exists)
+        Shard_SyncMermKingPauldron(exists, shardid)
     end,
 }
 

@@ -11,6 +11,16 @@ local SharkboiBrain = Class(Brain, function(self, inst)
 	Brain._ctor(self, inst)
 end)
 
+--see "idle" state
+local function TryRestoreCanRotate(inst)
+	if inst.sg:HasStateTag("try_restore_canrotate") then
+		inst.sg:RemoveStateTag("try_restore_canrotate")
+		inst.sg:AddStateTag("canrotate")
+		inst.Transform:SetFourFaced()
+		inst.components.locomotor.pusheventwithdirection = false
+	end
+end
+
 local function GetTarget(inst)
 	return inst.components.combat.target
 end
@@ -26,7 +36,10 @@ end
 
 local function GetNearbyPlayerFn(inst)
 	local player, distsq = FindClosestPlayerToInst(inst, 6, true)
-	return player
+	if player then
+		TryRestoreCanRotate(inst)
+		return player
+	end
 end
 
 local function KeepNearbyPlayerFn(inst, target)
@@ -42,6 +55,7 @@ local function _GetTraderFn(inst, minrangesq, maxrangesq)
 				local distsq = v:GetDistanceSqToPoint(x, y, z)
 				if distsq < maxrangesq and distsq >= minrangesq and inst.components.trader:IsTryingToTradeWithMe(v) then
 					inst:SetIsTradingFlag(true, 0.5 + FRAMES)
+					TryRestoreCanRotate(inst)
 					return v
 				end
 			end
@@ -69,6 +83,37 @@ local function KeepTraderFn(inst, target)
 	inst:SetIsTradingFlag(false)
 end
 
+local function GetWanderDir(inst)
+	if inst.hole then
+		local x, y, z = inst.Transform:GetWorldPosition()
+		local x1, y1, z1 = inst.hole.Transform:GetWorldPosition()
+		if x ~= x1 or z ~= z1 then
+			local dx = x1 - x
+			local dz = z1 - z
+			local dsq = dx * dx + dz * dz
+			local angle = math.atan2(-dz, dx)
+			local rad = inst.hole:GetPhysicsRadius(0) + 2.5
+			if dsq <= rad * rad then
+				return angle + PI
+			end
+			local theta = math.abs(math.asin(rad / math.sqrt(dsq)))
+			return angle + theta + math.random() * (PI2 - 2 * theta)
+		end
+	end
+end
+
+local WANDER_DATA = { wander_dist = 5.5 }
+local function WanderAroundHole(inst)
+	return Wander(inst, nil, nil, nil, GetWanderDir, nil, nil, WANDER_DATA)
+end
+
+local CHATTERPARAMS_LOW = {
+	echotochatpriority = CHATPRIORITIES.LOW,
+}
+local CHATTERPARAMS_HIGH = {
+	echotochatpriority = CHATPRIORITIES.HIGH,
+}
+
 function SharkboiBrain:OnStart()
 	local root = PriorityNode({
 		WhileNode(
@@ -83,7 +128,10 @@ function SharkboiBrain:OnStart()
 							Leash(self.inst, GetTargetPos, TUNING.SHARKBOI_MELEE_RANGE, 3, true)),
 						FaceEntity(self.inst, GetTarget, IsTarget),
 					}, 0.5)),
-				ChattyNode(self.inst, "SHARKBOI_TALK_FIGHT",
+				ChattyNode(self.inst, {
+						name = "SHARKBOI_TALK_FIGHT",
+						chatterparams = CHATTERPARAMS_LOW,
+					},
 					ParallelNode{
 						ConditionWaitNode(function()
 							local target = self.inst.components.combat.target
@@ -100,40 +148,52 @@ function SharkboiBrain:OnStart()
 					}),
 				--Sharkboi won the battle? (or all targets deaggroed?)
 				IfNode(function() return self.inst:HasTag("hostile") end, "Gloating",
-					ChattyNode(self.inst, "SHARKBOI_TALK_GLOAT",
-						Wander(self.inst))),
+					ChattyNode(self.inst, {
+							name = "SHARKBOI_TALK_GLOAT",
+							chatterparams = CHATTERPARAMS_LOW,
+						},
+						WanderAroundHole(self.inst))),
 				--Out of stock (after defeated)
 				IfNode(function() return self.inst.components.trader and self.inst.stock <= 0 end, "Out of stock",
 					PriorityNode({
 						FaceEntity(self.inst, GetTraderFn, KeepTraderFn),
-						Wander(self.inst),
+						WanderAroundHole(self.inst),
 					}, 0.5)),
 				--Trader (after defeated)
 				WhileNode(function() return self.inst.components.trader and self.inst.stock > 0 end, "Friendly",
 					PriorityNode({
-						ChattyNode(self.inst, "SHARKBOI_TALK_ATTEMPT_TRADE",
+						ChattyNode(self.inst, {
+								name = "SHARKBOI_TALK_ATTEMPT_TRADE",
+								chatterparams = CHATTERPARAMS_HIGH,
+							},
 							FaceEntity(self.inst, GetFarTraderFn, KeepTraderFn)),
 						FaceEntity(self.inst, GetNearTraderFn, KeepTraderFn),
 						SequenceNode{
-							ChattyNode(self.inst, "SHARKBOI_TALK_FRIENDLY",
+							ChattyNode(self.inst, {
+									name = "SHARKBOI_TALK_FRIENDLY",
+									chatterparams = CHATTERPARAMS_HIGH,
+								},
 								FaceEntity(self.inst, GetNearbyPlayerFn, KeepNearbyPlayerFn, 6)),
 							ParallelNodeAny{
-								Wander(self.inst),
+								WanderAroundHole(self.inst),
 								WaitNode(7),
 							},
 						},
-						Wander(self.inst),
+						WanderAroundHole(self.inst),
 					}, 0.5)),
 				--When first spawned; alternate between wandering and looking at you
 				SequenceNode{
-					ChattyNode(self.inst, "SHARKBOI_TALK_IDLE",
+					ChattyNode(self.inst, {
+							name = "SHARKBOI_TALK_IDLE",
+							chatterparams = CHATTERPARAMS_LOW,
+						},
 						FaceEntity(self.inst, GetNearbyPlayerFn, KeepNearbyPlayerFn, 4)),
 					ParallelNodeAny{
-						Wander(self.inst),
+						WanderAroundHole(self.inst),
 						WaitNode(10),
 					},
 				},
-				Wander(self.inst),
+				WanderAroundHole(self.inst),
 			}, 0.5)),
 	}, 0.5)
 

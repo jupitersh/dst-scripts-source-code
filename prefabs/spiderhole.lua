@@ -75,13 +75,12 @@ end
 
 local function SpawnInvestigators(inst, data)
     if not inst.components.health:IsDead() and inst.components.childspawner ~= nil then
-        
         local num_to_release = math.min(2, inst.components.childspawner.childreninside)
         local num_investigators = inst.components.childspawner:CountChildrenOutside(IsInvestigator)
         num_to_release = num_to_release - num_investigators
         local targetpos = data ~= nil and data.target ~= nil and data.target:GetPosition() or nil
-        
-        for k = 1, num_to_release do
+
+        for _ = 1, num_to_release do
             local spider = inst.components.childspawner:SpawnChild()
             if spider ~= nil and targetpos ~= nil then
                 spider.components.knownlocations:RememberLocation("investigate", targetpos)
@@ -189,6 +188,8 @@ end
 local function spawnerfn()
     local inst = commonfn("full", "cavespider_den.png", "spiderden", true)
 
+    inst.scrapbook_proxy = "spiderhole_rock"
+
     if not TheWorld.ismastersim then
         return inst
     end
@@ -234,12 +235,13 @@ end
 local function rockfn()
     local inst = commonfn("med")
 
-    inst.scrapbook_anim = "med"
     inst:SetPrefabNameOverride("spiderhole")
 
     if not TheWorld.ismastersim then
         return inst
     end
+
+    inst.scrapbook_anim = "full"
 
     inst.components.workable:SetWorkAction(ACTIONS.MINE)
     inst.components.workable:SetOnWorkCallback(rock_onworked)

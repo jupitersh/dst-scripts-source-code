@@ -106,8 +106,7 @@ local Inv = Class(Widget, function(self, owner)
     self.inst:ListenForEvent("unequip", function(inst, data) self:OnItemUnequip(data.item, data.eslot) end, self.owner)
     self.inst:ListenForEvent("newactiveitem", function(inst, data) self:OnNewActiveItem(data.item) end, self.owner)
     self.inst:ListenForEvent("itemlose", function(inst, data) self:OnItemLose(self.inv[data.slot]) end, self.owner)
-    self.inst:ListenForEvent("refreshinventory", function() self:Refresh() end, self.owner)
-    self.inst:ListenForEvent("refresh_integrated_container", function() self:RefreshIntegratedContainer() end, self.owner)
+	self.inst:ListenForEvent("refreshinventory", function() self:Refresh(true) end, self.owner)
     self.inst:ListenForEvent("onplacershown", function() self:OnPlacerChanged(true) end, self.owner)
     self.inst:ListenForEvent("onplacerhidden", function() self:OnPlacerChanged(false) end, self.owner)
 
@@ -168,6 +167,17 @@ local function BackpackLose(inst, data)
     end
 end
 
+local function BackpackRefresh(inst)
+	local owner = ThePlayer
+	local inventory = owner and owner.HUD and owner.replica.inventory or nil
+	local overflow = inventory and inventory:GetOverflowContainer() or nil
+	if overflow and overflow.inst == inst then
+		local inv = owner.HUD.controls.inv
+		if inv then
+			inv:RefreshIntegratedContainer()
+		end
+	end
+end
 
 local function RebuildLayout_Quagmire(self, inventory, overflow, do_integrated_backpack, do_self_inspect)
 	local inv_scale = 1
@@ -193,9 +203,6 @@ local function RebuildLayout_Quagmire(self, inventory, overflow, do_integrated_b
 
         x = x + 83
     end
-
-
-	x = x
 
 	local equip_scale = 0.8
 	local equip_y = -74
@@ -299,6 +306,7 @@ local function RebuildLayout(self, inventory, overflow, do_integrated_backpack, 
     if hadbackpack then
         self.inst:RemoveEventCallback("itemget", BackpackGet, self.backpack)
         self.inst:RemoveEventCallback("itemlose", BackpackLose, self.backpack)
+		self.inst:RemoveEventCallback("refresh", BackpackRefresh, self.backpack)
         self.backpack = nil
     end
 
@@ -334,6 +342,7 @@ local function RebuildLayout(self, inventory, overflow, do_integrated_backpack, 
         self.backpack = overflow.inst
         self.inst:ListenForEvent("itemget", BackpackGet, self.backpack)
         self.inst:ListenForEvent("itemlose", BackpackLose, self.backpack)
+		self.inst:ListenForEvent("refresh", BackpackRefresh, self.backpack)
     end
 
     if hadbackpack and self.backpack == nil then
@@ -522,13 +531,6 @@ function Inv:OnUpdate(dt)
     self:UpdateCursor()
 
     if self.shown then
-		if self.owner.components.playercontroller ~= nil and
-			self.owner.components.playercontroller.reticule ~= nil and
-			self.owner.components.playercontroller.reticule.twinstickmode ~= nil
-			then
-			return
-		end
-
         --this is intentionally unaware of focus
         if self.repeat_time <= 0 then
             self.reps = self.reps and (self.reps + 1) or 1
@@ -553,22 +555,34 @@ function Inv:OnUpdate(dt)
 				end
 			end
 
-			if TheInput:IsControlPressed(CONTROL_INVENTORY_LEFT) then
-				self:RefreshRepeatDelay(CONTROL_INVENTORY_LEFT)
-				self:CursorLeft()
-				return
-			elseif TheInput:IsControlPressed(CONTROL_INVENTORY_RIGHT) then
-				self:RefreshRepeatDelay(CONTROL_INVENTORY_RIGHT)
-				self:CursorRight()
-				return
-			elseif TheInput:IsControlPressed(CONTROL_INVENTORY_UP) then
-				self:RefreshRepeatDelay(CONTROL_INVENTORY_UP)
-				self:CursorUp()
-				return
-			elseif TheInput:IsControlPressed(CONTROL_INVENTORY_DOWN) then
-				self:RefreshRepeatDelay(CONTROL_INVENTORY_DOWN)
-				self:CursorDown()
-				return
+			local ignore_rstick = false
+			if self.owner.components.playercontroller and
+				self.owner.components.playercontroller.reticule and
+				self.owner.components.playercontroller.reticule.twinstickmode
+			then
+				ignore_rstick = true
+			elseif self.owner.components.strafer and self.owner.components.strafer:IsAiming() then
+				ignore_rstick = true
+			end
+
+			if not ignore_rstick then
+				if TheInput:IsControlPressed(CONTROL_INVENTORY_LEFT) then
+					self:RefreshRepeatDelay(CONTROL_INVENTORY_LEFT)
+					self:CursorLeft()
+					return
+				elseif TheInput:IsControlPressed(CONTROL_INVENTORY_RIGHT) then
+					self:RefreshRepeatDelay(CONTROL_INVENTORY_RIGHT)
+					self:CursorRight()
+					return
+				elseif TheInput:IsControlPressed(CONTROL_INVENTORY_UP) then
+					self:RefreshRepeatDelay(CONTROL_INVENTORY_UP)
+					self:CursorUp()
+					return
+				elseif TheInput:IsControlPressed(CONTROL_INVENTORY_DOWN) then
+					self:RefreshRepeatDelay(CONTROL_INVENTORY_DOWN)
+					self:CursorDown()
+					return
+				end
 			end
 
 			self.repeat_time = 0
@@ -1201,7 +1215,7 @@ function Inv:UpdateCursor()
     self:UpdateCursorText()
 end
 
-function Inv:Refresh()
+function Inv:Refresh(skipbackpack)
     local inventory = self.owner.replica.inventory
     local items = inventory:GetItems()
     local equips = inventory:GetEquips()
@@ -1233,15 +1247,16 @@ function Inv:Refresh()
         end
     end
 
-    self:RefreshIntegratedContainer()
+	if not skipbackpack then
+		self:RefreshIntegratedContainer()
+	end
 
     self:OnNewActiveItem(activeitem)
 end
 
 function Inv:RefreshIntegratedContainer()
-    local inventory = self.owner.replica.inventory
-
     if #self.backpackinv > 0 then
+		local inventory = self.owner.replica.inventory
         local overflow = inventory:GetOverflowContainer()
         if overflow ~= nil then
             for i, v in ipairs(self.backpackinv) do

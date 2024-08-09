@@ -51,6 +51,7 @@ function Spawner:OnRemoveFromEntity()
         self.inst:RemoveEventCallback("ontrapped", self._onchildkilled, self.child)
         self.inst:RemoveEventCallback("death", self._onchildkilled, self.child)
         self.inst:RemoveEventCallback("detachchild", self._onchildkilled, self.child)
+        self.inst:RemoveEventCallback("onremove", self._onchildkilled, self.child)
     end
     if self.task ~= nil then
         self.task:Cancel()
@@ -176,9 +177,19 @@ end
 
 function Spawner:TakeOwnership(child)
     if self.child ~= child then
+        if self.child then
+            self.inst:RemoveEventCallback("ontrapped", self._onchildkilled, self.child)
+            self.inst:RemoveEventCallback("death", self._onchildkilled, self.child)
+            self.inst:RemoveEventCallback("detachchild", self._onchildkilled, self.child)
+            self.inst:RemoveEventCallback("onremove", self._onchildkilled, self.child)
+            if self.child.components.knownlocations ~= nil then
+                self.child.components.knownlocations:ForgetLocation("home")
+            end
+        end
         self.inst:ListenForEvent("ontrapped", self._onchildkilled, child)
         self.inst:ListenForEvent("death", self._onchildkilled, child)
         self.inst:ListenForEvent("detachchild", self._onchildkilled, child)
+        self.inst:ListenForEvent("onremove", self._onchildkilled, child)
         if child.components.knownlocations ~= nil then
             child.components.knownlocations:RememberLocation("home", self.inst:GetPosition())
         end
@@ -222,7 +233,6 @@ function Spawner:ReleaseChild()
                 self.onspawnedfn(self.inst,child)
             end
         end
-        
     end
 
     if self:IsOccupied() then
@@ -244,7 +254,7 @@ function Spawner:ReleaseChild()
 
                 local rad = .5 + self.inst:GetPhysicsRadius(0) + self.child:GetPhysicsRadius(0)
 
-                local start_angle = math.random() * 2 * PI
+                local start_angle = TWOPI * math.random()
 
                 local offset = FindWalkableOffset(Vector3(x, 0, z), start_angle, rad, 8, false, true, NoHoles, self.spawn_in_water or false, self.spawn_on_boats or false)
                 if offset == nil then
@@ -275,6 +285,7 @@ function Spawner:ReleaseChild()
 end
 
 function Spawner:GoHome(child)
+
     if self.child == child and not self:IsOccupied() then
         self.inst:AddChild(child)
         child.Transform:SetPosition(0,0,0)
@@ -288,9 +299,6 @@ function Spawner:GoHome(child)
             child.components.burnable:Extinguish()
         end
 
-        --if child.components.health ~= nil and child.components.health:IsHurt() then
-        --end
-
         if child.components.homeseeker ~= nil then
             child:RemoveComponent("homeseeker")
         end
@@ -300,6 +308,8 @@ function Spawner:GoHome(child)
         end
 
         return true
+    else 
+        child:PushEvent("gohomefailed", self.inst)
     end
 end
 

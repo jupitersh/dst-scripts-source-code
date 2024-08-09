@@ -31,7 +31,7 @@ local function onhealthchange(inst, old_percent, new_percent)
         inst.sg:GoToState("changegrade", {
             index = oldindex,
             newindex = newindex,
-            isupgrade = (newindex > oldindex) or nil,
+            isupgrade = (newindex < oldindex) or nil,
         })
     end
 end
@@ -51,7 +51,7 @@ local function onload(inst, data)
     if inst.components.health then
         local healthpercent = inst.components.health:GetPercent()
         local stateindex = getanimthreshold(inst, healthpercent)
-        inst.sg:GoToState("idle", { index = stateindex })
+        inst.sg:GoToState("idle", stateindex)
     end
 end
 
@@ -78,14 +78,14 @@ local function ValidRepairFn(inst)
     return true
 end
 
+local BOAT_MUST_TAGS = {"boat"}
 local function CanDeployAtBoatEdge(inst, pt, mouseover, deployer, rot)
-    local boat = mouseover ~= nil and mouseover:HasTag("boat") and mouseover or nil
-    if boat == nil then
+    local boat = (mouseover ~= nil and mouseover:HasTag("boat") and mouseover) or nil
+    if not boat then
         boat = TheWorld.Map:GetPlatformAtPoint(pt.x,pt.z)
 
         -- If we're not standing on a boat, try to get the closest boat position via FindEntities()
-        if boat == nil or not boat:HasTag("boat") then
-            local BOAT_MUST_TAGS = { "boat" }
+        if not boat or not boat:HasTag("boat") then
             local boats = TheSim:FindEntities(pt.x, 0, pt.z, TUNING.MAX_WALKABLE_PLATFORM_RADIUS, BOAT_MUST_TAGS)
             if #boats <= 0 then
                 return false
@@ -94,18 +94,48 @@ local function CanDeployAtBoatEdge(inst, pt, mouseover, deployer, rot)
         end
     end
 
+    if not boat then return false end
+
     -- Check the outside rim to see if no objects are there
     local boatpos = boat:GetPosition()
-    local radius = boat.components.boatringdata and boat.components.boatringdata:GetRadius() + 0.25 or 0 --  Need to look a little outside of the boat edge here
-    local boatsegments = boat.components.boatringdata and boat.components.boatringdata:GetNumSegments()
     local boatangle = boat.Transform:GetRotation()
+
+    -- Need to look a little outside of the boat edge here
+    local boatringdata = boat.components.boatringdata
+    local radius = (boatringdata and boatringdata:GetRadius() + 0.25) or 0
+    local boatsegments = (boatringdata and boatringdata:GetNumSegments()) or 1
 
     local snap_point = GetCircleEdgeSnapTransform(boatsegments, radius, boatpos, pt, boatangle)
     return TheWorld.Map:CanDeployWalkablePeripheralAtPoint(snap_point, inst)
 end
 
-function MakeBumperType(data)
+local function setup_boat_placer(inst)
+    inst.components.placer.snap_to_boat_edge = true
+    inst.AnimState:SetOrientation(ANIM_ORIENTATION.OnGround)
+    inst.AnimState:SetLayer(LAYER_WORLD_BACKGROUND)
+    inst.AnimState:SetSortOrder(ANIM_SORT_ORDER.OCEAN_BOAT_BUMPERS)
+    inst.AnimState:SetFinalOffset(1)
+end
 
+local function CrabkingKit_OnDroppedAsLoot(inst)
+    inst.components.stackable:SetStackSize(TUNING.BOAT.BUMPERS.CRABKING.STACKSIZE)
+
+    inst:RemoveEventCallback("on_loot_dropped", inst._OnDroppedAsLoot)
+end
+
+local function shell_kit_masterpostinit(inst)
+    inst.scrapbook_scale = 0.8
+end
+
+local function crabking_kit_masterpostinit(inst)
+    inst.scrapbook_scale = 0.7
+
+    inst._OnDroppedAsLoot = CrabkingKit_OnDroppedAsLoot -- Mods.
+
+    inst:ListenForEvent("on_loot_dropped", inst._OnDroppedAsLoot)
+end
+
+function MakeBumperType(data)
     local assets =
     {
         Asset("ANIM", "anim/boat_bumper.zip"), -- Anim file (and build for kelp bumper)
@@ -131,35 +161,34 @@ function MakeBumperType(data)
         local boat = TheWorld.Map:GetPlatformAtPoint(builddata.pos.x, builddata.pos.z)
 
         -- If clicked point isn't on a boat, try to get the closest boat via FindEntities()
-        if boat == nil then
-            local BOAT_MUST_TAGS = { "boat" }
+        if not boat then
             local boats = TheSim:FindEntities(builddata.pos.x, 0, builddata.pos.z, TUNING.BOAT.RADIUS, BOAT_MUST_TAGS)
-            if boats ~= nil then
+            if boats then
                 boat = GetClosest(inst, boats)
             end
         end
 
-        if boat ~= nil then
+        if boat then
             SnapToBoatEdge(inst, boat, builddata.pos)
             boat.components.boatring:AddBumper(inst)
         end
 
-        if data.buildsound ~= nil then
+        if data.buildsound then
             inst.SoundEmitter:PlaySound(data.buildsound)
         end
     end
 
     local function onhammered(inst, worker)
-        if data.maxloots ~= nil and data.loot ~= nil then
+        if data.maxloots and data.loot then
             local num_loots = math.max(1, math.floor(data.maxloots * inst.components.health:GetPercent()))
-            for i = 1, num_loots do
+            for _ = 1, num_loots do
                 inst.components.lootdropper:SpawnLootPrefab(data.loot)
             end
         end
 
         local fx = SpawnPrefab("collapse_small")
         fx.Transform:SetPosition(inst.Transform:GetWorldPosition())
-        if data.material ~= nil then
+        if data.material then
             fx:SetMaterial(data.material)
         end
 
@@ -167,8 +196,8 @@ function MakeBumperType(data)
     end
 
     local function onhit(inst)
-        if data.material ~= nil then
-            --inst.SoundEmitter:PlaySound("dontstarve/common/destroy_"..data.material)
+        if inst.sg:HasStateTag("busy") then
+            return
         end
 
         local healthpercent = inst.components.health:GetPercent()
@@ -182,13 +211,13 @@ function MakeBumperType(data)
         -- Remove bumper from list of boat bumpers
         local pos = inst:GetPosition()
         local boat = TheWorld.Map:GetPlatformAtPoint(pos.x, pos.z)
-        if boat ~= nil and boat.components.boatring ~= nil then
+        if boat and boat.components.boatring then
             boat.components.boatring:RemoveBumper(inst)
         end
     end
 
     local function onrepaired(inst)
-        if data.buildsound ~= nil then
+        if data.buildsound then
             inst.SoundEmitter:PlaySound(data.buildsound)
         end
     end
@@ -214,12 +243,11 @@ function MakeBumperType(data)
         inst.AnimState:SetLayer(LAYER_WORLD_BACKGROUND)
         inst.AnimState:SetSortOrder(ANIM_SORT_ORDER.OCEAN_BOAT_BUMPERS)
 
-        for i, v in ipairs(data.tags) do
+        inst:SetPhysicsRadiusOverride(0.75) -- For action distance.
+
+        for _, v in ipairs(data.tags) do
             inst:AddTag(v)
         end
-
-        MakeSnowCoveredPristine(inst)
-
 
         inst.entity:SetPristine()
         if not TheWorld.ismastersim then
@@ -227,6 +255,7 @@ function MakeBumperType(data)
         end
 
         inst.scrapbook_anim = "idle_1"
+        inst.scrapbook_scale = 0.7
 
         inst:AddComponent("inspectable")
         inst:AddComponent("lootdropper")
@@ -275,32 +304,87 @@ function MakeBumperType(data)
         inst.OnSave = onsave
         inst.OnLoad = onload
 
-        MakeSnowCovered(inst)
-
         return inst
     end
 
-    local function setup_boat_placer(inst)
-        inst.components.placer.snap_to_boat_edge = true
-        inst.AnimState:SetOrientation(ANIM_ORIENTATION.OnGround)
-        inst.AnimState:SetLayer(LAYER_WORLD_BACKGROUND)
-        inst.AnimState:SetSortOrder(ANIM_SORT_ORDER.OCEAN_BOAT_BUMPERS)
-        inst.AnimState:SetFinalOffset(1)
-    end
-
     return Prefab("boat_bumper_"..data.name, fn, assets, prefabs),
-        MakeDeployableKitItem("boat_bumper_"..data.name.."_kit", "boat_bumper_"..data.name, "boat_bumper", buildname, "idle", assets, {size = "med"}, {"boat_accessory"}, {fuelvalue = TUNING.LARGE_FUEL}, { deploymode = DEPLOYMODE.CUSTOM, deployspacing = DEPLOYSPACING.MEDIUM, custom_candeploy_fn = CanDeployAtBoatEdge }, TUNING.STACK_SIZE_MEDITEM),
-        MakePlacer("boat_bumper_"..data.name.."_kit_placer", "boat_bumper", buildname, "idle_1", false, false, false, nil, nil, nil--[[NoFaced]], setup_boat_placer)
+        MakeDeployableKitItem(
+            "boat_bumper_"..data.name.."_kit",
+            "boat_bumper_"..data.name,
+            "boat_bumper",
+            buildname,
+            "idle",
+            assets,
+            {size = "med"},
+            {"boat_accessory"},
+            data.flammable and {fuelvalue = TUNING.LARGE_FUEL} or nil,
+            {
+                deploymode = DEPLOYMODE.CUSTOM,
+                deployspacing = DEPLOYSPACING.MEDIUM,
+                custom_candeploy_fn = CanDeployAtBoatEdge,
+            },
+            TUNING.STACK_SIZE_MEDITEM,
+            data.kitpostinit
+        ),
+        MakePlacer(
+            "boat_bumper_"..data.name.."_kit_placer",
+            "boat_bumper",
+            buildname,
+            "idle_1",
+            false, false, false,
+            nil, nil, nil--[[NoFaced]],
+            setup_boat_placer
+        )
 end
 
 local boatbumperprefabs = {}
 
 local boatbumperdata =
 {
-    { name = "kelp",     material = MATERIALS.KELP,   tags = { "kelp" },      loot = "kelp",                  maxloots = 2, maxhealth = TUNING.BOAT.BUMPERS.KELP.HEALTH,     flammable = true, buildsound = "dontstarve/common/place_structure_straw"  },
-    { name = "shell",    material = MATERIALS.SHELL,  tags = { "shell" },     loot = "slurtle_shellpieces",   maxloots = 2, maxhealth = TUNING.BOAT.BUMPERS.SHELL.HEALTH,    flammable = true, buildsound = "dontstarve/common/place_structure_stone"  },
+    {
+        name = "kelp",
+        material = MATERIALS.KELP,
+        tags = { "kelp" },
+        loot = "kelp",
+        maxloots = 2,
+        maxhealth = TUNING.BOAT.BUMPERS.KELP.HEALTH,
+        flammable = true,
+        buildsound = "dontstarve/common/place_structure_straw",
+    },
+    {
+        name = "shell",
+        material = MATERIALS.SHELL,
+        tags = { "shell" },
+        loot = "slurtle_shellpieces",
+        maxloots = 2,
+        maxhealth = TUNING.BOAT.BUMPERS.SHELL.HEALTH,
+        flammable = true,
+        buildsound = "dontstarve/common/place_structure_stone",
+        kitpostinit = shell_kit_masterpostinit,
+    },
+    {
+        name = "yotd",
+        material = MATERIALS.WOOD,
+        tags = {},
+        loot = nil,
+        maxloots = nil,
+        maxhealth = TUNING.BOAT.BUMPERS.SHELL.HEALTH,
+        flammable = false,
+        buildsound = "dontstarve/common/place_structure_wood",
+    },
+    {
+        name = "crabking",
+        material = MATERIALS.STONE,
+        tags = { "collision_world_safe" },
+        loot = "rocks",
+        maxloots = 3,
+        maxhealth = TUNING.BOAT.BUMPERS.CRABKING.HEALTH,
+        flammable = false,
+        buildsound = "dontstarve/common/place_structure_stone",
+        kitpostinit = crabking_kit_masterpostinit,
+    },
 }
-for i, v in ipairs(boatbumperdata) do
+for _, v in ipairs(boatbumperdata) do
     local boatbumper, item, placer = MakeBumperType(v)
     table.insert(boatbumperprefabs, boatbumper)
     table.insert(boatbumperprefabs, item)

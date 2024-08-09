@@ -553,6 +553,7 @@ local function tree(name, stage, data)
         inst.entity:AddNetwork()
 
         MakeObstaclePhysics(inst, .5)
+		inst:SetDeploySmartRadius(DEPLOYSPACING_RADIUS[DEPLOYSPACING.DEFAULT] / 2) --seed/planted_tree deployspacing/2
 
         inst.MiniMapEntity:SetIcon("palmcone_tree.png")
         inst.MiniMapEntity:SetPriority(-1)
@@ -634,6 +635,8 @@ local function tree(name, stage, data)
 
         -------------------
         MakeHauntableWorkAndIgnite(inst)
+
+        MakeWaxablePlant(inst)
 
         -------------------
         inst.OnSave = on_save

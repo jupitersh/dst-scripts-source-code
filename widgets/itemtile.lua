@@ -132,6 +132,20 @@ local ItemTile = Class(Widget, function(self, invitem)
 				self:UpdateTooltip()
 			end
 		end, invitem)
+    self.inst:ListenForEvent("serverpauseddirty",
+        function(invitem)
+            if self.focus and not TheInput:ControllerAttached() then
+                self.inst:DoTaskInTime(0, function() self:UpdateTooltip() end)
+            end
+        end,
+    TheWorld)
+    self.inst:ListenForEvent("refreshcrafting",
+        function(invitem)
+            if self.focus and not TheInput:ControllerAttached() then
+                self:UpdateTooltip()
+            end
+        end,
+    ThePlayer)
         self.inst:ListenForEvent("inventoryitem_updatespecifictooltip",
             function(player, data)
                 if self.focus and not TheInput:ControllerAttached() and invitem.prefab == data.prefab then
@@ -292,7 +306,7 @@ function ItemTile:Refresh()
         self.item.replica.inventoryitem:DeserializeUsage()
     end
 
-    if not self.isactivetile then
+	if not self.isactivetile and self.wetness then
         if self.item:GetIsWet() then
             self.wetness:Show()
         else
@@ -354,7 +368,7 @@ function ItemTile:GetDescriptionString()
             end
         elseif active_item:IsValid() then
             if not (self.item.replica.equippable ~= nil and self.item.replica.equippable:IsEquipped()) then
-                if active_item.replica.stackable ~= nil and active_item.prefab == self.item.prefab and active_item.AnimState:GetSkinBuild() == self.item.AnimState:GetSkinBuild() then --active_item.skinname == self.item.skinname (this does not work on clients, so we're going to use the AnimState hack instead)
+                if active_item.replica.stackable ~= nil and active_item.prefab == self.item.prefab and self.item:StackableSkinHack(active_item) then
                     str = str.."\n"..TheInput:GetLocalizedControl(TheInput:GetControllerID(), CONTROL_PRIMARY)..": "..STRINGS.UI.HUD.PUT
                 else
                     str = str.."\n"..TheInput:GetLocalizedControl(TheInput:GetControllerID(), CONTROL_PRIMARY)..": "..STRINGS.UI.HUD.SWAP
@@ -391,9 +405,16 @@ function ItemTile:SetQuantity(quantity)
         return
     elseif not self.quantity then
         self.quantity = self:AddChild(Text(NUMBERFONT, 42))
-        self.quantity:SetPosition(2, 16, 0)
     end
-    self.quantity:SetString(tostring(quantity))
+	if quantity > 999 then
+		self.quantity:SetSize(36)
+		self.quantity:SetPosition(3.5, 16, 0)
+		self.quantity:SetString("999+")
+	else
+		self.quantity:SetSize(42)
+		self.quantity:SetPosition(2, 16, 0)
+		self.quantity:SetString(tostring(quantity))
+	end
 end
 
 function ItemTile:SetPerishPercent(percent)

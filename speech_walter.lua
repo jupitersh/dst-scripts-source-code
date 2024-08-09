@@ -44,15 +44,16 @@ return{
 			GENERIC = "That's against the rules.",
 			INUSE = "Do you like radio shows? There was this great horror one I used to listen to-",
             NOTMASTERCHEF = "I'll go check on my own supplies.",
+            NOTAMERM = "I don't want to make the bog monsters mad at me!",
 		},
 		UNLOCK =
         {
-        	WRONGKEY = "That's not right.",
+            WRONGKEY = "That's not right.",
         },
 		USEKLAUSSACKKEY =
         {
-        	WRONGKEY = "I don't think that's what I'm supposed to use in this situation.",
-        	KLAUS = "Wait, I want to get a closer look at that monster!",
+            WRONGKEY = "I don't think that's what I'm supposed to use in this situation.",
+            KLAUS = "Wait, I want to get a closer look at that monster!",
 			QUAGMIRE_WRONGKEY = "I guess I need another key.",
         },
 		ACTIVATE =
@@ -68,6 +69,9 @@ return{
             MANNEQUIN_EQUIPSWAPFAILED = "Sorry, I guess you can't wear that.",
             PILLOWFIGHT_NO_HANDPILLOW = "Wait, I'm not prepared yet!",
             NOTMYBERNIE = "I guess I can't tell a stuffed bear what to do either.",
+            NOTMERM = "I tried speaking in bog monster, but I think I just offended them.",
+            NOKELP = "only_used_by_wurt",
+--fallback to speech_wilson.lua             HASMERMLEADER = "only_used_by_wurt",
 		},
 		OPEN_CRAFTING =
 		{
@@ -85,7 +89,7 @@ return{
             NO_RACERS = "Oh. I forgot the racers!",
         },
 
-		DISMANTLE =
+		DISMANTLE = 
 		{
 			COOKING = "That seems kind of dangerous.",
 			INUSE = "Guess I have to wait.",
@@ -127,6 +131,7 @@ return{
             GHOSTHEART = "They seem pretty committed to their lifestyle. Or lack of one?",
             NOTGEM = "That's probably not going to work.",
             WRONGGEM = "That doesn't look right.",
+			NOGENERATORSKILL = "That's probably not going to work.",
             NOTSTAFF = "That's not going to fit there.",
             MUSHROOMFARM_NEEDSSHROOM = "I need to forage for mushrooms! C'mon Woby!",
             MUSHROOMFARM_NEEDSLOG = "One of those haunted logs should do the trick.",
@@ -238,7 +243,7 @@ return{
         },
         SAIL =
         {
-        	REPAIR = "I already checked, it's in perfect sailing condition!",
+            REPAIR = "I already checked, it's in perfect sailing condition!",
         },
         ROW_FAIL =
         {
@@ -393,13 +398,46 @@ return{
 --fallback to speech_wilson.lua 			NO_TOPHAT = "only_used_by_waxwell",
 		},
 
+        CASTSPELL =
+        {
+            TERRAFORM_TOO_SOON = "only_used_by_wurt",
+        },
+
 		CASTAOE =
 		{
 --fallback to speech_wilson.lua 			NO_MAX_SANITY = "only_used_by_waxwell",
             NOT_ENOUGH_EMBERS = "only_used_by_willow",
             NO_TARGETS = "only_used_by_willow",
             CANT_SPELL_MOUNTED = "only_used_by_willow",
-            SPELL_ON_COOLDOWN = "only_used_by_willow", 
+            SPELL_ON_COOLDOWN = "only_used_by_willow",
+			NO_BATTERY = "only_used_by_winona",
+			NO_CATAPULTS = "only_used_by_winona",
+		},
+
+        PICK =
+        {
+            NOTHING_INSIDE = "Better luck next time!",
+        },
+
+        HEAL =
+        {
+            NOT_MERM = "No Woby, that's for bog monsters only.",
+        },
+
+		LOOKAT = --fail strings for close inspection
+		{
+			-- Winona specific
+--fallback to speech_wilson.lua 			ROSEGLASSES_INVALID = "only_used_by_winona",
+--fallback to speech_wilson.lua 			ROSEGLASSES_COOLDOWN = "only_used_by_winona",
+--fallback to speech_wilson.lua             ROSEGLASSES_DISMISS = "only_used_by_winona",
+--fallback to speech_wilson.lua             ROSEGLASSES_STUMPED = "only_used_by_winona",
+			--
+		},
+
+		REMOTE_TELEPORT =
+		{
+			NOSKILL = "only_used_by_winona",
+			NODEST = "only_used_by_winona",
 		},
     },
 
@@ -471,6 +509,21 @@ return{
 --fallback to speech_wilson.lua     ANNOUNCE_CHARGE = "only_used_by_wx78",
 --fallback to speech_wilson.lua 	ANNOUNCE_DISCHARGE = "only_used_by_wx78",
 
+    -- Winona specific
+--fallback to speech_wilson.lua     ANNOUNCE_ROSEGLASSES = 
+--fallback to speech_wilson.lua     {
+--fallback to speech_wilson.lua         "only_used_by_winona",
+--fallback to speech_wilson.lua         "only_used_by_winona",
+--fallback to speech_wilson.lua         "only_used_by_winona",
+--fallback to speech_wilson.lua     },
+    ANNOUNCE_CHARLIESAVE = 
+    {
+        "only_used_by_winona",
+    },
+	ANNOUNCE_ENGINEERING_CAN_UPGRADE = "only_used_by_winona",
+	ANNOUNCE_ENGINEERING_CAN_DOWNGRADE = "only_used_by_winona",
+	ANNOUNCE_ENGINEERING_CAN_SIDEGRADE = "only_used_by_winona",
+
 	ANNOUNCE_EAT =
 	{
 		GENERIC = "Being outdoors makes everything taste better!",
@@ -523,6 +576,7 @@ return{
 	ANNOUNCE_HIGHRESEARCH = "I know everything now! Mostly everything, at least.",
 	ANNOUNCE_HOUNDS = "Woby? Do you hear something?",
 	ANNOUNCE_WORMS = "Something's moving...",
+    ANNOUNCE_ACIDBATS = "Here they come!",
 	ANNOUNCE_HUNGRY = "Can we stop for a snack break?",
 	ANNOUNCE_HUNT_BEAST_NEARBY = "I learned all about tracking in the Pioneers! It went thataway!",
 	ANNOUNCE_HUNT_LOST_TRAIL = "I uh... think I lost the trail...",
@@ -562,6 +616,7 @@ return{
 	ANNOUNCE_TRAP_WENT_OFF = "It looked way easier in my handbook...",
 	ANNOUNCE_UNIMPLEMENTED = "I don't think it's done yet.",
 	ANNOUNCE_WORMHOLE = "That was amazing!!",
+--fallback to speech_wilson.lua     ANNOUNCE_WORMHOLE_SAMESPOT = "only_used_by_winona",
 	ANNOUNCE_TOWNPORTALTELEPORT = "Do you think I'll be the same person when I come out the other side?",
 	ANNOUNCE_CANFIX = "\nDon't worry, I know how to fix it!",
 	ANNOUNCE_ACCOMPLISHMENT = "I did it!",
@@ -762,6 +817,7 @@ return{
 --fallback to speech_wilson.lua         BOOK_RESEARCH_STATION = "only_used_by_wurt",
 --fallback to speech_wilson.lua         BOOK_LIGHT_UPGRADED = "only_used_by_wurt",
     },
+
     ANNOUNCE_WEAK_RAT = "This carrat doesn't look healthy...",
 
     ANNOUNCE_CARRAT_START_RACE = "READY-SET-GO!!",
@@ -904,6 +960,8 @@ return{
 
     ANNOUNCE_CHAIR_ON_FIRE = "This is fine.",
 
+    ANNOUNCE_HEALINGSALVE_ACIDBUFF_DONE = "Hold on Woby, I think my Acid Repellent is wearing off.",
+
     ANNOUNCE_COACH = 
     {
         "only_used_by_wolfgang",
@@ -926,6 +984,15 @@ return{
         "only_used_by_wolfgang",
         "only_used_by_wolfgang",
     },
+
+    ANNOUNCE_YOTD_NOBOATS = "We've got to get closer to the Start Tower, Woby!",
+    ANNOUNCE_YOTD_NOCHECKPOINTS = "Whoops, I might've forgot to set up the checkpoints...",
+    ANNOUNCE_YOTD_NOTENOUGHBOATS = "We need to make some room for other racers, Woby!",
+
+    ANNOUNCE_OTTERBOAT_OUTOFSHALLOWS = "Get ready to swim Woby, I don't think this was made for deep water!",
+    ANNOUNCE_OTTERBOAT_DENBROKEN = "I knew we shouldn't have gotten rid of that den...",
+
+    ANNOUNCE_GATHER_MERM = "only_used_by_wurt",
 
 	BATTLECRY =
 	{
@@ -1441,18 +1508,25 @@ return{
         {
             GENERIC = "That one's not in my handbook...",
             BLOOM = "They only bloom spore-adically. Heh... nice one, Walter.",
+            ACIDCOVERED = "Smells weird. Right, Woby?",
         },
         MUSHTREE_MEDIUM =
         {
             GENERIC = "The mushrooms sure grow big down here...",
             BLOOM = "Looks like this one's in bloom.",
+            ACIDCOVERED = "Smells weird. Right, Woby?",
         },
         MUSHTREE_SMALL =
         {
             GENERIC = "This one's kind of puny.",
             BLOOM = "It's making more mushrooms.",
+            ACIDCOVERED = "Smells weird. Right, Woby?",
         },
-        MUSHTREE_TALL_WEBBED = "There must be spiders around here somewhere!",
+        MUSHTREE_TALL_WEBBED =
+        {
+            GENERIC = "There must be spiders around here somewhere!",
+            ACIDCOVERED = "Smells weird. Right, Woby?",
+        },
         SPORE_TALL =
         {
             GENERIC = "Hope I don't accidentally swallow one.",
@@ -1715,7 +1789,7 @@ return{
             RARE = "I think I found something interesting!",
         },
         SKETCH = "I think I could sculpt this! I'm pretty good at arts and crafts.",
-		COOKINGRECIPECARD = 
+		COOKINGRECIPECARD =
 		{
 			GENERIC = "Woby, I can't read the recipe if you chew on the cards!",
 		},
@@ -1844,6 +1918,7 @@ return{
         CHESSPIECE_DEERCLOPS_MUTATED = "I still feel kind of bad for her.",
         CHESSPIECE_WARG_MUTATED = "They weren't nearly as nice as you, Woby.",
         CHESSPIECE_BEARGER_MUTATED = "We bearly escaped! Get it?",
+        CHESSPIECE_SHARKBOI = "Your bark was worse than their bite, Woby!",
 
         CHESSJUNK1 = "I don't think they're going to get up anytime soon.",
         CHESSJUNK2 = "I don't think they're going to get up anytime soon.",
@@ -1932,7 +2007,11 @@ return{
 		DRAGONFLY = "Woah! It's a giant bug!",
 		ARMORDRAGONFLY = "I still wish we could've been friends...",
 		DRAGON_SCALES = "Was she a bug or a lizard?",
-		DRAGONFLYCHEST = "We'll have to find something worthy of going in there.",
+		DRAGONFLYCHEST =
+		{
+			GENERIC = "We'll have to find something worthy of going in there.",
+            UPGRADED_STACKSIZE = "The more supplies we can keep safe from fire, the better!",
+		},
 		DRAGONFLYFURNACE =
 		{
 			HAMMERED = "...That didn't fix it.",
@@ -2582,6 +2661,7 @@ return{
 		SILK = "Spiders are pretty useful.",
 		SKELETON = "Is it a real skeleton?",
 		SCORCHED_SKELETON = "I think the time for first aid has long passed.",
+        SKELETON_NOTPLAYER = "Think it's a monster skeleton, Woby?",
 		SKULLCHEST = "There's got to be something good in there.", --removed
 		SMALLBIRD =
 		{
@@ -2698,8 +2778,11 @@ return{
 		{
 			GENERIC = "It isn't a toy chest, it's a very grownup SUPPLY chest.",
 			BURNT = "My stuff!!",
+            UPGRADED_STACKSIZE = "Just look at how many important survival supplies it can hold!",
 		},
 		TREASURECHEST_TRAP = "There might be cursed pirate gold inside!",
+        CHESTUPGRADE_STACKSIZE = "I can make more room for supplies!", -- Describes the kit upgrade item.
+		COLLAPSEDCHEST = "It looks pretty messed-up... but I think I could fix it!",
 		SACRED_CHEST =
 		{
 			GENERIC = "There HAS to be something good in there, just look at it!",
@@ -2821,13 +2904,13 @@ return{
         },
         CLAYWARG =
         {
-        	GENERIC = "Don't worry, I'm good with dogs!",
-        	STATUE = "Woby's sure sniffing around this statue a lot.",
+            GENERIC = "Don't worry, I'm good with dogs!",
+            STATUE = "Woby's sure sniffing around this statue a lot.",
         },
         CLAYHOUND =
         {
-        	GENERIC = "Who's a good boy?",
-        	STATUE = "I wonder who made these statues? They look so real!",
+            GENERIC = "Who's a good boy?",
+            STATUE = "I wonder who made these statues? They look so real!",
         },
         HOUNDWHISTLE = "Woby doesn't like the sound of it.",
         CHESSPIECE_CLAYHOUND = "He wasn't a very good dog.",
@@ -2998,6 +3081,8 @@ return{
 		WALL_MOONROCK_ITEM = "I can't believe we're making walls out of real moon rock!",
 		WALL_DREADSTONE = "Spooky!",
 		WALL_DREADSTONE_ITEM = "It's gonna be a real nightmare to set it up! Get it?",
+        WALL_SCRAP = "What a neat use of trash!",
+        WALL_SCRAP_ITEM = "What a neat use of trash!",
 		FENCE = "Why do we need fences? It's the great outdoors!",
         FENCE_ITEM = "Why fence in nature?",
         FENCE_GATE = "It's open-and-shut.",
@@ -3427,6 +3512,7 @@ return{
         	OFF = "It doesn't look like it's working.",
         	BURNING = "Ah!! That's how forest fires start!",
         	BURNT = "There go our defenses...",
+			SLEEP = "To defend our camp!",
         },
         WINONA_SPOTLIGHT =
         {
@@ -3434,6 +3520,7 @@ return{
         	OFF = "Is it out of power?",
         	BURNING = "Ah!! That's how forest fires start!",
         	BURNT = "Well... I guess Winona'll have to build a new one.",
+			SLEEP = "You never know what's out there, lurking in the dark.",
         },
         WINONA_BATTERY_LOW =
         {
@@ -3445,12 +3532,64 @@ return{
         },
         WINONA_BATTERY_HIGH =
         {
-        	GENERIC = "How does it work?",
-        	LOWPOWER = "I think we need to hook up a another generator to this generator.",
-        	OFF = "It ran out of gem power.",
-        	BURNING = "Ah!! That's how forest fires start!",
-        	BURNT = "Well... I guess Winona'll have to build a new one.",
+			GENERIC = "How does it work?",
+			LOWPOWER = "I think we need to hook up a another generator to this generator.",
+			OFF = "It ran out of gem power.",
+			BURNING = "Ah!! That's how forest fires start!",
+			BURNT = "Well... I guess Winona'll have to build a new one.",
+			OVERLOADED = "I think it's too hot, Woby.",
         },
+		--v3 Winona
+		WINONA_REMOTE =
+		{
+			GENERIC = "That's what Winona uses to control her machines.",
+			OFF = "It's not working.",
+			CHARGING = "That's what Winona uses to control her machines.",
+			CHARGED = "That's what Winona uses to control her machines.",
+		},
+		WINONA_TELEBRELLA =
+		{
+			GENERIC = "It probably wouldn't be a good idea to use it in a thunderstorm.",
+--fallback to speech_wilson.lua             MISSINGSKILL = "only_used_by_winona",
+			OFF = "It must be out of power.",
+			CHARGING = "It probably wouldn't be a good idea to use it in a thunderstorm.",
+			CHARGED = "It probably wouldn't be a good idea to use it in a thunderstorm.",
+		},
+		WINONA_TELEPORT_PAD_ITEM =
+		{
+			GENERIC = "We can bring all sorts of stuff back to camp!",
+--fallback to speech_wilson.lua             MISSINGSKILL = "only_used_by_winona",
+			OFF = "Did someone unplug it?",
+			BURNING = "Ah!! That's how forest fires start!",
+			BURNT = "Well... I guess Winona'll have to build a new one.",
+		},
+		WINONA_STORAGE_ROBOT =
+		{
+			GENERIC = "Woby, look! Winona made her own robot!",
+			OFF = "I think it's out of power.",
+			SLEEP = "Woby, look! Winona made her own robot!",
+			CHARGING = "Is it ready yet?",
+			CHARGED = "Is it ready yet?",
+		},
+		INSPECTACLESBOX = "only_used_by_winona",
+		INSPECTACLESBOX2 = "only_used_by_winona",
+		INSPECTACLESHAT = 
+        {
+            GENERIC = "Winona's been using them to find lots of neat stuff!",
+            MISSINGSKILL = "only_used_by_winona",
+        },
+		ROSEGLASSESHAT =
+        {
+            GENERIC = "Winona's been wearing those a lot lately.",
+            MISSINGSKILL = "only_used_by_winona",
+        },
+		CHARLIERESIDUE = "only_used_by_winona",
+		CHARLIEROSE = "only_used_by_winona",
+        WINONA_MACHINEPARTS_1 = "only_used_by_winona",
+        WINONA_MACHINEPARTS_2 = "only_used_by_winona",
+		WINONA_RECIPESCANNER = "only_used_by_winona",
+		WINONA_HOLOTELEPAD = "only_used_by_winona",
+		WINONA_HOLOTELEBRELLA = "only_used_by_winona",
 
         --Wormwood
         COMPOSTWRAP = "Oh, uh... that's alright, I'm not hungry.",
@@ -3932,12 +4071,17 @@ return{
         WEREITEM_GOOSE = "Yeah that... definitely looks cursed.",
         WEREITEM_MOOSE = "So how does the curse work? When did it start?",
 
-        MERMHAT = "Now I can disguise myself as a bog monster! The tables have turned!",
+        MERMHAT = "Now I can disguise myself as a bog monster! The tables have turned!",        
         MERMTHRONE =
         {
             GENERIC = "Wow, there's a whole bog monster civilization!",
             BURNT = "I'm so sorry about that!",
         },
+        MOSQUITOMUSK = "That's not a chew toy, Woby!",
+        MOSQUITOBOMB = "Watch out, Woby! We don't wanna get caught up in the buzz!",
+        MOSQUITOFERTILIZER = "Plants love this stuff.",
+        MOSQUITOMERMSALVE = "That poor mosquito...",
+
         MERMTHRONE_CONSTRUCTION =
         {
             GENERIC = "It looks like they're building something, but what?",
@@ -4108,6 +4252,7 @@ return{
         DUSTMERINGUE = "Uh... no thanks. Maybe the moths will like it?",
 
         SHROOMCAKE = "Is that really a cake?",
+        SHROOMBAIT = "Don't eat that Woby! It'll knock you right out.",
 
         NIGHTMAREGROWTH = "We should probably stay away from those, Woby.",
 
@@ -4690,6 +4835,9 @@ return{
         BOAT_BUMPER_KELP_KIT = "It's always best to be prepared!",
 		BOAT_BUMPER_SHELL = "Don't worry Woby, I'm really good at sailing. That's just a precaution!",
         BOAT_BUMPER_SHELL_KIT = "It's always best to be prepared!",
+        BOAT_BUMPER_CRABKING = "Don't worry Woby, I'm really good at sailing. That's just a precaution!",
+        BOAT_BUMPER_CRABKING_KIT = "It's always best to be prepared!",
+
         BOAT_CANNON = {
             GENERIC = "I'll load the cannonball!",
             AMMOLOADED = "It's kind of like a giant slingshot, if you think about it.",
@@ -4838,6 +4986,12 @@ return{
 			GENERIC = "Hey, what's that stuff inside?",
 			EXPOSED = "Oh, it's just a different kind of rock.",
 		},
+		DAYWALKER2 =
+		{
+			GENERIC = "Don't worry, Woby. I think I can gain his trust.",
+			BURIED = "Should we help him, Woby?",
+			HOSTILE = "I still think we can be friends.",
+		},
 		ARMORDREADSTONE = "It looks like an evil knight's armor. Neat!",
 		DREADSTONEHAT = "Never forget to wear your dark helmet.",
 
@@ -4863,7 +5017,7 @@ return{
 		STAFF_LUNARPLANT = "Yup, that's definitely magical.",
 		SWORD_LUNARPLANT = "A space sword! Neat!",
 		PICKAXE_LUNARPLANT = "Those are some really tough leaves!",
-		SHOVEL_LUNARPLANT = "I came up with the name! ",
+		SHOVEL_LUNARPLANT = "I came up with the name!",
 
 		BROKEN_FORGEDITEM = "Woby! Were you playing with that?",
 
@@ -5053,6 +5207,142 @@ return{
 
         EMBERLIGHT = "There's no wood in this campfire. Oh well.",
         WILLOW_EMBER = "only_used_by_willow",
+
+        -- Year of the Dragon
+        YOTD_DRAGONSHRINE =
+        {
+            GENERIC = "What should we make, Woby?",
+            EMPTY = "I think it wants something burnt.",
+            BURNT = "I guess that's it then.",
+        },
+
+        DRAGONBOAT_KIT = "Stand back everyone, this looks like a job for a Pinetree Pioneer.",
+        DRAGONBOAT_PACK = "Wow, how did they pack this all up so tightly?",
+
+        BOATRACE_CHECKPOINT = "Hope it doesn't float away.",
+        BOATRACE_CHECKPOINT_THROWABLE_DEPLOYKIT = "Where should we toss this, Woby?",
+        BOATRACE_START = "So this is where we start the race.",
+        BOATRACE_START_THROWABLE_DEPLOYKIT = "Hmm, I wonder where we should start the race.",
+
+        BOATRACE_PRIMEMATE = "We're not afraid of a little friendly competition. Right, Woby?",
+        BOATRACE_SPECTATOR_DRAGONLING = "Look Woby! I think he's rooting for us!",
+
+        YOTD_STEERINGWHEEL = "I'll steer us straight to the finish line!",
+        YOTD_STEERINGWHEEL_ITEM = "It's probably a good idea to add a steering wheel.",
+        YOTD_OAR = "A dragon boat needs a dragon paddle.",
+        YOTD_ANCHOR = "That's gotta be the fanciest anchor I've ever seen.",
+        YOTD_ANCHOR_ITEM = "I've got all the supplies ready to build an anchor.",
+        MAST_YOTD = "It's made of tough dragon scales!",
+        MAST_YOTD_ITEM = "A mast would be useful.",
+        BOAT_BUMPER_YOTD = "Neat! Are those real dragon teeth?",
+        BOAT_BUMPER_YOTD_KIT = "It's always best to be prepared!",
+        BOATRACE_SEASTACK = "Buoy off the port side! Er, I mean starboard! I'll double check my handbook...",
+        BOATRACE_SEASTACK_THROWABLE_DEPLOYKIT = "I'll have it in the water in a jiffy!",
+        BOATRACE_SEASTACK_MONKEY = "Buoy off the port side! Er, I mean starboard! I'll double check my handbook...",
+        BOATRACE_SEASTACK_MONKEY_THROWABLE_DEPLOYKIT = "I'll have it in the water in a jiffy!",
+        MASTUPGRADE_LAMP_YOTD = "Did I ever tell the story about the sea creature with the big glowing eyes?",
+        MASTUPGRADE_LAMP_ITEM_YOTD = "I guess it's safer than having a campfire on the deck...",
+        WALKINGPLANK_YOTD = "Oh, I'm good at diving! I got a badge for it!",
+        CHESSPIECE_YOTD = "Racing was fun, even if I didn't get a badge for it...",
+
+        -- Rifts / Meta QoL
+
+        HEALINGSALVE_ACID = "We're prepared for anything, Woby!",
+
+        BEESWAX_SPRAY = "It looks kind of like my mom's perfume, but it sure doesn't smell like it.",
+        WAXED_PLANT = "It's still alive... I think.", -- Used for all waxed plants, from farm plants to trees.
+
+        STORAGE_ROBOT = {
+            GENERIC = "Now that's how you fetch, Woby!",
+            BROKEN = "We should try to fix it!",
+        },
+
+        SCRAP_MONOCLEHAT = "Woah! It's like binoculars, but... well, the opposite of that!",
+        SCRAPHAT = "That werepig was so big, I can wear his shoulder pad as a hat!",
+
+        FENCE_JUNK = "I guess it's better than just leaving all that scrap metal lying around.",
+        JUNK_PILE = "One person's trash is another's treasure!",
+        JUNK_PILE_BIG = "Careful Woby, it doesn't look very stable.",
+
+        ARMOR_LUNARPLANT_HUSK = "Aww. Why don't I get to wear it?",
+
+        -- Meta 4 / Ocean QoL
+
+        OTTER = "Whatch out, Woby. I think it wants our stuff.",
+        OTTERDEN = {
+            GENERIC = "Looks like nothing. Oh well!",
+            HAS_LOOT = "I think we have a winner, Woby!",
+        },
+        OTTERDEN_DEAD = "Woby, prepare to abandon ship.",
+
+        BOAT_ANCIENT_ITEM = "Is this really how they used to build boats in the olden days?",
+        BOAT_ANCIENT_CONTAINER = "This should keep our supplies safe, Woby.",
+        WALKINGPLANK_ANCIENT = "Oh, I'm good at diving! I got a badge for it!",
+
+        ANCIENTTREE_SEED = "I need to find just the right spot for this.",
+
+        ANCIENTTREE_GEM = {
+            GENERIC = "Neat! I wonder how the tree keeps from catching fire?",
+            STUMP = "Is that a rock? No wait, it's a stump!",
+        },
+
+        ANCIENTTREE_SAPLING_ITEM = "Sniff out a good spot for us to plant the tree, Woby!",
+
+        ANCIENTTREE_SAPLING = {
+            GENERIC = "I can't wait to see what kind of tree it grows into!",
+            WRONG_TILE = "It just doesn't seem to want to grow here.",
+            WRONG_SEASON = "It seems happy there, I guess now I just need to be patient.",
+        },
+ 
+        ANCIENTTREE_NIGHTVISION = {
+            GENERIC = "It looks kind of like a monster... but I think it's just a tree.",
+            STUMP = "Aww, I liked that tree...",
+        },
+
+        ANCIENTFRUIT_GEM = "Is this really a fruit? It's as hard as a rock!",
+        ANCIENTFRUIT_NIGHTVISION = "Did you ever hear the story about the disembodied heart that kept beating?",
+        ANCIENTFRUIT_NIGHTVISION_COOKED = "It was more exciting when it was moving.",
+
+        BOATPATCH_KELP = "I knew it was a good idea to pick all that kelp!",
+
+        CRABKING_MOB = "Watch out for those pinchers, Woby!",
+        CRABKING_MOB_KNIGHT = "Whoa! Cool crab!",
+        CRABKING_CANNONTOWER = "Incoming!",
+        CRABKING_ICEWALL = "Just have to chip away at it.",
+
+        SALTLICK_IMPROVED = "You're not a beefalo, Woby.",
+
+        OFFERING_POT =
+        {
+            GENERIC = "Need a little kelp? Heh. Good one, Walter.",
+            SOME_KELP = "More kelp is on the way! Get it, Woby?",
+            LOTS_OF_KELP = "This is kelpful. Hah! Where are you getting this stuff, Walter?",
+        },
+
+        OFFERING_POT_UPGRADED =
+        {
+            GENERIC = "Need a little kelp? Heh. Good one, Walter.",
+            SOME_KELP = "More kelp is on the way! Get it, Woby?",
+            LOTS_OF_KELP = "This is kelpful. Hah! Where are you getting this stuff, Walter?",
+        },
+
+        MERM_ARMORY = "Aww, can't I just take a little peek inside?",
+        MERM_ARMORY_UPGRADED = "Aww, can't I just take a little peek inside?",
+        MERM_TOOLSHED = "I wonder what kind of bog monster secrets they're hiding in there...",
+        MERM_TOOLSHED_UPGRADED = "I wonder what kind of bog monster secrets they're hiding in there...",
+        MERMARMORHAT = "Aww, merms get all the good stuff.",
+        MERMARMORUPGRADEDHAT = "Aww, merms get all the good stuff.",
+        MERM_TOOL = "It must be really hard to make things when you have claws for hands.",
+        MERM_TOOL_UPGRADED = "It must be really hard to make things when you have claws for hands.",
+
+        WURT_SWAMPITEM_SHADOW = "It must be some kind of swamp witchcraft!",
+        WURT_SWAMPITEM_LUNAR = "It must be some kind of swamp witchcraft!",
+
+        MERM_SHADOW = "Neat! It's a bog monster and shadow monster at the same time!",
+        MERMGUARD_SHADOW = "Neat! It's a bog monster and shadow monster at the same time!",
+
+        MERM_LUNAR = "Bog monsters from the moon!",
+        MERMGUARD_LUNAR = "Bog monsters from the moon!",
     },
 
     DESCRIBE_GENERIC = "That sure is a mystery!",

@@ -25,7 +25,7 @@ function SkillTreeUpdater:IsActivated(skill)
 end
 
 function SkillTreeUpdater:IsValidSkill(skill)
-return self.skilltree:IsValidSkill(self.inst.prefab, skill)
+return self.skilltree:IsValidSkill(skill, self.inst.prefab)
 end
 
 function SkillTreeUpdater:GetSkillXP()
@@ -265,11 +265,11 @@ function SkillTreeUpdater:SendFromSkillTreeBlob(inst)
                 end
                 self:SetSkipValidation(false)
 
-                self.inst:PushEvent("onsetskillselection_server")
             end
             -- Do not use nor send skillxp here.
         end
     end
+    self.inst:PushEvent("onsetskillselection_server")
 end
 
 function SkillTreeUpdater:OnLoad(data)

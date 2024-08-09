@@ -38,6 +38,11 @@ function ComplexProjectile:SetHorizontalSpeed(speed)
     self.horizontalSpeed = speed
 end
 
+function ComplexProjectile:SetHorizontalSpeedForDistance(desired_horizontal_distance, fallback)
+    local speed = self:CalculateMinimumSpeedForDistance(desired_horizontal_distance) or fallback
+    self:SetHorizontalSpeed(speed)
+end
+
 function ComplexProjectile:SetGravity(g)
     self.gravity = g
 end
@@ -62,6 +67,27 @@ function ComplexProjectile:SetOnUpdate(fn)
     self.onupdatefn = fn
 end
 
+function ComplexProjectile:CalculateMinimumSpeedForDistance(desired_horizontal_distance)
+    local g = -self.gravity
+    local dy = 0
+    if self.launchoffset then
+        dy = -self.launchoffset.y
+        desired_horizontal_distance = desired_horizontal_distance - self.launchoffset.x
+    end
+    if self.targetoffset then
+        dy = dy + self.targetoffset.y
+    end
+    local rangeSq = desired_horizontal_distance * desired_horizontal_distance
+    local b = -2 * dy * g
+    local c = -g * g * rangeSq
+    local discriminant = b * b - 4 * c
+    if discriminant < 0 then
+        return nil
+    end
+
+    return math.sqrt((-b + math.sqrt(discriminant)) / 2) + 0.001 -- Add small offset for floating point math.
+end
+
 function ComplexProjectile:CalculateTrajectory(startPos, endPos, speed)
     local speedSq = speed * speed
     local g = -self.gravity
@@ -71,12 +97,11 @@ function ComplexProjectile:CalculateTrajectory(startPos, endPos, speed)
     local dz = endPos.z - startPos.z
 
     local rangeSq = dx * dx + dz * dz
-    local range = math.sqrt(rangeSq)
     local discriminant = speedSq * speedSq - g * (g * rangeSq + 2 * dy * speedSq)
     local angle
     if discriminant >= 0 then
         local discriminantSqrt = math.sqrt(discriminant)
-        local gXrange = g * range
+        local gXrange = g * math.sqrt(rangeSq)
         local angleA = math.atan((speedSq - discriminantSqrt) / gXrange)
         local angleB = math.atan((speedSq + discriminantSqrt) / gXrange)
         angle = self.usehigharc and math.max(angleA, angleB) or math.min(angleA, angleB)
@@ -121,9 +146,14 @@ function ComplexProjectile:Launch(targetPos, attacker, owningweapon)
 	-- if the attacker is standing on a moving platform, then inherit it's velocity too
 	local attacker_platform = attacker ~= nil and attacker:GetCurrentPlatform() or nil
 	if attacker_platform ~= nil then
+		local theta = self.inst.Transform:GetRotation() * DEGREES
+		local sintheta = math.sin(theta)
+		local costheta = math.cos(theta)
 		local vx, vy, vz = attacker_platform.Physics:GetVelocity()
-	    self.velocity.x = self.velocity.x + vx
-	    self.velocity.z = self.velocity.z + vz
+		local vx1 = vx * costheta - vz * sintheta
+		local vz1 = vx * sintheta + vz * costheta
+		self.velocity.x = self.velocity.x + vx1
+		self.velocity.z = self.velocity.z + vz1
 	end
 
     if self.onlaunchfn ~= nil then

@@ -53,7 +53,7 @@ local function OnEquipChanged(inst)
     end
 end
 
-local function PullUpMap(inst, invobject)
+local function PullUpMap(inst, maptarget)
     -- NOTES(JBK): This is assuming inst is the local client on call with a check to inst.HUD not being nil.
     if inst.HUD:IsCraftingOpen() then
         inst.HUD:CloseCrafting()
@@ -71,7 +71,8 @@ local function PullUpMap(inst, invobject)
             local mapscreen = TheFrontEnd:GetActiveScreen()
             mapscreen._hack_ignore_held_controls = 0.1
             mapscreen._hack_ignore_ups_for = {}
-            local min_dist = invobject.map_remap_min_dist
+            mapscreen.maptarget = maptarget
+            local min_dist = maptarget.map_remap_min_dist
             if min_dist then
                 min_dist = min_dist + 0.1 -- Padding for floating point precision.
                 local x, y, z = inst.Transform:GetWorldPosition()
@@ -80,6 +81,7 @@ local function PullUpMap(inst, invobject)
                 inst.HUD.controls:FocusMapOnWorldPosition(mapscreen, wx, wz)
             end
             -- Do not have to take into account max_dist because the map automatically centers on the player when opened.
+            mapscreen:ProcessStaticDecorations()
         end
     end
 end
@@ -439,6 +441,27 @@ function PlayerController:SetCanUseMap(val)
     end
 end
 
+function PlayerController:GetMapTarget(act)
+    if act == nil or act.action.map_action or self.inst.HUD == nil then -- HUD check makes this client sided only but can run on server when no caves.
+        return nil
+    end
+
+    local maptarget = act.target or act.invobject or nil
+    if maptarget == nil then
+        return nil
+    end
+
+    if not act.maptarget and not maptarget:HasTag("action_pulls_up_map") then
+        return nil
+    end
+
+    if maptarget.valid_map_actions ~= nil and not maptarget.valid_map_actions[act.action] then
+        return nil
+    end
+
+    return maptarget
+end
+
 -- returns: enable/disable, "a hud element is up, but still allow for limited gameplay to happen"
 function PlayerController:IsEnabled()
     if self.classified == nil or not self.classified.iscontrollerenabled:value() then
@@ -545,6 +568,15 @@ function PlayerController:OnControl(control, down)
 	if not isenabled and not ishudblocking then
 		return
 	end
+
+    if down and self._hack_ignore_held_controls then
+        self._hack_ignore_ups_for[control] = true
+        return true
+    end
+    if not down and self._hack_ignore_ups_for and self._hack_ignore_ups_for[control] then
+        self._hack_ignore_ups_for[control] = nil
+        return true
+    end
 
 	-- actions that can be done while the crafting menu is open go in here
 	if isenabled or ishudblocking then
@@ -753,11 +785,10 @@ function PlayerController:DoControllerActionButton()
         return
     end
 
-    if act.invobject ~= nil and act.invobject:HasTag("action_pulls_up_map") then
-        if self.inst.HUD ~= nil then
-            PullUpMap(self.inst, act.invobject)
-            return
-        end
+    local maptarget = self:GetMapTarget(act)
+    if maptarget ~= nil then
+        PullUpMap(self.inst, maptarget)
+        return
     end
 
     if self.ismastersim then
@@ -967,11 +998,10 @@ function PlayerController:DoControllerAltActionButton()
 		self.reticule:PingReticuleAt(act:GetDynamicActionPoint())
     end
 
-    if act.invobject ~= nil and act.invobject:HasTag("action_pulls_up_map") then
-        if self.inst.HUD ~= nil then
-            PullUpMap(self.inst, act.invobject)
-            return
-        end
+    local maptarget = self:GetMapTarget(act)
+    if maptarget ~= nil then
+        PullUpMap(self.inst, maptarget)
+        return
     end
 
     if self.ismastersim then
@@ -1207,11 +1237,8 @@ function PlayerController:DoControllerUseItemOnSelfFromInvTile(item)
     if not self.deploy_mode and
         item.replica.inventoryitem:IsDeployable(self.inst) and
         item.replica.inventoryitem:IsGrandOwner(self.inst) then
-		local rider = self.inst.replica.rider
-		if not (rider ~= nil and rider:IsRiding()) then
-			self.deploy_mode = true
-			return
-		end
+		self.deploy_mode = true
+		return
     end
     self.inst.replica.inventory:ControllerUseItemOnSelfFromInvTile(item)
 end
@@ -1624,12 +1651,23 @@ local function GetPickupAction(self, target, tool)
 
     if target:HasTag("quagmireharvestabletree") and not target:HasTag("fire") then
         return ACTIONS.HARVEST_TREE
+    elseif target:HasTag("grabbable") and
+        target:HasTag("mosquito") and
+        self.inst.components.skilltreeupdater ~= nil and
+        self.inst.components.skilltreeupdater:IsActivated("wurt_mosquito_craft_3") and
+        self.inst.replica.inventory ~= nil and
+        self.inst.replica.inventory:HasItemWithTag("mosquitomusk", 1)
+    then
+        -- NOTES(DiogoW): Please refactor this if more cases are added...
+        return ACTIONS.NET
     elseif target:HasTag("trapsprung") then
         return ACTIONS.CHECKTRAP
     elseif target:HasTag("minesprung") and not target:HasTag("mine_not_reusable") then
         return ACTIONS.RESETMINE
     elseif target:HasTag("inactive") and not target:HasTag("activatable_forcenopickup") and target.replica.inventoryitem == nil then
-        return (not target:HasTag("wall") or self.inst:IsNear(target, 2.5)) and ACTIONS.ACTIVATE or nil
+		return (not target:HasTag("wall") or self.inst:IsNear(target, 2.5))
+			and ACTIONS.ACTIVATE
+			or nil
     elseif target.replica.inventoryitem ~= nil and
         target.replica.inventoryitem:CanBePickedUp() and
 		not (target:HasTag("heavy") or (target:HasTag("fire") and not target:HasTag("lighter")) or target:HasTag("catchable")) and
@@ -1806,6 +1844,7 @@ function PlayerController:GetActionButtonAction(force_target)
                 "tapped_harvestable",
                 "tendable_farmplant",
                 "inventoryitemholder_take",
+				"client_forward_action_target",
             }
             if tool ~= nil then
                 for k, v in pairs(TOOLACTIONS) do
@@ -1820,6 +1859,8 @@ function PlayerController:GetActionButtonAction(force_target)
             local x, y, z = self.inst.Transform:GetWorldPosition()
             local ents = TheSim:FindEntities(x, y, z, self.directwalking and 3 or 6, nil, PICKUP_TARGET_EXCLUDE_TAGS, pickup_tags)
             for i, v in ipairs(ents) do
+				v = v.client_forward_target or v
+
                 if v ~= self.inst and v.entity:IsVisible() and CanEntitySeeTarget(self.inst, v) then
                     local action = GetPickupAction(self, v, tool)
                     if action ~= nil then
@@ -2111,6 +2152,13 @@ function PlayerController:GetCombatTarget()
 end
 
 function PlayerController:OnUpdate(dt)
+    if self._hack_ignore_held_controls then
+        self._hack_ignore_held_controls = self._hack_ignore_held_controls - dt
+        if self._hack_ignore_held_controls < 0 then
+            self._hack_ignore_held_controls = nil
+        end
+    end
+
     local isenabled, ishudblocking = self:IsEnabled()
     self.predictionsent = false
 
@@ -2225,7 +2273,7 @@ function PlayerController:OnUpdate(dt)
     end
 
 	if self:IsAOETargeting() then
-		if self.reticule.inst:HasTag("fueldepleted") then
+		if not self.reticule.inst:IsValid() or self.reticule.inst:HasTag("fueldepleted") then
 			self:CancelAOETargeting()
 		else
 			local inventoryitem = self.reticule.inst.replica.inventoryitem
@@ -2673,14 +2721,16 @@ local function UpdateControllerAttackTarget(self, dt, x, y, z, dirx, dirz)
     --    return
     --end
 
-    local min_rad = 4
-    local max_rad = math.max(min_rad, combat:GetAttackRangeWithWeapon()) + 3
-    local min_rad_sq = min_rad * min_rad
+    local equipped_item = self.inst.replica.inventory:GetEquippedItem(EQUIPSLOTS.HANDS)
+    local forced_rad = equipped_item ~= nil and equipped_item.controller_use_attack_distance or 0
+
+	local min_rad = 3
+	local max_rad = math.max(forced_rad, combat:GetAttackRangeWithWeapon()) + 3.5
     local max_rad_sq = max_rad * max_rad
 
     --see entity_replica.lua for "_combat" tag
 
-	local nearby_ents = TheSim:FindEntities_Registered(x, y, z, max_rad, REGISTERED_CONTROLLER_ATTACK_TARGET_TAGS)
+	local nearby_ents = TheSim:FindEntities_Registered(x, y, z, max_rad + 3, REGISTERED_CONTROLLER_ATTACK_TARGET_TAGS)
     if self.controller_attack_target ~= nil then
         --Note: it may already contain controller_attack_target,
         --      so make sure to handle it only once later
@@ -2710,13 +2760,19 @@ local function UpdateControllerAttackTarget(self, dt, x, y, z, dirx, dirz)
                 local dx, dy, dz = x1 - x, y1 - y, z1 - z
                 local dsq = dx * dx + dy * dy + dz * dz
 
-                if dsq < max_rad_sq and CanEntitySeePoint(self.inst, x1, y1, z1) then
+				--include physics radius for max range check since we don't have (dist - phys_rad) yet
+				local phys_rad = v:GetPhysicsRadius(0)
+				local max_range = max_rad + phys_rad
+
+				if dsq < max_range * max_range and CanEntitySeePoint(self.inst, x1, y1, z1) then
                     local dist = dsq > 0 and math.sqrt(dsq) or 0
                     local dot = dist > 0 and dx / dist * dirx + dz / dist * dirz or 0
-                    if dot > 0 or dist < min_rad then
-                        local score = dot + 1 - .5 * dsq / max_rad_sq
+					if dot > 0 or dist < min_rad + phys_rad then
+						--now calculate score with physics radius subtracted
+						dist = math.max(0, dist - phys_rad)
+						local score = dot + 1 - 0.5 * dist * dist / max_rad_sq
 
-                        if isally then
+                        if isally and not v.controller_priority_override_is_ally then
                             score = score * .25
 						elseif CheckControllerPriorityTagOrOverride(v, "epic", v.controller_priority_override_is_epic) then
                             score = score * 5
@@ -2810,7 +2866,7 @@ local function UpdateControllerAttackTarget(self, dt, x, y, z, dirx, dirz)
     end
 end
 
-local function UpdateControllerInteractionTarget(self, dt, x, y, z, dirx, dirz)
+local function UpdateControllerInteractionTarget(self, dt, x, y, z, dirx, dirz, heading_angle)
 	local attack_target = self:GetControllerAttackTarget()
 	if self.controller_targeting_lock_target and attack_target then
 		self.controller_target = attack_target
@@ -2849,6 +2905,14 @@ local function UpdateControllerInteractionTarget(self, dt, x, y, z, dirx, dirz)
 
     local equiped_item = self.inst.replica.inventory:GetEquippedItem(EQUIPSLOTS.HANDS)
 
+    if equiped_item and equiped_item.controller_should_use_attack_target and self.controller_attack_target ~= nil then
+        if self.controller_target ~= self.controller_attack_target then
+            self.controller_target = self.controller_attack_target
+            self.controller_target_age = 0
+        end
+        return
+    end
+
     --Fishing targets may have large radius, making it hard to target with normal priority
     local fishing = equiped_item ~= nil and equiped_item:HasTag("fishingrod")
 
@@ -2880,7 +2944,11 @@ local function UpdateControllerInteractionTarget(self, dt, x, y, z, dirx, dirz)
 				and (self.inst.sg == nil or self.inst.sg:HasStateTag("moving") or self.inst.sg:HasStateTag("idle") or self.inst.sg:HasStateTag("channeling"))
 				and (self.inst:HasTag("moving") or self.inst:HasTag("idle") or self.inst:HasTag("channeling"))
 
+    local onboat = self.inst:GetCurrentPlatform() ~= nil
+    local anglemax = onboat and TUNING.CONTROLLER_BOATINTERACT_ANGLE or TUNING.CONTROLLER_INTERACT_ANGLE
     for i, v in ipairs(nearby_ents) do
+		v = v.client_forward_target or v
+
         if v ~= ocean_fishing_target then
 
             --Only handle controller_target if it's the one we added at the front
@@ -2909,65 +2977,73 @@ local function UpdateControllerInteractionTarget(self, dt, x, y, z, dirx, dirz)
                             v == self.controller_attack_target or
                             dx * dirx + dz * dirz > 0))) and
                     CanEntitySeePoint(self.inst, x1, y1, z1) then
-
-                    -- Incorporate the y component after we've performed the inclusion radius test.
-                    -- We wait until now because we might disqualify our controller_target if its transform has a y component,
-                    -- but we still want to use the y component as a tiebreaker for objects at the same x,z position.
-                    dsq = dsq + (dy * dy)
-
-                    local dist = dsq > 0 and math.sqrt(dsq) or 0
-                    local dot = dist > 0 and dx / dist * dirx + dz / dist * dirz or 0
-
-                    --keep the angle component between [0..1]
-                    local angle_component = (dot + 1) / 2
-
-                    --distance doesn't matter when you're really close, and then attenuates down from 1 as you get farther away
-                    local dist_component = dsq < min_rad_sq and 1 or min_rad_sq / dsq
-
-                    --for stuff that's *really* close - ie, just dropped
-                    local add = dsq < .0625 --[[.25 * .25]] and 1 or 0
-
-                    --just a little hysteresis
-                    local mult = v == self.controller_target and not v:HasTag("wall") and 1.5 or 1
-
-                    local score = angle_component * dist_component * mult + add
-
-                    --make it easier to target stuff dropped inside the portal when alive
-                    --make it easier to haunt the portal for resurrection in endless mode
-                    if v:HasTag("portal") then
-                        score = score * (self.inst:HasTag("playerghost") and GetPortalRez() and 1.1 or .9)
+                    local shouldcheck = dsq < 1 -- Do not skip really close entities.
+                    if not shouldcheck then
+                        local epos = v:GetPosition()
+                        local angletoepos = self.inst:GetAngleToPoint(epos)
+                        local angleto = math.abs(anglediff(-heading_angle, angletoepos))
+                        shouldcheck = angleto < anglemax
                     end
+                    if shouldcheck then
+                        -- Incorporate the y component after we've performed the inclusion radius test.
+                        -- We wait until now because we might disqualify our controller_target if its transform has a y component,
+                        -- but we still want to use the y component as a tiebreaker for objects at the same x,z position.
+                        dsq = dsq + (dy * dy)
 
-                    if v:HasTag("hasfurnituredecoritem") then
-                        score = score * 0.5
-                    end
+                        local dist = dsq > 0 and math.sqrt(dsq) or 0
+                        local dot = dist > 0 and dx / dist * dirx + dz / dist * dirz or 0
 
-                    --print(v, angle_component, dist_component, mult, add, score)
+                        --keep the angle component between [0..1]
+                        local angle_component = (dot + 1) / 2
 
-                    if score < target_score or
-                        (   score == target_score and
-                            (   (target ~= nil and not (target.CanMouseThrough ~= nil and target:CanMouseThrough())) or
-                                (v.CanMouseThrough ~= nil and v:CanMouseThrough())
-                            )
-                        ) then
-                        --skip
-                    elseif canexamine and v:HasTag("inspectable") then
-                        target = v
-                        target_score = score
-                    else
-                        --this is kind of expensive, so ideally we don't get here for many objects
-                        local lmb, rmb = self:GetSceneItemControllerAction(v)
-                        if lmb ~= nil or rmb ~= nil then
+                        --distance doesn't matter when you're really close, and then attenuates down from 1 as you get farther away
+                        local dist_component = dsq < min_rad_sq and 1 or min_rad_sq / dsq
+
+                        --for stuff that's *really* close - ie, just dropped
+                        local add = dsq < .0625 --[[.25 * .25]] and 1 or 0
+
+                        --just a little hysteresis
+                        local mult = v == self.controller_target and not v:HasTag("wall") and 1.5 or 1
+
+                        local score = angle_component * dist_component * mult + add
+
+                        --make it easier to target stuff dropped inside the portal when alive
+                        --make it easier to haunt the portal for resurrection in endless mode
+                        if v:HasTag("portal") then
+                            score = score * (self.inst:HasTag("playerghost") and GetPortalRez() and 1.1 or .9)
+                        end
+
+                        if v:HasTag("hasfurnituredecoritem") then
+                            score = score * 0.5
+                        end
+
+                        --print(v, angle_component, dist_component, mult, add, score)
+
+                        if score < target_score or
+                            (   score == target_score and
+                                (   (target ~= nil and not (target.CanMouseThrough ~= nil and target:CanMouseThrough())) or
+                                    (v.CanMouseThrough ~= nil and v:CanMouseThrough())
+                                )
+                            ) then
+                            --skip
+                        elseif canexamine and v:HasTag("inspectable") then
                             target = v
                             target_score = score
                         else
-                            local inv_obj = self:GetCursorInventoryObject()
-							if inv_obj ~= nil then
-								rmb = self:GetItemUseAction(inv_obj, v)
-								if rmb ~= nil and rmb.target == v then
-									target = v
-									target_score = score
-								end
+                            --this is kind of expensive, so ideally we don't get here for many objects
+                            local lmb, rmb = self:GetSceneItemControllerAction(v)
+                            if lmb ~= nil or rmb ~= nil then
+                                target = v
+                                target_score = score
+                            else
+                                local inv_obj = self:GetCursorInventoryObject()
+                                if inv_obj ~= nil then
+                                    rmb = self:GetItemUseAction(inv_obj, v)
+                                    if rmb ~= nil and rmb.target == v then
+                                        target = v
+                                        target_score = score
+                                    end
+                                end
                             end
                         end
                     end
@@ -2988,10 +3064,20 @@ local function UpdateControllerConflictingTargets(self)
     end
     -- NOTES(JBK): This is for handling when there are two targets on a controller but one should take super priority over the other.
     -- Most of this will be workarounds in appearance as there are no sure fire ways to guarantee what two entities should be prioritized by actions alone as they need additional context.
-    if target:HasTag("mermthrone") and attacktarget:HasTag("merm") then
-        -- Inspecting a throne but could interact with a Merm, Merm takes priority.
-        target = attacktarget
-        self.controller_target_age = 0
+    if target ~= attacktarget then
+        if target:HasTag("mermthrone") and attacktarget:HasTag("merm") then
+            -- Inspecting a throne but could interact with a Merm, Merm takes priority.
+            target = attacktarget
+            self.controller_target_age = 0
+        elseif target:HasTag("crabking_claw") and attacktarget:HasTag("crabking_claw") then
+            -- Two claws let us try targeting the closest one because it will most likely be the one next to a boat.
+            if self.inst:GetDistanceSqToInst(target) < self.inst:GetDistanceSqToInst(attacktarget) then
+                attacktarget = target
+            else
+                target = attacktarget
+                self.controller_target_age = 0
+            end
+        end
     end
 
     self.controller_target, self.controller_attack_target = target, attacktarget
@@ -3013,7 +3099,7 @@ function PlayerController:UpdateControllerTargets(dt)
     local heading_angle = -self.inst.Transform:GetRotation()
     local dirx = math.cos(heading_angle * DEGREES)
     local dirz = math.sin(heading_angle * DEGREES)
-    UpdateControllerInteractionTarget(self, dt, x, y, z, dirx, dirz)
+    UpdateControllerInteractionTarget(self, dt, x, y, z, dirx, dirz, heading_angle)
     UpdateControllerAttackTarget(self, dt, x, y, z, dirx, dirz)
     UpdateControllerConflictingTargets(self)
 end
@@ -3131,7 +3217,7 @@ function PlayerController:OnRemotePredictOverrideLocomote(dir)
 	if self.ismastersim and self.handler == nil and self.inst.sg:HasStateTag("overridelocomote") then
 		if self:IsEnabled() and not self:IsBusy() or self.classified.busyremoteoverridelocomote:value() then
 			if self.inst.sg:HasStateTag("canrotate") then
-				self.inst.Transform:SetRotation(dir)
+				self.locomotor:SetMoveDir(dir)
 			end
 			self.inst:PushEvent("locomote", { dir = dir, remoteoverridelocomote = true })
 		end
@@ -3282,6 +3368,7 @@ function PlayerController:DoClientBusyOverrideLocomote()
 	--     the state itself is still busy.
 	if not self.ismastersim and
 		self.handler ~= nil and
+		self.classified and
 		self.classified.busyremoteoverridelocomote:value() and
 		GetWorldControllerVector() ~= nil
 	then
@@ -3326,7 +3413,7 @@ function PlayerController:DoPredictWalking(dt)
 					--overshot?
 					self.inst.Transform:SetPosition(pt.x, 0, pt.z)
 				else
-					self.inst.Transform:SetRotation(dir)
+					self.locomotor:SetMoveDir(dir)
 				end
                 --Destination reached, queued (instead of immediate) stop
                 --so that prediction may be resumed before the next frame
@@ -3799,6 +3886,12 @@ function PlayerController:OnLeftClick(down)
         act = self:GetLeftMouseAction() or BufferedAction(self.inst, nil, ACTIONS.WALKTO, nil, TheInput:GetWorldPosition())
     end
 
+    local maptarget = self:GetMapTarget(act)
+    if maptarget ~= nil then
+        PullUpMap(self.inst, maptarget)
+        return
+    end
+
     if act.action == ACTIONS.WALKTO then
         local entity_under_mouse = TheInput:GetWorldEntityUnderMouse()
         if act.target == nil and (entity_under_mouse == nil or entity_under_mouse:HasTag("walkableplatform")) then
@@ -3896,7 +3989,12 @@ function PlayerController:OnRemoteLeftClick(actioncode, position, target, isrele
 
         --Default fallback lmb action is WALKTO
         --Possible for lmb action to switch to rmb after autoequip
-        lmb =  (lmb == nil and
+		--V2C: LOOKAT was added to support closeinspect
+		lmb =  (actioncode == ACTIONS.LOOKAT.code and
+				(lmb == nil or lmb.action == ACTIONS.WALKTO) and
+				mod_name == nil and
+				BufferedAction(self.inst, target, ACTIONS.LOOKAT, nil, position))
+			or (lmb == nil and
                 actioncode == ACTIONS.WALKTO.code and
                 mod_name == nil and
                 BufferedAction(self.inst, nil, ACTIONS.WALKTO, nil, position))
@@ -3960,6 +4058,7 @@ function PlayerController:OnRightClick(down)
     self.actionholdtime = GetTime()
 
     local act = self:GetRightMouseAction()
+    local maptarget = self:GetMapTarget(act)
     if act == nil then
 		local closed = false
 		if self.inst.HUD ~= nil then
@@ -3979,11 +4078,9 @@ function PlayerController:OnRightClick(down)
 				self:TryAOETargeting()
 			end
 		end
-    elseif act.invobject ~= nil and act.invobject:HasTag("action_pulls_up_map") then
-        if self.inst.HUD ~= nil then
-            PullUpMap(self.inst, act.invobject)
-            return
-        end
+    elseif maptarget ~= nil then
+        PullUpMap(self.inst, maptarget)
+        return
     else
         if self.reticule ~= nil and self.reticule.reticule ~= nil then
 			self.reticule:PingReticuleAt(act:GetDynamicActionPoint())
@@ -4053,7 +4150,7 @@ function PlayerController:RemapMapAction(act, position)
     return act_remap
 end
 
-function PlayerController:GetMapActions(position)
+function PlayerController:GetMapActions(position, maptarget)
     -- NOTES(JBK): In order to not interface with the playercontroller too harshly and keep that isolated from this system here
     --             it is better to get what the player could do at their location as a quick check to make sure the actions done
     --             here will not interfere with actions done without the map up.
@@ -4062,26 +4159,48 @@ function PlayerController:GetMapActions(position)
     local pos = self.inst:GetPosition()
 
     self.inst.checkingmapactions = true -- NOTES(JBK): Workaround flag to not add function argument changes for this task and lets things opt-in to special handling.
+    local action_maptarget = maptarget and maptarget:IsValid() and not maptarget:HasTag("INLIMBO") and maptarget or nil -- NOTES(JBK): Workaround passing the maptarget entity if it is out of scope for world actions.
 
-    local lmbact = self.inst.components.playeractionpicker:GetLeftClickActions(pos)[1]
-    LMBaction = self:RemapMapAction(lmbact, position)
+    local lmbact = self.inst.components.playeractionpicker:GetLeftClickActions(pos, action_maptarget)[1]
+    if lmbact then
+        lmbact.maptarget = maptarget
+        LMBaction = self:RemapMapAction(lmbact, position)
+    end
 
-    local rmbact = self.inst.components.playeractionpicker:GetRightClickActions(pos)[1]
-    RMBaction = self:RemapMapAction(rmbact, position)
+    local rmbact = self.inst.components.playeractionpicker:GetRightClickActions(pos, action_maptarget)[1]
+    if rmbact then
+        rmbact.maptarget = maptarget
+        RMBaction = self:RemapMapAction(rmbact, position)
+    end
+
+    if RMBaction and LMBaction and RMBaction.action == LMBaction.action then -- NOTES(JBK): If the actions are the same for the same target remove the LMBaction.
+        LMBaction = nil
+    end
 
     self.inst.checkingmapactions = nil
 
     return LMBaction, RMBaction
 end
 
-function PlayerController:OnMapAction(actioncode, position)
+function PlayerController:UpdateActionsToMapActions(position, maptarget)
+    -- NOTES(JBK): This should be called from a map interface to update the player's current actions to the ones the map has.
+    -- Currently used by mapscreen.
+    local LMBaction, RMBaction = self:GetMapActions(position, maptarget)
+
+    self.LMBaction, self.RMBaction = LMBaction, RMBaction
+
+    return LMBaction, RMBaction
+end
+
+function PlayerController:OnMapAction(actioncode, position, maptarget)
     local act = ACTIONS_BY_ACTION_CODE[actioncode]
     if act == nil or not act.map_action then
         return
     end
+    act.target = maptarget -- Optional.
 
     if self.ismastersim then
-        local LMBaction, RMBaction = self:GetMapActions(position)
+        local LMBaction, RMBaction = self:GetMapActions(position, maptarget)
         if act.rmb then
             if RMBaction then
                 self.locomotor:PushAction(RMBaction, true)
@@ -4093,14 +4212,20 @@ function PlayerController:OnMapAction(actioncode, position)
         end
     elseif self.locomotor == nil then
         -- TODO(JBK): Hook up pre_action_cb here.
-        SendRPCToServer(RPC.DoActionOnMap, actioncode, position.x, position.z)
+        SendRPCToServer(RPC.DoActionOnMap, actioncode, position.x, position.z, maptarget)
     elseif self:CanLocomote() then
-        -- TODO(JBK): Hook up LMB action here.
-        local _, RMBaction = self:GetMapActions(position)
-        RMBaction.preview_cb = function()
-            SendRPCToServer(RPC.DoActionOnMap, actioncode, position.x, position.z)
+        local LMBaction, RMBaction = self:GetMapActions(position, maptarget)
+        if act.rmb then
+            RMBaction.preview_cb = function()
+                SendRPCToServer(RPC.DoActionOnMap, actioncode, position.x, position.z, maptarget)
+            end
+            self.locomotor:PreviewAction(RMBaction, true)
+        else
+            LMBaction.preview_cb = function()
+                SendRPCToServer(RPC.DoActionOnMap, actioncode, position.x, position.z, maptarget)
+            end
+            self.locomotor:PreviewAction(LMBaction, true)
         end
-        self.locomotor:PreviewAction(RMBaction, true)
     end
 end
 
@@ -4210,7 +4335,7 @@ function PlayerController:GetGroundUseSpecialAction(position, right)
 end
 
 function PlayerController:HasGroundUseSpecialAction(right)
-    return #self.inst.components.playeractionpicker:GetPointSpecialActions(self.inst:GetPosition(), nil, right) > 0
+	return #self.inst.components.playeractionpicker:GetPointSpecialActions(self.inst:GetPosition(), nil, right, true) > 0
 end
 
 local function ValidateItemUseAction(self, act, active_item, target)
@@ -4282,19 +4407,16 @@ function PlayerController:GetItemUseAction(active_item, target)
 		return act
 	elseif active_item.replica.inventoryitem:IsDeployable(self.inst) and active_item.replica.inventoryitem:IsGrandOwner(self.inst) then
 		--Deployable item, no item use action generated yet
-		local rider = self.inst.replica.rider
-		if not (rider ~= nil and rider:IsRiding()) then
-			--V2C: When not mounted, use self actions blocked by controller R.Dpad "TOGGLE_DEPLOY_MODE"
-			--     So force it onto L.Dpad instead here
-			--     e.g. Murder/Plant, Eat/Plant
-			act = --[[rmb]] self.inst.components.playeractionpicker:GetInventoryActions(active_item, true)
+		--V2C: When not mounted, use self actions blocked by controller R.Dpad "TOGGLE_DEPLOY_MODE"
+		--     So force it onto L.Dpad instead here
+		--     e.g. Murder/Plant, Eat/Plant
+		act = --[[rmb]] self.inst.components.playeractionpicker:GetInventoryActions(active_item, true)
+		act = act[1] ~= nil and act[1].action ~= ACTIONS.TOGGLE_DEPLOY_MODE and act[1] or act[2]
+		if act == nil then
+			act = --[[lmb]] self.inst.components.playeractionpicker:GetInventoryActions(active_item, false)
 			act = act[1] ~= nil and act[1].action ~= ACTIONS.TOGGLE_DEPLOY_MODE and act[1] or act[2]
-			if act == nil then
-				act = --[[lmb]] self.inst.components.playeractionpicker:GetInventoryActions(active_item, false)
-				act = act[1] ~= nil and act[1].action ~= ACTIONS.TOGGLE_DEPLOY_MODE and act[1] or act[2]
-			end
-			return act ~= nil and act.action ~= ACTIONS.LOOKAT and act or nil
 		end
+		return act ~= nil and act.action ~= ACTIONS.LOOKAT and act or nil
 	end
 end
 
@@ -4500,7 +4622,7 @@ function PlayerController:OnRemoteBufferedAction()
 				if x ~= self.remote_vector.x or z ~= self.remote_vector.z then
 					local dir = math.atan2(z - self.remote_vector.z, self.remote_vector.x - x) * RADIANS
 					if self.inst.sg:HasStateTag("canrotate") then
-						self.inst.Transform:SetRotation(dir)
+						self.locomotor:SetMoveDir(dir)
 					end
 					--Force us to interrupt and go to movement state immediately
 					self.inst.sg:HandleEvent("locomote", { dir = dir, force_idle_state = true }) --force idle state in case this tiny motion was meant to cancel an action

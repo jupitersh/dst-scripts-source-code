@@ -28,6 +28,7 @@ local prefabs_cave =
     "fossil_piece",
     "fossilspike",
     "nightmarefuel",
+    "blinkfocus_marker",
 }
 
 local prefabs_forest =
@@ -408,7 +409,7 @@ local function BattleCry(combat, target)
         "STALKER_PLAYER_BATTLECRY" or
         "STALKER_BATTLECRY"
 
-    return strtbl, math.random(#STRINGS[strtbl])
+    return strtbl, math.random(#STRINGS[strtbl]), CHATPRIORITIES.LOW
 end
 
 local function AtriumBattleCry(combat, target)
@@ -420,7 +421,7 @@ local function AtriumBattleCry(combat, target)
 
     strtbl = GetRepairedAtriumChatterLines(combat.inst, strtbl) or strtbl
 
-    return strtbl, math.random(#STRINGS[strtbl])
+    return strtbl, math.random(#STRINGS[strtbl]), CHATPRIORITIES.LOW
 end
 
 --For searching:
@@ -434,7 +435,7 @@ local function AtriumBattleChatter(inst, id, forcetext)
 
     strtbl = GetRepairedAtriumChatterLines(inst, strtbl) or strtbl
 
-    inst.components.talker:Chatter(strtbl, math.random(#STRINGS[strtbl]), 2, forcetext)
+    inst.components.talker:Chatter(strtbl, math.random(#STRINGS[strtbl]), 2, forcetext, CHATPRIORITIES.LOW)
 end
 
 local function StartAbility(inst, ability)
@@ -527,11 +528,10 @@ local function SpawnSnare(inst, x, z, r, num, target)
     local used = {}
     local queued = {}
     local count = 0
-    local dtheta = PI * 2 / num
-    local thetaoffset = math.random() * PI * 2
+    local dtheta = TWOPI / num
     local delaytoggle = 0
     local map = TheWorld.Map
-    for theta = math.random() * dtheta, PI * 2, dtheta do
+    for theta = math.random() * dtheta, TWOPI, dtheta do
         local x1 = x + r * math.cos(theta)
         local z1 = z + r * math.sin(theta)
         if map:IsPassableAtPoint(x1, 0, z1) and not map:IsPointNearHole(Vector3(x1, 0, z1)) then
@@ -560,8 +560,17 @@ local function SpawnSnare(inst, x, z, r, num, target)
     end
     if count <= 0 then
         return false
-    elseif target:IsValid() then
-        target:PushEvent("snared", { attacker = inst })
+    else
+        -- NOTES(JBK): This is for controllers to escape out of the prison without teleporting across the entire arena.
+        local duration = TUNING.STALKER_SNARE_TIME + TUNING.STALKER_SNARE_TIME_VARIANCE + 1
+        local blinkfocus = SpawnPrefab("blinkfocus_marker")
+        blinkfocus.Transform:SetPosition(x, 0, z)
+        blinkfocus:MakeTemporary(duration)
+        blinkfocus:SetMaxRange(r + 4)
+
+        if target:IsValid() then
+            target:PushEvent("snared", { attacker = inst })
+        end
     end
     return true
 end
@@ -664,8 +673,8 @@ local function SpawnChannelers(inst)
     {
         x = x,
         z = z,
-        angle = math.random() * 2 * PI,
-        delta = -2 * PI / count,
+        angle = math.random() * TWOPI,
+        delta = -TWOPI / count,
         count = count,
     }
     DoSpawnChanneler(inst)
@@ -744,7 +753,7 @@ local function SpawnMinions(inst, count)
         local ringweight = ring * ring / RING_TOTAL
         local ringcount = math.floor(count * ringweight + .5)
         if ringcount > 0 then
-            local delta = 2 * PI / ringcount
+            local delta = TWOPI / ringcount
             local radius = ring * RING_SIZE
             for i = 1, ringcount do
                 local angle = delta * i
@@ -817,7 +826,7 @@ local function GenerateSpiralSpikes(inst)
     local spacing = 1.7
     local radius = 2
     local deltaradius = .2
-    local angle = 2 * PI * math.random()
+    local angle = TWOPI * math.random()
     local deltaanglemult = (inst.reversespikes and -2 or 2) * PI * spacing
     inst.reversespikes = not inst.reversespikes
     local delay = 0
@@ -1155,7 +1164,7 @@ local function DoPlantBloom(inst)
     local x, y, z = inst.Transform:GetWorldPosition()
     local map = TheWorld.Map
     local offset = FindValidPositionByFan(
-        math.random() * 2 * PI,
+        math.random() * TWOPI,
         math.random() * 3,
         8,
         function(offset)
@@ -1327,13 +1336,15 @@ local function common_fn(bank, build, shadowsize, canfight, atriumstalker)
     end
 
     if canfight then
-        inst:AddComponent("talker")
-        inst.components.talker.fontsize = 40
-        inst.components.talker.font = TALKINGFONT
-        inst.components.talker.colour = Vector3(238 / 255, 69 / 255, 105 / 255)
-        inst.components.talker.offset = Vector3(0, -700, 0)
-        inst.components.talker.symbol = "fossil_chest"
-        inst.components.talker:MakeChatter()
+        local talker = inst:AddComponent("talker")
+        talker.fontsize = 40
+        talker.font = TALKINGFONT
+        talker.colour = Vector3(238 / 255, 69 / 255, 105 / 255)
+        talker.offset = Vector3(0, -700, 0)
+        talker.symbol = "fossil_chest"
+        talker.name_colour = Vector3(233/256, 85/256, 107/256)
+        talker.chaticon = "npcchatflair_stalker"
+        talker:MakeChatter()
     end
 
     inst.entity:SetPristine()

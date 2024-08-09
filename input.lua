@@ -251,6 +251,13 @@ function Input:GetWorldPosition()
     return x ~= nil and y ~= nil and z ~= nil and Vector3(x, y, z) or nil
 end
 
+function Input:GetWorldXZWithHeight(height)
+	local x, y = TheSim:GetPosition()
+	local z
+	x, y, z = TheSim:ProjectScreenPos(x, y, height)
+	return x, z
+end
+
 function Input:GetAllEntitiesUnderMouse()
     return self.mouse_enabled and self.entitiesundermouse or {}
 end
@@ -316,11 +323,15 @@ function Input:OnUpdate()
         self.entitiesundermouse = TheSim:GetEntitiesAtScreenPoint(TheSim:GetPosition())
 
         local inst = self.entitiesundermouse[1]
+		inst = inst and inst.client_forward_target or inst
+
         if inst ~= nil and inst.CanMouseThrough ~= nil then
             local mousethrough, keepnone = inst:CanMouseThrough()
             if mousethrough then
                 for i = 2, #self.entitiesundermouse do
                     local nextinst = self.entitiesundermouse[i]
+					nextinst = nextinst and nextinst.client_forward_target or nextinst
+
                     if nextinst == nil or
                         nextinst:HasTag("player") or
                         (nextinst.Transform ~= nil) ~= (inst.Transform ~= nil) then
@@ -330,6 +341,7 @@ function Input:OnUpdate()
                         end
                         break
                     end
+
                     inst = nextinst
                     if nextinst.CanMouseThrough == nil then
                         mousethrough, keepnone = false, false

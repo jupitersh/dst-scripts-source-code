@@ -27,15 +27,26 @@ local function on_uses_finished(inst)
     inst:Remove()
 end
 
-local function on_equipped(inst, equipper)
-    equipper.AnimState:OverrideSymbol("swap_object", "swap_trident", "swap_trident")
-    equipper.AnimState:Show("ARM_carry")
-    equipper.AnimState:Hide("ARM_normal")
+local function on_equipped(inst, owner)
+    local skin_build = inst:GetSkinBuild()
+    if skin_build ~= nil then
+        owner:PushEvent("equipskinneditem", inst:GetSkinName())
+        owner.AnimState:OverrideItemSkinSymbol("swap_object", skin_build, "swap_trident", inst.GUID, "swap_trident")
+    else
+        owner.AnimState:OverrideSymbol("swap_object", "swap_trident", "swap_trident")
+    end
+
+    owner.AnimState:Show("ARM_carry")
+    owner.AnimState:Hide("ARM_normal")
 end
 
-local function on_unequipped(inst, equipper)
-    equipper.AnimState:Hide("ARM_carry")
-    equipper.AnimState:Show("ARM_normal")
+local function on_unequipped(inst, owner)
+    owner.AnimState:Hide("ARM_carry")
+    owner.AnimState:Show("ARM_normal")
+    local skin_build = inst:GetSkinBuild()
+    if skin_build ~= nil then
+        owner:PushEvent("unequipskinneditem", inst:GetSkinName())
+    end
 end
 
 local INITIAL_LAUNCH_HEIGHT = 0.1
@@ -54,7 +65,9 @@ local function do_water_explosion_effect(inst, affected_entity, owner, position)
     if affected_entity.components.health then
         local ae_combat = affected_entity.components.combat
         if ae_combat then
-            ae_combat:GetAttacked(owner, TUNING.TRIDENT.SPELL.DAMAGE, inst)
+            if ae_combat:CanBeAttacked(owner) then
+                ae_combat:GetAttacked(owner, TUNING.TRIDENT.SPELL.DAMAGE, inst)
+            end
         else
             affected_entity.components.health:DoDelta(-TUNING.TRIDENT.SPELL.DAMAGE, nil, inst.prefab, nil, owner)
         end

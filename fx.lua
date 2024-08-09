@@ -28,13 +28,6 @@ local function Bloom(inst)
     inst.AnimState:SetFinalOffset(1)
 end
 
-local function BloomOrange(inst)
-    inst.AnimState:SetBloomEffectHandle("shaders/anim.ksh")
---    inst.AnimState:SetMultColour(204/255,131/255,57/255,1)
-    inst.AnimState:SetMultColour(219/255,168/255,117/255,1)
-    inst.AnimState:SetFinalOffset(1)
-end
-
 local function OceanTreeLeafFxFallUpdate(inst)
     local x, y, z = inst.Transform:GetWorldPosition()
     inst.Transform:SetPosition(x, y - inst.fall_speed * FRAMES, z)
@@ -217,6 +210,29 @@ local fx =
         transform = Vector3(1.5, 1.5, 1.5),
         fn = function(inst)
             inst.AnimState:Hide("front")
+        end,
+    },
+    {
+        name = "charlie_snap",
+        bank = "charliesnap",
+        build = "charliesnap",
+        anim = "snap",
+        tint = Vector3(0, 0, 0),
+        tintalpha = .7,
+        fn = function(inst)
+            inst.entity:AddSoundEmitter()
+            inst:DoTaskInTime(21 * FRAMES, function() inst.SoundEmitter:PlaySound("meta4/shadow_snap/snap") end)
+        end,
+    },
+    {
+        name = "charlie_snap_solid",
+        bank = "charliesnap",
+        build = "charliesnap",
+        anim = "snap",
+        tint = Vector3(0, 0, 0),
+        fn = function(inst)
+            inst.entity:AddSoundEmitter()
+            inst:DoTaskInTime(21 * FRAMES, function() inst.SoundEmitter:PlaySound("meta4/shadow_snap/snap") end)
         end,
     },
     {
@@ -1303,7 +1319,13 @@ local fx =
         bank = "redpouch_yotr",
         build = "redpouch_yotr",
         anim = "unwrap",
-    },    
+    },
+    {
+        name = "redpouch_yotd_unwrap",
+        bank = "redpouch",
+        build = "redpouch",
+        anim = "unwrap",
+    },
     {
         name = "yotc_seedpacket_unwrap",
         bank = "bundle",
@@ -1889,13 +1911,13 @@ local fx =
         anim = "idle",
         fn = GroundOrientation,
     },
-    {
+    --[[{
         name = "mushroomsprout_glow",
         bank = "mushroomsprout_glow",
         build ="mushroomsprout_glow",
         anim = "mushroomsprout_glow",
         fn = FinalOffset1,
-    },
+    },]]
     {
         name = "messagebottle_break_fx",
         bank = "bottle",
@@ -2484,10 +2506,38 @@ local fx =
         sound = "dontstarve/characters/woodie/moose/hit",
     },
     {
+        name = "boat_bumper_hit_crabking",
+        bank = "boat_bumper",
+        build = "boat_bumper_crabking",
+        anim = "fx_shell",
+        sound = "dontstarve/characters/woodie/moose/hit",
+    },    
+    {
         name = "cannonball_used",
         bank = "cannonball_rock",
         build = "cannonball_rock",
         anim = "used",
+    },
+    {
+        name = "mortarball_used",
+        bank = "cannonball_rock",
+        build = "cannonball_rock",
+        anim = "used",
+        sound = "meta4/mortars/cannonball_hit",
+    },
+    {
+        name = "mortarball_used_wood",
+        bank = "cannonball_rock",
+        build = "cannonball_rock",
+        anim = "used",
+        sound = "meta4/mortars/cannonball_hit_wood",
+    },
+    {
+        name = "mortarball_used_ice",
+        bank = "cannonball_rock",
+        build = "cannonball_rock",
+        anim = "used",
+        sound = "meta4/mortars/cannonball_hit_ice",
     },
     {
         name = "monkey_cursed_pre_fx",
@@ -2743,6 +2793,7 @@ local fx =
         bank = "turf_smoke_fx",
         build = "turf_smoke_fx",
         anim = "fx",
+        sound = "meta4/turfraiser_helm/raise_turf",
     },
     {
         name = "pillowfight_confetti_fx",
@@ -2870,18 +2921,18 @@ local fx =
         bank = "fire_geyser",
         build = "fire_geyser_fx",
         anim = "pre",
-    },  
+    },
 
     {
         name = "willow_shadow_fire_explode",
         bank = "deer_fire_charge",
         build = "deer_fire_charge",
-        anim = "blast",        
+        anim = "blast",
         sound = "dontstarve/common/deathpoof",
         tint = Vector3(0, 0, 0, 0.6),
         fn = function(inst)
             inst.Transform:SetScale(1.5,1.5,1.5)
-        end,        
+        end,
     },
 
 ----------------------------------------------------------
@@ -2903,12 +2954,258 @@ local fx =
             end)
         end,
     },
+
     {
-        name = "fx_ice_crackle",
+        name = "fx_ice_pop",
         bank = "fx_dock_crackleandpop",
         build = "fx_dock_crackleandpop",
+        anim = "pop",
+        sound = "dontstarve_DLC001/common/iceboulder_smash",
+    },
+    {
+        name = "mast_yotd_sink_fx",
+        bank = "mast_01",
+        build = "yotd_boat_mast",
+        anim = "sink",
+    },
+    {
+        name = "boat_bumper_hit_yotd",
+        bank = "boat_bumper",
+        build = "boat_bumper_yotd",
+        anim = "fx_kelp",
+        sound = "dontstarve/characters/woodie/moose/hit",
+    },
+    {
+        name  = "beeswax_spray_fx",
+        bank  = "fx_plant_spray",
+        build = "fx_plant_spray",
+        anim  = "play_fx",
+        sound = "qol1/wax_spray/effect",
+        fn    = function(inst)
+            inst.AnimState:SetFinalOffset(3)
+
+            local scale = 1.3
+            inst.AnimState:SetScale(scale, scale, scale)
+        end,
+    },
+	{
+		name = "junk_break_fx",
+		bank = "scrapball",
+		build = "scrapball",
+		anim = "scrap_destruction_1",
+		sound = "qol1/daywalker_scrappy/pile_destroy",
+		fn = function(inst)
+			local rnd = math.random(6)
+			if rnd > 3 then
+				rnd = rnd - 3
+				inst.AnimState:SetScale(-1, 1)
+			end
+			if rnd ~= 1 then
+				inst.AnimState:PlayAnimation("scrap_destruction_"..tostring(rnd))
+			end
+			inst.AnimState:SetFinalOffset(1)
+		end,
+	},
+    {
+        name = "chestupgrade_stacksize_fx",
+        bank = "cavein_dust_fx",
+        build = "cavein_dust_fx",
+        anim = "dust_low",
+        sound = "qol1/chest_upgrade/poof",
+        fn = function(inst)
+            inst.entity:AddSoundEmitter()
+            local total_hide_frames = 6 -- NOTES(JBK): Keep in sync with treasurechest.lua! [CUHIDERFRAMES]
+            inst:DoTaskInTime(total_hide_frames * FRAMES, function(inst) inst.SoundEmitter:PlaySound("wolfgang1/mightygym/item_removed") end)
+            inst.AnimState:SetFinalOffset(3)
+            local gmin, gmax = 0.75, 1
+            local bmin, bmax = 1, 0.6
+            local amin, amax = 1, 0
+            local dg = gmax - gmin
+            local db = bmax - bmin
+            local da = amax - amin
+            local r, a = 0.5, 1
+            inst.AnimState:SetMultColour(r, gmin, bmin, amin)
+            local t = 0
+            local length = 48
+            local task = inst:DoPeriodicTask(0, function(inst)
+                t = t + 1
+                local p = math.min(1, t / length)
+                local gc = dg * p + gmin
+                local bc = db * p + bmin
+                local ac = da * math.min(1, math.max(0, t - total_hide_frames) / length) + amin
+                inst.AnimState:SetMultColour(r, gc, bc, ac)
+            end)
+
+        end,
+    },
+    {
+        name = "chestupgrade_stacksize_taller_fx",
+        bank = "cavein_dust_fx",
+        build = "cavein_dust_fx",
+        anim = "dust_low",
+        sound = "qol1/chest_upgrade/poof",
+        fn = function(inst)
+            inst.entity:AddSoundEmitter()
+            inst.AnimState:SetScale(1, 1.3) -- NOTES(JBK): An even taller tall chest needs more cover.
+            local total_hide_frames = 6 -- NOTES(JBK): Keep in sync with treasurechest.lua! [CUHIDERFRAMES]
+            inst:DoTaskInTime(total_hide_frames * FRAMES, function(inst) inst.SoundEmitter:PlaySound("wolfgang1/mightygym/item_removed") end)
+            inst.AnimState:SetFinalOffset(3)
+            local gmin, gmax = 0.75, 1
+            local bmin, bmax = 1, 0.6
+            local amin, amax = 1, 0
+            local dg = gmax - gmin
+            local db = bmax - bmin
+            local da = amax - amin
+            local r, a = 0.5, 1
+            inst.AnimState:SetMultColour(r, gmin, bmin, amin)
+            local t = 0
+            local length = 48
+            local task = inst:DoPeriodicTask(0, function(inst)
+                t = t + 1
+                local p = math.min(1, t / length)
+                local gc = dg * p + gmin
+                local bc = db * p + bmin
+                local ac = da * math.min(1, math.max(0, t - total_hide_frames) / length) + amin
+                inst.AnimState:SetMultColour(r, gc, bc, ac)
+            end)
+
+        end,
+    },
+    {
+        name = "repaired_kelp_timeout_fx",
+        bank = "boat_repair_kelp_fx",
+        build = "boat_repair_kelp_fx",
+        anim = "break",
+        fn = FinalOffset1,
+    },
+    {
+        name = "boat_otterden_erode",
+        bank = "boat_otterden",
+        build = "boat_otterden",
+        anim = "erode",
+        fn = function(inst)
+            inst.AnimState:SetScale(0.75,0.75,0.75)
+            inst.AnimState:SetSortOrder(ANIM_SORT_ORDER.OCEAN_BOAT)
+            inst.AnimState:SetFinalOffset(1)
+            inst.AnimState:SetOrientation(ANIM_ORIENTATION.OnGround)
+            inst.AnimState:SetLayer(LAYER_BACKGROUND)
+        end,
+        nofaced = true,
+    },
+    {
+        name = "boat_otterden_erode_water",
+        bank = "boat_otterden",
+        build = "boat_otterden",
+        anim = "erode_water",
+        fn = function(inst)
+            inst.AnimState:SetScale(0.75,0.75,0.75)
+            inst.AnimState:SetSortOrder(ANIM_SORT_ORDER.OCEAN_BOAT)
+            inst.AnimState:SetFinalOffset(1)
+            inst.AnimState:SetOrientation(ANIM_ORIENTATION.OnGround)
+            inst.AnimState:SetLayer(LAYER_BACKGROUND)
+            local length = 18
+            local alpha = 1
+            local delta = 1 / length
+            local task = inst:DoPeriodicTask(0, function(inst)
+                alpha = math.max(0, alpha - delta)
+                inst.AnimState:SetMultColour(1, 1, 1, alpha)
+            end)
+        end,
+        nofaced = true,
+    },
+    {
+        name = "fx_kelp_boat_fluff",
+        bank = "boat_repair_kelp_fx",
+        build = "boat_repair_kelp_fx",
+        anim = "break",
+        transform = Vector3(0.75, 0.75, 0.75),
+        fn = FinalOffsetNegative1,
+    },
+    {
+        name = "wurt_swamp_terraform_fx",
+        bank = "pond_splash_fx",
+        build = "pond_splash_fx",
+        anim = "swamp_splash",
+    },
+    {
+        name = "shadow_merm_spawn_poof_fx",
+        bank = "merm_shadow_fx",
+        build = "merm_shadow_fx",
+        anim = "spawn_poof",
+        sound = "meta4/shadow_merm/spawn_poof",
+        fn = function(inst)
+            inst.AnimState:SetFinalOffset(1)
+            inst.AnimState:SetMultColour(1, 1, 1, .5)
+        end,
+    },
+    {
+        name = "shadow_merm_smacked_poof_fx",
+        bank = "merm_shadow_fx",
+        build = "merm_shadow_fx",
+        anim = "smacked_poof",
+        sound = "meta4/shadow_merm/smacked_poof",
+        fn = function(inst)
+            inst.AnimState:SetFinalOffset(1)
+            inst.AnimState:SetFrame(14)
+            inst.AnimState:SetMultColour(1, 1, 1, .5)
+        end,
+    },
+    {
+        name = "wurt_water_splash_1",
+        bank = "splash_water_rot",
+        build = "wurt_splash_fx",
+        anim = "watershield_small",
+        sound = "meta4/wurt/water_shield",
+        fn = FinalOffset1,
+    },
+    {
+        name = "wurt_water_splash_2",
+        bank = "splash_water_rot",
+        build = "wurt_splash_fx",
+        anim = "watershield_medium",
+        sound = "meta4/wurt/water_shield",
+        fn = FinalOffset1,
+    },
+    {
+        name = "wurt_water_splash_3",
+        bank = "splash_water_rot",
+        build = "wurt_splash_fx",
+        anim = "watershield_large",
+        sound = "meta4/wurt/water_shield",
+        fn = FinalOffset1,
+    },
+    {
+        name = "wurt_terraformer_fx_shadow",
+        bank = "cane_shadow_fx",
+        build = "cane_shadow_fx",
+        anim = "shad1",
+        tintalpha = 0.5,
+        fn = function(inst)
+            inst.AnimState:PlayAnimation("shad"..math.random(3))
+        end,
+    },
+    {
+        name = "wurt_terraformer_fx_lunar",
+        bank = "moon_altar_link_fx",
+        build ="moon_altar_link_fx",
+        anim = "fx1",
+        tintalpha = 0.5,
+        fn = function(inst)
+            inst.AnimState:SetScale(0.5,0.5,0.5)
+
+            local rand = math.random()
+            inst.AnimState:PlayAnimation(
+                (rand < 0.33 and "fx1")
+                or (rand < 0.67 and "fx2")
+                or "fx3"
+            )
+        end
+    },
+    {
+        name = "fx_ice_crackle",
+        bank = "fx_ice_crackleandpop",
+        build = "fx_ice_crackleandpop",
         anim = "crackle",
-        sound = "turnoftides/common/together/boat/creak",
         fn = function(inst)
             inst.entity:AddSoundEmitter()
             inst.SoundEmitter:PlaySoundWithParams("dontstarve_DLC001/common/iceboulder_hit")
@@ -2934,14 +3231,7 @@ local fx =
                 i.SoundEmitter:PlaySoundWithParams("dontstarve_DLC001/common/iceboulder_hit", {intensity=0.3})
             end)
         end,
-    },
-    {
-        name = "fx_ice_pop",
-        bank = "fx_dock_crackleandpop",
-        build = "fx_dock_crackleandpop",
-        anim = "pop",
-        sound = "dontstarve_DLC001/common/iceboulder_smash",
-    },
+    },    
 }
 
 for cratersteamindex = 1, 4 do

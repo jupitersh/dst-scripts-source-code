@@ -162,6 +162,7 @@ local MULTIPLY_PREFABS = {
 	["seastack_spawner_rough"] =	prefab_spawner_ocean_multiply,
 	["seastack_spawner_swell"] =	prefab_spawner_ocean_multiply,
 	["waterplant_spawner_rough"] =	prefab_spawner_ocean_multiply,
+	["boat_otterden"] = 			prefab_spawner_ocean_multiply,
 }
 
 local TRANSLATE_TO_PREFABS = {
@@ -239,12 +240,15 @@ local TRANSLATE_TO_PREFABS = {
 	["ocean_waterplant"] =	{"waterplant_spawner_rough", "waterplant"},
 	["ocean_wobsterden"] =	{"wobster_den_spawner_shore"},
 	["ocean_bullkelp"] =	{"bullkelp_plant"},
+	["ocean_otterdens"] =   {"boat_otterden"},
 
     -- Allow for the Terrarium to be a required world gen prefab, but still disable-able via World Gen settings
     ["terrariumchest"] =    {"terrariumchest"},
 
     -- Allow for the stageplays to be required world gen prefabs, but still disable-able via World Gen settings
 	["stageplays"] =		{"charlie_stage_post", "statueharp_hedgespawner"},
+	-- Allow for the junk piles to be required world gen prefabs, but still disable-able via World Gen settings
+	["junkyard"] =		    {"junk_pile", "junk_pile_big"},
 }
 
 local TRANSLATE_TO_CLUMP = {

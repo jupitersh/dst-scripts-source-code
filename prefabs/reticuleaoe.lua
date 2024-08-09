@@ -1,3 +1,7 @@
+--Reticule art needs to be white
+--multcolour: used by reticule validcolour/invalidcolour
+--addcolour: used by reticule ping
+
 local assets =
 {
     Asset("ANIM", "anim/reticuleaoe.zip"),
@@ -28,7 +32,17 @@ local function UpdatePing(inst, s0, s1, t0, duration, multcolour, addcolour)
     inst.AnimState:SetAddColour(c * addcolour[1], c * addcolour[2], c * addcolour[3], c * addcolour[4])
 end
 
-local function MakePing(name, anim, scaleup)
+local function MakePing(name, anim, fixedorientation, scaleup, postinit)
+	local bank, build, overrideassets
+	if type(anim) == "table" then
+		bank = anim.bank
+		build = anim.build
+		anim = anim.anim
+		if build then
+			overrideassets = { Asset("ANIM", "anim/"..build..".zip") }
+		end
+	end
+
     local function fn()
         local inst = CreateEntity()
 
@@ -41,23 +55,27 @@ local function MakePing(name, anim, scaleup)
         inst.entity:AddTransform()
         inst.entity:AddAnimState()
 
-        inst.AnimState:SetBank("reticuleaoe")
-        inst.AnimState:SetBuild("reticuleaoe")
+		inst.AnimState:SetBank(bank or "reticuleaoe")
+		inst.AnimState:SetBuild(build or "reticuleaoe")
         inst.AnimState:PlayAnimation(anim)
-        inst.AnimState:SetOrientation(ANIM_ORIENTATION.OnGroundFixed)
+		inst.AnimState:SetOrientation(fixedorientation and ANIM_ORIENTATION.OnGroundFixed or ANIM_ORIENTATION.OnGround)
         inst.AnimState:SetLayer(LAYER_WORLD_BACKGROUND)
         inst.AnimState:SetSortOrder(3)
         inst.AnimState:SetScale(SCALE, SCALE)
-        inst.AnimState:SetBloomEffectHandle("shaders/anim.ksh")
+		inst.AnimState:SetBloomEffectHandle("shaders/anim.ksh")
 
         local duration = .5
         inst:DoPeriodicTask(0, UpdatePing, nil, 1, scaleup, GetTime(), duration, {}, {})
         inst:DoTaskInTime(duration, inst.Remove)
 
+		if postinit then
+			postinit(inst)
+		end
+
         return inst
     end
 
-    return Prefab(name, fn, assets)
+	return Prefab(name, fn, overrideassets or assets)
 end
 
 --------------------------------------------------------------------------
@@ -108,7 +126,17 @@ local function OnRemoveReticule(inst)
     end
 end]]
 
-local function MakeReticule(name, anim)
+local function MakeReticule(name, anim, fixedorientation, postinit)
+	local bank, build, overrideassets
+	if type(anim) == "table" then
+		bank = anim.bank
+		build = anim.build
+		anim = anim.anim
+		if build then
+			overrideassets = { Asset("ANIM", "anim/"..build..".zip") }
+		end
+	end
+
     local function fn()
         local inst = CreateEntity()
 
@@ -121,10 +149,10 @@ local function MakeReticule(name, anim)
         inst.entity:AddTransform()
         inst.entity:AddAnimState()
 
-        inst.AnimState:SetBank("reticuleaoe")
-        inst.AnimState:SetBuild("reticuleaoe")
+		inst.AnimState:SetBank(bank or "reticuleaoe")
+		inst.AnimState:SetBuild(build or "reticuleaoe")
         inst.AnimState:PlayAnimation(anim)
-        inst.AnimState:SetOrientation(ANIM_ORIENTATION.OnGroundFixed)
+		inst.AnimState:SetOrientation(fixedorientation and ANIM_ORIENTATION.OnGroundFixed or ANIM_ORIENTATION.OnGround)
         inst.AnimState:SetLayer(LAYER_WORLD_BACKGROUND)
         inst.AnimState:SetSortOrder(3)
         inst.AnimState:SetScale(SCALE, SCALE)
@@ -140,10 +168,14 @@ local function MakeReticule(name, anim)
             inst.OnRemoveEntity = OnRemoveReticule
         end]]
 
+		if postinit then
+			postinit(inst)
+		end
+
         return inst
     end
 
-    return Prefab(name, fn, assets)
+	return Prefab(name, fn, overrideassets or assets)
 end
 
 --------------------------------------------------------------------------
@@ -170,7 +202,17 @@ local function OnUpdateTargetFade(inst, r, g, b, a)
     end
 end
 
-local function MakeTarget(name, anim, colour)
+local function MakeTarget(name, anim, fixedorientation, colour)
+	local bank, build, overrideassets
+	if type(anim) == "table" then
+		bank = anim.bank
+		build = anim.build
+		anim = anim.anim
+		if build then
+			overrideassets = { Asset("ANIM", "anim/"..build..".zip") }
+		end
+	end
+
     local function OnTargetFadeDirty(inst)
         if inst._fadetask == nil then
             inst._fadetask = inst:DoPeriodicTask(FRAMES, OnUpdateTargetFade, nil, unpack(colour))
@@ -197,10 +239,10 @@ local function MakeTarget(name, anim, colour)
         inst:AddTag("FX")
         inst:AddTag("NOCLICK")
 
-        inst.AnimState:SetBank("reticuleaoe")
-        inst.AnimState:SetBuild("reticuleaoe")
+		inst.AnimState:SetBank(bank or "reticuleaoe")
+		inst.AnimState:SetBuild(build or "reticuleaoe")
         inst.AnimState:PlayAnimation(anim)
-        inst.AnimState:SetOrientation(ANIM_ORIENTATION.OnGround)
+		inst.AnimState:SetOrientation(fixedorientation and ANIM_ORIENTATION.OnGroundFixed or ANIM_ORIENTATION.OnGround)
         inst.AnimState:SetLayer(LAYER_BACKGROUND)
         inst.AnimState:SetSortOrder(3)--1) --was 1 in forge
         inst.AnimState:SetScale(SCALE, SCALE)
@@ -227,30 +269,88 @@ local function MakeTarget(name, anim, colour)
     return Prefab(name, fn, assets)
 end
 
-return MakeReticule("reticuleaoe", "idle"),
-    MakeReticule("reticuleaoesmall", "idle_small"),
-    MakeReticule("reticuleaoesummon", "idle_summon"),
-	MakeReticule("reticuleaoe_1_6", "idle_1_6"),
-	MakeReticule("reticuleaoe_1d2_12", "idle_1d2_12"),
-    MakeReticule("reticuleaoe5line", "idle_5live"),
+--------------------------------------------------------------------------
+
+local function reticuleaoecatapultvolley_postinit(inst)
+	inst.deployhelper_key = "catapult_volley"
+	inst.AnimState:SetLightOverride(1)
+end
+
+local function reticuleaoecatapultelementalvolley_postinit(inst)
+	inst.deployhelper_key = "catapult_elementalvolley"
+	inst.AnimState:SetLightOverride(1)
+end
+
+local function reticuleaoecatapultwakeup_postinit(inst)
+	inst.deployhelper_key = "catapult_wakeup"
+	inst.AnimState:SetLightOverride(1)
+end
+
+local function postinit_lightoverride(inst)
+	inst.AnimState:SetLightOverride(1)
+end
+
+--------------------------------------------------------------------------
+
+return MakeReticule("reticuleaoe", "idle", true),
+	MakeReticule("reticuleaoesmall", "idle_small", true),
+	MakeReticule("reticuleaoesummon", "idle_summon", true),
+	MakeReticule("reticuleaoe_1_6", "idle_1_6", true),
+	MakeReticule("reticuleaoe_1d2_12", "idle_1d2_12", true),
+	MakeReticule("reticuleaoe5line", "idle_5live", false),
+	MakeReticule("reticuleaoecatapultvolley", {
+			bank = "winona_catapult_placement",
+			build = "winona_catapult_placement",
+			anim = "idle_1d25_4d4_16d6",
+		}, true, reticuleaoecatapultvolley_postinit),
+	MakeReticule("reticuleaoecatapultelementalvolley", {
+			bank = "winona_catapult_placement",
+			build = "winona_catapult_placement",
+			anim = "idle_1d25_4d4_16d6",
+		}, true, reticuleaoecatapultelementalvolley_postinit),
+	MakeReticule("reticuleaoecatapultwakeup", {
+			bank = "winona_catapult_placement",
+			build = "winona_catapult_placement",
+			anim = "idle_16d6",
+		}, true, reticuleaoecatapultwakeup_postinit),
+
 	--ping scales to grow radius by .2 (or .1 of inner ring for summons)
-    MakePing("reticuleaoeping", "idle", 1.05),
-    MakePing("reticuleaoesmallping", "idle_small", 1.1),
-    MakePing("reticuleaoesummonping", "idle_summon", 1.0667),
-	MakePing("reticuleaoeping_1_6", "idle_1_6", 1.1),
-	MakePing("reticuleaoeping_1d2_12", "idle_1d2_12", 1.08333),
-    MakePing("reticuleaoeping5line", "idle_5live", 1.08333),    
+	MakePing("reticuleaoeping", "idle", true, 1.05),
+	MakePing("reticuleaoesmallping", "idle_small", true, 1.1),
+	MakePing("reticuleaoesummonping", "idle_summon", true, 1.0667),
+	MakePing("reticuleaoeping_1_6", "idle_1_6", true, 1.1),
+	MakePing("reticuleaoeping_1d2_12", "idle_1d2_12", true, 1.08333),
+	MakePing("reticuleaoeping5line", "idle_5live", false, 1.08333),    
 
-    MakePing("reticuleaoefiretarget_1ping", "idle_summon_target", 1.08333),    
-    
-    MakeTarget("reticuleaoehostiletarget", "idle_target", { 1, .25, 0, 1 }),
-    MakeTarget("reticuleaoefriendlytarget", "idle_target", { 0, 1, .25, 1 }),
-    MakeTarget("reticuleaoecctarget", "idle_target", { .3, .5, .2, 1 }),
-    MakeTarget("reticuleaoesmallhostiletarget", "idle_small_target", { 1, .25, 0, 1 }),
-    MakeTarget("reticuleaoesummontarget", "idle_summon_target", { .3, .5, .2, 1 }),
-	MakeTarget("reticuleaoesummontarget_1", "idle_target_1", { .3, .5, .2, 1 }),
-	MakeTarget("reticuleaoesummontarget_1d2", "idle_target_1d2", { .3, .5, .2, 1 }),
-	MakeTarget("reticuleaoeshadowtarget_6", "idle_target_6", { .1, .1, .1, 1 }),
-    MakeTarget("reticuleaoefiretarget_1", "idle_summon_target", { 255/255, 161/255, 61/255, 1 })
+	MakePing("reticuleaoefiretarget_1ping", "idle_summon_target", true, 1.08333),    
 
-    
+	MakePing("reticuleaoecatapultvolleyping", {
+			bank = "winona_catapult_placement",
+			build = "winona_catapult_placement",
+			anim = "idle_1d25_4d4_16d6",
+		}, true, 1.08, postinit_lightoverride),
+	MakePing("reticuleaoecatapultwakeupping", {
+			bank = "winona_catapult_placement",
+			build = "winona_catapult_placement",
+			anim = "idle_16d6",
+		}, true, 1.036, postinit_lightoverride),
+	MakePing("reticuleaoewinonaengineeringping", {
+			bank = "winona_battery_placement",
+			build = "winona_battery_placement",
+			anim = "idle_1d6",
+		}, false, 1.125, postinit_lightoverride),
+
+	MakeTarget("reticuleaoehostiletarget", "idle_target", false, { 1, .25, 0, 1 }),
+	MakeTarget("reticuleaoefriendlytarget", "idle_target", false, { 0, 1, .25, 1 }),
+	MakeTarget("reticuleaoecctarget", "idle_target", false, { .3, .5, .2, 1 }),
+	MakeTarget("reticuleaoesmallhostiletarget", "idle_small_target", false, { 1, .25, 0, 1 }),
+	MakeTarget("reticuleaoesummontarget", "idle_summon_target", false, { .3, .5, .2, 1 }),
+	MakeTarget("reticuleaoesummontarget_1", "idle_target_1", false, { .3, .5, .2, 1 }),
+	MakeTarget("reticuleaoesummontarget_1d2", "idle_target_1d2", false, { .3, .5, .2, 1 }),
+	MakeTarget("reticuleaoeshadowtarget_6", "idle_target_6", false, { .1, .1, .1, 1 }),
+	MakeTarget("reticuleaoefiretarget_1", "idle_summon_target", false, { 255/255, 161/255, 61/255, 1 }),
+	MakeTarget("reticuleaoehostiletarget_1d25", {
+			bank = "winona_catapult_placement",
+			build = "winona_catapult_placement",
+			anim = "idle_target_1d25",
+		}, false, { 1, .25, 0, 1 })

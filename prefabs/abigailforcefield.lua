@@ -43,6 +43,7 @@ local function fn(anim)
 	inst.AnimState:PlayAnimation(anim)
     inst.AnimState:SetFinalOffset(1)
 
+    inst.entity:SetPristine()
 	if not TheWorld.ismastersim then
 		return inst
 	end
@@ -51,7 +52,7 @@ local function fn(anim)
 	inst.components.debuff:SetAttachedFn(buff_OnAttached)
 	inst.components.debuff:SetDetachedFn(buff_OnDetached)
 
-	inst.persits = false
+	inst.persists = false
 
 	inst:ListenForEvent("animover", expire)
 

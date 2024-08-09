@@ -59,7 +59,7 @@ local function CreateHelperRadiusCircle()
 end
 
 local function OnEnableHelper(inst, enabled)
-    if enabled then
+    if enabled and (TheWorld == nil or TheWorld:HasTag("cave")) then
         if inst.helper == nil then
             inst.helper = CreateHelperRadiusCircle()
 
@@ -75,7 +75,7 @@ end
 --------------------------------------------------------------------------
 
 local PHYSICS_RADIUS = 1.45
-local DEPLOY_EXTRA_SPACING = 2.5
+local DEPLOY_SMART_RADIUS = 2
 
 --------------------------------------------------------------------------
 
@@ -534,7 +534,7 @@ local function MakePillar(name, bank, build)
 		MakeObstaclePhysics(inst, PHYSICS_RADIUS, 6)
         inst.Physics:SetDontRemoveOnSleep(true)
 
-		inst:SetDeployExtraSpacing(DEPLOY_EXTRA_SPACING)
+		inst:SetDeploySmartRadius(DEPLOY_SMART_RADIUS)
 
 		inst.Transform:SetEightFaced()
 
@@ -708,7 +708,7 @@ local function MakeScaffold(name, bank, build)
 		MakeObstaclePhysics(inst, PHYSICS_RADIUS, 6)
         inst.Physics:SetDontRemoveOnSleep(true)
 
-		inst:SetDeployExtraSpacing(DEPLOY_EXTRA_SPACING)
+		inst:SetDeploySmartRadius(DEPLOY_SMART_RADIUS)
 
 		inst.Transform:SetEightFaced()
 

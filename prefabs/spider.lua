@@ -66,6 +66,7 @@ local prefabs =
     "monstermeat",
     "silk",
     "spider_web_spit",
+    "spider_web_spit_acidinfused",
     "moonspider_spike",
     
     "spider_mutate_fx",
@@ -77,14 +78,17 @@ local prefabs =
 local brain = require "brains/spiderbrain"
 
 local function ShouldAcceptItem(inst, item, giver)
+    if inst.components.health ~= nil and inst.components.health:IsDead() then
+        return false, "DEAD"
+    end
 
-    local in_inventory = inst.components.inventoryitem.owner ~= nil
-    if in_inventory and not inst.components.eater:CanEat(item) then
+    if inst.components.inventoryitem:IsHeld() and not inst.components.eater:CanEat(item) then
         return false, "SPIDERNOHAT"
     end
 
-    return (giver:HasTag("spiderwhisperer") and inst.components.eater:CanEat(item)) or
-           (item.components.equippable ~= nil and item.components.equippable.equipslot == EQUIPSLOTS.HEAD)
+    return
+        (giver:HasTag("spiderwhisperer") and inst.components.eater:CanEat(item)) or
+        (item.components.equippable ~= nil and item.components.equippable.equipslot == EQUIPSLOTS.HEAD)
 end
 
 local SPIDER_TAGS = { "spider" }
@@ -428,6 +432,8 @@ local function MakeWeapon(inst)
         weapon:AddComponent("inventoryitem")
         weapon.persists = false
         weapon.components.inventoryitem:SetOnDroppedFn(weapon.Remove)
+
+        weapon.projectiledelay = 2.5 * FRAMES
         
         weapon:AddComponent("equippable")
         weapon:AddTag("nosteal")
@@ -442,24 +448,21 @@ local variations = {1, 2, 3, 4, 5}
 local function DoSpikeAttack(inst, pt)
     local x, y, z = pt:Get()
     local inital_r = 1
-    
+
     x = GetRandomWithVariance(x, inital_r)
     z = GetRandomWithVariance(z, inital_r)
 
     shuffleArray(variations)
 
     local num = math.random(2, 4)
-    local dtheta = PI * 2 / num
-    local thetaoffset = math.random() * PI * 2
-    local delaytoggle = 0
-    
+    local dtheta = TWOPI / num
+
     for i = 1, num do
-        
         local r = 1.1 + math.random() * 1.75
         local theta = i * dtheta + math.random() * dtheta * 0.8 + dtheta * 0.2
         local x1 = x + r * math.cos(theta)
         local z1 = z + r * math.sin(theta)
-        
+
         if TheWorld.Map:IsVisualGroundAtPoint(x1, 0, z1) and not TheWorld.Map:IsPointNearHole(Vector3(x1, 0, z1)) then
             local spike = SpawnPrefab("moonspider_spike")
             spike.Transform:SetPosition(x1, 0, z1)
@@ -518,6 +521,38 @@ local function OnPickup(inst)
         inst.components.homeseeker:SetHome(nil)
         inst:RemoveComponent("homeseeker")
     end
+end
+
+local function Spitter_OnAcidInfuse(inst)
+    if inst.weapon == nil then
+        return
+    end
+
+    inst.weapon.components.weapon:SetProjectile("spider_web_spit_acidinfused")
+end
+
+local function Spitter_OnAcidUninfuse(inst)
+    if inst.weapon == nil then
+        return
+    end
+
+    inst.weapon.components.weapon:SetProjectile("spider_web_spit")
+end
+
+local function SoundPath(inst, event)
+    local creature = "spider"
+    if inst:HasTag("spider_healer") then
+        return "webber1/creatures/spider_cannonfodder/" .. event
+    elseif inst:HasTag("spider_moon") then
+        return "turnoftides/creatures/together/spider_moon/" .. event
+    elseif inst:HasTag("spider_warrior") then
+        creature = "spiderwarrior"
+    elseif inst:HasTag("spider_hider") or inst:HasTag("spider_spitter") then
+        creature = "cavespider"
+    else
+        creature = "spider"
+    end
+    return "dontstarve/creatures/" .. creature .. "/" .. event
 end
 
 local DIET = { FOODTYPE.MEAT }
@@ -657,6 +692,12 @@ local function create_common(bank, build, tag, common_init, extra_data)
     inst.components.sanityaura.aurafn = CalcSanityAura
 
     ------------------
+
+    inst:AddComponent("acidinfusible")
+    inst.components.acidinfusible:SetFXLevel(1)
+    inst.components.acidinfusible:SetMultipliers(TUNING.ACID_INFUSION_MULT.STRONGER)
+
+    ------------------
     
     MakeFeedableSmallLivestock(inst, TUNING.SPIDER_PERISH_TIME)
     MakeHauntablePanic(inst)
@@ -680,6 +721,10 @@ local function create_common(bank, build, tag, common_init, extra_data)
 
     inst:WatchWorldState("iscaveday", OnIsCaveDay)
     OnIsCaveDay(inst, TheWorld.state.iscaveday)
+    
+    inst.SoundPath = SoundPath
+
+    inst.incineratesound = SoundPath(inst, "die")
 
     inst.build = build
     inst.SetHappyFace = (extra_data and extra_data.SetHappyFaceFn) or SetHappyFace
@@ -775,6 +820,9 @@ local function create_spitter()
     if not TheWorld.ismastersim then
         return inst
     end
+
+    inst.components.acidinfusible:SetOnInfuseFn(Spitter_OnAcidInfuse)
+    inst.components.acidinfusible:SetOnUninfuseFn(Spitter_OnAcidUninfuse)
 
     inst.components.health:SetMaxHealth(TUNING.SPIDER_SPITTER_HEALTH)
 

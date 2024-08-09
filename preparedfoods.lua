@@ -342,7 +342,7 @@ local foods =
 		priority = 20,
 		foodtype = FOODTYPE.MEAT,
 		health = TUNING.HEALING_MED,
-		hunger = TUNING.CALORIES_MEDSMALL,
+		hunger = TUNING.CALORIES_LARGE,
 		perishtime = TUNING.PERISH_MED,
 		sanity = TUNING.SANITY_TINY,
 		cooktime = 0.5,
@@ -732,7 +732,7 @@ local foods =
         health = TUNING.HEALING_LARGE,
         hunger = TUNING.CALORIES_LARGE,
         perishtime = TUNING.PERISH_MED,
-        sanity = TUNING.SANITY_TINY,
+        sanity = TUNING.SANITY_MED,
         cooktime = 0.5,
         overridebuild = "cook_pot_food5",
         floater = {"med", 0.05, {0.65, 0.6, 0.65}},
@@ -747,8 +747,8 @@ local foods =
         end,
         priority = 30,
         foodtype = FOODTYPE.MEAT,
-        health = TUNING.HEALING_MED/2,
-        hunger = TUNING.CALORIES_LARGE*2,
+        health = TUNING.HEALING_MEDLARGE,
+        hunger = TUNING.CALORIES_HUGE,
         perishtime = TUNING.PERISH_FAST,
         sanity = TUNING.HEALING_MED,
         cooktime = 2,
@@ -903,10 +903,10 @@ local foods =
 		priority = 40,
 		overridebuild = "cook_pot_food8",
 		foodtype = FOODTYPE.MEAT,
-		health = TUNING.HEALING_HUGE,  									-- 40 + 1 = 60
-		hunger = TUNING.CALORIES_LARGE + TUNING.CALORIES_MEDSMALL,	    -- 12.5 +37.5 = 56
-		sanity = 0,										-- 0 + 0
-		perishtime = TUNING.PERISH_MED,
+		health = TUNING.HEALING_HUGE,
+		hunger = TUNING.CALORIES_SUPERHUGE,
+		sanity = TUNING.SANITY_MED,
+		perishtime = TUNING.PERISH_SLOW,
 		cooktime = 2,
         potlevel = "high",
         floater = {"med", 0.05, 0.65},
@@ -920,8 +920,8 @@ local foods =
 		foodtype = FOODTYPE.VEGGIE,
 		health = TUNING.HEALING_MEDLARGE,
         hunger = TUNING.CALORIES_LARGE + TUNING.CALORIES_MEDSMALL,
-        perishtime = TUNING.PERISH_FAST,
         sanity = TUNING.SANITY_MED,
+        perishtime = TUNING.PERISH_FAST,
 		cooktime = 2,
         potlevel = "high",
         floater = {"med", 0.05, 0.65},
@@ -934,9 +934,9 @@ local foods =
 		overridebuild = "cook_pot_food8",
 		foodtype = FOODTYPE.MEAT,
 		health = TUNING.HEALING_MED,
-		hunger = TUNING.CALORIES_MED,
+		hunger = TUNING.CALORIES_LARGE,
+		sanity = TUNING.SANITY_SMALL,
 		perishtime = TUNING.PERISH_SLOW,
-		sanity = TUNING.SANITY_MED,
 		temperature = TUNING.HOT_FOOD_BONUS_TEMP,
 		temperatureduration = TUNING.FOOD_TEMP_LONG,
 		cooktime = 1,
@@ -951,10 +951,10 @@ local foods =
 		priority = 1,
 		overridebuild = "cook_pot_food8",
 		foodtype = FOODTYPE.MEAT,
-		health = TUNING.HEALING_MEDSMALL,
-		hunger = TUNING.CALORIES_MEDSMALL,
+		health = TUNING.HEALING_MED,
+		hunger = TUNING.CALORIES_MED,
 		perishtime = TUNING.PERISH_SLOW,
-		sanity = TUNING.SANITY_SMALL,
+		sanity = TUNING.SANITY_TINY,
 		temperature = TUNING.HOT_FOOD_BONUS_TEMP,
 		temperatureduration = TUNING.FOOD_TEMP_LONG,
 		cooktime = 1,
@@ -1062,6 +1062,33 @@ local foods =
         oneat_desc = STRINGS.UI.COOKBOOK.FOOD_EFFECTS_BEEFALO,
 		OnPutInInventory = function(inst, owner) if owner ~= nil and owner:IsValid() then owner:PushEvent("learncookbookstats", inst.food_basename or inst.prefab) end end,
 	},
+
+    shroombait =
+    {
+        test = function(cooker, names, tags)
+            return ((names.moon_cap or 0) >= 2 ) and names.monstermeat  --names.moon_cap
+        end,
+        priority = 30,
+        foodtype = FOODTYPE.MEAT,
+        health = -TUNING.HEALING_MED,
+        hunger = TUNING.CALORIES_MEDSMALL,
+        sanity = -TUNING.SANITY_MED,
+        perishtime = TUNING.PERISH_SLOW,
+        cooktime = 1,
+        overridebuild = "cook_pot_food11",
+        floater = {"med", 0.05, 1.0},
+        oneat_desc = STRINGS.UI.COOKBOOK.FOOD_EFFECTS_SLEEP,
+        oneatenfn = function(inst, eater)
+			if eater.components.sleeper ~= nil then
+	            eater.components.sleeper:AddSleepiness(10, TUNING.PANFLUTE_SLEEPTIME)
+	        elseif eater.components.grogginess ~= nil then
+	            eater.components.grogginess:AddGrogginess(10, TUNING.PANFLUTE_SLEEPTIME)
+	        else
+	            eater:PushEvent("knockedout")
+	        end
+        end,
+    },	
+
 }
 
 for k, v in pairs(foods) do

@@ -70,6 +70,17 @@ local monster_params =
             },
         },
     },
+    acidbatwave =
+    {
+        range = TUNING.ACIDBATWAVE_SPAWN_DISTANCE,
+        levels =
+        {
+            {
+                sound = "dontstarve/cave/bat_distant",
+                distance = 0,
+            },
+        },
+    },
 }
 
 local function PlayWarningSound(proxy, sound, range, theta, radius)
@@ -102,7 +113,7 @@ local function OnRandDirty(inst)
     --Delay one frame so that we are positioned properly before starting the effect
     --or in case we are about to be removed
     local leveldata = inst._params.levels[inst._level]
-    inst:DoTaskInTime(0, PlayWarningSound, leveldata.sound, inst._params.range, inst._rand:value() / 255 * 2 * PI, leveldata.distance)
+    inst:DoTaskInTime(0, PlayWarningSound, leveldata.sound, inst._params.range, inst._rand:value() / 255 * TWOPI, leveldata.distance)
     inst._params = nil
     inst._level = nil
 end

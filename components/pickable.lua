@@ -88,6 +88,7 @@ function Pickable:OnRemoveFromEntity()
     self.inst:RemoveTag("pickable")
     self.inst:RemoveTag("barren")
     self.inst:RemoveTag("quickpick")
+    self.inst:RemoveTag("jostlepick")
 end
 
 local function OnRegen(inst)
@@ -105,9 +106,7 @@ function Pickable:LongUpdate(dt)
             if self.targettime > time + dt then
                 --resechedule
                 local time_to_pickable = self.targettime - time - dt
-                if TheWorld.state.isspring then
-                    time_to_pickable = time_to_pickable * TUNING.SPRING_GROWTH_MODIFIER
-                end
+                time_to_pickable = SpringGrowthMod(time_to_pickable)
                 self.task = self.inst:DoTaskInTime(time_to_pickable, OnRegen)
                 self.targettime = time + time_to_pickable
             else
@@ -116,9 +115,7 @@ function Pickable:LongUpdate(dt)
             end
         else
             local time_to_pickable = self.getregentimertime(self.inst) - dt
-            if TheWorld.state.isspring then
-                time_to_pickable = time_to_pickable * TUNING.SPRING_GROWTH_MODIFIER
-            end
+            time_to_pickable = SpringGrowthMod(time_to_pickable)
             self.setregentimertime(self.inst, time_to_pickable)
         end
     end
@@ -152,9 +149,7 @@ function Pickable:Resume()
             self.paused = false
             if not (self.canbepicked or self:IsBarren()) then
                 if self.pause_time ~= nil then
-                    if TheWorld.state.isspring then
-                        self.pause_time = self.pause_time * TUNING.SPRING_GROWTH_MODIFIER
-                    end
+                    self.pause_time = SpringGrowthMod(self.pause_time)
                     if self.task ~= nil then
                         self.task:Cancel()
                     end
@@ -170,11 +165,9 @@ function Pickable:Resume()
         if not (self.canbepicked or self:IsBarren()) then
             local pause_time = self.getregentimertime(self.inst)
             if pause_time ~= nil then
-                if TheWorld.state.isspring then
-                    pause_time = pause_time * TUNING.SPRING_GROWTH_MODIFIER
-                end
+                pause_time = SpringGrowthMod(pause_time)
                 self.resumeregentimer(self.inst)
-                self.setregentimertime(self.inst, pause_time * TUNING.SPRING_GROWTH_MODIFIER)
+                self.setregentimertime(self.inst, pause_time)
             else
                 self:MakeEmpty()
             end
@@ -440,27 +433,32 @@ function Pickable:MakeEmpty()
     self.canbepicked = false
 
     if not self.paused and self.baseregentime ~= nil then
-        local time = self.baseregentime
-        if self.getregentimefn ~= nil then
-            time = self.getregentimefn(self.inst)
-        end
-        if TheWorld.state.isspring then
-            time = time * TUNING.SPRING_GROWTH_MODIFIER
-        end
+        self.regentime = SpringGrowthMod(self.getregentimefn ~= nil and self.getregentimefn(self.inst) or self.baseregentime)
 
         if not self.useexternaltimer then
-            self.task = self.inst:DoTaskInTime(time, OnRegen)
-            self.targettime = GetTime() + time
+            self.task = self.inst:DoTaskInTime(self.regentime, OnRegen)
+            self.targettime = GetTime() + self.regentime
         else
-            self.startregentimer(self.inst, time)
+            self.startregentimer(self.inst, self.regentime)
         end
     end
 end
 
--- NOTES(JBK): Added TheWorld behaviour.
--- If picker is nil it will not produce items.
--- If picker is TheWorld it will drop items at the inst. This will NOT fire the regular event picked but will fire pickedbyworld instead to differentiate the type of pick.
--- If picker is something with an inventory it will harvest normally.
+------------------------
+-- *** DEPRECATED ***
+--   xxx   NOTES(JBK): Added TheWorld behaviour.
+--   xxx   If picker is nil it will not produce items.
+--   xxx   If picker is TheWorld it will drop items at the inst. This will NOT fire the regular event picked but will fire pickedbyworld instead to differentiate the type of pick.
+--   xxx   If picker is something with an inventory it will harvest normally.
+-- ***
+------------------------
+-- V2C:
+-- - nil picker will not produce items FOR REAL now.
+-- - ANY picker (not just TheWorld) with no inventory will drop items at the inst. (Previously, this was generating garbage at 0,0,0)
+-- - Always fire "picked" event. The "picker" param will tell you what you need to know.
+-- - Removed redundant "pickedbyworld" event; do NOT want all prefabs to have to register
+--   two different events to handle being picked.
+
 function Pickable:Pick(picker)
     if self.canbepicked and self.caninteractwith then
         if self.transplanted and self.cycles_left ~= nil then
@@ -478,9 +476,8 @@ function Pickable:Pick(picker)
         end
 
         local loot = nil
-        local worldpicker = picker == TheWorld
-        if self.product ~= nil or self.use_lootdropper_for_product ~= nil then
-            local inventorypicker = picker ~= nil and picker.components.inventory ~= nil
+		if picker and self.product or self.use_lootdropper_for_product then
+			local inventory = picker and picker.components.inventory or nil
             local pt = self.inst:GetPosition()
             if self.droppicked and self.inst.components.lootdropper ~= nil then
                 pt.y = pt.y + (self.dropheight or 0)
@@ -494,24 +491,22 @@ function Pickable:Pick(picker)
                 end
             else
                 if self.use_lootdropper_for_product then
-                    loot = {}
-                    for _, prefab in ipairs(self.inst.components.lootdropper:GenerateLoot()) do
-                        table.insert(loot, self.inst.components.lootdropper:SpawnLootPrefab(prefab))
+					loot = self.inst.components.lootdropper:GenerateLoot()
+					for i, prefab in ipairs(loot) do --convert prefabs to insts
+						loot[i] = self.inst.components.lootdropper:SpawnLootPrefab(prefab)
                     end
-                    if not IsTableEmpty(loot) then
-                        if inventorypicker then
-                            picker:PushEvent("picksomething", { object = self.inst, loot = loot })
-                        end
-                    end
-                    for i, item in ipairs(loot) do
-                        if inventorypicker then
-                            if item.components.inventoryitem ~= nil then
-                                picker.components.inventory:GiveItem(item, nil, pt)
-                            end
-                        elseif worldpicker then
-                            item.Transform:SetPosition(pt:Get())
-                        end
-                    end
+					if #loot > 0 then
+						if inventory then
+							picker:PushEvent("picksomething", { object = self.inst, loot = loot })
+						end
+						for i, item in ipairs(loot) do
+							if inventory and item.components.inventoryitem then
+								inventory:GiveItem(item, nil, pt)
+							else
+								item.Transform:SetPosition(pt:Get())
+							end
+						end
+					end
                 else
                     loot = SpawnPrefab(self.product)
                     if loot ~= nil then
@@ -521,10 +516,12 @@ function Pickable:Pick(picker)
                         if self.numtoharvest > 1 and loot.components.stackable ~= nil then
                             loot.components.stackable:SetStackSize(self.numtoharvest)
                         end
-                        if inventorypicker then
+						if inventory then
                             picker:PushEvent("picksomething", { object = self.inst, loot = loot })
-                            picker.components.inventory:GiveItem(loot, nil, pt)
-                        elseif worldpicker then
+						end
+						if inventory and loot.components.inventoryitem then
+							inventory:GiveItem(loot, nil, pt)
+						else
                             loot.Transform:SetPosition(pt:Get())
                         end
                     end
@@ -539,14 +536,13 @@ function Pickable:Pick(picker)
         self.canbepicked = false
 
         if self.baseregentime ~= nil and not (self.paused or self:IsBarren() or self.inst:HasTag("withered")) then
-            if TheWorld.state.isspring then
-                self.regentime = self.baseregentime * TUNING.SPRING_GROWTH_MODIFIER
-            end
+            self.regentime = SpringGrowthMod(self.getregentimefn ~= nil and self.getregentimefn(self.inst) or self.baseregentime)
 
             if not self.useexternaltimer then
                 if self.task ~= nil then
                     self.task:Cancel()
                 end
+
                 self.task = self.inst:DoTaskInTime(self.regentime, OnRegen)
                 self.targettime = GetTime() + self.regentime
             else
@@ -555,7 +551,7 @@ function Pickable:Pick(picker)
             end
         end
 
-        self.inst:PushEvent(worldpicker and "pickedbyworld" or "picked", { picker = picker, loot = loot, plant = self.inst })
+		self.inst:PushEvent("picked", { picker = picker, loot = loot, plant = self.inst })
 
 		if self.remove_when_picked then
 			self.inst:Remove()

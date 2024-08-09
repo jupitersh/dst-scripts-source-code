@@ -63,9 +63,13 @@ local events =
 	CommonHandlers.OnSleepEx(),
 	CommonHandlers.OnWakeEx(),
 
-	EventHandler("locomote", function(inst)
+	EventHandler("locomote", function(inst, data)
 		if inst.components.locomotor:WantsToMoveForward() then
 			if inst.sg:HasStateTag("idle") then
+				--V2C: in case we were in "idle" without "canrotate"
+				if data and data.dir then
+					inst.components.locomotor:SetMoveDir(data.dir)
+				end
 				--start moving
 				inst.sg:GoToState(
 					(inst.sg:HasStateTag("fin") and "fin_start") or
@@ -159,21 +163,18 @@ local function _AOEAttack(inst, dig, dist, radius, arc, heavymult, mult, forcela
 	inst.components.combat.ignorehitrange = true
 	local x, y, z = inst.Transform:GetWorldPosition()
 	local arcx, cos_theta, sin_theta
-	if dist ~= 0 then
+	if dist ~= 0 or arc then
 		local theta = inst.Transform:GetRotation() * DEGREES
 		cos_theta = math.cos(theta)
 		sin_theta = math.sin(theta)
-		x = x + dist * cos_theta
-		z = z - dist * sin_theta
-	end
-	if arc then
-		if cos_theta == nil then
-			local theta = inst.Transform:GetRotation() * DEGREES
-			cos_theta = math.cos(theta)
-			sin_theta = math.sin(theta)
+		if dist ~= 0 then
+			x = x + dist * cos_theta
+			z = z - dist * sin_theta
 		end
-		--min-x for testing points converted to local space
-		arcx = x + math.cos(arc / 2 * DEGREES) * radius
+		if arc then
+			--min-x for testing points converted to local space
+			arcx = x + math.cos(arc / 2 * DEGREES) * radius
+		end
 	end
 	for i, v in ipairs(TheSim:FindEntities(x, y, z, radius + AOE_RANGE_PADDING, AOE_TARGET_MUSTHAVE_TAGS, AOE_TARGET_CANT_TAGS)) do
 		if v ~= inst and
@@ -232,21 +233,18 @@ local function DoAOEWork(inst, dig, dist, radius, arc, targets)
 	local actions = dig and COLLAPSIBLE_WORK_AND_DIG_ACTIONS or COLLAPSIBLE_WORK_ACTIONS
 	local x, y, z = inst.Transform:GetWorldPosition()
 	local arcx, cos_theta, sin_theta
-	if dist ~= 0 then
+	if dist ~= 0 or arc then
 		local theta = inst.Transform:GetRotation() * DEGREES
 		cos_theta = math.cos(theta)
 		sin_theta = math.sin(theta)
-		x = x + dist * cos_theta
-		z = z - dist * sin_theta
-	end
-	if arc then
-		if cos_theta == nil then
-			local theta = inst.Transform:GetRotation() * DEGREES
-			cos_theta = math.cos(theta)
-			sin_theta = math.sin(theta)
+		if dist ~= 0 then
+			x = x + dist * cos_theta
+			z = z - dist * sin_theta
 		end
-		--min-x for testing points converted to local space
-		arcx = x + math.cos(arc / 2 * DEGREES) * radius
+		if arc then
+			--min-x for testing points converted to local space
+			arcx = x + math.cos(arc / 2 * DEGREES) * radius
+		end
 	end
 	for i, v in ipairs(TheSim:FindEntities(x, y, z, radius + WORK_RADIUS_PADDING, nil, NON_COLLAPSIBLE_TAGS, dig and COLLAPSIBLE_DIG_TAGS or COLLAPSIBLE_TAGS)) do
 		if not (targets and targets[v]) and v:IsValid() and not v:IsInLimbo() then
@@ -276,15 +274,7 @@ local function DoAOEWork(inst, dig, dist, radius, arc, targets)
 						targets[v] = true
 					end
 				elseif dig and v.components.pickable and v.components.pickable:CanBePicked() and not v:HasTag("intense") then
-					local num = v.components.pickable.numtoharvest or 1
-					local product = v.components.pickable.product
-					local x1, y1, z1 = v.Transform:GetWorldPosition()
-					v.components.pickable:Pick(inst) -- only calling this to trigger callbacks on the object
-					if product ~= nil and num > 0 then
-						for i = 1, num do
-							SpawnPrefab(product).Transform:SetPosition(x1, 0, z1)
-						end
-					end
+					v.components.pickable:Pick(inst)
 					if targets then
 						targets[v] = true
 					end
@@ -307,7 +297,7 @@ local function TossLaunch(inst, launcher, basespeed, startheight, startradius)
 		local dist = math.sqrt(dsq)
 		angle = math.atan2(dz / dist, dx / dist) + (math.random() * 20 - 10) * DEGREES
 	else
-		angle = 2 * PI * math.random()
+		angle = TWOPI * math.random()
 	end
 	local sina, cosa = math.sin(angle), math.cos(angle)
 	local speed = basespeed + math.random()
@@ -359,6 +349,10 @@ end
 
 local function DoRunWork(inst)
 	DoAOEWork(inst, false, 1, 2)
+end
+
+local function DoLandingWork(inst)
+	DoAOEWork(inst, false, 0, 2)
 end
 
 local function DoFinWork(inst)
@@ -439,6 +433,13 @@ local function IsTargetInFront(inst, target, arc)
 	return DiffAngle(rot, rot1) < (arc or 180) / 2
 end
 
+
+local SPAWN_CHECK_TAGS = { "locomotor" }
+local SPAWN_CHECK_NOTAGS = { "INLIMBO", "invisible", "flight" }
+local function IsSpawnPointClear(pt)
+	return #TheSim:FindEntities(pt.x, 0, pt.z, 2, SPAWN_CHECK_TAGS, SPAWN_CHECK_NOTAGS) == 0
+end
+
 --------------------------------------------------------------------------
 
 local CHATTER_DELAYS =
@@ -452,12 +453,29 @@ local CHATTER_DELAYS =
 	["SHARKBOI_REFUSE_EMPTY"] =			{ delay = 3 },
 }
 
+local DEFAULT_CHAT_ECHO_PRIORITY = CHATPRIORITIES.LOW
+local CHATTER_ECHO_PRIORITIES =
+{
+	["SHARKBOI_ACCEPT_OCEANFISH"]		= CHATPRIORITIES.HIGH,
+	["SHARKBOI_ACCEPT_BIG_OCEANFISH"] 	= CHATPRIORITIES.HIGH,
+	["SHARKBOI_REFUSE_NOT_OCEANFISH"] 	= CHATPRIORITIES.HIGH,
+	["SHARKBOI_REFUSE_TOO_SMALL"]		= CHATPRIORITIES.HIGH,
+	["SHARKBOI_REFUSE_EMPTY"]			= CHATPRIORITIES.HIGH,
+}
+
 local function TryChatter(inst, strtblname, index, ignoredelay, force)
 	local t = GetTime()
 	local delays = CHATTER_DELAYS[strtblname]
 	if ignoredelay or (inst.sg.mem.lastchatter or 0) + (delays and delays.delay or 0) < t then
 		inst.sg.mem.lastchatter = t
-		inst.components.talker:Chatter(strtblname, index or math.random(#STRINGS[strtblname]), delays and delays.len or nil, force)
+		local echo_priority = CHATTER_ECHO_PRIORITIES[strtblname] or DEFAULT_CHAT_ECHO_PRIORITY
+		inst.components.talker:Chatter(
+			strtblname,
+			index or math.random(#STRINGS[strtblname]),
+			(delays and delays.len) or nil,
+			force,
+			echo_priority
+		)
 	end
 end
 
@@ -482,6 +500,8 @@ local states =
 				return
 			elseif norotate then
 				inst.sg:RemoveStateTag("canrotate")
+				inst.sg:AddStateTag("try_restore_canrotate") --for brain
+				inst.components.locomotor.pusheventwithdirection = true
 			end
 			inst.components.locomotor:Stop()
 			inst.AnimState:PlayAnimation("idle", true)
@@ -491,6 +511,7 @@ local states =
 			if not inst.sg.statemem.keepsixfaced then
 				inst.Transform:SetFourFaced()
 			end
+			inst.components.locomotor.pusheventwithdirection = false
 		end,
 	},
 
@@ -572,7 +593,7 @@ local states =
 
 		timeline =
 		{
-			FrameEvent(26, function(inst)
+			FrameEvent(27, function(inst)
 				if inst.pendingreward then
 					inst.sg.statemem.keepsixfaced = true
 					inst.sg:GoToState("give", inst.sg.mem.pendinggiver)
@@ -586,7 +607,8 @@ local states =
 		{
 			EventHandler("animover", function(inst)
 				if inst.AnimState:AnimDone() then
-					inst.sg:GoToState("idle")
+					inst.sg.statemem.keepsixfaced = true
+					inst.sg:GoToState("idle", true)
 				end
 			end),
 		},
@@ -624,14 +646,14 @@ local states =
 
 		timeline =
 		{
-			FrameEvent(6, function(inst)
+			FrameEvent(12, function(inst)
 				if inst.pendingreward then
 					inst:GiveReward(inst.sg.statemem.giver)
 				end
 				inst.sg.statemem.giver = nil
 				inst.sg.mem.pendinggiver = nil
 			end),
-			FrameEvent(13, function(inst)
+			FrameEvent(23, function(inst)
 				if inst.pendingreward then
 					inst.sg.statemem.keepsixfaced = true
 					inst.sg:GoToState("give", inst.sg.mem.pendinggiver)
@@ -645,7 +667,8 @@ local states =
 		{
 			EventHandler("animover", function(inst)
 				if inst.AnimState:AnimDone() then
-					inst.sg:GoToState("idle")
+					inst.sg.statemem.keepsixfaced = true
+					inst.sg:GoToState("idle", true)
 				end
 			end),
 		},
@@ -659,22 +682,42 @@ local states =
 
 	State{
 		name = "spawn",
-		tags = { "busy", "nosleep", "noattack", "temp_invincible", "notalksound" },
+		tags = { "busy", "jumping", "nosleep", "noattack", "temp_invincible", "notalksound" },
 
 		onenter = function(inst)
 			inst.components.locomotor:Stop()
 			inst.AnimState:PlayAnimation("spawn")
 			inst.SoundEmitter:PlaySound("turnoftides/common/together/water/emerge/large")
 			inst.SoundEmitter:PlaySound("meta3/sharkboi/spawn")
-			local x, y, z = inst.Transform:GetWorldPosition()
-			SpawnPrefab("splash_green_large").Transform:SetPosition(x, 0, z)
+			local pos = inst:GetPosition()
+			SpawnPrefab("splash_green_large").Transform:SetPosition(pos.x, 0, pos.z)
 			TryChatter(inst, "SHARKBOI_TALK_IDLE", nil, true, true)
 			inst.components.talker:IgnoreAll("spawn")
+
+			local offset, angle = FindWalkableOffset(pos, math.random() * PI2, 3.75, 8, false, nil, IsSpawnPointClear, false, false)
+			inst.Transform:SetRotation(angle and angle * RADIANS or math.random(360))
+
+			inst.Physics:SetMotorVelOverride(7, 0, 0)
+			ToggleOffAllObjectCollisions(inst)
 			DoImpactShake(inst)
 		end,
 
 		timeline =
 		{
+			FrameEvent(16, function(inst)
+				PlayFootstep(inst)
+				inst.Physics:SetMotorVelOverride(4, 0, 0)
+				local x, y, z = inst.Transform:GetWorldPosition()
+				ToggleOnAllObjectCollisionsAt(inst, x, z)
+				DoLandingWork(inst)
+			end),
+			FrameEvent(17, function(inst) inst.Physics:SetMotorVelOverride(2, 0, 0) end),
+			FrameEvent(18, function(inst) inst.Physics:SetMotorVelOverride(1, 0, 0) end),
+			FrameEvent(19, function(inst) inst.Physics:SetMotorVelOverride(0.5, 0, 0) end),
+			FrameEvent(20, function(inst)
+				inst.Physics:ClearMotorVelOverride()
+				inst.Physics:Stop()
+			end),
 			CommonHandlers.OnNoSleepFrameEvent(24, function(inst)
 				inst.sg:RemoveStateTag("busy")
 				inst.sg:RemoveStateTag("nosleep")
@@ -694,6 +737,12 @@ local states =
 
 		onexit = function(inst)
 			inst.components.talker:StopIgnoringAll("spawn")
+			inst.Physics:ClearMotorVelOverride()
+			inst.Physics:Stop()
+			if inst.sg.mem.isobstaclepassthrough then
+				local x, y, z = inst.Transform:GetWorldPosition()
+				ToggleOnAllObjectCollisionsAt(inst, x, z)
+			end
 		end,
 	},
 
@@ -773,7 +822,7 @@ local states =
 
 			FrameEvent(12, function(inst)
 				inst.components.combat:StartAttack()
-				inst.SoundEmitter:PlaySound("meta3/sharkboi/attack_small")
+				inst.SoundEmitter:PlaySound(inst.voicepath.."attack_small")
 				inst.SoundEmitter:PlaySound("meta3/sharkboi/swipe_arm")
 				SpawnSwipeFX(inst, 2)
 			end),
@@ -837,7 +886,7 @@ local states =
 				inst.sg.statemem.target = target
 			end
 			inst.components.combat:StartAttack()
-			inst.SoundEmitter:PlaySound("meta3/sharkboi/attack_small")
+			inst.SoundEmitter:PlaySound(inst.voicepath.."attack_small")
 			inst.SoundEmitter:PlaySound("meta3/sharkboi/swipe_arm")
 			SpawnSwipeFX(inst, 2, true)
 		end,
@@ -973,7 +1022,7 @@ local states =
 		timeline =
 		{
 			FrameEvent(3, function(inst) inst.sg.statemem.decelspeed = 9 end),
-			FrameEvent(6, function(inst) inst.SoundEmitter:PlaySound("meta3/sharkboi/attack_big") end),
+			FrameEvent(6, function(inst) inst.SoundEmitter:PlaySound(inst.voicepath.."attack_big") end),
 			FrameEvent(8, function(inst)
 				inst.SoundEmitter:PlaySound("meta3/sharkboi/swipe_tail")
 				SpawnSwipeFX(inst, 2)
@@ -1041,9 +1090,9 @@ local states =
 
 		timeline =
 		{
-			FrameEvent(10, function(inst) inst.SoundEmitter:PlaySound("meta3/sharkboi/attack_small") end),
+			FrameEvent(10, function(inst) inst.SoundEmitter:PlaySound(inst.voicepath.."attack_small") end),
 			FrameEvent(35, function(inst)
-				inst.SoundEmitter:PlaySound("meta3/sharkboi/attack_big")
+				inst.SoundEmitter:PlaySound(inst.voicepath.."attack_big")
 				inst.sg.statemem.target = nil
 				inst.sg.statemem.targetpos = nil
 
@@ -1092,7 +1141,7 @@ local states =
 				inst.sg.statemem.quick = true
 				inst.AnimState:SetFrame(16)
 			end
-			inst.SoundEmitter:PlaySound("meta3/sharkboi/attack_small")
+			inst.SoundEmitter:PlaySound(inst.voicepath.."attack_small")
 
 			if target and target:IsValid() then
 				inst.sg.statemem.target = target
@@ -1152,7 +1201,7 @@ local states =
 		onenter = function(inst)
 			inst.components.locomotor:Stop()
 			inst.AnimState:PlayAnimation("torpedo_jump")
-			inst.SoundEmitter:PlaySound("meta3/sharkboi/attack_big")
+			inst.SoundEmitter:PlaySound(inst.voicepath.."attack_big")
 			inst.components.combat:StartAttack()
 			inst.components.timer:StopTimer("torpedo_cd")
 			inst.components.timer:StartTimer("torpedo_cd", TUNING.SHARKBOI_TORPEDO_CD)
@@ -1325,7 +1374,7 @@ local states =
 			inst.AnimState:PlayAnimation("torpedo_pst")
 			if hits then
 				inst.AnimState:SetFrame(19)
-				inst.SoundEmitter:PlaySound("meta3/sharkboi/talk", nil, 0.4)
+				inst.SoundEmitter:PlaySound(inst.voicepath.."talk", nil, 0.4)
 				inst.SoundEmitter:PlaySound("meta3/sharkboi/hit", nil, 0.6)
 			else
 				inst.sg:AddStateTag("dizzy")
@@ -1350,7 +1399,7 @@ local states =
 			--timeline from frame 0
 			FrameEvent(16, function(inst)
 				if inst.sg:HasStateTag("dizzy") then
-					inst.SoundEmitter:PlaySound("meta3/sharkboi/talk", nil, 0.4)
+					inst.SoundEmitter:PlaySound(inst.voicepath.."talk", nil, 0.4)
 					inst.SoundEmitter:PlaySound("meta3/sharkboi/hit", nil, 0.6)
 				end
 			end),
@@ -1599,7 +1648,7 @@ local states =
 		onenter = function(inst, pos)
 			inst.components.locomotor:Stop()
 			inst.AnimState:PlayAnimation("icedive_jump")
-			inst.SoundEmitter:PlaySound("meta3/sharkboi/attack_big")
+			inst.SoundEmitter:PlaySound(inst.voicepath.."attack_big")
 			inst.components.combat:StartAttack()
 
 			local x, y, z = inst.Transform:GetWorldPosition()
@@ -1772,6 +1821,10 @@ local states =
 			FrameEvent(2, function(inst) inst.SoundEmitter:PlaySound("meta3/sharkboi/popup") end),
 			FrameEvent(3, DoDiggingShake),
 			FrameEvent(4, function(inst)
+				if ShouldBeDefeated(inst) then
+					inst.sg:GoToState("dive_dig_hit")
+					return
+				end
 				inst.sg:AddStateTag("noattack")
 				inst.sg:AddStateTag("temp_invincible")
 				ToggleOffAllObjectCollisions(inst)
@@ -2029,7 +2082,7 @@ local states =
 		onenter = function(inst)
 			inst.components.locomotor:Stop()
 			inst.AnimState:PlayAnimation("defeated_pre")
-			inst.SoundEmitter:PlaySound("meta3/sharkboi/stunned_pre")
+			inst.SoundEmitter:PlaySound(inst.voicepath.."stunned_pre")
 			inst:StopAggro()
 			TryChatter(inst, "SHARKBOI_TALK_GIVEUP", nil, true)
 		end,
@@ -2106,7 +2159,7 @@ local states =
 				inst.AnimState:PlayAnimation("defeated_hit1")
 				inst.sg.statemem.hits = hits - alt + 10
 			end
-			inst.SoundEmitter:PlaySound("meta3/sharkboi/stunned_hit")
+			inst.SoundEmitter:PlaySound(inst.voicepath.."stunned_hit")
 			TryChatter(inst, "SHARKBOI_TALK_GIVEUP")
 		end,
 
@@ -2143,7 +2196,7 @@ local states =
 		onenter = function(inst)
 			inst.components.locomotor:Stop()
 			inst.AnimState:PlayAnimation("defeated_pst")
-			inst.SoundEmitter:PlaySound("meta3/sharkboi/stunned_pst")
+			inst.SoundEmitter:PlaySound(inst.voicepath.."stunned_pst")
 			if ShouldBeDefeated(inst) then
 				inst:AddTag("notarget")
 			end
@@ -2237,7 +2290,7 @@ CommonStates.AddSleepExStates(states,
 {
 	starttimeline =
 	{
-		FrameEvent(0, function(inst) inst.SoundEmitter:PlaySound("meta3/sharkboi/sleep_pre") end),
+		FrameEvent(0, function(inst) inst.SoundEmitter:PlaySound(inst.voicepath.."sleep_pre") end),
 		FrameEvent(43, PlayFootstep),
 		FrameEvent(45, function(inst)
 			inst.sg:RemoveStateTag("caninterrupt")	
@@ -2246,7 +2299,7 @@ CommonStates.AddSleepExStates(states,
 	},
 	waketimeline =
 	{
-		FrameEvent(0, function(inst) inst.SoundEmitter:PlaySound("meta3/sharkboi/sleep_pst") end),
+		FrameEvent(0, function(inst) inst.SoundEmitter:PlaySound(inst.voicepath.."sleep_pst") end),
 		FrameEvent(4, function(inst) PlayFootstep(inst, 0.4) end),
 		FrameEvent(14, function(inst) PlayFootstep(inst, 0.8) end),
 		CommonHandlers.OnNoSleepFrameEvent(23, function(inst)
@@ -2267,7 +2320,7 @@ CommonStates.AddSleepExStates(states,
 		inst.sg:AddStateTag("caninterrupt")
 	end,
 	onsleeping = function(inst)
-		inst.SoundEmitter:PlaySound("meta3/sharkboi/sleep_lp", "loop")
+		inst.SoundEmitter:PlaySound(inst.voicepath.."sleep_lp", "loop")
 	end,
 	onexitsleeping = function(inst)
 		inst.SoundEmitter:KillSound("loop")

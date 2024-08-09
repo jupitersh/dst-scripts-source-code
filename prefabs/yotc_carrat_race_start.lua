@@ -44,9 +44,9 @@ local function SpawnGhostRacer(inst, num_stat_points)
 	local ghost_racer = SpawnPrefab("carrat_ghostracer")
 	local pt = inst:GetPosition()
 
-    local offset = FindWalkableOffset(pt, math.random() * 2 * PI, 2, 16, true, false) or
-					FindWalkableOffset(pt, math.random() * 2 * PI, 1.5, 16, true, false) or
-					FindWalkableOffset(pt, math.random() * 2 * PI, 1, 16, true, false) or
+    local offset = FindWalkableOffset(pt, math.random() * TWOPI, 2, 16, true, false) or
+					FindWalkableOffset(pt, math.random() * TWOPI, 1.5, 16, true, false) or
+					FindWalkableOffset(pt, math.random() * TWOPI, 1, 16, true, false) or
 					Vector3(0, 0, 0)
 
 	ghost_racer.Transform:SetPosition(pt.x + offset.x, 0, pt.z + offset.z)
@@ -211,7 +211,7 @@ end
 --------------------------------------------------------------------------
 
 return Prefab("yotc_carrat_race_start", fn, assets, prefabs),
-	MakeDeployableKitItem("yotc_carrat_race_start_item", "yotc_carrat_race_start", "yotc_carrat_racekit_start", "yotc_carrat_racekit_start", "idle", {Asset("ANIM", "anim/yotc_carrat_racekit_start.zip")}, {size = "med", scale = 0.77}, nil, {fuelvalue = TUNING.LARGE_FUEL}, carratrace_common.deployable_data),
+	MakeDeployableKitItem("yotc_carrat_race_start_item", "yotc_carrat_race_start", "yotc_carrat_racekit_start", "yotc_carrat_racekit_start", "idle", {Asset("ANIM", "anim/yotc_carrat_race_start_item.zip")}, {size = "med", scale = 0.77}, nil, {fuelvalue = TUNING.LARGE_FUEL}, carratrace_common.deployable_data),
 	MakePlacer("yotc_carrat_race_start_item_placer", "yotc_carrat_race_start", "yotc_carrat_race_start", "idle", nil, nil, nil, nil, nil, nil,
 	function(inst)
 		return carratrace_common.PlacerPostInit_AddCarpetAndPlacerRing(inst, "yotc_carrat_race_deploy_start")

@@ -499,6 +499,47 @@ function c_give(prefab, count, dontselect)
     end
 end
 
+-- Put item(s) into the player's inventory; equip the first one if it is equippable.
+function c_equip(prefab, count, dontselect)
+    local MainCharacter = ConsoleCommandPlayer()
+    if not MainCharacter then
+        return nil
+    end
+
+    prefab = string.lower(prefab)
+
+    local first = nil
+    local equip_result = false
+    for i = 1, count or 1 do
+        local inst = DebugSpawn(prefab)
+        if inst ~= nil then
+            if not first then
+                first = inst
+                print("equipping", inst)
+                equip_result = MainCharacter.components.inventory:Equip(inst)
+                if not equip_result then
+                    MainCharacter.components.inventory:GiveItem(inst)
+                elseif not dontselect then
+                    SetDebugEntity(inst)
+                end
+            else
+                print("giving ", inst)
+                MainCharacter.components.inventory:GiveItem(inst)
+            end
+
+            -- We want to have our equipped one selected; if we failed to equip,
+            -- we want to select the last thing we spawn, because of stackable.
+            if not equip_result and not dontselect then
+                SetDebugEntity(inst)
+            end
+
+            SuUsed("c_equip_"..inst.prefab)
+        end
+    end
+
+    return first
+end
+
 -- Receives a prefab and gives the player all ingredients to craft that prefab
 -- Nothing happens if there's no recipe
 function c_giveingredients(prefab)
@@ -595,6 +636,31 @@ function c_listtag(tag)
     for k,v in pairs(ents) do
         print(string.format("%s {%2.2f, %2.2f, %2.2f}", tostring(v), v.Transform:GetWorldPosition()))
     end
+end
+
+function c_kitcoon(name, age, build)
+    -- NOTES(JBK): This is for players who for outside forces or otherwise lost their kitcoon pet and want a way for it back.
+    -- The hope is that this function is easier to use and can be used by the community.
+    if type(name) ~= "string" or type(age) ~= "number" or type(build) ~= "string" or not table.contains(VALID_KITCOON_BUILDS, build) then
+        print("Invalid c_kitcoon use. c_kitcoon(\"name here\", #, \"build_name_here\")")
+        print("Example: c_kitcoon(\"kitty the IV\", 42, \"kitcoon_deciduous_build\")")
+        print("Age is how many days old it is. Valid build names are:")
+        for _, build in ipairs(VALID_KITCOON_BUILDS) do
+            print(build)
+        end
+        return
+    end
+    local now = os.time()
+    Profile:SetKitName(name)
+    Profile:SetKitLastTime(now)
+    Profile:SetKitBirthTime(now - age * 60 * 60 * 24)
+    Profile:SetKitBuild(build)
+    Profile:SetKitSize(1) -- Just make it large.
+    Profile:SetKitHunger(0.5)
+    Profile:SetKitHappiness(0.7)
+    Profile:SetKitPoops(0)
+    Profile:SetKitAbandonedMessage(false)
+    Profile:Save()
 end
 
 local lastroom = -1
@@ -1345,19 +1411,13 @@ function c_reregisterportals()
 end
 
 function c_repeatlastcommand()
-    local history = GetConsoleHistory()
-    local localremotehistory = GetConsoleLocalRemoteHistory()
-    if #history > 0 then
-        if history[#history] == "c_repeatlastcommand()" then
-            -- top command is this one, so we want the second last command
-            history[#history] = nil
-            localremotehistory[#localremotehistory] = nil
-        end
-
-        if localremotehistory[#localremotehistory] then
-            ConsoleRemote("%s", {history[#history]})
+	local history = ConsoleScreenSettings:GetConsoleHistory()
+	if #history > 0 then
+		local last = history[#history]
+		if last.remote and TheNet:GetIsClient() and (TheNet:GetIsServerAdmin() or IsConsole()) then
+			ConsoleRemote("%s", { last.str })
         else
-            ExecuteConsoleCommand(history[#history])
+			ExecuteConsoleCommand(last.str)
         end
     end
 end

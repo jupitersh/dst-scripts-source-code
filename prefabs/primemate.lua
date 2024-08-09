@@ -173,11 +173,19 @@ end
 local BOAT_MUST = {"boat"}
 local function commandboat(inst)
     if inst.components.crewmember then
-        local boat = inst:GetCurrentPlatform() == inst.components.crewmember.boat and inst:GetCurrentPlatform()
-         if boat then 
-            local bc = inst.components.crewmember.boat.components.boatcrew
+        local boat = inst:GetCurrentPlatform()
+        if boat ~= inst.components.crewmember.boat then
+            boat = nil
+        end
+        if boat then
+            local bc = boat.components.boatcrew
             if bc then
-                if bc.status == "hunting" then
+                if bc.status == "delivery" then
+                    if boat:GetDistanceSqToPoint(bc.target) < 4*4 then
+                        bc:SetTarget(nil)
+                        bc.status = "hunting"
+                    end                    
+                elseif bc.status == "hunting" then
                     local x,y,z = inst.Transform:GetWorldPosition()
                     local ents = TheSim:FindEntities(x, y, z, 40, BOAT_MUST)
                     local target = nil
@@ -191,11 +199,11 @@ local function commandboat(inst)
                             end
                         end
                     end
-                    
+
                     bc:SetTarget(nil)
-                    
+
                     if target then
-                        if not bc.target or not bc:IsValid() then
+                        if not bc.target or (bc.valid and not bc:IsValid()) then
                             bc:SetTarget(target)
                             inst:PushEvent("command")
                         end
@@ -264,13 +272,6 @@ local function onmonkeychange(inst, data)
     end
 end
 
-local function modifiedsleeptest(inst)
-    if inst.components.crewmember then
-        return nil
-    end
-    return DefaultSleepTest(inst)
-end
-
 local function ontalk(inst, script)
     inst.SoundEmitter:PlaySound("monkeyisland/primemate/speak")
 end
@@ -299,6 +300,8 @@ local function fn()
     inst.AnimState:SetBuild("monkeymen_build")
     inst.AnimState:PlayAnimation("idle_loop", true)
     inst.Transform:SetScale(1.2,1.2,1.2)
+
+    inst.AnimState:Hide("ARM_carry_up")
 
     inst.AnimState:OverrideSymbol("fx_slidepuff01", "slide_puff", "fx_slidepuff01")
     inst.AnimState:OverrideSymbol("splash_water_rot", "splash_water_rot", "splash_water_rot")
@@ -370,8 +373,6 @@ local function fn()
     inst:AddComponent("sleeper")
     inst.components.sleeper.sleeptestfn = onmonkeychange
     inst.components.sleeper.waketestfn = DefaultWakeTest
-
-    inst:AddComponent("areaaware")
 
     inst:AddComponent("drownable")
 

@@ -247,6 +247,7 @@ local function createbush(name, inspectname, berryname, master_postinit)
         inst.entity:AddMiniMapEntity()
         inst.entity:AddNetwork()
 
+		inst:SetDeploySmartRadius(DEPLOYSPACING_RADIUS[DEPLOYSPACING.DEFAULT] / 2) --plantables deployspacing/2
         MakeSmallObstaclePhysics(inst, .1)
 
         inst:AddTag("bush")
@@ -313,6 +314,8 @@ local function createbush(name, inspectname, berryname, master_postinit)
         inst:ListenForEvent("onwenthome", shake)
         MakeSnowCovered(inst)
         MakeNoGrowInWinter(inst)
+
+        MakeWaxablePlant(inst)
 
         master_postinit(inst)
 

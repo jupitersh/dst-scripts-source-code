@@ -2,12 +2,21 @@ local _src_pos = nil
 
 local function onstacksize(self, stacksize)
     self.inst.replica.stackable:SetStackSize(stacksize)
-    if self.inst.replica.inventoryitem ~= nil then
-        self.inst.replica.inventoryitem:SetPickupPos(_src_pos)
+	local inventoryitem = self.inst.replica.inventoryitem
+	if inventoryitem ~= nil then
+		inventoryitem:SetPickupPos(_src_pos)
     end
 end
 
 local function onmaxsize(self, maxsize)
+	local _ = rawget(self, "_") --see class.lua for property setters implementation
+	if _.originalmaxsize[1] then
+		-- Trying to change maxsize while infinite maxsize is toggled on?
+		-- -> store maxsize changes in originalmaxsize instead
+		-- -> set current maxsize back to infinity
+		_.originalmaxsize[1] = maxsize
+		_.maxsize[1] = math.huge
+	end
     self.inst.replica.stackable:SetMaxSize(maxsize)
 end
 
@@ -15,6 +24,7 @@ local Stackable = Class(function(self, inst)
     self.inst = inst
 
     self.stacksize = 1 -- Its a stack of one (ie the first item)
+	makereadonly(self, "originalmaxsize")
     self.maxsize = TUNING.STACK_SIZE_MEDITEM
 end,
 nil,
@@ -22,6 +32,25 @@ nil,
     stacksize = onstacksize,
     maxsize = onmaxsize,
 })
+
+function Stackable:SetIgnoreMaxSize(ignoremaxsize)
+	local _ = rawget(self, "_") --see class.lua for property setters implementation
+	if ignoremaxsize then
+		local old = _.maxsize[1]
+		if old ~= math.huge then
+			_.originalmaxsize[1] = old
+			_.maxsize[1] = math.huge
+			self.inst.replica.stackable:SetIgnoreMaxSize(true)
+		end
+	else
+		local original = _.originalmaxsize[1]
+		if original then
+			_.maxsize[1] = original
+			_.originalmaxsize[1] = nil
+			self.inst.replica.stackable:SetIgnoreMaxSize(false)
+		end
+	end
+end
 
 function Stackable:IsStack()
     return self.stacksize > 1
@@ -35,6 +64,11 @@ function Stackable:IsFull()
     return self.stacksize >= self.maxsize
 end
 
+--oversized stack (possible when maxsize is set to be ignored)
+function Stackable:IsOverStacked()
+	return self.stacksize > (self.originalmaxsize or self.maxsize)
+end
+
 function Stackable:OnSave()
     if self.stacksize ~= 1 then
         return {stack = self.stacksize}
@@ -42,7 +76,7 @@ function Stackable:OnSave()
 end
 
 function Stackable:OnLoad(data)
-    self.stacksize = data.stack or self.stacksize
+	self.stacksize = math.min(data.stack or self.stacksize, MAXUINT)
     self.inst:PushEvent("stacksizechange", {stacksize = self.stacksize, oldstacksize=1})
 end
 
@@ -52,7 +86,7 @@ end
 
 function Stackable:SetStackSize(sz)
     local old_size = self.stacksize
-    self.stacksize = sz
+	self.stacksize = math.min(sz, MAXUINT)
     self.inst:PushEvent("stacksizechange", {stacksize = sz, oldstacksize=old_size})
 end
 
@@ -67,7 +101,7 @@ function Stackable:Get(num)
         instance.components.stackable:SetStackSize(num_to_get)
 
         if self.ondestack ~= nil then
-            self.ondestack(instance)
+            self.ondestack(instance, self.inst)
         end
 
         if instance.components.perishable ~= nil then
@@ -145,11 +179,19 @@ function Stackable:Put(item, source_pos)
         end
 
         _src_pos = source_pos
-        self.stacksize = newsize
+		self.stacksize = math.min(newsize, MAXUINT)
         _src_pos = nil
         self.inst:PushEvent("stacksizechange", {stacksize = self.stacksize, oldstacksize=oldsize, src_pos = source_pos})
     end
     return ret
+end
+
+function Stackable:GetDebugString()
+	local str = string.format("%d/%s", self.stacksize, self.maxsize == math.huge and "--" or tostring(self.maxsize))
+	if self.originalmaxsize then
+		str = str..string.format("(%d)", self.originalmaxsize)
+	end
+	return str
 end
 
 return Stackable

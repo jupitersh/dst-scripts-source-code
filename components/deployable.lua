@@ -1,26 +1,30 @@
 --Update inventoryitem_replica constructor if any more properties are added
 
 local function onmode(self, mode)
-    if self.inst.replica.inventoryitem ~= nil then
-        self.inst.replica.inventoryitem:SetDeployMode(mode)
+	local inventoryitem = self.inst.replica.inventoryitem
+	if inventoryitem then
+		inventoryitem:SetDeployMode(mode)
     end
 end
 
 local function onspacing(self, spacing)
-    if self.inst.replica.inventoryitem ~= nil then
-        self.inst.replica.inventoryitem:SetDeploySpacing(spacing)
+	local inventoryitem = self.inst.replica.inventoryitem
+	if inventoryitem then
+		inventoryitem:SetDeploySpacing(spacing)
     end
 end
 
 local function onrestrictedtag(self, restrictedtag)
-    if self.inst.replica.inventoryitem ~= nil then
-        self.inst.replica.inventoryitem:SetDeployRestrictedTag(restrictedtag)
+	local inventoryitem = self.inst.replica.inventoryitem
+	if inventoryitem then
+		inventoryitem:SetDeployRestrictedTag(restrictedtag)
     end
 end
 
 local function onusegridplacer(self, usegridplacer)
-    if self.inst.replica.inventoryitem ~= nil then
-        self.inst.replica.inventoryitem:SetUseGridPlacer(usegridplacer)
+	local inventoryitem = self.inst.replica.inventoryitem
+	if inventoryitem then
+		inventoryitem:SetUseGridPlacer(usegridplacer)
     end
 end
 
@@ -30,11 +34,13 @@ local Deployable = Class(function(self, inst)
     self.mode = DEPLOYMODE.DEFAULT
     self.spacing = DEPLOYSPACING.DEFAULT
     --self.restrictedtag = nil --only entities with this tag can deploy
-    self.usegridplacer = false
+	--self.usegridplacer = false
 
     self.ondeploy = nil
 
     -- keep_in_inventory_on_deploy = nil
+
+	--self.deploytoss_symbol_override = nil
 
     self.inst:AddTag("deployable")
 end,
@@ -52,6 +58,7 @@ function Deployable:OnRemoveFromEntity()
         inventoryitem:SetDeployMode(DEPLOYMODE.NONE)
         inventoryitem:SetDeployRestrictedTag(nil)
     end
+	self.inst:RemoveTag("deployable")
 end
 
 function Deployable:SetDeployMode(mode)
@@ -63,17 +70,28 @@ function Deployable:SetDeploySpacing(spacing)
 end
 
 function Deployable:SetUseGridPlacer(usegridplacer)
-    self.usegridplacer = usegridplacer
+	self.usegridplacer = usegridplacer or nil
 end
 
 function Deployable:DeploySpacingRadius()
     return DEPLOYSPACING_RADIUS[self.spacing]
 end
 
+--For deploy toss, we need to override symbols during the deploytoss_pre anim
+function Deployable:SetDeployTossSymbolOverride(data)
+	self.deploytoss_symbol_override = data
+end
+
 function Deployable:IsDeployable(deployer)
-    return self.restrictedtag == nil
-        or self.restrictedtag:len() <= 0
-        or (deployer ~= nil and deployer:HasTag(self.restrictedtag))
+	if self.restrictedtag and self.restrictedtag:len() > 0 and not (deployer and deployer:HasTag(self.restrictedtag)) then
+		return false
+	end
+	local rider = deployer and deployer.components.rider or nil
+	if rider and rider:IsRiding() then
+		--can only deploy tossables while mounted
+		return self.inst.components.complexprojectile ~= nil
+	end
+	return true
 end
 
 function Deployable:CanDeploy(pt, mouseover, deployer, rot)

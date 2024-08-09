@@ -36,6 +36,16 @@ local function makeassetlist(buildname)
     }
 end
 
+local function OnIsRubbleDirty(inst)
+	inst.SCANNABLE_RECIPENAME = not inst._isrubble:value() and "ruinsrelic_"..inst._recipename or nil
+end
+
+local function SetIsRubble(inst, isrubble)
+	inst.rubble = isrubble --for backward compatibility in case mods or anything else was using this flag
+	inst._isrubble:set(isrubble)
+	OnIsRubbleDirty(inst)
+end
+
 local function OnDeath(inst)
     local fx = SpawnPrefab("collapse_small")
     fx.Transform:SetPosition(inst.Transform:GetWorldPosition())
@@ -105,7 +115,7 @@ local function OnRepaired(inst, doer)
             doer.components.sanity:DoDelta(TUNING.SANITY_TINY)
         end
         if inst.rubble then
-            inst.rubble = false
+			SetIsRubble(inst, false)
             if inst.animated then
                 inst.AnimState:PlayAnimation("hit")
             end
@@ -146,8 +156,8 @@ local function MakeRubble(inst)
 end
 
 local function OnHealthDelta(inst, oldpct, newpct)
-    if not inst.rubble and newpct < .5 and newpct < oldpct then
-        inst.rubble = true
+	if not inst.rubble and newpct < 0.5 and newpct < oldpct then
+		SetIsRubble(inst, true)
         if inst.animated then
             inst.AnimState:PlayAnimation("repair")
         end
@@ -168,11 +178,11 @@ local function OnPreLoad(inst, data)
 
         if data.rubble then
             if not inst.rubble then
-                inst.rubble = true
+				SetIsRubble(inst, true)
                 MakeRubble(inst)
             end
         elseif inst.rubble then
-            inst.rubble = false
+			SetIsRubble(inst, false)
             MakeRelic(inst)
         end
     end
@@ -182,7 +192,7 @@ local function displaynamefn(inst)
     return STRINGS.NAMES[inst:HasTag("repairable_stone") and "RUINS_RUBBLE" or "RELIC"]
 end
 
-local function makefn(name, asset, animated, smashsound, rubble, chair)
+local function makefn(name, asset, animated, smashsound, rubble, chair, deploy_smart_radius)
     return function()
         local inst = CreateEntity()
 
@@ -191,6 +201,8 @@ local function makefn(name, asset, animated, smashsound, rubble, chair)
         inst.entity:AddSoundEmitter()
         inst.entity:AddMiniMapEntity()
         inst.entity:AddNetwork()
+
+		inst:SetDeploySmartRadius(deploy_smart_radius) --recipe min_spacing/2
 
         MakeObstaclePhysics(inst, .25)
 
@@ -209,6 +221,10 @@ local function makefn(name, asset, animated, smashsound, rubble, chair)
         inst:AddTag(smashsound == "rock" and "stone" or "clay")
 		inst:AddTag("noauradamage")
 
+		inst._isrubble = net_bool(inst.GUID, name..".isrubble", "isrubbledirty")
+		inst._recipename = string.match(name, "%a+$")
+		inst.SCANNABLE_RECIPENAME = "ruinsrelic_"..inst._recipename --set/unset when isrubble changes
+
         inst.displaynamefn = displaynamefn
         if name ~= "ruins_chair" then
             inst.scrapbook_proxy = "ruins_chair"
@@ -217,10 +233,12 @@ local function makefn(name, asset, animated, smashsound, rubble, chair)
         inst.entity:SetPristine()
 
         if not TheWorld.ismastersim then
+			inst:ListenForEvent("isrubbledirty", OnIsRubbleDirty)
+
             return inst
         end
 
-        inst.rubble = rubble
+		SetIsRubble(inst, rubble)
         inst.animated = animated
 		inst.chair = chair
 		inst.chair_shadeling_spawner = chair and TheWorld.components.ruinsshadelingspawner ~= nil
@@ -285,25 +303,26 @@ local function makefn(name, asset, animated, smashsound, rubble, chair)
         inst.smashsound = smashsound
 
         MakeHauntableWork(inst)
+        MakeRoseTarget_CreateFuel_IncreasedHorror(inst)
 
         return inst
     end
 end
 
-local function item(name, animated, sound)
-	return Prefab(name, makefn(name, name, animated, sound, false, string.sub(name, -5) == "chair"), makeassetlist(name), prefabs)
+local function item(name, animated, sound, deploy_smart_radius)
+	return Prefab(name, makefn(name, name, animated, sound, false, string.sub(name, -5) == "chair", deploy_smart_radius), makeassetlist(name), prefabs)
 end
 
-local function rubble(name, assetname, animated, sound)
-	return Prefab(name, makefn(name, assetname, animated, sound, true, string.sub(name, -5) == "chair"), makeassetlist(assetname), prefabs)
+local function rubble(name, assetname, animated, sound, deploy_smart_radius)
+	return Prefab(name, makefn(name, assetname, animated, sound, true, string.sub(name, -5) == "chair", deploy_smart_radius), makeassetlist(assetname), prefabs)
 end
 
-return item("ruins_plate", false),
-    item("ruins_bowl", false),
-    item("ruins_chair", true, "rock"),
-    item("ruins_chipbowl", false),
-    item("ruins_vase", true),
-    item("ruins_table", true, "rock"),
-    rubble("ruins_rubble_table", "ruins_table", true, "rock"),
-    rubble("ruins_rubble_chair", "ruins_chair", true, "rock"),
-    rubble("ruins_rubble_vase", "ruins_vase", true)
+return item("ruins_plate", false, nil, 0.25),
+	item("ruins_bowl", false, nil, 1),
+	item("ruins_chair", true, "rock", 1),
+	item("ruins_chipbowl", false, nil, 0.25),
+	item("ruins_vase", true, nil, 1),
+	item("ruins_table", true, "rock", 1.6),
+	rubble("ruins_rubble_table", "ruins_table", true, "rock", 1.6),
+	rubble("ruins_rubble_chair", "ruins_chair", true, "rock", 1),
+	rubble("ruins_rubble_vase", "ruins_vase", true, nil, 1)

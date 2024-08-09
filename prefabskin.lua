@@ -90,6 +90,9 @@ function basic_init_fn( inst, build_name, def_build, filter_fn )
         if filter_fn then
             skin_name = filter_fn(skin_name)
         end
+        if inst.components.container ~= nil and inst.components.container:IsOpen() then
+            skin_name = skin_name .. "_open"
+        end
         inst.components.inventoryitem:ChangeImageName(skin_name)
     end
 
@@ -122,6 +125,9 @@ krampus_sack_clear_fn = function(inst) basic_clear_fn(inst, "swap_krampus_sack" 
 
 piggyback_init_fn = function(inst, build_name) basic_init_fn( inst, build_name, "swap_piggyback" ) end
 piggyback_clear_fn = function(inst) basic_clear_fn(inst, "swap_piggyback" ) end
+
+icepack_init_fn = function(inst, build_name) basic_init_fn(inst, build_name, "swap_icepack") end
+icepack_clear_fn = function(inst) basic_clear_fn(inst, "swap_icepack") end
 
 ruins_bat_init_fn = function(inst, build_name) basic_init_fn( inst, build_name, "swap_ruins_bat" ) end
 ruins_bat_clear_fn = function(inst) basic_clear_fn(inst, "swap_ruins_bat" ) end
@@ -212,6 +218,80 @@ decor_pictureframe_clear_fn = function(inst)
 end
 decor_portraitframe_init_fn = function(inst, build_name) basic_init_fn(inst, build_name, "decor_portraitframe") end
 decor_portraitframe_clear_fn = function(inst) basic_clear_fn(inst, "decor_portraitframe") end
+magician_chest_init_fn = function(inst, build_name) basic_init_fn(inst, build_name, "magician_chest") end
+magician_chest_clear_fn = function(inst) basic_clear_fn(inst, "magician_chest") end
+
+
+function boat_grass_item_init_fn(inst, build_name)
+    inst.linked_skinname = build_name --hack that relies on the build name to match the linked skinname
+    inst.AnimState:SetSkin(build_name, "seafarer_boat") --same hack is used here by the deployable code in player controller
+    inst.components.inventoryitem:ChangeImageName(inst:GetSkinName())
+end
+function boat_grass_item_clear_fn(inst)
+    inst.linked_skinname = nil
+    inst.AnimState:SetBuild("seafarer_boat")
+    inst.components.inventoryitem:ChangeImageName()
+end
+function boat_grass_init_fn(inst, build_name)
+    if inst.components.placer == nil and not TheWorld.ismastersim then
+        return
+    end
+    inst.AnimState:SetSkin(build_name, "boat_grass")
+end
+function boat_grass_clear_fn(inst)
+    inst.AnimState:SetBuild("boat_grass")
+end
+
+
+function walkingplank_grass_init_fn(inst, build_name)
+    if inst.components.placer == nil and not TheWorld.ismastersim then
+        return
+    end
+    inst.AnimState:SetSkin(build_name, "boat_plank_grass_build")
+end
+function walkingplank_grass_clear_fn(inst, build_name)
+    inst.AnimState:SetBuild("boat_plank_grass_build")
+end
+
+function winch_init_fn(inst, build_name)
+    if inst.components.placer ~= nil then
+        --Placers can run this on clients as well as servers
+        inst.AnimState:SetSkin(build_name, "boat_winch")
+        return
+    elseif not TheWorld.ismastersim then
+        return
+    end
+    inst.AnimState:SetSkin(build_name, "boat_winch")
+end
+function winch_clear_fn(inst)
+    inst.AnimState:SetBuild("boat_winch")
+end
+
+function ocean_trawler_init_fn(inst, build_name)
+    inst.AnimState:OverrideSymbol("water_shadow", "ocean_trawler", "water_shadow")
+    if inst.components.placer ~= nil then
+        --Placers can run this on clients as well as servers
+        inst.AnimState:SetSkin(build_name, "ocean_trawler")
+        return
+    elseif not TheWorld.ismastersim then
+        return
+    end
+    inst.AnimState:SetSkin(build_name, "ocean_trawler")
+end
+function ocean_trawler_clear_fn(inst)
+    inst.AnimState:ClearOverrideSymbol("water_shadow")
+    inst.AnimState:SetBuild("ocean_trawler")
+end
+function ocean_trawler_kit_init_fn(inst, build_name)
+    inst.linked_skinname = build_name --hack that relies on the build name to match the linked skinname
+    inst.AnimState:SetSkin(build_name, "ocean_trawler") --same hack is used here by the deployable code in player controller
+    inst.components.inventoryitem:ChangeImageName(inst:GetSkinName())
+end
+function ocean_trawler_kit_clear_fn(inst)
+    inst.linked_skinname = nil
+    inst.AnimState:SetBuild("ocean_trawler")
+    inst.components.inventoryitem:ChangeImageName()
+end
 
 hammer_init_fn = function(inst, build_name)
     if string.find( build_name, "_invisible") ~= nil then
@@ -278,6 +358,21 @@ whip_init_fn = function(inst, build_name)
 end
 whip_clear_fn = function(inst)
     basic_clear_fn( inst, "whip" )
+    RemoveSkinSounds(inst)
+end
+
+
+trident_init_fn = function(inst, build_name)
+    basic_init_fn(inst, build_name, "trident")
+
+    if not TheWorld.ismastersim then
+        return
+    end
+
+    AddSkinSounds(inst)
+end
+trident_clear_fn = function(inst)
+    basic_clear_fn(inst, "trident")
     RemoveSkinSounds(inst)
 end
 
@@ -518,8 +613,26 @@ rainhat_clear_fn = function(inst) basic_clear_fn(inst, "hat_rain" ) end
 minerhat_init_fn = function(inst, build_name) basic_init_fn( inst, build_name, "hat_miner" ) end
 minerhat_clear_fn = function(inst) basic_clear_fn(inst, "hat_miner" ) end
 
-footballhat_init_fn = function(inst, build_name) basic_init_fn( inst, build_name, "hat_football" ) end
-footballhat_clear_fn = function(inst) basic_clear_fn(inst, "hat_football" ) end
+footballhat_init_fn = function(inst, build_name, opentop)
+    basic_init_fn(inst, build_name, "hat_football")
+
+    if opentop then
+        inst:AddTag("open_top_hat")
+    end
+
+    if not TheWorld.ismastersim then
+        return
+    end
+
+    AddSkinSounds(inst)
+end
+footballhat_clear_fn = function(inst)
+    basic_clear_fn(inst, "hat_football")
+
+    inst:RemoveTag("open_top_hat")
+
+    RemoveSkinSounds(inst)
+end
 
 featherhat_init_fn = function(inst, build_name) basic_init_fn( inst, build_name, "hat_feather" ) end
 featherhat_clear_fn = function(inst) basic_clear_fn(inst, "hat_feather" ) end
@@ -582,22 +695,56 @@ arrowsign_post_init_fn = function(inst, build_name) basic_init_fn( inst, build_n
 arrowsign_post_clear_fn = function(inst) basic_clear_fn(inst, "sign_arrow_post" ) end
 
 treasurechest_init_fn = function(inst, build_name)
-    basic_init_fn( inst, build_name, "treasure_chest" )
-
-    if not TheWorld.ismastersim then
+    if inst.components.placer then
+        basic_init_fn(inst, build_name, "treasure_chest") -- NOTES(JBK): Chests can not be built as upgraded form.
         return
+    elseif not TheWorld.ismastersim then
+        return
+    end
+
+    if inst._chestupgrade_stacksize then
+        basic_init_fn(inst, build_name:gsub("treasurechest_", "treasurechest_upgraded_"), "treasure_chest_upgraded")
+    else
+        basic_init_fn(inst, build_name, "treasure_chest")
     end
 
     AddSkinSounds(inst)
 end
 treasurechest_clear_fn = function(inst)
-    basic_clear_fn(inst, "treasure_chest" )
+    if inst._chestupgrade_stacksize then
+        basic_clear_fn(inst, "treasure_chest_upgraded")
+    else
+        basic_clear_fn(inst, "treasure_chest")
+    end
 
     RemoveSkinSounds(inst)
 end
 
-dragonflychest_init_fn = function(inst, build_name) basic_init_fn( inst, build_name, "dragonfly_chest" ) end
-dragonflychest_clear_fn = function(inst) basic_clear_fn(inst, "dragonfly_chest" ) end
+dragonflychest_init_fn = function(inst, build_name)
+    if inst.components.placer then
+        basic_init_fn(inst, build_name, "dragonfly_chest") -- NOTES(JBK): Chests can not be built as upgraded form.
+        return
+    elseif not TheWorld.ismastersim then
+        return
+    end
+
+    if inst._chestupgrade_stacksize then
+        basic_init_fn(inst, build_name:gsub("dragonflychest_", "dragonflychest_upgraded_"), "dragonfly_chest_upgraded")
+    else
+        basic_init_fn(inst, build_name, "dragonfly_chest")
+    end
+
+    AddSkinSounds(inst)
+end
+dragonflychest_clear_fn = function(inst)
+    if inst._chestupgrade_stacksize then
+        basic_clear_fn(inst, "dragonfly_chest_upgraded")
+    else
+        basic_clear_fn(inst, "dragonfly_chest")
+    end
+
+    RemoveSkinSounds(inst)
+end
 
 wardrobe_init_fn = function(inst, build_name) basic_init_fn( inst, build_name, "wardrobe" ) end
 wardrobe_clear_fn = function(inst) basic_clear_fn(inst, "wardrobe" ) end
@@ -1972,7 +2119,7 @@ local function cane_do_trail(inst)
     local mounted = owner.components.rider ~= nil and owner.components.rider:IsRiding()
     local map = TheWorld.Map
     local offset = FindValidPositionByFan(
-        math.random() * 2 * PI,
+        math.random() * TWOPI,
         (mounted and 1 or .5) + math.random() * .5,
         4,
         function(offset)

@@ -24,6 +24,10 @@ local InkOver = require "widgets/inkover"
 local WagpunkUI = require "widgets/wagpunkui"
 local GogglesOver = require "widgets/gogglesover"
 local NutrientsOver = require "widgets/nutrientsover"
+local ScrapMonocleOver = require "widgets/scrapmonocleover"
+local NightVisionFruitOver = require "widgets/nightvisionfruitover"
+local InspectaclesOver = require("widgets/inspectaclesover")
+local RoseGlassesOver = require("widgets/roseglassesover")
 local BatOver = require "widgets/batover"
 local FlareOver = require "widgets/flareover"
 local EndOfMatchPopup = require "widgets/redux/endofmatchpopup"
@@ -38,6 +42,7 @@ local CookbookPopupScreen = require "screens/cookbookpopupscreen"
 local PlantRegistryPopupScreen = require "screens/plantregistrypopupscreen"
 local PlayerInfoPopupScreen = require "screens/playerinfopopupscreen"
 local ScrapbookScreen = require "screens/redux/scrapbookscreen"
+local InspectaclesScreen = require("screens/redux/inspectaclesscreen")
 
 local TargetIndicator = require "widgets/targetindicator"
 
@@ -171,6 +176,10 @@ function PlayerHud:CreateOverlays(owner)
 
     self.gogglesover = self.overlayroot:AddChild(GogglesOver(owner, self.storm_overlays))
     self.nutrientsover = self.overlayroot:AddChild(NutrientsOver(owner))
+    self.scrapmonocleover = self.overlayroot:AddChild(ScrapMonocleOver(owner))
+    self.nightvisionfruitover = self.overlayroot:AddChild(NightVisionFruitOver(owner))
+    self.inspectaclesover = self.overlayroot:AddChild(InspectaclesOver(owner))
+    self.roseglassesover = self.overlayroot:AddChild(RoseGlassesOver(owner))
     self.bloodover = self.overlayroot:AddChild(BloodOver(owner))
     self.beefbloodover = self.overlayroot:AddChild(BeefBloodOver(owner))
     self.iceover = self.overlayroot:AddChild(IceOver(owner))
@@ -187,8 +196,10 @@ function PlayerHud:CreateOverlays(owner)
     self.clouds:SetClickable(false)
     self.clouds:SetHAnchor(ANCHOR_MIDDLE)
     self.clouds:SetVAnchor(ANCHOR_MIDDLE)
+    self.clouds:SetScaleMode(SCALEMODE_FIXEDSCREEN_NONDYNAMIC)
     self.clouds:GetAnimState():SetBank("clouds_ol")
     self.clouds:GetAnimState():SetBuild("clouds_ol")
+    self.clouds:GetAnimState():SetForceSinglePass(true)
     self.clouds:GetAnimState():PlayAnimation("idle", true)
     self.clouds:GetAnimState():SetMultColour(self.clouds.cloudcolour[1], self.clouds.cloudcolour[2], self.clouds.cloudcolour[3], 0)
     self.clouds:Hide()
@@ -626,7 +637,7 @@ function PlayerHud:ClosePlayerInfoScreen()
     end
 end
 
-function PlayerHud:OpenScrapbookScreen(player_name, data, show_net_profile, force)
+function PlayerHud:OpenScrapbookScreen()
     self:CloseScrapbookScreen()
     self.scrapbookscreen = ScrapbookScreen(self.owner)
     self:OpenScreenUnderPause(self.scrapbookscreen)
@@ -639,6 +650,22 @@ function PlayerHud:CloseScrapbookScreen()
             TheFrontEnd:PopScreen(self.scrapbookscreen)
         end
         self.scrapbookscreen = nil
+    end
+end
+
+function PlayerHud:OpenInspectaclesScreen()
+    self:CloseInspectaclesScreen()
+    self.inspectaclesscreen = InspectaclesScreen(self.owner)
+    self:OpenScreenUnderPause(self.inspectaclesscreen)
+    return true
+end
+
+function PlayerHud:CloseInspectaclesScreen()
+    if self.inspectaclesscreen ~= nil then
+        if self.inspectaclesscreen.inst:IsValid() then
+            TheFrontEnd:PopScreen(self.inspectaclesscreen)
+        end
+        self.inspectaclesscreen = nil
     end
 end
 
@@ -1009,7 +1036,7 @@ function PlayerHud:GetCurrentOpenSpellBook()
 	return self.controls.spellwheel.invobject
 end
 
-function PlayerHud:OpenSpellWheel(invobject, items, radius, focus_radius)
+function PlayerHud:OpenSpellWheel(invobject, items, radius, focus_radius, bgdata)
 	self:CloseCrafting()
 	if self:IsControllerInventoryOpen() then
 		self:CloseControllerInventory()
@@ -1027,12 +1054,28 @@ function PlayerHud:OpenSpellWheel(invobject, items, radius, focus_radius)
 				for j, v in ipairs(items) do
 					v.selected = i == j or nil
 				end
+				if invobject.components.spellbook.focussound then
+					TheFocalPoint.SoundEmitter:PlaySound(invobject.components.spellbook.focussound)
+				end
 			end
 		end
 	end
 	self.controls.spellwheel:SetScale(TheFrontEnd:GetProportionalHUDScale()) --instead of GetHUDScale(), because parent already has SCALEMODE_PROPORTIONAL
 	self.controls.spellwheel:SetItems(itemscpy, radius, focus_radius)
 	self.controls.spellwheel:Open()
+
+	if bgdata then
+		local bg = self.controls.spellwheel:AddChild(UIAnim())
+		bg:GetAnimState():SetBuild(bgdata.build)
+		bg:GetAnimState():SetBank(bgdata.bank)
+		bg:GetAnimState():PlayAnimation(bgdata.anim, bgdata.loop)
+		if bgdata.widget_scale then
+			bg:SetScale(bgdata.widget_scale)
+		end
+		bg:MoveToBack()
+		self.controls.spellwheel.bg = bg
+	end
+
 	local old = self.controls.spellwheel.invobject
 	self.controls.spellwheel.invobject = invobject
 	if old ~= nil and old:IsValid() then
@@ -1047,6 +1090,12 @@ end
 
 function PlayerHud:CloseSpellWheel(is_execute)
 	self.controls.spellwheel:Close()
+
+	if self.controls.spellwheel.bg then
+		self.controls.spellwheel.bg:Kill()
+		self.controls.spellwheel.bg = nil
+	end
+
 	local old = self.controls.spellwheel.invobject
 	if old ~= nil then
 		self.controls.spellwheel.invobject = nil

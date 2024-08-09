@@ -90,8 +90,8 @@ local function SpawnPlants(inst)
 
     if inst.plants == nil then
         inst.plants = {}
-        for i = 1, math.random(2, 4) do
-            local theta = math.random() * 2 * PI
+        for _ = 1, math.random(2, 4) do
+            local theta = math.random() * TWOPI
             table.insert(inst.plants,
             {
                 offset =
@@ -133,6 +133,15 @@ local function DespawnPlants(inst)
     inst.plants = nil
 end
 
+local function SlipperyRate(inst, target)
+    local speed = target.Physics and target.Physics:GetMotorSpeed() or 0
+    if speed > TUNING.WILSON_RUN_SPEED then
+        return 50
+    end
+
+    return 5
+end
+
 local function OnSnowLevel(inst, snowlevel)
     if snowlevel > .02 then
         if not inst.frozen then
@@ -150,6 +159,8 @@ local function OnSnowLevel(inst, snowlevel)
             DespawnPlants(inst)
 
             inst.components.watersource.available = false
+            local slipperyfeettarget = inst:AddComponent("slipperyfeettarget")
+            slipperyfeettarget:SetSlipperyRate(SlipperyRate)
         end
     elseif inst.frozen then
         inst.frozen = false
@@ -166,6 +177,7 @@ local function OnSnowLevel(inst, snowlevel)
         SpawnPlants(inst)
 
         inst.components.watersource.available = true
+        inst:RemoveComponent("slipperyfeettarget")
     elseif inst.frozen == nil then
         inst.frozen = false
         SpawnPlants(inst)
@@ -225,7 +237,7 @@ local function commonfn(pondtype)
 
     inst.no_wet_prefix = true
 
-    inst:SetDeployExtraSpacing(2)
+	inst:SetDeploySmartRadius(2)
 
     inst.entity:SetPristine()
 

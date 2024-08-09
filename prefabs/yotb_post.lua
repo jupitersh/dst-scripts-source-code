@@ -24,7 +24,7 @@ local assets_light =
 
 local assets_rug =
 {
-    Asset("ANIM", "anim/yotb_beefalo_rug.zip"),
+    Asset("ANIM", "anim/yotb_post_rug.zip"),
 }
 
 local assets_ribbon =
@@ -51,12 +51,6 @@ end
 
 local function onhit(inst, worker)
     inst.AnimState:PlayAnimation("hit")
-    inst.AnimState:PushAnimation("idle", true)
-end
-
-local function onbuilt(inst)
-    inst.AnimState:PlayAnimation("place")
-    inst.SoundEmitter:PlaySound("yotb_2021/common/hitching_post/place")
     inst.AnimState:PushAnimation("idle", true)
 end
 
@@ -287,6 +281,9 @@ local function rugfn()
     inst.AnimState:SetOrientation( ANIM_ORIENTATION.OnGround )
     inst.AnimState:SetLayer( LAYER_BACKGROUND )
     inst.AnimState:SetSortOrder( 3 )
+
+    inst:AddTag("DECOR")
+    inst:AddTag("NOCLICK")
 
     inst.entity:SetPristine()
 

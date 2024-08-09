@@ -24,6 +24,7 @@ local assets =
     Asset("IMAGE", "images/colour_cubes/moonstorm_cc.tex"),
 
     Asset("ANIM", "anim/snow.zip"),
+    Asset("ANIM", "anim/acidglob.zip"),
     Asset("ANIM", "anim/lightning.zip"),
 
     Asset("SOUND", "sound/forest_stream.fsb"),
@@ -271,7 +272,6 @@ local prefabs =
     "sculpture_bishop",
     "sculpture_rook",
     "statue_marble",
-    "eyeplant",
     "lureplant",
     "purpleamulet",
     "monkey",
@@ -448,6 +448,8 @@ local prefabs =
     "dock_woodposts",
     "fx_dock_crackle",
     "fx_dock_pop",
+    "fx_ice_crackle",
+    "ice_crack_grid_fx",
 
     "charlie_stage_post",
     "stageusher",
@@ -475,6 +477,18 @@ local prefabs =
 	"sharkboi",
     "icefishing_hole",
     "sharkboi_ice_hazard",
+
+    -- Year of the Dragon
+
+
+    -- Rifts / Meta QoL
+
+    --"fishbone_shadow",
+    "fence_junk",
+    "junk_pile",
+    "junk_pile_big",
+
+    "boat_otterden",
 }
 
 local FISH_DATA = require("prefabs/oceanfishdef")
@@ -591,6 +605,7 @@ local function master_postinit(inst)
 
     inst:AddComponent("carnivalevent")
 
+    inst:AddComponent("yotd_raceprizemanager")
     inst:AddComponent("yotc_raceprizemanager")
     inst:AddComponent("yotb_stagemanager")
 
@@ -608,6 +623,8 @@ local function master_postinit(inst)
     inst:AddComponent("lunarriftmutationsmanager")
 
     inst:AddComponent("wagpunk_manager")
+
+    inst:AddComponent("forestdaywalkerspawner")
 
     if METRICS_ENABLED then
         inst:AddComponent("worldoverseer")

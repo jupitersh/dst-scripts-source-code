@@ -12,14 +12,17 @@ local prefabs =
 	"wood_splinter_jump",
 	"wood_splinter_drill",
 	"splash",
+
+	"fx_kelp_boat_fluff",
 }
 
 local brain = require("brains/cookiecutterbrain")
 
 SetSharedLootTable("cookiecutter",
 {
-    {"monstermeat",			1.0},
-    {"cookiecuttershell",	0.5},
+    {"monstermeat",			1.00},
+    {"cookiecuttershell",	0.50},
+    {"cookiecuttershell",	0.25},
 })
 
 local function OnAttacked(inst, data)

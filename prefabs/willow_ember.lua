@@ -36,6 +36,43 @@ local SPELLCOSTS = {
     ["shadowfire"] = TUNING.WILLOW_EMBER_SHADOW,
 }
 
+local function WatchSkillRefresh_Server(inst, owner)
+	if inst._owner then
+		inst:RemoveEventCallback("onactivateskill_server", inst._onskillrefresh_server, inst._owner)
+		inst:RemoveEventCallback("ondeactivateskill_server", inst._onskillrefresh_server, inst._owner)
+	end
+	inst._owner = owner
+	if owner then
+		inst:ListenForEvent("onactivateskill_server", inst._onskillrefresh_server, owner)
+		inst:ListenForEvent("ondeactivateskill_server", inst._onskillrefresh_server, owner)
+	end
+end
+
+local function WatchSkillRefresh_Client(inst, owner)
+	if inst._owner then
+		inst:RemoveEventCallback("onactivateskill_client", inst._onskillrefresh_client, inst._owner)
+		inst:RemoveEventCallback("ondeactivateskill_client", inst._onskillrefresh_client, inst._owner)
+	end
+	inst._owner = owner
+	if owner then
+		inst:ListenForEvent("onactivateskill_client", inst._onskillrefresh_client, owner)
+		inst:ListenForEvent("ondeactivateskill_client", inst._onskillrefresh_client, owner)
+	end
+end
+
+------------------------------------------
+
+local function EnablePickupSound(inst)
+	inst.pickupsound = nil
+end
+
+local function OnTempDisablePickupSound(inst)
+	if inst.pickupsound == nil then
+		inst.pickupsound = "NONE"
+		inst:DoStaticTaskInTime(2 * FRAMES, EnablePickupSound)
+	end
+end
+
 local function KillEmber(inst)
     inst:ListenForEvent("animover", inst.Remove)
 
@@ -53,6 +90,11 @@ local function toground(inst)
     if inst.AnimState:IsCurrentAnimation("idle_loop") then
 		inst.AnimState:SetFrame(math.random(inst.AnimState:GetCurrentAnimationNumFrames()) - 1)
     end
+
+	if inst._owner then
+		WatchSkillRefresh_Server(inst, nil)
+		inst._updatespells:push()
+	end
 end
 
 local EMBER_TAGS = { "willow_ember" }
@@ -95,6 +137,71 @@ local function OnCloseSpellBook(inst)
     end
 
     TheFocalPoint.SoundEmitter:KillSound("willow_ember_open")
+end
+
+local function tryconsume(inst, inventory, v, amount)
+	local stacksize = v.components.stackable:StackSize()
+	if stacksize > amount then
+		v.components.stackable:SetStackSize(stacksize - amount)
+		return amount, false
+	elseif inst == v then
+		--this is the stack we used to cast the spell, so defer it's removal
+		return stacksize, true
+	end
+	inventory:RemoveItem(v, true):Remove()
+	return stacksize, false
+end
+
+local function ConsumeEmbers(inst, doer, amount)
+	if amount <= 0 then
+		return
+	end
+
+	local inventory = doer.components.inventory
+	local casting_stack_depleted = false
+
+	--only check inventory slots (& active slot), since embers can't go in containers
+	for i = 1, inventory:GetNumSlots() do
+		local v = inventory:GetItemInSlot(i)
+		if v and v.prefab == inst.prefab then
+			local dec, deferred_removal = tryconsume(inst, inventory, v, amount)
+			amount = amount - dec
+			casting_stack_depleted = casting_stack_depleted or deferred_removal
+
+			if amount <= 0 then
+				if casting_stack_depleted then
+					--try to swap the casting stack with a remaining stack for removal.
+					--this allows us to continue repeat casting using the stack.
+					for j = i, inventory:GetNumSlots() do
+						local v2 = inventory:GetItemInSlot(j)
+						if v2 and v2 ~= inst and v2.prefab == inst.prefab then
+							inst._tempdisablepickupsound:push()
+							inst.pickupsound = "NONE"
+							inst.components.stackable:SetStackSize(v2.components.stackable:StackSize())
+							inventory:RemoveItem(v2, true):Remove()
+							inventory:RemoveItem(inst, true)
+							inventory:GiveItem(inst, j)
+							inst.pickupsound = nil
+							return
+						end
+					end
+					--nothing to swap with so we have to actually remove it
+					inventory:RemoveItem(inst, true):Remove()
+				end
+				return
+			end
+		end
+	end
+
+	if casting_stack_depleted then
+		--we still have to consume more, so just remove it
+		inventory:RemoveItem(inst, true):Remove()
+	end
+
+	local active_item = inventory:GetActiveItem()
+	if active_item and active_item.prefab == inst.prefab then
+		tryconsume(inst, inventory, active_item, amount)
+	end
 end
 
 local SPAWN_FIRE_CANT =     { "player", "INLIMBO", "FX", "NOCLICK" }
@@ -141,6 +248,8 @@ local function ThrowFire_SpawnFire(inst, doer, pos)
                     end
                 end
             end
+        elseif target ~= doer and target:HasTag("canlight") then
+            target:PushEvent("onlighterlight")
         end
     end
 end
@@ -159,7 +268,7 @@ local function spawnfirefx(pos)
     local ring = SpawnPrefab("firering_fx")
     ring.Transform:SetPosition(pos.x,pos.y,pos.z)
 
-    local theta = math.random(2*PI)
+    local theta = math.random(TWOPI)
 
     for i=1,4 do
         local radius = 4
@@ -253,24 +362,25 @@ local function TryLunarFire(inst, doer, pos)
     return false
 end
 
+local function DoShadowFire(doer, x, z, rot)
+	local fire = SpawnPrefab("willow_shadow_flame")
+	fire.Transform:SetRotation(rot)
+	fire.Transform:SetPosition(x, 0, z)
+	fire:settarget(nil, 50, doer)
+end
+
 local function TryShadowFire(inst, doer, pos)
     if CheckStackSize(inst, doer, "shadowfire") then
-
-        local startangle = inst:GetAngleToPoint(pos.x,pos.y,pos.z)*DEGREES
-
-        local burst = 5
-
+		local burst = 5
+		local radius = 2
+		local x, y, z = doer.Transform:GetWorldPosition()
+		local theta = x == pos.x and z == pos.z and doer.Transform:GetRotation() * DEGREES or math.atan2(z - pos.z, pos.x - x)
+		local delta = PI2 / burst
         for i=1,burst do
-            local radius = 2
-            local theta = startangle + (PI*2/burst*i) - (PI*2/burst)
-            local offset = Vector3(radius * math.cos( theta ), 0, -radius * math.sin( theta ))
-
-            local newpos = Vector3(inst.Transform:GetWorldPosition()) + offset
-
-            local fire = SpawnPrefab("willow_shadow_flame")
-            fire.Transform:SetRotation(theta/DEGREES)
-            fire.Transform:SetPosition(newpos.x,newpos.y,newpos.z)
-            fire:settarget(nil,50,doer)
+			local x1 = x + radius * math.cos(theta)
+			local z1 = z - radius * math.sin(theta)
+			doer:DoTaskInTime(math.random() * 0.2, DoShadowFire, x1, z1, theta * RADIANS)
+			theta = theta + delta
         end
 
 		if doer.components.spellbookcooldowns then
@@ -296,7 +406,7 @@ local function FireBurstSpellFn(inst, doer, pos)
     if not CheckStackSize(inst, doer, "fireburst") then
         return false, "NOT_ENOUGH_EMBERS"
     elseif TryBurstFire(inst, doer, pos) then
-        doer.components.inventory:ConsumeByName(inst.prefab, SPELLCOSTS["fireburst"])
+		ConsumeEmbers(inst, doer, SPELLCOSTS["fireburst"])
 
         return true
     end
@@ -307,7 +417,7 @@ local function FireThrowSpellFn(inst, doer, pos)
     if not CheckStackSize(inst, doer, "firethrow") then
         return false, "NOT_ENOUGH_EMBERS"
     elseif TryThrowFire(inst, doer, pos) then
-        doer.components.inventory:ConsumeByName(inst.prefab, SPELLCOSTS["firethrow"])
+		ConsumeEmbers(inst, doer, SPELLCOSTS["firethrow"])
         return true
     end
     return false
@@ -317,7 +427,7 @@ local function FireBallSpellFn(inst, doer, pos)
     if not CheckStackSize(inst, doer, "fireball") then
         return false, "NOT_ENOUGH_EMBERS"
     elseif TryBallFire(inst, doer, pos) then
-        doer.components.inventory:ConsumeByName(inst.prefab, SPELLCOSTS["fireball"])
+		ConsumeEmbers(inst, doer, SPELLCOSTS["fireball"])
         return true
     end
     return false
@@ -331,7 +441,7 @@ local function LunarFireSpellFn(inst, doer, pos)
     elseif not CheckStackSize(inst, doer, "lunarfire") then
         return false, "NOT_ENOUGH_EMBERS"
     elseif TryLunarFire(inst, doer, pos) then
-        doer.components.inventory:ConsumeByName(inst.prefab, SPELLCOSTS["lunarfire"])
+		ConsumeEmbers(inst, doer, SPELLCOSTS["lunarfire"])
         return true
     end
     return false
@@ -343,7 +453,7 @@ local function ShadowFireSpellFn(inst, doer, pos)
     elseif not CheckStackSize(inst, doer, "shadowfire") then
         return false, "NOT_ENOUGH_EMBERS"
     elseif TryShadowFire(inst, doer, pos) then
-        doer.components.inventory:ConsumeByName(inst.prefab, SPELLCOSTS["shadowfire"])
+		ConsumeEmbers(inst, doer, SPELLCOSTS["shadowfire"])
         return true
     end
     return false
@@ -353,7 +463,7 @@ local function FireFrenzySpellFn(inst, doer, pos)
     if not CheckStackSize(inst, doer, "firefrenzy") then
         return false, "NOT_ENOUGH_EMBERS"
     elseif TryFireFrenzy(inst, doer, pos) then
-        doer.components.inventory:ConsumeByName(inst.prefab, SPELLCOSTS["firefrenzy"])
+		ConsumeEmbers(inst, doer, SPELLCOSTS["firefrenzy"])
         return true
     end
     return false
@@ -399,18 +509,6 @@ end
 
 local function ShouldRepeatFireBall(inst, doer)
     return CheckStackSize(inst, doer, "fireball")
-end
-
-local function ShouldRepeatFireFrenzy(inst, doer)
-    return CheckStackSize(inst, doer, "firefrenzy")
-end
-
-local function ShouldRepeatShadowFire(inst, doer)
-    return CheckStackSize(inst, doer, "shadowfire")
-end
-
-local function ShouldRepeatLunarFire(inst, doer)
-    return CheckStackSize(inst, doer, "lunarfire")
 end
 
 -------------------------------------------------------------
@@ -490,8 +588,7 @@ local function line_reticule_target_function(inst)
         local inventoryitem = inst.replica.inventoryitem
         local owner =  inventoryitem and inventoryitem:IsGrandOwner(ThePlayer) and ThePlayer
         if owner then
-            local pos = Vector3(owner.Transform:GetWorldPosition())
-            return pos
+			return Vector3(ThePlayer.entity:LocalToWorldSpace(5, 0, 0))
         end
     end
 end
@@ -512,12 +609,15 @@ end
 
 local function line_reticule_update_position_function(inst, pos, reticule, ease, smoothing, dt)
     local inventoryitem = inst.replica.inventoryitem
-    local owner = inventoryitem and inventoryitem:IsHeldBy(ThePlayer) and ThePlayer
-
-    if owner then
-        reticule.Transform:SetPosition(Vector3(owner.Transform:GetWorldPosition()):Get())
-        local angle = owner:GetAngleToPoint(pos.x,pos.y,pos.z)
-        reticule.Transform:SetRotation(angle)
+	if inventoryitem and inventoryitem:IsHeldBy(ThePlayer) then
+		reticule.Transform:SetPosition(ThePlayer.Transform:GetWorldPosition())
+		local rot1 = reticule:GetAngleToPoint(inst.components.reticule.targetpos)
+		if ease and dt then
+			local rot = reticule.Transform:GetRotation()
+			local drot = ReduceAngle(rot1 - rot)
+			rot1 = Lerp(rot, rot + drot, dt * smoothing)
+		end
+		reticule.Transform:SetRotation(rot1)
     end
 end
 
@@ -578,7 +678,7 @@ local SKILLTREE_SPELL_DEFS =
             inst.components.aoetargeting.reticule.updatepositionfn = burst_reticule_update_position_function
 
             if TheWorld.ismastersim then
-                inst.components.aoetargeting:SetTargetFX("reticulemultitarget")
+				inst.components.aoetargeting:SetTargetFX(nil)
                 inst.components.aoespell:SetSpellFn(FireBurstSpellFn)
                 inst.components.spellbook:SetSpellFn(nil)
             end
@@ -634,7 +734,7 @@ local SKILLTREE_SPELL_DEFS =
         onselect = function(inst)
             inst.components.spellbook:SetSpellName(STRINGS.PYROMANCY.FIRE_FRENZY)
             inst.components.aoetargeting:SetDeployRadius(0)
-            inst.components.aoetargeting:SetShouldRepeatCastFn(ShouldRepeatFireFrenzy)
+            inst.components.aoetargeting:SetShouldRepeatCastFn(nil)
             inst.components.aoetargeting.reticule.reticuleprefab = "reticuleaoefiretarget_1"
             inst.components.aoetargeting.reticule.pingprefab = "reticuleaoefiretarget_1ping"
 
@@ -643,7 +743,7 @@ local SKILLTREE_SPELL_DEFS =
             inst.components.aoetargeting.reticule.updatepositionfn = single_reticule_update_position_function
 
             if TheWorld.ismastersim then
-                inst.components.aoetargeting:SetTargetFX("reticuleaoefiretarget_1")
+				inst.components.aoetargeting:SetTargetFX(nil)
                 inst.components.aoespell:SetSpellFn(FireFrenzySpellFn)
                 inst.components.spellbook:SetSpellFn(nil)
             end
@@ -666,7 +766,7 @@ local SKILLTREE_SPELL_DEFS =
         onselect = function(inst)
             inst.components.spellbook:SetSpellName(STRINGS.PYROMANCY.LUNAR_FIRE)
             inst.components.aoetargeting:SetDeployRadius(0)
-            inst.components.aoetargeting:SetShouldRepeatCastFn(ShouldRepeatLunarFire)
+            inst.components.aoetargeting:SetShouldRepeatCastFn(nil)
             inst.components.aoetargeting.reticule.reticuleprefab = "reticuleline"
             inst.components.aoetargeting.reticule.pingprefab = "reticulelineping"
 
@@ -675,7 +775,7 @@ local SKILLTREE_SPELL_DEFS =
             inst.components.aoetargeting.reticule.updatepositionfn = line_reticule_update_position_function
 
             if TheWorld.ismastersim then
-                inst.components.aoetargeting:SetTargetFX("reticuleaoefiretarget_1")
+				inst.components.aoetargeting:SetTargetFX(nil)
                 inst.components.aoespell:SetSpellFn(LunarFireSpellFn)
                 inst.components.spellbook:SetSpellFn(nil)
             end
@@ -713,7 +813,7 @@ local SKILLTREE_SPELL_DEFS =
         onselect = function(inst)
             inst.components.spellbook:SetSpellName(STRINGS.PYROMANCY.SHADOW_FIRE)
             inst.components.aoetargeting:SetDeployRadius(0)
-            inst.components.aoetargeting:SetShouldRepeatCastFn(ShouldRepeatShadowFire)
+            inst.components.aoetargeting:SetShouldRepeatCastFn(nil)
             inst.components.aoetargeting.reticule.reticuleprefab = "reticuleaoe5line"
             inst.components.aoetargeting.reticule.pingprefab = "reticuleaoeping5line"
 
@@ -722,7 +822,7 @@ local SKILLTREE_SPELL_DEFS =
             inst.components.aoetargeting.reticule.updatepositionfn = line_reticule_update_position_function
 
             if TheWorld.ismastersim then
-                inst.components.aoetargeting:SetTargetFX("reticuleaoe5line")
+				inst.components.aoetargeting:SetTargetFX(nil)
                 inst.components.aoespell:SetSpellFn(ShadowFireSpellFn)
                 inst.components.spellbook:SetSpellFn(nil)
             end
@@ -771,26 +871,31 @@ local function updatespells(inst,owner)
     inst.components.spellbook:SetItems(spells)
 end
 
-local function OnUpdateSpellsDirty(inst)
-    local owner = inst.replica.inventoryitem:IsHeldBy(ThePlayer) and ThePlayer or nil
-
-    if owner then
-		if inst._onskillrefresh == nil then
-			inst._onskillrefresh = function() OnUpdateSpellsDirty(inst) end
-			inst:ListenForEvent("onactivateskill_client", inst._onskillrefresh, owner)
-			inst:ListenForEvent("ondeactivateskill_client", inst._onskillrefresh, owner)
+local function DoClientUpdateSpells(inst, force)
+	--V2C: inst.replica.inventoryitem:IsHeldBy(ThePlayer) won't work for new ember
+	--     spawned directly in pocket, because inventory preview won't have been
+	--     resolved yet.
+	--     Use IsHeld(), and assume it's ours, since this can only go into pockets
+	--     and not containers.
+	local owner = inst.replica.inventoryitem:IsHeld() and ThePlayer or nil
+	if owner ~= inst._owner then
+		if owner then
+			updatespells(inst, owner)
 		end
-        updatespells(inst,owner)
-	elseif inst._onskillrefresh then
-		inst:RemoveEventCallback("onactivateskill_client", inst._onskillrefresh, owner)
-		inst:RemoveEventCallback("ondeactivateskill_client", inst._onskillrefresh, owner)
-		inst._onskillrefresh = nil
-    end
+		WatchSkillRefresh_Client(inst, owner)
+	elseif force and owner then
+		updatespells(inst, owner)
+	end
+end
+
+local function OnUpdateSpellsDirty(inst)
+	inst:DoTaskInTime(0, DoClientUpdateSpells)
 end
 
 local function DoOnClientInit(inst)
+	inst:ListenForEvent("willow_ember._tempdisablepickupsound", OnTempDisablePickupSound)
     inst:ListenForEvent("willow_ember._updatespells", OnUpdateSpellsDirty)
-    OnUpdateSpellsDirty(inst)
+	DoClientUpdateSpells(inst)
 end
 
 local function topocket(inst, owner)
@@ -800,8 +905,11 @@ local function topocket(inst, owner)
         inst._task = nil
     end
 
-    inst._updatespells:push()
-    updatespells(inst,owner)
+	if owner ~= inst._owner then
+		inst._updatespells:push()
+		updatespells(inst, owner)
+		WatchSkillRefresh_Server(inst, owner)
+	end
 end
 
 -- END MAGIC STUFF
@@ -850,13 +958,19 @@ local function fn()
     inst.components.aoetargeting.reticule.twinstickrange = 8
 
     inst._updatespells = net_event(inst.GUID, "willow_ember._updatespells")
+	inst._tempdisablepickupsound = net_event(inst.GUID, "willow_ember._tempdisablepickupsound")
 
     inst.entity:SetPristine()
 
     if not TheWorld.ismastersim then
         inst:DoTaskInTime(0,DoOnClientInit)
+		inst._onskillrefresh_client = function(owner) DoClientUpdateSpells(inst, true) end
+
         return inst
     end
+
+	inst._onskillrefresh_server = function(owner) updatespells(inst, owner) end
+
     inst:AddComponent("fuel")
     inst.components.fuel.fueltype = FUELTYPE.LIGHTER
     inst.components.fuel.fuelvalue = TUNING.HUGE_FUEL
@@ -887,8 +1001,6 @@ local function fn()
     inst.OnEntityWake = OnEntityWake
 
     inst.castsound = "maxwell_rework/shadow_magic/cast"
-
-    inst.updatespells = updatespells
 
     inst._task = nil
     toground(inst)

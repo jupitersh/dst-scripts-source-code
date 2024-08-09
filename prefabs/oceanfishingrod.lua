@@ -116,7 +116,7 @@ local function OnHookedSomething(inst, target)
 			if TheWorld.Map:IsOceanAtPoint(target.Transform:GetWorldPosition()) then
 				for slot, item in pairs(inst.components.container.slots) do
 					if item ~= nil and item.components.inventoryitem ~= nil then
-						item.components.inventoryitem:AddMoisture(TUNING.OCEAN_WETNESS)
+						item.components.inventoryitem:MakeMoistureAtLeast(TUNING.OCEAN_WETNESS)
 					end
 				end
 			end
@@ -183,6 +183,7 @@ local function fn()
     inst:AddComponent("container")
     inst.components.container:WidgetSetup("oceanfishingrod")
 	inst.components.container.canbeopened = false
+    inst.components.container.stay_open_on_hide = true
     inst:ListenForEvent("itemget", OnTackleChanged)
     inst:ListenForEvent("itemlose", OnTackleChanged)
 

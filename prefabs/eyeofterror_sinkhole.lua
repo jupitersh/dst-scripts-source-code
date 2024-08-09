@@ -23,7 +23,7 @@ local NUM_FX = 7
 local FX_THETA_DELTA = TWOPI / NUM_FX
 local FX_RADIUS = 1.6
 local function SpawnFx(inst, scale, pos)
-    local theta = math.random() * PI * 2
+    local theta = math.random() * TWOPI
 
     pos = pos or inst:GetPosition()
 
@@ -133,17 +133,7 @@ local function DoCollapse(inst)
                 and collapsible_entity.components.pickable:CanBePicked()
                 and not collapsible_entity:HasTag("intense") then
 
-            local num = collapsible_entity.components.pickable.numtoharvest or 1
-            local product = collapsible_entity.components.pickable.product
-
-            collapsible_entity.components.pickable:Pick(inst) -- only calling this to trigger callbacks on the object
-
-            if product ~= nil and num > 0 then
-                local ce_x, ce_y, ce_z = collapsible_entity.Transform:GetWorldPosition()
-                for i = 1, num do
-                    SpawnPrefab(product).Transform:SetPosition(ce_x, 0, ce_z)
-                end
-            end
+			collapsible_entity.components.pickable:Pick(inst)
         end
     end
 
@@ -205,7 +195,7 @@ local function MakeSinkhole(name, radius, scale, maxwork, toughworker)
 			inst:AddTag("toughworker")
 		end
 
-		inst:SetDeployExtraSpacing(4)
+		inst:SetDeploySmartRadius(3 * scale)
 
 		inst.entity:SetPristine()
 

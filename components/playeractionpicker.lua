@@ -117,7 +117,12 @@ function PlayerActionPicker:GetSceneActions(useitem, right)
         useitem:HasTag("inspectable") and
         (self.inst.sg == nil or self.inst.sg:HasStateTag("moving") or self.inst.sg:HasStateTag("idle")) and
         (self.inst:HasTag("moving") or self.inst:HasTag("idle")) then
-        sorted_acts = self:SortActionList({ ACTIONS.WALKTO }, useitem)
+
+		--@V2C: #FORGE_AOE_RCLICK *searchable*
+		--      -Forge used to strip ALL r.click actions, so now we manually strip WALKTO action.
+		if not right or (self.inst.components.playercontroller ~= nil and not self.inst.components.playercontroller:HasAOETargeting()) then
+			sorted_acts = self:SortActionList({ ACTIONS.WALKTO }, useitem)
+		end
     end
 
     return sorted_acts
@@ -184,8 +189,15 @@ function PlayerActionPicker:GetPointActions(pos, useitem, right, target)
     return sorted_acts
 end
 
-function PlayerActionPicker:GetPointSpecialActions(pos, useitem, right)
-	return self.pointspecialactionsfn ~= nil and self:SortActionList(self.pointspecialactionsfn(self.inst, pos, useitem, right), pos, useitem) or {}
+function PlayerActionPicker:GetPointSpecialActions(pos, useitem, right, usereticulepos)
+	--V2C: usereticulepos is new
+	--     pos2 may be returned (when usereticulepos is true)
+	--     keep support for legacy pointspecialactionsfn, which won't have the pos2 return
+	if self.pointspecialactionsfn then
+		local actions, pos2 = self.pointspecialactionsfn(self.inst, pos, useitem, right, usereticulepos)
+		return self:SortActionList(actions, usereticulepos and pos2 or pos, useitem)
+	end
+	return {}
 end
 
 function PlayerActionPicker:GetEquippedItemActions(target, useitem, right)

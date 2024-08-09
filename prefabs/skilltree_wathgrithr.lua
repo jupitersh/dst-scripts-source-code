@@ -124,22 +124,6 @@ end
 --------------------------------------------------------------------------------------------------
 
 local ONACTIVATE_FNS = {
-    ArsenalSpear = function(inst)
-        local item = inst.components.inventory:GetEquippedItem(EQUIPSLOTS.HANDS)
-
-        if item ~= nil and item:HasTag("battlespear") then
-            item:ApplySkillsChanges(inst)
-        end
-    end,
-
-    ArsenalHelm = function(inst)
-        local item = inst.components.inventory:GetEquippedItem(EQUIPSLOTS.HEAD)
-
-        if item ~= nil and item:HasTag("battlehelm") then
-            item:ApplySkillsChanges(inst)
-        end
-    end,
-
     CombatDefense = function(inst)
         if inst.components.planardefense ~= nil then
             inst.components.planardefense:AddBonus(inst, TUNING.SKILLS.WATHGRITHR.BONUS_PLANAR_DEF, "wathgrithr_combat_defense")
@@ -154,7 +138,6 @@ local ONACTIVATE_FNS = {
 
     AllegianceShadow = function(inst)
         inst:AddTag("player_shadow_aligned")
-        inst:AddTag("battlesongshadowalignedmaker")
 
         if inst.components.damagetyperesist ~= nil then
             inst.components.damagetyperesist:AddResist("shadow_aligned", inst, TUNING.SKILLS.WATHGRITHR.ALLEGIANCE_SHADOW_RESIST, "allegiance_shadow")
@@ -167,7 +150,6 @@ local ONACTIVATE_FNS = {
 
     AllegianceLunar = function(inst)
         inst:AddTag("player_lunar_aligned")
-        inst:AddTag("battlesonglunaralignedmaker")
 
         if inst.components.damagetyperesist ~= nil then
             inst.components.damagetyperesist:AddResist("lunar_aligned", inst, TUNING.SKILLS.WATHGRITHR.ALLEGIANCE_LUNAR_RESIST, "allegiance_lunar")
@@ -180,22 +162,6 @@ local ONACTIVATE_FNS = {
 }
 
 local ONDEACTIVATE_FNS = {
-    ArsenalSpear = function(inst)
-        local item = inst.components.inventory:GetEquippedItem(EQUIPSLOTS.HANDS)
-
-        if item ~= nil and item:HasTag("battlespear") then
-            item:RemoveSkillsChanges(inst)
-        end
-    end,
-
-    ArsenalHelm = function (inst)
-        local item = inst.components.inventory:GetEquippedItem(EQUIPSLOTS.HEAD)
-
-        if item ~= nil and item:HasTag("battlehelm") then
-            item:RemoveSkillsChanges(inst)
-        end
-    end,
-
     CombatDefense = function(inst)
         if inst.components.planardefense ~= nil then
             inst.components.planardefense:RemoveBonus(inst, "wathgrithr_combat_defense")
@@ -204,7 +170,6 @@ local ONDEACTIVATE_FNS = {
 
     AllegianceShadow = function(inst)
         inst:RemoveTag("player_shadow_aligned")
-        inst:RemoveTag("battlesongshadowalignedmaker")
 
         if inst.components.damagetyperesist ~= nil then
             inst.components.damagetyperesist:RemoveResist("shadow_aligned", inst, "allegiance_shadow")
@@ -217,7 +182,6 @@ local ONDEACTIVATE_FNS = {
 
     AllegianceLunar = function(inst)
         inst:RemoveTag("player_lunar_aligned")
-        inst:RemoveTag("battlesonglunaralignedmaker")
 
         if inst.components.damagetyperesist ~= nil then
             inst.components.damagetyperesist:RemoveResist("lunar_aligned", inst, "allegiance_lunar")
@@ -254,9 +218,7 @@ local function BuildSkillsData(SkillTreeFns)
 
             root = true,
             connects = { "wathgrithr_arsenal_spear_2" },
-
-            onactivate   = ONACTIVATE_FNS.ArsenalSpear,
-            ondeactivate = ONDEACTIVATE_FNS.ArsenalSpear,
+            defaultfocus = true,
         },
 
         -- Inspiration gain rate will increase a fair amount when attacking using Battle Spears.
@@ -265,9 +227,6 @@ local function BuildSkillsData(SkillTreeFns)
             tags = { "spear", "inspirationgain" },
 
             connects = { "wathgrithr_arsenal_spear_3" },
-
-            onactivate   = ONACTIVATE_FNS.ArsenalSpear,
-            ondeactivate = ONDEACTIVATE_FNS.ArsenalSpear,
         },
 
         -- Learn to craft the Lightning Spear.
@@ -281,18 +240,12 @@ local function BuildSkillsData(SkillTreeFns)
 
                 "wathgrithr_arsenal_shield_1",
             },
-
-            onactivate   = CreateAddTagFn("spearwathgrithrlightningmaker"),
-            ondeactivate = CreateRemoveTagFn("spearwathgrithrlightningmaker"),
         },
 
         -- The Lightning Spear can now perform a special attack.\nThis attack repairs Charged Lightning Spears if it hits a target.
         wathgrithr_arsenal_spear_4 = {
             group = "arsenal",
             tags = { "spear" },
-
-            onactivate   = ONACTIVATE_FNS.ArsenalSpear,
-            ondeactivate = ONDEACTIVATE_FNS.ArsenalSpear,
         },
 
         -- Upgrade the Lightning Spear using Restrained Static to deal +20 Planar Damage.
@@ -313,9 +266,6 @@ local function BuildSkillsData(SkillTreeFns)
 
             root = true,
             connects = { "wathgrithr_arsenal_helmet_2" },
-
-            onactivate = ONACTIVATE_FNS.ArsenalHelm,
-            ondeactivate = ONDEACTIVATE_FNS.ArsenalHelm,
         },
 
         -- Battle Helms will be a fair amount more durable when worn by Wigfrid.
@@ -324,9 +274,6 @@ local function BuildSkillsData(SkillTreeFns)
             tags = { "helmet", "helmetcondition" },
 
             connects = { "wathgrithr_arsenal_helmet_3" },
-
-            onactivate = ONACTIVATE_FNS.ArsenalHelm,
-            ondeactivate = ONDEACTIVATE_FNS.ArsenalHelm,
         },
 
         -- Learn to craft the Commander's Helm: a helm that protects against knockback attacks.
@@ -340,27 +287,18 @@ local function BuildSkillsData(SkillTreeFns)
 
                 "wathgrithr_arsenal_shield_1",
             },
-
-            onactivate   = CreateAddTagFn("wathgrithrimprovedhatmaker"),
-            ondeactivate = CreateRemoveTagFn("wathgrithrimprovedhatmaker"),
         },
 
         -- The Commander's Helm now has protection against planar damage.
         wathgrithr_arsenal_helmet_4 = {
             group = "arsenal",
             tags = { "helmet" },
-
-            onactivate = ONACTIVATE_FNS.ArsenalHelm,
-            ondeactivate = ONDEACTIVATE_FNS.ArsenalHelm,
         },
 
         -- Wigfrid's natural healing ability will repair her Commander's Helm when she continues to fight at maximum health.
         wathgrithr_arsenal_helmet_5 = {
             group = "arsenal",
             tags = { "helmet" },
-
-            onactivate = ONACTIVATE_FNS.ArsenalHelm,
-            ondeactivate = ONDEACTIVATE_FNS.ArsenalHelm,
         },
 
         --------------------------------------------------------------------------
@@ -375,8 +313,8 @@ local function BuildSkillsData(SkillTreeFns)
                 "wathgrithr_arsenal_shield_3",
             },
 
-            onactivate   = CreateAddTagFn("wathgrithrshieldmaker"),
-            ondeactivate = CreateRemoveTagFn("wathgrithrshieldmaker"),
+            onactivate   = CreateAddTagFn("wathgrithrshielduser"),
+            ondeactivate = CreateRemoveTagFn("wathgrithrshielduser"),
         },
 
         -- The duration of the Battle Rönd's ability to block attacks will be increased.
@@ -424,9 +362,6 @@ local function BuildSkillsData(SkillTreeFns)
         wathgrithr_beefalo_saddle = {
             group = "beefalo",
             tags = { "saddle" },
-
-            onactivate   = CreateAddTagFn("saddlewathgrithrmaker"),
-            ondeactivate = CreateRemoveTagFn("saddlewathgrithrmaker"),
         },
 
         --------------------------------------------------------------------------
@@ -459,9 +394,6 @@ local function BuildSkillsData(SkillTreeFns)
         -- Quote battle songs now no longer consume Inspiration, and instead have a cooldown.
         wathgrithr_songs_container = {
             group = "songs",
-
-            onactivate   = CreateAddTagFn("battlesongcontainermaker"),
-            ondeactivate = CreateRemoveTagFn("battlesongcontainermaker"),
         },
 
         -- Play a Beefalo Horn to unlock.
@@ -477,9 +409,6 @@ local function BuildSkillsData(SkillTreeFns)
         -- Learn to craft the Warrior's Reprise: Bring your allies back to life so they can fight for Valhalla.
         wathgrithr_songs_revivewarrior = {
             group = "songs",
-
-            onactivate   = CreateAddTagFn("battlesonginstantrevivemaker"),
-            ondeactivate = CreateRemoveTagFn("battlesonginstantrevivemaker"),
         },
 
         --------------------------------------------------------------------------

@@ -108,7 +108,6 @@ local function turn_off_boat_drag(inst)
 end
 
 local function turn_on_boat_drag(inst, boat, duration)
-	boat = boat
 	if boat == nil then
 		return nil
 	end
@@ -261,7 +260,7 @@ local function CanActivate(inst, doer)
 	return inst:HasTag("winch_ready")
 end
 
-local function onitemget(inst, data, no_CHEVO_event)
+local function onitemget(inst, data)
 	local item = data.item
 	inst.components.shelf:PutItemOnShelf(item)
 
@@ -273,9 +272,7 @@ local function onitemget(inst, data, no_CHEVO_event)
 		end
 	end
 
-	if not no_CHEVO_event then
-		inst:DoTaskInTime(0,function() TheWorld:PushEvent("CHEVO_heavyobject_winched",{target=inst,doer=nil}) end)
-	end
+    inst:DoTaskInTime(0,function() TheWorld:PushEvent("CHEVO_heavyobject_winched",{target=inst,doer=nil}) end)
 end
 
 local function onitemlose(inst, data)
@@ -436,6 +433,8 @@ local function fn()
     inst.AnimState:SetBank("boat_winch")
 	inst.AnimState:SetBuild("boat_winch")
 	inst.AnimState:PlayAnimation("idle", true)
+
+	inst:SetDeploySmartRadius(0.75) --recipe min_spacing/2
 
     inst:AddTag("structure")
 

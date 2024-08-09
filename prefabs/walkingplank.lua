@@ -1,104 +1,56 @@
-local assets =
-{
-    Asset("ANIM", "anim/boat_plank.zip"),
-    Asset("ANIM", "anim/boat_plank_build.zip"),
-}
-
-local assets_grass =
-{
-    Asset("ANIM", "anim/boat_plank.zip"),
-    Asset("ANIM", "anim/boat_plank_grass_build.zip"),
-}
-
 local prefabs =
 {
     "collapse_small",
 }
 
-local function on_hammered(inst, hammerer)
-    inst.components.lootdropper:DropLoot()
+local function MakeWalkingPlank(name, build)
+    local assets = {
+        Asset("ANIM", "anim/boat_plank.zip"),
+        Asset("ANIM", "anim/"..build..".zip"),
+    }
 
-    local collapse_fx = SpawnPrefab("collapse_small")
-    collapse_fx.Transform:SetPosition(inst.Transform:GetWorldPosition())
-    collapse_fx:SetMaterial("wood")
+    local function fn()
+        local inst = CreateEntity()
 
-    inst.components.anchor:SetIsAnchorLowered(false)
+        inst.entity:AddTransform()
+        inst.entity:AddAnimState()
+        inst.entity:AddSoundEmitter()
+        inst.entity:AddNetwork()
 
-    inst:Remove()
-end
+        inst:AddTag("walkingplank") -- From walkingplank component.
+        inst:AddTag("ignorewalkableplatforms") -- Because it is a child of the boat.
 
-local function common_pre(inst)
-    inst.entity:AddTransform()
-    inst.entity:AddAnimState()
-    inst.entity:AddSoundEmitter()
-    inst.entity:AddNetwork()
-    --MakeObstaclePhysics(inst, .2)
+        inst:SetStateGraph("SGwalkingplank")
 
-    inst:SetStateGraph("SGwalkingplank")
+        inst.AnimState:SetBank("plank")
+        inst.AnimState:SetBuild(build)
+        inst.AnimState:SetSortOrder(ANIM_SORT_ORDER.OCEAN_BOAT)
+        inst.AnimState:SetFinalOffset(2)
+        inst.AnimState:SetOrientation(ANIM_ORIENTATION.OnGround)
+        inst.AnimState:SetLayer(LAYER_WORLD_BACKGROUND)
 
-    inst.AnimState:SetBank("plank")
-    inst.AnimState:SetBuild("boat_plank_build")
-    inst.AnimState:SetSortOrder(ANIM_SORT_ORDER.OCEAN_BOAT)
-    inst.AnimState:SetFinalOffset(2)
-    inst.AnimState:SetOrientation(ANIM_ORIENTATION.OnGround)
-    inst.AnimState:SetLayer(LAYER_WORLD_BACKGROUND)
+        inst.entity:SetPristine()
+        if not TheWorld.ismastersim then
+            return inst
+        end
 
-    -- from walkingplank component
-    inst:AddTag("walkingplank")
+        inst.persists = false
 
-    inst:AddTag("ignorewalkableplatforms") -- because it is a child of the boat    
-    return inst
-end
+        inst:AddComponent("lootdropper") -- The loot that this drops is generated from the uncraftable recipe; see recipes.lua for the items.
+        inst:AddComponent("inspectable")
+        inst:AddComponent("walkingplank")
 
-local function common_pst(inst)
-    inst.persists = false
+        inst:AddComponent("hauntable")
+        inst.components.hauntable:SetHauntValue(TUNING.HAUNT_TINY)
 
-    inst:AddComponent("walkingplank")
-    inst:AddComponent("hauntable")
-    inst:AddComponent("inspectable")
-    inst.components.hauntable:SetHauntValue(TUNING.HAUNT_TINY)
-
-    -- The loot that this drops is generated from the uncraftable recipe; see recipes.lua for the items.
-    inst:AddComponent("lootdropper")
-
-    return inst
-end
-
-
-local function fn()
-
-    local inst = CreateEntity()
-
-    inst = common_pre(inst)
-    
-    inst.entity:SetPristine()
-
-    if not TheWorld.ismastersim then
         return inst
     end
 
-    inst = common_pst(inst)
-
-    return inst
+    return Prefab(name, fn, assets, prefabs)
 end
 
-local function grassfn()
-
-    local inst = CreateEntity()
-
-    inst = common_pre(inst)
-    inst.AnimState:SetBuild("boat_plank_grass_build")
-
-    inst.entity:SetPristine()
-
-    if not TheWorld.ismastersim then
-        return inst
-    end
-
-    inst = common_pst(inst)
-
-    return inst
-end
-
-return Prefab("walkingplank", fn, assets, prefabs),
-        Prefab("walkingplank_grass", grassfn, assets_grass, prefabs)
+return
+    MakeWalkingPlank( "walkingplank",         "boat_plank_build"         ),
+    MakeWalkingPlank( "walkingplank_grass",   "boat_plank_grass_build"   ),
+    MakeWalkingPlank( "walkingplank_yotd",    "boat_plank_yotd_build"    ),
+    MakeWalkingPlank( "walkingplank_ancient", "boat_ancient_plank_build" )

@@ -53,11 +53,13 @@ end
 
 local function OnAttacked(inst, data)
     local attacker = data ~= nil and data.attacker or nil
-	if attacker ~= nil and inst.components.follower ~= nil and inst.components.follower:GetLeader() == attacker then
-		PreventTargetingOnAttacked(inst, attacker, "player")
-		inst.components.follower:StopFollowing()
-	elseif attacker.components.combat ~= nil and inst.components.combat.target == nil then
-        inst.components.combat:SetTarget(attacker)
+	if attacker then
+		if inst.components.follower and inst.components.follower:GetLeader() == attacker then
+			PreventTargetingOnAttacked(inst, attacker, "player")
+			inst.components.follower:StopFollowing()
+		elseif attacker.components.combat and not inst.components.combat:HasTarget() then
+			inst.components.combat:SetTarget(attacker)
+		end
 	end
 end
 
@@ -118,6 +120,7 @@ local function MakePigEliteFighter(variation)
         inst.AnimState:PlayAnimation("idle_loop", true)
         inst.AnimState:Hide("hat")
         inst.AnimState:Hide("ARM_carry")
+        inst.AnimState:Hide("ARM_carry_up")
 
         for i, v in ipairs(BUILD_VARIATIONS[variation]) do
             inst.AnimState:OverrideSymbol(v, "pig_elite_build", v.."_"..variation)

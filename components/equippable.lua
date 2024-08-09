@@ -18,8 +18,8 @@ local function onrestrictedtag(self, restrictedtag)
     end
 end
 
-local function onpreventunequipping(self, equipslot)
-    self.inst.replica.equippable:SetPreventUnequipping(true)
+local function onpreventunequipping(self, prevent)
+    self.inst.replica.equippable:SetPreventUnequipping(prevent)
 end
 
 local Equippable = Class(function(self, inst)
@@ -76,6 +76,10 @@ function Equippable:SetOnUnequip(fn)
     self.onunequipfn = fn
 end
 
+function Equippable:SetDappernessFn(fn)
+    self.dapperfn = fn
+end
+
 function Equippable:SetOnEquipToModel(fn)
     self.onequiptomodelfn = fn
 end
@@ -126,6 +130,14 @@ function Equippable:IsRestricted(target)
         and self.restrictedtag:len() > 0
         and not target:HasTag(self.restrictedtag)
         and target:HasTag("player") --restricted tags only apply to players
+end
+
+function Equippable:IsRestricted_FromLoad(target)
+    if SKILLTREE_EQUIPPABLE_RESTRICTED_TAGS[self.restrictedtag] == target.prefab then
+        -- NOTES(JBK): If a player is resolving equipment from a snapshot load assume the player has the tag only if the tag is from a skill tree.
+        return false
+    end
+    return self:IsRestricted(target)
 end
 
 function Equippable:ShouldPreventUnequipping()
