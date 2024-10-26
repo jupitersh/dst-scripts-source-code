@@ -366,12 +366,21 @@ function SetSkinsOnAnim( anim_state, prefab, base_skin, clothing_names, monkey_c
 		end
 
 		--characters with skirts, and untucked torso clothing need to exchange the render order of the torso and skirt so that the torso is above the skirt
+        -- NOTES(JBK): Sort orders:
+        -- skirt       : skirt > torso > torso_pelvis
+        -- full        : skirt > torso_pelvis > torso
+        -- untucked    : torso > torso_pelvis > skirt
+        -- pelvis_skirt: torso_pelvis > torso > skirt
+        -- pelvis_belt : torso_pelvis > skirt > torso
 		if tuck_torso == "untucked" or (tuck_torso == "untucked_wide" and wide) then
 			--print("torso over the skirt")
 			anim_state:SetSymbolExchange( "skirt", "torso" )
 		elseif tuck_torso == "pelvis_skirt" then
-			--print("torso_pelvis over the skirt")
+			--print("torso_pelvis > torso > skirt")
 			anim_state:SetSymbolExchange( "skirt", "torso_pelvis" )
+        elseif tuck_torso == "pelvis_belt" then
+			--print("torso_pelvis > skirt > torso ")
+			anim_state:SetSymbolExchange("skirt", "torso")
 		end
 		if legs_cuff_size > feet_cuff_size then
 			--if inst.user ~= "KU_MikeBell" then --mike always tucks his pants into all shoes, including high heels...
@@ -380,7 +389,7 @@ function SetSkinsOnAnim( anim_state, prefab, base_skin, clothing_names, monkey_c
 			--end
 		end
 
-		if tuck_torso == "full" then
+		if tuck_torso == "full" or tuck_torso == "pelvis_belt" then
 			torso_build = torso_build or base_skin
 			pelvis_build = pelvis_build or base_skin
 			--print("put the pelvis on top of the base torso")
@@ -567,10 +576,19 @@ function Skinner:CopySkinsFromPlayer(player)
 
 	-- Paste it and hope nothing has went wrong.
 	SetSkinsOnAnim(onto.AnimState, player.prefab, base_skin, skins, monkey_curse, skin_mode, player.prefab)
+
+    -- Save it to the internal table to save later.
+    self.skin_name = skins.base
+    self.clothing.body = skins.body
+    self.clothing.hand = skins.hand
+    self.clothing.legs = skins.legs
+    self.clothing.feet = skins.feet
+    self.monkey_curse = monkey_curse
+    self.skintype = skin_mode
 end
 
 function Skinner:OnSave()
-	return {skin_name = self.skin_name, clothing = self.clothing}
+	return {skin_name = self.skin_name, clothing = self.clothing, monkey_curse = self.monkey_curse, skin_mode = self.skintype}
 end
 
 function Skinner:OnLoad(data)
@@ -579,13 +597,15 @@ function Skinner:OnLoad(data)
     --     Do not validate inventory when restoring snapshot saves,
     --     because the user is not actually logged in at that time.
 
+    self.monkey_curse = data.monkey_curse
+
     if data.clothing ~= nil then
         self.clothing = data.clothing
 
-        if InGamePlay() then
+        if InGamePlay() and self.inst.userid then
             --it's possible that the clothing was traded away. Check to see if the player still owns it on load.
             for type,clothing in pairs( self.clothing ) do
-                if clothing ~= "" and not TheInventory:CheckClientOwnership(self.inst.userid, clothing) then
+                if clothing and clothing ~= "" and not TheInventory:CheckClientOwnership(self.inst.userid, clothing) then
                     self.clothing[type] = ""
                 end
             end
@@ -598,10 +618,14 @@ function Skinner:OnLoad(data)
 		local skin_name = self.inst.prefab.."_none"
 		if data.skin_name ~= nil and
 			data.skin_name ~= skin_name and
-			(not InGamePlay() or TheInventory:CheckClientOwnership(self.inst.userid, data.skin_name)) then
+            data.skin_name ~= "" and
+			(not InGamePlay() or self.inst.userid and TheInventory:CheckClientOwnership(self.inst.userid, data.skin_name)) then
 			--load base skin (check that it hasn't been traded away)
 			skin_name = data.skin_name
 		end
+        if self.useskintypeonload then -- Hack.
+            self.skintype = data.skin_mode
+        end
 		self:SetSkinName(skin_name, true)
 	end
 end
