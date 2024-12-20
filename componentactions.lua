@@ -430,7 +430,7 @@ local COMPONENT_ACTIONS =
                 (doer.replica.inventory:GetNumSlots() > 0 or inst.replica.equippable ~= nil) and
 				not (inst:HasTag("catchable") or (inst:HasTag("fire") and not inst:HasTag("lighter")) or inst:HasTag("smolder")) and
                 (not inst:HasTag("spider") or (doer:HasTag("spiderwhisperer") and right)) and
-                (right or not inst:HasTag("heavy")) and
+				(right or not inst:HasTag("heavy") or inst:HasTag("heavylift_lmb")) and
                 not (right and inst.replica.container ~= nil and inst.replica.equippable == nil) then
                 table.insert(actions, ACTIONS.PICKUP)
             end
@@ -602,6 +602,12 @@ local COMPONENT_ACTIONS =
             end
         end,
 
+		pushable = function(inst, doer, actions, right)
+			if right then
+				table.insert(actions, ACTIONS.START_PUSHING)
+			end
+		end,
+
         quagmire_tappable = function(inst, doer, actions, right)
             if not inst:HasTag("tappable") and not inst:HasTag("fire") then
                 if right then
@@ -687,6 +693,19 @@ local COMPONENT_ACTIONS =
                 table.insert(actions, ACTIONS.SLEEPIN)
             end
         end,
+
+		snowmandecoratable = function(inst, doer, actions, right)
+			if right and not inst:HasTag("waxedplant") then
+				local inventory = doer.replica.inventory
+				if inventory and inventory:IsHeavyLifting() then
+					local item = inventory:GetEquippedItem(EQUIPSLOTS.BODY)
+					if item and item.components.snowmandecoratable then --component exists on clients
+						--stacking large snowballs
+						table.insert(actions, ACTIONS.DECORATESNOWMAN)
+					end
+				end
+			end
+		end,
 
         steeringwheel = function(inst, doer, actions, right)
             if not inst:HasTag("occupied") and not inst:HasTag("fire") then
@@ -1354,10 +1373,7 @@ local COMPONENT_ACTIONS =
 
 		pumpkincarver = function(inst, doer, target, actions)
 			if target.components.pumpkincarvable then --component exists on clients
-				local rider = doer.replica.rider
-				if not (rider and rider:IsRiding()) then
-					table.insert(actions, ACTIONS.CARVEPUMPKIN)
-				end
+				table.insert(actions, ACTIONS.CARVEPUMPKIN)
 			end
 		end,
 
@@ -1505,6 +1521,29 @@ local COMPONENT_ACTIONS =
                 table.insert(actions, ACTIONS.MANUALEXTINGUISH)
             end
         end,
+
+		snowmandecor = function(inst, doer, target, actions)
+			if target.components.snowmandecoratable and --component exists on clients
+				target:HasTag("heavy") and --don't decorate throwable snowballs
+				not target:HasTag("waxedplant")
+			then
+				local inventory = doer.replica.inventory
+				if not (inventory and inventory:IsHeavyLifting()) then
+					--decorate
+					table.insert(actions, ACTIONS.DECORATESNOWMAN)
+				end
+			end
+		end,
+
+		snowmandecoratable = function(inst, doer, target, actions, right)
+			if right and target.components.snowmandecoratable and not target:HasTag("waxedplant") then --component exists on clients
+				local inventory = doer.replica.inventory
+				if not (inventory and inventory:IsHeavyLifting()) then
+					--stacking small throwable snowballs
+					table.insert(actions, ACTIONS.DECORATESNOWMAN)
+				end
+			end
+		end,
 
         soul = function(inst, doer, target, actions)
             if doer == target and target:HasTag("souleater") then
@@ -2035,6 +2074,13 @@ local COMPONENT_ACTIONS =
 					doer.components.playercontroller.isclientcontrollerattached)
 			then
 				table.insert(actions, ACTIONS.REMOTE_TELEPORT)
+			end
+		end,
+
+		snowmandecoratable = function(inst, doer, target, actions, right)
+			if right and target.components.snowmandecoratable and not target:HasTag("waxedplant") then
+				--stacking equipped small snowballs
+				table.insert(actions, ACTIONS.DECORATESNOWMAN)
 			end
 		end,
 

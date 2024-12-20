@@ -286,7 +286,7 @@ local function onitemget(inst, data)
 		if string.len(cutdata) > 0 then
 			inst.pumpkincarving_fx = SpawnPrefab("pumpkincarving_swap_fx")
 			inst.pumpkincarving_fx.entity:SetParent(inst.entity)
-			inst.pumpkincarving_fx:SetCutData(cutdata)
+			inst.pumpkincarving_fx:SetData(cutdata)
 		end
 	end
 
@@ -419,7 +419,7 @@ local function OnLoadPostPass(inst)
 				if string.len(cutdata) > 0 then
 					inst.pumpkincarving_fx = SpawnPrefab("pumpkincarving_swap_fx")
 					inst.pumpkincarving_fx.entity:SetParent(inst.entity)
-					inst.pumpkincarving_fx:SetCutData(cutdata)
+					inst.pumpkincarving_fx:SetData(cutdata)
 				end
 			end
 		end

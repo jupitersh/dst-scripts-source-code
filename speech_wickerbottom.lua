@@ -429,6 +429,18 @@ return{
         {
             ALREADYKNOWN = "I've already familiarized myself with this particular pattern.",
         },
+		CARVEPUMPKIN =
+		{
+			INUSE = "It's obviously being carved by someone else.",
+			BURNING = "It's hot!",
+		},
+		DECORATESNOWMAN =
+		{
+			INUSE = "There's obviously someone decorating it now.",
+			HASHAT = "I can't put it on top of the hat.",
+			STACKEDTOOHIGH = "It's simply too tall for another.",
+			MELTING = "There's no use decorating a snowman that's about to melt.",
+		},
     },
 
 	ANNOUNCE_CANNOT_BUILD =
@@ -997,6 +1009,10 @@ return{
 
 	-- Hallowed Nights 2024
 	ANNOUNCE_NOPUMPKINCARVINGONFIRE = "A hot mess indeed.",
+
+	-- Winter's Feast 2024
+	ANNOUNCE_SNOWBALL_TOO_BIG = "It has reached its full size.",
+	ANNOUNCE_SNOWBALL_NO_SNOW = "There's no snow here to roll it in.",
 
 	BATTLECRY =
 	{
@@ -1922,10 +1938,12 @@ return{
         CHESSPIECE_EYEOFTERROR = "A trophy that doubles as a useful anatomical model.",
         CHESSPIECE_TWINSOFTERROR = "A stone rendition of a pair of mechanical marvels.",
         CHESSPIECE_DAYWALKER = "An accurate stone model of that ill-behaved creature.",
+        CHESSPIECE_DAYWALKER2 = "",
         CHESSPIECE_DEERCLOPS_MUTATED = "Such a strange and grotesque affliction...",
         CHESSPIECE_WARG_MUTATED = "There is much I still don't understand about this beast.",
         CHESSPIECE_BEARGER_MUTATED = "The artist truly captured its ferocity!",
         CHESSPIECE_SHARKBOI = "The mouthiest of its species.",
+        CHESSPIECE_WORMBOSS = "This ancestor of the predatory annelid was far worse.",
 
         CHESSJUNK1 = "The magician's unfinished projects?",
         CHESSJUNK2 = "The magician's unfinished projects?",
@@ -5414,6 +5432,12 @@ return{
         SHADOWTHRALL_PARASITE = "A sort of parasite hailing from another realm.",
 
         PUMPKINCARVER = "I have carved many pumpkins in my day, and I was quite skilled.",
+		SNOWMAN =
+		{
+			GENERIC = "Interesting.",
+			SNOWBALL = "It needs much more to call it a snowman.",
+		},
+        SNOWBALL_ITEM = "Those young ones better mind their manners.",
     },
 
     DESCRIBE_GENERIC = "A rare occurrence. I don't know what that is.",

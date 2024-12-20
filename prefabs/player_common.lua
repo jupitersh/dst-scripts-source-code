@@ -1933,6 +1933,7 @@ local function MakePlayerCharacter(name, customprefabs, customassets, common_pos
 		Asset("ANIM", "anim/player_channelcast_hit.zip"),
 		Asset("ANIM", "anim/player_channelcast_oh_basic.zip"), --channelcast using off-hand (can walk)
 		Asset("ANIM", "anim/player_channelcast_oh_hit.zip"),
+		Asset("ANIM", "anim/player_pushing.zip"),
 
         Asset("ANIM", "anim/player_sandstorm.zip"),
         Asset("ANIM", "anim/player_tiptoe.zip"),

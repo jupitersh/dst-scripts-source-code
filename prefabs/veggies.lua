@@ -1,7 +1,7 @@
 require "tuning"
 local PLANT_DEFS = require("prefabs/farm_plant_defs").PLANT_DEFS
 
-local function MakeVegStats(seedweight, hunger, health, perish_time, sanity, cooked_hunger, cooked_health, cooked_perish_time, cooked_sanity, float_settings, cooked_float_settings, dryable, secondary_foodtype, halloweenmoonmutable_settings, lure_data)
+local function MakeVegStats(seedweight, hunger, health, perish_time, sanity, cooked_hunger, cooked_health, cooked_perish_time, cooked_sanity, float_settings, cooked_float_settings, dryable, secondary_foodtype, halloweenmoonmutable_settings, lure_data, issnowmandecor)
     return {
         health = health,
         hunger = hunger,
@@ -18,6 +18,7 @@ local function MakeVegStats(seedweight, hunger, health, perish_time, sanity, coo
 		halloweenmoonmutable_settings = halloweenmoonmutable_settings,
 		secondary_foodtype = secondary_foodtype,
         lure_data = lure_data,
+		issnowmandecor = issnowmandecor,
     }
 end
 
@@ -45,7 +46,9 @@ VEGGIES =
                                     TUNING.CALORIES_SMALL,  TUNING.HEALING_SMALL,   TUNING.PERISH_FAST, 0,
                                     {"med", 0.05, 0.8},    {"small", 0.1, nil},
 									nil, nil,
-                                    {prefab = "carrat"}),
+									{prefab = "carrat"},
+									nil,
+									true--[[snowmandecor]]),
 
     corn = MakeVegStats(COMMON, TUNING.CALORIES_MED,    TUNING.HEALING_SMALL,   TUNING.PERISH_MED, 0,
                                 TUNING.CALORIES_SMALL,  TUNING.HEALING_SMALL,   TUNING.PERISH_SLOW, 0),
@@ -55,7 +58,12 @@ VEGGIES =
                                         nil,    {"small", 0.1, nil}),
 
     eggplant = MakeVegStats(UNCOMMON,   TUNING.CALORIES_MED,    TUNING.HEALING_MEDSMALL,    TUNING.PERISH_MED, 0,
-                                        TUNING.CALORIES_MED,    TUNING.HEALING_MED,     TUNING.PERISH_FAST, 0),
+										TUNING.CALORIES_MED,    TUNING.HEALING_MED,     TUNING.PERISH_FAST, 0,
+										nil, nil,
+										nil, nil,
+										nil,
+										nil,
+										true--[[snowmandecor]]),
 
     durian = MakeVegStats(RARE, TUNING.CALORIES_MED,    -TUNING.HEALING_SMALL,  TUNING.PERISH_MED, -TUNING.SANITY_TINY,
                                 TUNING.CALORIES_MED,    0,                      TUNING.PERISH_FAST, -TUNING.SANITY_TINY,
@@ -80,7 +88,8 @@ VEGGIES =
 								nil,
 								FOODTYPE.BERRY,
 								nil,
-                                {lure_data = TUNING.OCEANFISHING_LURE.BERRY, single_use = true, build = "oceanfishing_lure_mis", symbol = "hook_berries"}),
+								{lure_data = TUNING.OCEANFISHING_LURE.BERRY, single_use = true, build = "oceanfishing_lure_mis", symbol = "hook_berries"},
+								true--[[snowmandecor]]),
 
     berries_juicy = MakeVegStats(0, TUNING.CALORIES_SMALL,  TUNING.HEALING_TINY,  TUNING.PERISH_TWO_DAY, 0,
                                     TUNING.CALORIES_MEDSMALL,  TUNING.HEALING_SMALL,    TUNING.PERISH_ONE_DAY, 0,
@@ -88,7 +97,8 @@ VEGGIES =
 									nil,
 									FOODTYPE.BERRY,
 									nil,
-                                    {lure_data = TUNING.OCEANFISHING_LURE.BERRY, single_use = true, build = "oceanfishing_lure_mis", symbol = "hook_juiceberries"}),
+									{lure_data = TUNING.OCEANFISHING_LURE.BERRY, single_use = true, build = "oceanfishing_lure_mis", symbol = "hook_juiceberries"},
+									true--[[snowmandecor]]),
 
     fig = MakeVegStats(0,   TUNING.CALORIES_SMALL,   0,  TUNING.PERISH_FAST, 0,
                                     TUNING.CALORIES_MEDSMALL,  TUNING.HEALING_TINY,    TUNING.PERISH_SUPERFAST, 0,
@@ -121,7 +131,11 @@ VEGGIES =
 
     asparagus = MakeVegStats(UNCOMMON, TUNING.CALORIES_SMALL, TUNING.HEALING_SMALL, TUNING.PERISH_FAST, 0,
                                      TUNING.CALORIES_MED, TUNING.HEALING_SMALL, TUNING.PERISH_SUPERFAST, 0,
-                                     {"med", nil, 0.7}),
+									{"med", nil, 0.7}, nil,
+									nil, nil,
+									nil,
+									nil,
+									true--[[snowmandecor]]),
 
     onion = MakeVegStats(RARE, TUNING.CALORIES_TINY, 0, TUNING.PERISH_SLOW, -TUNING.SANITY_SMALL,
                                    TUNING.CALORIES_TINY, TUNING.HEALING_TINY, TUNING.PERISH_MED, -TUNING.SANITY_TINY,
@@ -133,7 +147,11 @@ VEGGIES =
 
     pepper = MakeVegStats(RARE, TUNING.CALORIES_TINY, -TUNING.HEALING_MED, TUNING.PERISH_SLOW, -TUNING.SANITY_MED,
                                     TUNING.CALORIES_TINY, -TUNING.HEALING_SMALL, TUNING.PERISH_SLOW, -TUNING.SANITY_SMALL,
-                                    {nil, 0.1, 0.75}),
+									{nil, 0.1, 0.75}, nil,
+									nil, nil,
+									nil,
+									nil,
+									true--[[snowmandecor]]),
 }
 
 VEGGIES.cave_banana.extra_tags_fresh = {"monkeyqueenbribe"}
@@ -360,7 +378,7 @@ local function MakeVeggie(name, has_seeds)
 
 	local plant_def = PLANT_DEFS[name]
 	local seeds_prefabs = has_seeds and { "farm_plant_"..name } or nil
-	local oversized_prefabs = plant_def and plant_def.iscarvable and { "pumpkincarving_swap_fx" } or nil
+	local oversized_prefabs = plant_def and plant_def.iscarvable and { "pumpkincarving_swap_fx", "pumpkincarving_shatter_fx" } or nil
 
     local assets_oversized = {}
     if has_seeds then
@@ -628,6 +646,10 @@ local function MakeVeggie(name, has_seeds)
 			inst:AddComponent("halloweenmoonmutable")
 			inst.components.halloweenmoonmutable:SetPrefabMutated(halloweenmoonmutable_settings.prefab)
 			inst.components.halloweenmoonmutable:SetOnMutateFn(halloweenmoonmutable_settings.onmutatefn)
+		end
+
+		if VEGGIES[name].issnowmandecor then
+			inst:AddComponent("snowmandecor")
 		end
 
         if TheNet:GetServerGameMode() == "quagmire" then

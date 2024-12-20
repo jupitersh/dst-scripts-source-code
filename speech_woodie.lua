@@ -429,6 +429,18 @@ return{
         {
             ALREADYKNOWN = "Nothin' new here.",
         },
+		CARVEPUMPKIN =
+		{
+			INUSE = "It's getting carved already.",
+			BURNING = "We're burning, Luce!",
+		},
+		DECORATESNOWMAN =
+		{
+			INUSE = "It's being decorated.",
+			HASHAT = "I can't just throw it on top of that hat.",
+			STACKEDTOOHIGH = "She's too tall.",
+			MELTING = "Looks like she's melting.",
+		},
     },
 
 	ANNOUNCE_CANNOT_BUILD =
@@ -998,6 +1010,10 @@ return{
 
 	-- Hallowed Nights 2024
 	ANNOUNCE_NOPUMPKINCARVINGONFIRE = "Aw. That was my best one yet.",
+
+	-- Winter's Feast 2024
+	ANNOUNCE_SNOWBALL_TOO_BIG = "She won't get any bigger.",
+	ANNOUNCE_SNOWBALL_NO_SNOW = "We need to find more snow.",
 
 	BATTLECRY =
 	{
@@ -1923,10 +1939,12 @@ return{
         CHESSPIECE_EYEOFTERROR = "That's the worst case of cataract I've ever seen.",
         CHESSPIECE_TWINSOFTERROR = "They make a good lookin' statue, eh?",
         CHESSPIECE_DAYWALKER = "Not lookin' so tough now, eh?",
+        CHESSPIECE_DAYWALKER2 = "He keeps coming back for more, eh?",
         CHESSPIECE_DEERCLOPS_MUTATED = "She'd look great up on the mantle.",
         CHESSPIECE_WARG_MUTATED = "There's a good dog.",
         CHESSPIECE_BEARGER_MUTATED = "We sure showed big boy, eh Luce?",
         CHESSPIECE_SHARKBOI = "Hey there, fish breath.",
+        CHESSPIECE_WORMBOSS = "I still have nightmares about that thing.",
 
         CHESSJUNK1 = "Dead metal.",
         CHESSJUNK2 = "Dead metal.",
@@ -5415,6 +5433,12 @@ return{
         SHADOWTHRALL_PARASITE = "It makes me uncomfortable.",
 
         PUMPKINCARVER = "Sure you can carve a pumpkin better, Luce. Sure.",
+		SNOWMAN =
+		{
+			GENERIC = "I've seen my share of snowmen.",
+			SNOWBALL = "Yup. That's a big ol' snowball.",
+		},
+        SNOWBALL_ITEM = "The kids always used to aim for my head.",
     },
 
     DESCRIBE_GENERIC = "What's that, eh?",

@@ -1617,6 +1617,10 @@ function ScrapbookScreen:PopulateInfoPanel(entry)
 		if data.burnable then
 			makeentry("icon_burnable.tex", STRINGS.SCRAPBOOK.DATA_BURNABLE)
 		end
+
+		if data.snowmandecor then
+			makeentry("icon_snowmandeco.tex", STRINGS.SCRAPBOOK.DATA_SNOWMANDECO)
+		end		
 	end
 
 	---------------------------------------------

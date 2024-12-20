@@ -154,6 +154,10 @@ PREFAB_SKINS = {
 		"batbat_fantasy",
 		"batbat_scythe",
 	},
+	beargerfur_sack =
+	{
+		"beargerfursack_rose",
+	},
 	beargervest =
 	{
 		"beargervest_rose",
@@ -165,6 +169,7 @@ PREFAB_SKINS = {
 		"bedroll_furry_potato",
 		"bedroll_furry_quilt_blue_frost",
 		"bedroll_furry_quilt_green_hunters",
+		"bedroll_furry_quilt_grey",
 		"bedroll_furry_quilt_orange_honey",
 		"bedroll_furry_quilt_red_redbird",
 		"bedroll_furry_quilt_white_ivory",
@@ -545,6 +550,17 @@ PREFAB_SKINS = {
 	dreadstonehat =
 	{
 		"hat_dreadstone_horn",
+	},
+	dug_gravestone =
+	{
+		"dug_gravestone_fantasy",
+		"dug_gravestone_fantasy2",
+		"dug_gravestone_fantasy3",
+		"dug_gravestone_fantasy4",
+		"dug_gravestone_gothic",
+		"dug_gravestone_gothic2",
+		"dug_gravestone_gothic3",
+		"dug_gravestone_gothic4",
 	},
 	earmuffshat =
 	{
@@ -1477,6 +1493,10 @@ PREFAB_SKINS = {
 	{
 		"trophyscale_oversizedveggies_plant",
 	},
+	trunkvest_winter =
+	{
+		"armor_trunkvest_winter_quilted",
+	},
 	umbrella =
 	{
 		"umbrella_circus",
@@ -1628,6 +1648,7 @@ PREFAB_SKINS = {
 		"warly_rose",
 		"warly_shadow",
 		"warly_victorian",
+		"warly_yule",
 	},
 	wateringcan =
 	{
@@ -2033,6 +2054,7 @@ PREFAB_SKINS = {
 		"wolfgang_walrus_p",
 		"wolfgang_wolfman",
 		"wolfgang_wrestler",
+		"wolfgang_yule",
 	},
 	wonkey =
 	{
@@ -2140,6 +2162,7 @@ PREFAB_SKINS = {
 		"wortox_shadow",
 		"wortox_survivor",
 		"wortox_victorian",
+		"wortox_yule",
 	},
 	wurt =
 	{

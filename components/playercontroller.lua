@@ -3809,7 +3809,9 @@ function PlayerController:DoActionAutoEquip(buffaction)
         buffaction.action ~= ACTIONS.DEPLOY and
         buffaction.action ~= ACTIONS.CONSTRUCT and
 		buffaction.action ~= ACTIONS.ADDCOMPOSTABLE and
-		(buffaction.action ~= ACTIONS.TOSS or not equippable.inst:HasTag("keep_equip_toss")) then
+		(buffaction.action ~= ACTIONS.TOSS or not equippable.inst:HasTag("keep_equip_toss")) and
+		buffaction.action ~= ACTIONS.DECORATESNOWMAN
+	then
         self.inst.replica.inventory:EquipActionItem(buffaction.invobject)
         buffaction.autoequipped = true
     end

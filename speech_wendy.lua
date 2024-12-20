@@ -429,6 +429,18 @@ return{
         {
             ALREADYKNOWN = "Ah. I've seen it before.",
         },
+		CARVEPUMPKIN =
+		{
+			INUSE = "That pumpkin is being stabbed already.",
+			BURNING = "I'm being burned.",
+		},
+		DECORATESNOWMAN =
+		{
+			INUSE = "I won't interrupt.",
+			HASHAT = "I can't crush that poor hat.",
+			STACKEDTOOHIGH = "It's too tall.",
+			MELTING = "It's no use. It's the end for this one.",
+		},
     },
 
 	ANNOUNCE_CANNOT_BUILD =
@@ -1001,6 +1013,10 @@ return{
 
 	-- Hallowed Nights 2024
 	ANNOUNCE_NOPUMPKINCARVINGONFIRE = "Oh well.",
+
+	-- Winter's Feast 2024
+	ANNOUNCE_SNOWBALL_TOO_BIG = "There's no use rolling it more.",
+	ANNOUNCE_SNOWBALL_NO_SNOW = "The ground lies barren, stripped of its winter coat.",
 
 	BATTLECRY =
 	{
@@ -1926,10 +1942,12 @@ return{
         CHESSPIECE_EYEOFTERROR = "Its stony gaze will glare for eternity.",
         CHESSPIECE_TWINSOFTERROR = "I still remember watching the light leave their eyes.",
         CHESSPIECE_DAYWALKER = "A reminder that kindness only leads to pain.",
+        CHESSPIECE_DAYWALKER2 = "His pain led to anger.",
         CHESSPIECE_DEERCLOPS_MUTATED = "The beast came back even colder than before.",
         CHESSPIECE_WARG_MUTATED = "Why was it able to come back? It's not fair...",
         CHESSPIECE_BEARGER_MUTATED = "Its new lease on life was, well, short-lived.",
         CHESSPIECE_SHARKBOI = "Their cold shark heart was just misunderstood.",
+        CHESSPIECE_WORMBOSS = "It consumed to fill its endless void.",
 
         CHESSJUNK1 = "Cold, dead artificial life.",
         CHESSJUNK2 = "Cold, dead artificial life.",
@@ -5418,6 +5436,12 @@ return{
         SHADOWTHRALL_PARASITE = "Parasite.",
 
         PUMPKINCARVER = "I love a pumpkin gutting contest.",
+		SNOWMAN =
+		{
+			GENERIC = "The cold keeps it.",
+			SNOWBALL = "It has potential.",
+		},
+        SNOWBALL_ITEM = "I remember fun.",
     },
 
     DESCRIBE_GENERIC = "Sigh... I don't know.",

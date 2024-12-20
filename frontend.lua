@@ -314,7 +314,8 @@ function FrontEnd:GetHelpText()
 	local widget = self:GetFocusWidget()
     local active_screen = self:GetActiveScreen()
 
-	if active_screen ~= widget and active_screen ~= nil then
+    local active_screen_exclusivehelp = active_screen and active_screen.HasExclusiveHelpText and active_screen:HasExclusiveHelpText() or false
+	if active_screen_exclusivehelp or active_screen and active_screen ~= widget then
 		local str = active_screen:GetHelpText()
 		if str ~= nil and str ~= "" then
 			table.insert(t, str)
@@ -323,7 +324,7 @@ function FrontEnd:GetHelpText()
 
 	-- Show the help text for secondary widgets, like scroll bars
 	local intermediate_widgets = self:GetIntermediateFocusWidgets()
-	if intermediate_widgets then
+	if not active_screen_exclusivehelp and intermediate_widgets then
 		for i,v in ipairs(intermediate_widgets) do
 			if v and v ~= widget and v.GetHelpText then
 				local str = v:GetHelpText()
@@ -342,7 +343,7 @@ function FrontEnd:GetHelpText()
 	end
 
 	-- Show the help text for the focused widget
-	if widget and widget.GetHelpText then
+	if not active_screen_exclusivehelp and widget and widget.GetHelpText then
 		if widget.HasExclusiveHelpText and widget:HasExclusiveHelpText() then
 			-- Only use this widgets help text, clear all other help text
 			t = {}
@@ -869,7 +870,7 @@ function FrontEnd:Update(dt)
 	end
 
 	self.helptext:Hide()
-	if controller
+	if (controller or self.showhelptextforeverything)
         and self:GetFadeLevel() < 1
 		and not self.crafting_navigation_mode
         and not (self.fadedir == FADE_OUT and self.fade_type ~= "black") then
@@ -886,6 +887,17 @@ function FrontEnd:Update(dt)
 	end
 
 	TheSim:ProfilerPop()
+end
+
+function FrontEnd:PushShowHelpTextForEverything()
+    self.showhelptextforeverything = (self.showhelptextforeverything or 0) + 1
+end
+
+function FrontEnd:PopShowHelpTextForEverything()
+    self.showhelptextforeverything = self.showhelptextforeverything - 1
+    if self.showhelptextforeverything <= 0 then
+        self.showhelptextforeverything = nil
+    end
 end
 
 function FrontEnd:DoHoverFocusUpdate(manual_update)

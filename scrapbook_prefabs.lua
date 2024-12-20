@@ -1817,6 +1817,17 @@ local PREFABS =
 
     ["shadowthrall_parasite"] = true,
 
+    -- Winter's Feast 2024
+    ["chesspiece_wormboss"] = true,
+    ["chesspiece_daywalker2"] = true,
+
+    ["winter_ornament_boss_daywalker2"] = true,
+    ["winter_ornament_boss_sharkboi"] = true,
+    ["winter_ornament_boss_wormboss"] = true,
+
+    ["snowball_item"] = true,
+    ["snowman"] = true,
+
     --[[POI]]
     ["charlie_stage_post"] = true,
     ["beequeenhivegrown"] = true,

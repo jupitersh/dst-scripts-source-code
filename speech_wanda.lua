@@ -429,6 +429,18 @@ return{
         {
             ALREADYKNOWN = "I'm sure I've seen this before.",
         },
+		CARVEPUMPKIN =
+		{
+			INUSE = "Someone's already carving it.",
+			BURNING = "I'm burning!",
+		},
+		DECORATESNOWMAN =
+		{
+			INUSE = "Someone's decorating it.",
+			HASHAT = "I can't. Someone left a hat there.",
+			STACKEDTOOHIGH = "Nope. It's plenty tall.",
+			MELTING = "Its time has run out.",
+		},
     },
 
 	ANNOUNCE_CANNOT_BUILD =
@@ -997,6 +1009,10 @@ return{
 
 	-- Hallowed Nights 2024
 	ANNOUNCE_NOPUMPKINCARVINGONFIRE = "What a waste of time.",
+
+	-- Winter's Feast 2024
+	ANNOUNCE_SNOWBALL_TOO_BIG = "Let's not waste time. It's as big as it'll get.",
+	ANNOUNCE_SNOWBALL_NO_SNOW = "There's no snow.",
 
 	BATTLECRY =
 	{
@@ -1922,10 +1938,12 @@ return{
         CHESSPIECE_EYEOFTERROR = "Certainly an eye to behold.",
         CHESSPIECE_TWINSOFTERROR = "I'd be quite happy to never lay eyes on them again.",
         CHESSPIECE_DAYWALKER = "Ah yes, how could I forget that time I was nearly smashed to bits?",
+        CHESSPIECE_DAYWALKER2 = "A familiar face I couldn't forget soon enough.",
         CHESSPIECE_DEERCLOPS_MUTATED = "What an unpleasant subject for a statue.",
         CHESSPIECE_WARG_MUTATED = "That's one memory I'd be happy not to revisit.",
         CHESSPIECE_BEARGER_MUTATED = "Oh, wonderful. It's even worse than I remembered.",
         CHESSPIECE_SHARKBOI = "How could I forget this ruffian?",
+        CHESSPIECE_WORMBOSS = "Rather not relive this one.",
 
         CHESSJUNK1 = "I don't see much in the way of proper clockwork in there.",
         CHESSJUNK2 = "I have a suspicion these were held together with more magic than craftsmanship.",
@@ -5414,6 +5432,12 @@ return{
         SHADOWTHRALL_PARASITE = "Wondered when you'd be showing up.",
 
         PUMPKINCARVER = "No time for fun... Well, maybe this once.",
+		SNOWMAN =
+		{
+			GENERIC = "Child's play. Not bad, though.",
+			SNOWBALL = "Must admit I have a few ideas for this one.",
+		},
+        SNOWBALL_ITEM = "There's always time for a snowball fight.",
     },
 
     DESCRIBE_GENERIC = "A very particular something or other.",

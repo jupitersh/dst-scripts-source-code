@@ -568,6 +568,8 @@ local function batwing()
 
     inst.components.perishable:SetPerishTime(TUNING.PERISH_FAST)
 
+	inst:AddComponent("snowmandecor")
+
     return inst
 end
 

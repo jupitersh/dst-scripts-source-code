@@ -108,6 +108,7 @@ return
 		"body_warly_rose",
 		"body_warly_shadow",
 		"body_warly_victorian",
+		"body_warly_yule",
 		"feet_warly_candyman",
 		"feet_warly_chef",
 		"feet_warly_fisherman",
@@ -133,6 +134,7 @@ return
 		"legs_warly_rose",
 		"legs_warly_shadow",
 		"legs_warly_victorian",
+		"legs_warly_yule",
 		"warly_candyman",
 		"warly_carrat",
 		"warly_carrat_d",
@@ -148,6 +150,7 @@ return
 		"warly_rose",
 		"warly_shadow",
 		"warly_victorian",
+		"warly_yule",
 	},
 	wathgrithr =
 	{
@@ -815,12 +818,14 @@ return
 		"body_wolfgang_walrusp",
 		"body_wolfgang_wolfman",
 		"body_wolfgang_wrestler",
+		"body_wolfgang_yule",
 		"feet_ridingboot_white_pure",
 		"feet_ridingbootp_white_pure",
 		"feet_wolfgang_gladiator",
 		"feet_wolfgang_ice",
 		"feet_wolfgang_nature",
 		"feet_wolfgang_pirate",
+		"feet_wolfgang_yule",
 		"hand_wolfgang_gladiator",
 		"hand_wolfgang_ice",
 		"hand_wolfgang_lunar",
@@ -836,6 +841,7 @@ return
 		"legs_wolfgang_strongman",
 		"legs_wolfgang_victorian",
 		"legs_wolfgang_wolfman",
+		"legs_wolfgang_yule",
 		"wolfgang_ancient",
 		"wolfgang_combatant",
 		"wolfgang_cook",
@@ -860,6 +866,7 @@ return
 		"wolfgang_walrus_p",
 		"wolfgang_wolfman",
 		"wolfgang_wrestler",
+		"wolfgang_yule",
 	},
 	woodie =
 	{
@@ -1010,6 +1017,7 @@ return
 		"body_wortox_shadow",
 		"body_wortox_survivor",
 		"body_wortox_victorian",
+		"body_wortox_yule",
 		"hand_wortox_minotaur",
 		"hand_wortox_nature",
 		"hand_wortox_original",
@@ -1029,6 +1037,7 @@ return
 		"legs_wortox_shadow",
 		"legs_wortox_survivor",
 		"legs_wortox_victorian",
+		"legs_wortox_yule",
 		"wortox_dragon",
 		"wortox_formal",
 		"wortox_ice",
@@ -1045,6 +1054,7 @@ return
 		"wortox_shadow",
 		"wortox_survivor",
 		"wortox_victorian",
+		"wortox_yule",
 	},
 	wurt =
 	{

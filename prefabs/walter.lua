@@ -64,7 +64,8 @@ end
 
 local function OnHealthDelta(inst, data)
     if data.amount < 0 then
-        inst.components.sanity:DoDelta(data.amount * ((data ~= nil and data.overtime) and TUNING.WALTER_SANITY_DAMAGE_OVERTIME_RATE or TUNING.WALTER_SANITY_DAMAGE_RATE) * inst._sanity_damage_protection:Get())
+		local overtime = data and data.overtime or nil
+		inst.components.sanity:DoDelta(data.amount * (overtime and TUNING.WALTER_SANITY_DAMAGE_OVERTIME_RATE or TUNING.WALTER_SANITY_DAMAGE_RATE) * inst._sanity_damage_protection:Get(), overtime)
     end
 end
 

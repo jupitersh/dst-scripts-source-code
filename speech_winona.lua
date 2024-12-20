@@ -429,6 +429,18 @@ return{
         {
             ALREADYKNOWN = "I've already got this one down pat.",
         },
+		CARVEPUMPKIN =
+		{
+			INUSE = "I'll hafta find another one.",
+			BURNING = "I'm burnin' up!",
+		},
+		DECORATESNOWMAN =
+		{
+			INUSE = "It's gettin' built already.",
+			HASHAT = "I ain't gonna stack it on the hat.",
+			STACKEDTOOHIGH = "That's a tall drink of ice water.",
+			MELTING = "Ain't nothin' gonna stick to a melting snowman.",
+		},
     },
 
 	ANNOUNCE_CANNOT_BUILD =
@@ -1003,6 +1015,10 @@ return{
 
 	-- Hallowed Nights 2024
 	ANNOUNCE_NOPUMPKINCARVINGONFIRE = "You're supposed to light it after it's been carved.",
+
+	-- Winter's Feast 2024
+	ANNOUNCE_SNOWBALL_TOO_BIG = "It ain't gonna get any bigger.",
+	ANNOUNCE_SNOWBALL_NO_SNOW = "Ain't no snow around.",
 
 	BATTLECRY =
 	{
@@ -1928,10 +1944,12 @@ return{
         CHESSPIECE_EYEOFTERROR = "An eye (statue) for an eye (monster)!",
         CHESSPIECE_TWINSOFTERROR = "A fresh pair of eyes is just what we needed around here!",
         CHESSPIECE_DAYWALKER = "It's so lifelike, I can almost smell the bad breath.",
+        CHESSPIECE_DAYWALKER2 = "This hog don't know how to quit.",
         CHESSPIECE_DEERCLOPS_MUTATED = "She's almost a looker.",
         CHESSPIECE_WARG_MUTATED = "Now this is a pooch I could play with.",
         CHESSPIECE_BEARGER_MUTATED = "That was one ornery son of a beast.",
         CHESSPIECE_SHARKBOI = "That shark was kind of a jerk.",
+        CHESSPIECE_WORMBOSS = "What a big nasty worm that was. Blegh.",
 
         CHESSJUNK1 = "A heap of spare parts.",
         CHESSJUNK2 = "A heap of spare parts.",
@@ -5420,6 +5438,12 @@ return{
         SHADOWTHRALL_PARASITE = "Looks like a real headache.",
 
         PUMPKINCARVER = "A pumpkin carver is only as good as their tools.",
+		SNOWMAN =
+		{
+			GENERIC = "Not exactly a marvel of engineering.",
+			SNOWBALL = "It's a start.",
+		},
+        SNOWBALL_ITEM = "This could be fun.",
     },
 
     DESCRIBE_GENERIC = "Incredible! I have no idea what that is.",

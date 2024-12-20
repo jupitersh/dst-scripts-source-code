@@ -499,7 +499,11 @@ local prefabs =
     "rabbitking_lucky",
 
     "itemmimic_revealed",
-    
+
+	-- Winter's Feast 2024
+    -- snowballmanager
+    "snowball_item",
+    "snowball_shatter_fx",
 }
 
 local FISH_DATA = require("prefabs/oceanfishdef")
@@ -612,6 +616,7 @@ local function master_postinit(inst)
     if IsSpecialEventActive(SPECIAL_EVENTS.WINTERS_FEAST) then
         inst:AddComponent("gingerbreadhunter")
     end
+    inst:AddComponent("snowballmanager")
 
     inst:AddComponent("feasts")
 

@@ -3319,6 +3319,13 @@ local fx =
 		end,
 	},
     {
+        name = "snowball_shatter_fx",
+        bank = "snowball",
+        build = "snowball",
+        anim = "fx_place",
+		fn = FinalOffset2,
+    },
+    {
         name = "shadowthrall_parasite_attach_poof_fx",
         bank = "shadow_thrall_parasite_transition_fx",
         build = "shadow_thrall_parasite_transition_fx",

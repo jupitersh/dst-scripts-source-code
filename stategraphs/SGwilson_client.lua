@@ -756,6 +756,25 @@ local actionhandlers =
 
     ActionHandler(ACTIONS.INCINERATE, "doshortaction"),
 	ActionHandler(ACTIONS.BOTTLE, "dolongaction"),
+	ActionHandler(ACTIONS.CARVEPUMPKIN, "pumpkincarving_pre"),
+	ActionHandler(ACTIONS.DECORATESNOWMAN, function(inst, action)
+		if action.invobject then
+			if action.invobject.components.snowmandecoratable then
+				return "dostandingaction" --stack small throwable snowball
+			end
+			local equippable = action.invobject.replica.equippable
+			if equippable and equippable:EquipSlot() == EQUIPSLOTS.HEAD then
+				return "dostandingaction" --equip hat
+			end
+		elseif action.doer then
+			local inventory = action.doer.replica.inventory
+			if inventory and inventory:IsHeavyLifting() then
+				return "dostandingaction" --stack large heavylifting snowball
+			end
+		end
+		return "snowmandecorating_pre" --decorate
+	end),
+	ActionHandler(ACTIONS.START_PUSHING, "pushing_walk_pre"),
 }
 
 local events =
@@ -5893,9 +5912,29 @@ local states =
 	--------------------------------------------------------------------------
 
 	State{
+		name = "pumpkincarving_pre",
+		server_states = { "pumpkincarving_pre", "pumpkincarving" },
+		forward_server_states = true,
+		onenter = function(inst) inst.sg:GoToState("longaction_busy") end,
+	},
+
+	State{
+		name = "openslingshotmods",
+		server_states = { "openslingshotmods" },
+		forward_server_states = true,
+		onenter = function(inst) inst.sg:GoToState("longaction_busy") end,
+	},
+
+	State{
 		name = "start_pocket_rummage",
-		tags = { "doing", "busy" },
 		server_states = { "start_pocket_rummage" },
+		forward_server_states = true,
+		onenter = function(inst) inst.sg:GoToState("longaction_busy") end,
+	},
+
+	State{
+		name = "longaction_busy",
+		tags = { "doing", "busy" },
 
 		onenter = function(inst)
 			inst.components.locomotor:Stop()
@@ -5909,7 +5948,7 @@ local states =
 
 		timeline =
 		{
-			FrameEvent(6, function(inst)
+			FrameEvent(7, function(inst)
 				inst.sg:RemoveStateTag("busy")
 			end),
 		},
@@ -5928,6 +5967,50 @@ local states =
 		ontimeout = function(inst)
 			inst:ClearBufferedAction()
 			inst.AnimState:PlayAnimation("build_pst")
+			inst.sg:GoToState("idle", true)
+		end,
+
+		onexit = function(inst)
+			inst.SoundEmitter:KillSound("make_preview")
+		end,
+	},
+
+	State{
+		name = "snowmandecorating_pre",
+		tags = { "doing", "busy" },
+		server_states = { "snowmandecorating_pre", "snowmandecorating" },
+
+		onenter = function(inst)
+			inst.components.locomotor:Stop()
+			inst.SoundEmitter:PlaySound("dontstarve/wilson/make_trap", "make_preview")
+			inst.AnimState:PlayAnimation("construct_pre")
+			inst.AnimState:PushAnimation("construct_loop")
+
+			inst:PerformPreviewBufferedAction()
+			inst.sg:SetTimeout(TIMEOUT)
+		end,
+
+		timeline =
+		{
+			FrameEvent(7, function(inst)
+				inst.sg:RemoveStateTag("busy")
+			end),
+		},
+
+		onupdate = function(inst)
+			if inst.sg:ServerStateMatches() then
+				if inst.entity:FlattenMovementPrediction() then
+					inst.sg:GoToState("idle", "noanim")
+				end
+			elseif inst.bufferedaction == nil then
+				inst.AnimState:PlayAnimation("construct_pst")
+				inst.sg:GoToState("idle", true)
+			end
+		end,
+
+		ontimeout = function(inst)
+			inst:ClearBufferedAction()
+			inst.AnimState:PlayAnimation("construct_pst")
 			inst.sg:GoToState("idle", true)
 		end,
 
@@ -6043,6 +6126,42 @@ local states =
 		ontimeout = function(inst)
 			inst:ClearBufferedAction()
 			inst.AnimState:PlayAnimation("closeinspect_pst")
+			inst.sg:GoToState("idle", true)
+		end,
+	},
+
+	State{
+		name = "pushing_walk_pre",
+		tags = { "busy" },
+		server_states = { "pushing_walk_pre", "pushing_walk" },
+
+		onenter = function(inst)
+			inst.components.locomotor:Stop()
+			inst.AnimState:PlayAnimation("pushing_idle_pre")
+			inst:PerformPreviewBufferedAction()
+			inst.sg:SetTimeout(TIMEOUT)
+		end,
+
+		timeline =
+		{
+			FrameEvent(2, function(inst)
+				inst.AnimState:PlayAnimation("pushing_lag")
+			end),
+		},
+
+		onupdate = function(inst)
+			if inst.sg:ServerStateMatches() then
+				if inst.entity:FlattenMovementPrediction() then
+					inst.sg:GoToState("idle", "noanim")
+				end
+			elseif inst.bufferedaction == nil then
+				inst.sg:GoToState("idle")
+			end
+		end,
+
+		ontimeout = function(inst)
+			inst:ClearBufferedAction()
+			inst.AnimState:PlayAnimation("pushing_idle_pst")
 			inst.sg:GoToState("idle", true)
 		end,
 	},

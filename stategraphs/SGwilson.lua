@@ -1204,6 +1204,21 @@ local actionhandlers =
     ActionHandler(ACTIONS.INCINERATE, "doshortaction"),
 	ActionHandler(ACTIONS.BOTTLE, "dolongaction"),
 	ActionHandler(ACTIONS.CARVEPUMPKIN, "pumpkincarving_pre"),
+	ActionHandler(ACTIONS.DECORATESNOWMAN, function(inst, action)
+		if action.invobject then
+			if action.invobject.components.snowmandecoratable then
+				return "dostandingaction" --stack small throwable snowball
+			end
+			local equippable = action.invobject.replica.equippable
+			if equippable and equippable:EquipSlot() == EQUIPSLOTS.HEAD then
+				return "dostandingaction" --equip hat
+			end
+		elseif action.doer and action.doer.components.inventory and action.doer.components.inventory:IsHeavyLifting() then
+			return "dostandingaction" --stack large heavylifting snowball
+		end
+		return "snowmandecorating_pre" --decorate
+	end),
+	ActionHandler(ACTIONS.START_PUSHING, "pushing_walk_pre"),
 }
 
 local events =
@@ -5947,10 +5962,20 @@ local states =
 
 		timeline =
 		{
-			TimeEvent(7 * FRAMES, function(inst)
+			FrameEvent(7, function(inst)
 				inst.SoundEmitter:KillSound("make")
 				inst.sg:RemoveStateTag("busy")
-				inst:PerformBufferedAction()
+				if inst.bufferedaction then
+					local obj = inst.bufferedaction.invobject
+					if obj then
+						if obj.prevcontainer and obj.prevcontainer ~= inst.components.inventory:GetOverflowContainer() then
+							obj.prevcontainer = nil
+							obj.prevslot = nil
+						end
+						inst.components.inventory:ReturnActiveActionItem(obj)
+					end
+					inst:PerformBufferedAction()
+				end
 			end),
 		},
 
@@ -5970,7 +5995,7 @@ local states =
 
 	State{
 		name = "pumpkincarving",
-		tags = { "pumpkincarving", "busy", "pausepredict" },
+		tags = { "pumpkincarving", "busy", "nodangle", "pausepredict" },
 
 		onenter = function(inst, data)
 			inst.components.locomotor:Stop()
@@ -5978,6 +6003,7 @@ local states =
 			inst:ClearBufferedAction()
 
 			inst.AnimState:PlayAnimation("build_loop", true)
+			inst.SoundEmitter:PlaySound("dontstarve/wilson/make_trap", "make")
 
 			if inst.components.playercontroller then
 				inst.components.playercontroller:RemotePausePrediction()
@@ -6008,6 +6034,7 @@ local states =
 		},
 
 		onexit = function(inst)
+			inst.SoundEmitter:KillSound("make")
 			inst:ShowPopUp(POPUPS.PUMPKINCARVING, false)
 			if inst.components.playercontroller then
 				inst.components.playercontroller:EnableMapControls(true)
@@ -6018,6 +6045,126 @@ local states =
 			if not inst.sg.statemem.isclosingpumpkin then
 				inst.sg.statemem.isclosingpumpkin = true
 				POPUPS.PUMPKINCARVING:Close(inst)
+			end
+		end,
+	},
+
+	State{
+		name = "snowmandecorating_pre",
+		tags = { "doing", "busy", "nodangle" },
+
+		onenter = function(inst)
+			inst.components.locomotor:Stop()
+			inst.SoundEmitter:PlaySound("dontstarve/wilson/make_trap", "make")
+			inst.AnimState:PlayAnimation("construct_pre")
+			inst.AnimState:PushAnimation("construct_pst", false)
+		end,
+
+		timeline =
+		{
+			FrameEvent(7, function(inst)
+				inst.SoundEmitter:KillSound("make")
+				inst.sg:RemoveStateTag("busy")
+				inst:PerformBufferedAction()
+			end),
+		},
+
+		events =
+		{
+			EventHandler("animqueueover", function(inst)
+				if inst.AnimState:AnimDone() then
+					inst.sg:GoToState("idle")
+				end
+			end),
+		},
+
+		onexit = function(inst)
+			inst.SoundEmitter:KillSound("make")
+		end,
+	},
+
+	State{
+		name = "snowmandecorating",
+		tags = { "snowmandecorating", "busy", "nodangle", "pausepredict" },
+
+		onenter = function(inst, data)
+			inst.components.locomotor:Stop()
+			inst.components.locomotor:Clear()
+			inst:ClearBufferedAction()
+
+			local target = data and data.target and data.target:IsValid() and data.target or nil
+			local obj = data and data.obj and data.obj:IsValid() and data.obj or nil
+
+			if obj and obj == inst.components.inventory:GetActiveItem() then
+				if obj.prevcontainer and obj.prevcontainer ~= inst.components.inventory:GetOverflowContainer() then
+					obj.prevcontainer = nil
+					obj.prevslot = nil
+				end
+				local prefab = obj.prefab
+				local prevcontainer = obj.prevcontainer
+				local prevslot = obj.prevslot
+				inst.components.inventory:ReturnActiveItem()
+				if not obj:IsValid() then --returned to a stack?
+					obj = nil
+					if prevslot then
+						local container = prevcontainer or inst.components.inventory
+						obj = container:GetItemInSlot(prevslot)
+						if obj.prefab ~= prefab then
+							obj = nil
+						end
+					end
+					if obj == nil then
+						obj = inst.components.inventory:FindItem(function(v) return v.prefab == prefab end)
+					end
+				end
+			end
+
+			if not (obj and obj.components.inventoryitem and obj.components.inventoryitem:GetGrandOwner() == inst) then
+				inst.AnimState:PlayAnimation("construct_pst")
+				inst.sg:GoToState("idle", true)
+				return
+			end
+
+			inst.AnimState:PlayAnimation("construct_loop", true)
+			inst.SoundEmitter:PlaySound("dontstarve/wilson/make_trap", "make")
+
+			if inst.components.playercontroller then
+				inst.components.playercontroller:RemotePausePrediction()
+				inst.components.playercontroller:EnableMapControls(false)
+				inst.components.playercontroller:Enable(false)
+			end
+			inst.components.inventory:Hide()
+			inst:PushEvent("ms_closepopups")
+			inst:ShowActions(false)
+			inst:ShowPopUp(POPUPS.SNOWMANDECORATING, true, target, obj)
+		end,
+
+		events =
+		{
+			EventHandler("firedamage", function(inst)
+				inst.sg:GoToState("idle")
+			end),
+			EventHandler("ms_endsnowmandecorating", function(inst)
+				if not inst.sg.statemem.isclosingsnowman then
+					inst.sg.statemem.isclosingsnowman = true
+					inst.AnimState:PlayAnimation("construct_pst")
+					inst.sg:GoToState("idle", true)
+				end
+			end),
+		},
+
+		onexit = function(inst)
+			inst.SoundEmitter:KillSound("make")
+			inst:ShowPopUp(POPUPS.SNOWMANDECORATING, false)
+			if inst.components.playercontroller then
+				inst.components.playercontroller:EnableMapControls(true)
+				inst.components.playercontroller:Enable(true)
+			end
+			inst.components.inventory:Show()
+			inst:ShowActions(true)
+			if not inst.sg.statemem.isclosingsnowman then
+				inst.sg.statemem.isclosingsnowman = true
+				POPUPS.SNOWMANDECORATING:Close(inst)
 			end
 		end,
 	},
@@ -20595,7 +20742,7 @@ local states =
 
 		timeline =
 		{
-			FrameEvent(6, function(inst)
+			FrameEvent(7, function(inst)
 				inst.sg:RemoveStateTag("busy")
 				inst:PerformBufferedAction()
 
@@ -20956,6 +21103,131 @@ local states =
                 end
                 inst.sg.statemem.nearbyitems = nil
             end
+		end,
+	},
+
+	State{
+		name = "pushing_walk_pre",
+		tags = { "pushing_walk",  "busy" },
+
+		onenter = function(inst)
+			inst.components.locomotor:Stop()
+			inst.AnimState:PlayAnimation("pushing_idle_pre")
+			inst.sg:SetTimeout(2 * FRAMES)
+		end,
+
+		ontimeout = function(inst)
+			local bufferedaction = inst:GetBufferedAction()
+			if bufferedaction then
+				inst.sg.statemem.target = bufferedaction.target
+				--target can change during PerformBufferedAction() via "pushable_targetswap" event
+				if inst:PerformBufferedAction() then
+					inst.sg:GoToState("pushing_walk", inst.sg.statemem.target)
+					return
+				end
+			end
+			inst.AnimState:PlayAnimation("pushing_idle_pst")
+			inst.sg:GoToState("idle", true)
+		end,
+
+		events =
+		{
+			EventHandler("pushable_targetswap", function (inst, data)
+				if inst.sg.statemem.target == data.old then
+					inst.sg.statemem.target = data.new
+				end
+			end),
+		},
+	},
+
+	State{
+		name = "pushing_walk",
+		tags = { "pushing_walk", "busy", "jumping", "nopredict" },
+
+		onenter = function(inst, target)
+			if not (target and target.components.pushable and target:IsValid()) then
+				inst.AnimState:PlayAnimation("pushing_idle_pst")
+				inst.sg:GoToState("idle", true)
+				return
+			end
+			inst.AnimState:PlayAnimation("pushing_walk_pre")
+			inst.AnimState:PushAnimation("pushing_walk")
+			inst.sg.statemem.speedmult = 0.4
+			inst.Physics:SetMotorVel(target.components.pushable:GetPushingSpeed() * inst.sg.statemem.speedmult, 0, 0)
+			inst.sg.statemem.target = target
+			inst.sg:SetTimeout(0.3)
+			inst.sg.mem.footsteps = 0
+			DoRunSounds(inst)
+			DoFoleySounds(inst)
+		end,
+
+		onupdate = function(inst, dt)
+			local target = inst.sg.statemem.target
+			if not (target and target.components.pushable and target.components.pushable.doer == inst and target:IsValid()) then
+				inst.sg.statemem.target = nil
+				inst.AnimState:PlayAnimation("pushing_walk_idle_pst")
+				inst.sg:GoToState("idle", true)
+				return --target became invalid, cancel immediately
+			elseif inst.sg.statemem.canstop then
+				if inst.sg.statemem.exitdelay then
+					if inst.sg.statemem.exitdelay > dt then
+						inst.sg.statemem.exitdelay = inst.sg.statemem.exitdelay - dt
+					else
+						inst.sg:GoToState("idle", true)
+					end
+					return
+				elseif not (inst.components.playercontroller and
+							inst.components.playercontroller:IsAnyOfControlsPressed(
+								CONTROL_SECONDARY,
+								CONTROL_CONTROLLER_ALTACTION))
+				then
+					inst.AnimState:PlayAnimation("pushing_walk_idle_pst")
+					inst.Physics:Stop()
+					inst.sg:RemoveStateTag("jumping")
+					DoRunSounds(inst)
+					DoFoleySounds(inst)
+					--delay leaving the state, so the pushable target also stops a bit later
+					inst.sg.statemem.exitdelay = 3 * FRAMES
+					return
+				end
+			end
+
+			if target.components.pushable:ShouldStopForwardMotion() then
+				inst.Physics:Stop()
+			else
+				inst.Physics:SetMotorVel(target.components.pushable:GetPushingSpeed() * inst.sg.statemem.speedmult, 0, 0)
+			end
+
+			for i = 11, 23, 12 do --basically just 11 and 23 XD
+				if inst.AnimState:GetCurrentAnimationFrame() == i then
+					if inst.sg.statemem.lastfootstepframe ~= i then
+						inst.sg.statemem.lastfootstepframe = i
+						DoRunSounds(inst)
+						DoFoleySounds(inst)
+					end
+					break
+				end
+			end
+		end,
+
+		timeline =
+		{
+			FrameEvent(1, function(inst) inst.sg.statemem.speedmult = 0.4 end),
+			FrameEvent(2, function(inst) inst.sg.statemem.speedmult = 0.7 end),
+			FrameEvent(3, function(inst) inst.sg.statemem.speedmult = 0.9 end),
+			FrameEvent(4, function(inst) inst.sg.statemem.speedmult = 1 end),
+		},
+
+		ontimeout = function(inst)
+			inst.sg.statemem.canstop = true
+		end,
+
+		onexit = function(inst)
+			inst.Physics:Stop()
+			local target = inst.sg.statemem.target
+			if target and target.components.pushable and target:IsValid() then
+				target.components.pushable:StopPushing(inst)
+			end
 		end,
 	},
 }

@@ -119,6 +119,8 @@ local function fn()
     inst.components.watersource.onusefn = onuseaswatersource
     inst.components.watersource.override_fill_uses = 1
 
+	inst:AddComponent("snowmandecor")
+
     inst:AddComponent("bait")
     inst:AddTag("molebait")
 

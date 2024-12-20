@@ -439,6 +439,18 @@ return {
         {
             ALREADYKNOWN = "I'm seeing a familiar pattern... I've learned this already!",
         },
+		CARVEPUMPKIN =
+		{
+			INUSE = "Looks like we had the same idea.",
+			BURNING = "The flames are hurting me.",
+		},
+		DECORATESNOWMAN =
+		{
+			INUSE = "It's being snowmanned!",
+			HASHAT = "I can't top that hat!",
+			STACKEDTOOHIGH = "It's too high!",
+			MELTING = "I can't! It's about to melt!",
+		},
     },
 
 	ANNOUNCE_CANNOT_BUILD =
@@ -1007,6 +1019,10 @@ return {
 
 	-- Hallowed Nights 2024
 	ANNOUNCE_NOPUMPKINCARVINGONFIRE = "This pumpkin is cooked.",
+
+	-- Winter's Feast 2024
+	ANNOUNCE_SNOWBALL_TOO_BIG = "It won't get any bigger than that.",
+	ANNOUNCE_SNOWBALL_NO_SNOW = "There's not enough snow on the ground.",
 
 	BATTLECRY =
 	{
@@ -1932,10 +1948,12 @@ return {
         CHESSPIECE_EYEOFTERROR = "It's giving me a stony stare.",
         CHESSPIECE_TWINSOFTERROR = "That was a terrible night of very uncomfortable eye contact.",
         CHESSPIECE_DAYWALKER = "Now he's off who-knows-were.",
+        CHESSPIECE_DAYWALKER2 = "This belongs in a junkpile!",
         CHESSPIECE_DEERCLOPS_MUTATED = "This sculpture is a bit of an eyesore.",
         CHESSPIECE_WARG_MUTATED = "It's just missing that horrible breath.",
         CHESSPIECE_BEARGER_MUTATED = "Somehow it seems crankier than the real one.",
         CHESSPIECE_SHARKBOI = "There's just some-fin about it.",
+        CHESSPIECE_WORMBOSS = "It still shakes me up.",
 
         CHESSJUNK1 = "A pile of broken chess pieces.",
         CHESSJUNK2 = "Another pile of broken chess pieces.",
@@ -5424,6 +5442,12 @@ return {
         SHADOWTHRALL_PARASITE = "It makes my brain itch.",
 
         PUMPKINCARVER = "Who's up for a gourd time?",
+		SNOWMAN =
+		{
+			GENERIC = "It's snow laughing matter!",
+			SNOWBALL = "Someone knew their roll!",
+		},
+        SNOWBALL_ITEM = "Not throwing this chance away...",
     },
 
     DESCRIBE_GENERIC = "It's a... thing.",

@@ -21,6 +21,7 @@ local prefabs =
 	"bootleg",
 	"chesspiece_sharkboi_sketch",
 	"sharkboi_water",
+	"winter_ornament_boss_sharkboi",
 }
 
 local brain = require("brains/sharkboibrain")
@@ -327,6 +328,25 @@ local function MakeTrader(inst)
 	end
 end
 
+local function GiveSpecialReward(inst, target)
+	if not IsSpecialEventActive(SPECIAL_EVENTS.WINTERS_FEAST) then
+		LaunchAt(SpawnPrefab("chesspiece_sharkboi_sketch"), inst, target, 1.5, 2, 1.25)
+
+		return
+	end
+
+	local gift = SpawnPrefab("gift")
+
+	gift.components.unwrappable:WrapItems({
+		"chesspiece_sharkboi_sketch",
+		"winter_ornament_boss_sharkboi",
+		math.random() <= .4 and GetRandomLightWinterOrnament() or "winter_food"..math.random(NUM_WINTERFOOD),
+		"winter_food"..math.random(NUM_WINTERFOOD),
+	})
+
+	LaunchAt(gift, inst, target, 1.5, 2, 1.25)
+end
+
 local function GiveReward(inst, target)
 	if inst.pendingreward then
 		if target and not target:IsValid() then
@@ -334,14 +354,14 @@ local function GiveReward(inst, target)
 		end
 		inst.stock = inst.stock - 1
 
-		-- If we got a good item, give them a picture of ourselves, to remember.
+		-- If we got a good item, give them a picture of ourselves (or a gift), to remember.
 		if inst.sketchgiven == nil and inst.pendingreward == MAX_REWARDS then
+			GiveSpecialReward(inst, target)
 			inst.sketchgiven = true
-			LaunchAt(SpawnPrefab("chesspiece_sharkboi_sketch"), inst, target, 1, 2, 1)
 		end
 
 		for i = 1, inst.pendingreward do
-			LaunchAt(SpawnPrefab("bootleg"), inst, target, 1, 2, 1)
+			LaunchAt(SpawnPrefab("bootleg"), inst, target, 1.35, 2, 1.25)
 		end
 
 		inst.SoundEmitter:PlaySound("dontstarve/common/dropGeneric")

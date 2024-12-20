@@ -429,6 +429,18 @@ return{
         {
             ALREADYKNOWN = "An old pattern. I've no use for it.",
         },
+		CARVEPUMPKIN =
+		{
+			INUSE = "Someone's at it already.",
+			BURNING = "Keep those flames away from my eyebrows!",
+		},
+		DECORATESNOWMAN =
+		{
+			INUSE = "Someone's hogging it.",
+			HASHAT = "There's a stupid hat in the way.",
+			STACKEDTOOHIGH = "I'm not stacking it any higher.",
+			MELTING = "It's about to melt.",
+		},
     },
 
 	ANNOUNCE_CANNOT_BUILD =
@@ -997,6 +1009,10 @@ return{
 
 	-- Hallowed Nights 2024
 	ANNOUNCE_NOPUMPKINCARVINGONFIRE = "That's what I get for engaging in foolery.",
+
+	-- Winter's Feast 2024
+	ANNOUNCE_SNOWBALL_TOO_BIG = "Useless! It won't get any bigger.",
+	ANNOUNCE_SNOWBALL_NO_SNOW = "There's no snow here.",
 
 	BATTLECRY =
 	{
@@ -1922,10 +1938,12 @@ return{
         CHESSPIECE_EYEOFTERROR = "An eye could never best a master of illusion such as I.",
         CHESSPIECE_TWINSOFTERROR = "The most troublesome pair I've ever seen.",
         CHESSPIECE_DAYWALKER = "Seems like anyone can get a statue these days.",
+        CHESSPIECE_DAYWALKER2 = "Ah yes, the rummaging hog.",
         CHESSPIECE_DEERCLOPS_MUTATED = "I take great offense to anyone trying to improve on my designs.",
         CHESSPIECE_WARG_MUTATED = "It was a bad dog.",
         CHESSPIECE_BEARGER_MUTATED = "It'll scare away anyone with good taste.",
         CHESSPIECE_SHARKBOI = "Bottom feeding lone shark.",
+        CHESSPIECE_WORMBOSS = "I can still smell it's breath.",
 
         CHESSJUNK1 = "There's a reason I never finished that.",
         CHESSJUNK2 = "That one was a jerk.",
@@ -5414,6 +5432,12 @@ return{
         SHADOWTHRALL_PARASITE = "An unwelcome guest.",
 
         PUMPKINCARVER = "Delightful.",
+		SNOWMAN =
+		{
+			GENERIC = "It's fine.",
+			SNOWBALL = "Nice snowball.",
+		},
+        SNOWBALL_ITEM = "Hmm. Where's Wilson?",
     },
 
     DESCRIBE_GENERIC = "You tell me.",

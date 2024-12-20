@@ -192,6 +192,8 @@ local function MakeHat(name)
 
         inst:AddTag("hat")
 
+		inst:AddComponent("snowmandecor")
+
         if custom_init ~= nil then
             custom_init(inst)
         end
@@ -1281,13 +1283,17 @@ local function MakeHat(name)
     local function eyebrella_onequip(inst, owner)
         fns.opentop_onequip(inst, owner)
 
-        owner.DynamicShadow:SetSize(2.2, 1.4)
+		if owner.DynamicShadow then
+			owner.DynamicShadow:SetSize(2.2, 1.4)
+		end
     end
 
     local function eyebrella_onunequip(inst, owner)
         _onunequip(inst, owner)
 
-        owner.DynamicShadow:SetSize(1.3, 0.6)
+		if owner.DynamicShadow then
+			owner.DynamicShadow:SetSize(1.3, 0.6)
+		end
     end
 
     local function eyebrella_perish(inst)
@@ -1295,7 +1301,9 @@ local function MakeHat(name)
         if equippable ~= nil and equippable:IsEquipped() then
             local owner = inst.components.inventoryitem ~= nil and inst.components.inventoryitem.owner or nil
             if owner ~= nil then
-                owner.DynamicShadow:SetSize(1.3, 0.6)
+				if owner.DynamicShadow then
+					owner.DynamicShadow:SetSize(1.3, 0.6)
+				end
                 local data =
                 {
                     prefab = inst.prefab,
@@ -1727,11 +1735,15 @@ local function MakeHat(name)
     end
 
     local function mole_turnon(owner)
-        owner.SoundEmitter:PlaySound("dontstarve_DLC001/common/moggles_on")
+		if owner.SoundEmitter then
+			owner.SoundEmitter:PlaySound("dontstarve_DLC001/common/moggles_on")
+		end
     end
 
     local function mole_turnoff(owner)
-        owner.SoundEmitter:PlaySound("dontstarve_DLC001/common/moggles_off")
+		if owner.SoundEmitter then
+			owner.SoundEmitter:PlaySound("dontstarve_DLC001/common/moggles_off")
+		end
     end
 
     local function mole_onequip(inst, owner)
@@ -3436,6 +3448,8 @@ local function MakeHat(name)
 
 		--waterproofer (from waterproofer component) added to pristine state for optimization
 		inst:AddTag("waterproofer")
+
+		inst:RemoveComponent("snowmandecor")
 	end
 
 	fns.lunarplant = function()
@@ -3644,6 +3658,8 @@ local function MakeHat(name)
 
 		--shadowlevel (from shadowlevel component) added to pristine state for optimization
 		inst:AddTag("shadowlevel")
+
+		inst:RemoveComponent("snowmandecor")
 	end
 
     fns.voidcloth_onsetbonus_enabled = function(inst)
@@ -5144,7 +5160,9 @@ local function MakeHat(name)
         local brain = require("brains/hostedbrain")
         owner:SetBrain(brain)
 
-        owner.SoundEmitter:PlaySound("hallowednights2024/thrall_parasite/thrall_idle_LP","parasite_LP")
+		if owner.SoundEmitter then
+			owner.SoundEmitter:PlaySound("hallowednights2024/thrall_parasite/thrall_idle_LP","parasite_LP")
+		end
 
         inst:ListenForEvent("death", fns.shadowthrall_parasite_ondeath, owner)
         inst:ListenForEvent("killed", fns.shadowthrall_parasite_onkilledsomething, owner)
@@ -5199,7 +5217,9 @@ local function MakeHat(name)
             owner.components.lootdropper:FlingItem(SpawnPrefab("horrorfuel"))
         end
 
-        owner.SoundEmitter:KillSound("parasite_LP")
+		if owner.SoundEmitter then
+			owner.SoundEmitter:KillSound("parasite_LP")
+		end
 
         inst:DoTaskInTime(0, inst.Remove)
 

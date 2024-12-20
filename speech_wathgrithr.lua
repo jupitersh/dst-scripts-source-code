@@ -429,6 +429,18 @@ return{
         {
             ALREADYKNOWN = "This is known to me.",
         },
+		CARVEPUMPKIN =
+		{
+			INUSE = "'Tis a task for one.",
+			BURNING = "The inferno doth singe me.",
+		},
+		DECORATESNOWMAN =
+		{
+			INUSE = "It is engaged.",
+			HASHAT = "I will not crush that hat!",
+			STACKEDTOOHIGH = "'Tis tall enough!'",
+			MELTING = "No further. 'Tis is returning to the earth.",
+		},
     },
 
 	ANNOUNCE_CANNOT_BUILD =
@@ -997,6 +1009,10 @@ return{
 
 	-- Hallowed Nights 2024
 	ANNOUNCE_NOPUMPKINCARVINGONFIRE = "Curses! I was not done with that!",
+
+	-- Winter's Feast 2024
+	ANNOUNCE_SNOWBALL_TOO_BIG = "'Tis futile to roll it further.",
+	ANNOUNCE_SNOWBALL_NO_SNOW = "A fruitless endeavor.",
 
 	BATTLECRY =
 	{
@@ -1922,10 +1938,12 @@ return{
         CHESSPIECE_EYEOFTERROR = "I shall feast my eyes upon this trophy!",
         CHESSPIECE_TWINSOFTERROR = "A battle I shan't soon forget.",
         CHESSPIECE_DAYWALKER = "The beast proved himself to be a worthy adversary!",
+        CHESSPIECE_DAYWALKER2 = "I have fond memories of dueling this beast.",
         CHESSPIECE_DEERCLOPS_MUTATED = "'Twas an unnatural thing. Slaying it was a kindness.",
         CHESSPIECE_WARG_MUTATED = "'Twas no match for my spear.",
         CHESSPIECE_BEARGER_MUTATED = "May the beast now be at peace.",
         CHESSPIECE_SHARKBOI = "Until we meet again, bait-breathed warrior.",
+        CHESSPIECE_WORMBOSS = "I shall never forget this hungry cave serpent.",
 
         CHESSJUNK1 = "It's only a pile of fallen warriors.",
         CHESSJUNK2 = "More fallen mechanical warriors.",
@@ -5414,6 +5432,12 @@ return{
         SHADOWTHRALL_PARASITE = "Keep away thy cursed embrace.",
 
         PUMPKINCARVER = "A child's toy.",
+		SNOWMAN =
+		{
+			GENERIC = "A fine tribute to the Jotnar.",
+			SNOWBALL = "Not quite.",
+		},
+        SNOWBALL_ITEM = "I do love a snow skirmish.",
     },
 
     DESCRIBE_GENERIC = "It is an artifact of this realm.",

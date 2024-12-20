@@ -429,6 +429,18 @@ return{
         {
             ALREADYKNOWN = "Quel dommage, I already knew that one.",
         },
+		CARVEPUMPKIN =
+		{
+			INUSE = "I will not interrupt.",
+			BURNING = "I smell roasting meat.",
+		},
+		DECORATESNOWMAN =
+		{
+			INUSE = "Someone is working on it!",
+			HASHAT = "But the hat!",
+			STACKEDTOOHIGH = "It is stacked too high!",
+			MELTING = "No more. It is melting.",
+		},
     },
 
 	ANNOUNCE_CANNOT_BUILD =
@@ -997,6 +1009,10 @@ return{
 
 	-- Hallowed Nights 2024
 	ANNOUNCE_NOPUMPKINCARVINGONFIRE = "You were too beautiful for this world.",
+
+	-- Winter's Feast 2024
+	ANNOUNCE_SNOWBALL_TOO_BIG = "I'm afraid it won't get any bigger.",
+	ANNOUNCE_SNOWBALL_NO_SNOW = "There's not enough snow here!",
 
 	BATTLECRY =
 	{
@@ -1922,10 +1938,12 @@ return{
         CHESSPIECE_EYEOFTERROR = "Did it just blink?",
         CHESSPIECE_TWINSOFTERROR = "They weren't the most polite guests, non?",
         CHESSPIECE_DAYWALKER = "I have to admit, I think I prefer him this way.",
+        CHESSPIECE_DAYWALKER2 = "He put me off pork for some time.",
         CHESSPIECE_DEERCLOPS_MUTATED = "Brr... it still gives me the shivers...",
         CHESSPIECE_WARG_MUTATED = "I'm relieved it's just a statue.",
         CHESSPIECE_BEARGER_MUTATED = "A second course of monster that I didn't ask for!",
         CHESSPIECE_SHARKBOI = "It seemed to think it was top of the food chain.",
+        CHESSPIECE_WORMBOSS = "It sure had an appetite.",
 
         CHESSJUNK1 = "Broken chess pieces?",
         CHESSJUNK2 = "More broken chess pieces?",
@@ -5414,6 +5432,12 @@ return{
         SHADOWTHRALL_PARASITE = "It is one bad customer.",
 
         PUMPKINCARVER = "Ah yes. I can use this.",
+		SNOWMAN =
+		{
+			GENERIC = "A work of art!",
+			SNOWBALL = "It needs... something.",
+		},
+        SNOWBALL_ITEM = "Oh fun!",
     },
 
     DESCRIBE_GENERIC = "It is what it is...",

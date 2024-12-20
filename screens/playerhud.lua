@@ -45,6 +45,7 @@ local PlayerInfoPopupScreen = require "screens/playerinfopopupscreen"
 local ScrapbookScreen = require "screens/redux/scrapbookscreen"
 local InspectaclesScreen = require("screens/redux/inspectaclesscreen")
 local PumpkinCarvingScreen = require("screens/redux/pumpkincarvingscreen")
+local SnowmanDecoratingScreen = require("screens/redux/snowmandecoratingscreen")
 
 local TargetIndicator = require "widgets/targetindicator"
 
@@ -685,6 +686,22 @@ function PlayerHud:ClosePumpkinCarvingScreen()
 			TheFrontEnd:PopScreen(self.pumpkincarvingscreen)
 		end
 		self.pumpkincarvingscreen = nil
+	end
+end
+
+function PlayerHud:OpenSnowmanDecoratingScreen(target, obj)
+	self:CloseSnowmanDecoratingScreen()
+	self.snowmandecoratingscreen = SnowmanDecoratingScreen(self.owner, target, obj)
+	self:OpenScreenUnderPause(self.snowmandecoratingscreen)
+	return true
+end
+
+function PlayerHud:CloseSnowmanDecoratingScreen()
+	if self.snowmandecoratingscreen then
+		if self.snowmandecoratingscreen.inst:IsValid() then
+			TheFrontEnd:PopScreen(self.snowmandecoratingscreen)
+		end
+		self.snowmandecoratingscreen = nil
 	end
 end
 

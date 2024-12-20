@@ -310,6 +310,11 @@ return
 			"legs_pj_red_redbird",
 			"bedroll_furry_quilt_red_redbird",
 		},
+		{
+			"body_pj_grey",
+			"legs_pj_grey",
+			"bedroll_furry_quilt_grey",
+		},
 	},
 	emote_yawn =
 	{

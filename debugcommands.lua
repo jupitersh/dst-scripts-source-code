@@ -2196,6 +2196,8 @@ local SCRAPBOOK_NAME_LOOKUP =
     sketch = "sketch_scrapbook",
     tacklesketch = "tacklesketch_scrapbook",
     cookingrecipecard = "cookingrecipecard_scrapbook",
+
+	snowman = "snowball_large",
 }
 
 local function Scrapbook_DefineName(t)
@@ -2385,7 +2387,7 @@ end
         scrapbook_planardamage: Planar damage, for creatures and weapons (number, string or array with 2 numbers (value range).
         scrapbook_prefab: Used by "prefab" and "name" entries (string).
         scrapbook_removedeps: Remove dependencies (string array).
-        scrapbook_sanityaura: Sanity Aura (number).
+    scrapbook_sanityaura: Sanity Aura (number).
         scrapbook_sanityvalue: Sanity food value (number).
         scrapbook_scale: Scale (number).
         scrapbook_specialinfo: Entry in STRINGS.SCRAPBOOK.SPECIALINFO (string).
@@ -3130,6 +3132,12 @@ function d_createscrapbookdata(print_missing_icons, noreset)
             not table.contains({"creature", "giant"}, thingtype)
         then
             AddInfo( "burnable", true )
+        end
+
+        ---------------------------------::   SNOWMAN DECO   ::---------------------------------
+
+        if t.components.snowmandecor ~= nil then                    
+            AddInfo( "snowmandecor", true )
         end
 
         -----------------------------::   OBSTACLE FLOATER   ::------------------------------

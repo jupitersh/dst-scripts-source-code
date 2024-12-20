@@ -429,6 +429,18 @@ return{
         {
             ALREADYKNOWN = "Hey, we already have that one!",
         },
+		CARVEPUMPKIN =
+		{
+			INUSE = "Aww, we have to wait our turn.",
+			BURNING = "Ouch! Fire!",
+		},
+		DECORATESNOWMAN =
+		{
+			INUSE = "We have to wait our turn.",
+			HASHAT = "We can't cover the hat.",
+			STACKEDTOOHIGH = "It's so tall already!",
+			MELTING = "Aww. It's going to melt!",
+		},
     },
 
 	ANNOUNCE_CANNOT_BUILD =
@@ -997,6 +1009,10 @@ return{
 
 	-- Hallowed Nights 2024
 	ANNOUNCE_NOPUMPKINCARVINGONFIRE = "Haha! Again!",
+
+	-- Winter's Feast 2024
+	ANNOUNCE_SNOWBALL_TOO_BIG = "We can't roll it any bigger!",
+	ANNOUNCE_SNOWBALL_NO_SNOW = "Where's more snow?",
 
 	BATTLECRY =
 	{
@@ -1922,10 +1938,12 @@ return{
         CHESSPIECE_EYEOFTERROR = "We think we could've been friends.",
         CHESSPIECE_TWINSOFTERROR = "Now they'll always be together.",
         CHESSPIECE_DAYWALKER = "He wasn't very nice to us...",
+        CHESSPIECE_DAYWALKER2 = "This guy keeps coming back!",
         CHESSPIECE_DEERCLOPS_MUTATED = "It looks so real, it gives us the shivers!",
         CHESSPIECE_WARG_MUTATED = "We thought only cats had nine lives!",
         CHESSPIECE_BEARGER_MUTATED = "Those teeth look just as sharp as we remember.",
         CHESSPIECE_SHARKBOI = "They weren't so bad after we got to know them.",
+        CHESSPIECE_WORMBOSS = "That big worm had a big mouth.",
 
         CHESSJUNK1 = "A mess of chess.",
         CHESSJUNK2 = "A mess of chess.",
@@ -5414,6 +5432,12 @@ return{
         SHADOWTHRALL_PARASITE = "Maybe it just wants a friend to play with.",
 
         PUMPKINCARVER = "Fun fun fun fun fun.",
+		SNOWMAN =
+		{
+			GENERIC = "We love it!",
+			SNOWBALL = "It's so... round!",
+		},
+        SNOWBALL_ITEM = "Snowball fight!",
     },
 
     DESCRIBE_GENERIC = "Can we play with it?",

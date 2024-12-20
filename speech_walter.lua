@@ -429,6 +429,18 @@ return{
         {
             ALREADYKNOWN = "We already know this one, don't we Woby?",
         },
+		CARVEPUMPKIN =
+		{
+			INUSE = "That pumpkin is being carved, Woby!",
+			BURNING = "Ouch! Fire saftey!",
+		},
+		DECORATESNOWMAN =
+		{
+			INUSE = "That one's taken, Woby.",
+			HASHAT = "Hey, there's a hat in the way!",
+			STACKEDTOOHIGH = "I can't build it taller than that, Woby!",
+			MELTING = "Oh no, it's melting! We can't decorate it anymore, Woby.",
+		},
     },
 
 	ANNOUNCE_CANNOT_BUILD =
@@ -997,6 +1009,10 @@ return{
 
 	-- Hallowed Nights 2024
 	ANNOUNCE_NOPUMPKINCARVINGONFIRE = "Do I still get the badge?",
+
+	-- Winter's Feast 2024
+	ANNOUNCE_SNOWBALL_TOO_BIG = "It won't get any bigger!",
+	ANNOUNCE_SNOWBALL_NO_SNOW = "We've run out of snow, Woby!",
 
 	BATTLECRY =
 	{
@@ -1922,10 +1938,12 @@ return{
         CHESSPIECE_EYEOFTERROR = "Nothing to see here, folks! Ha ha, get it Woby?",
         CHESSPIECE_TWINSOFTERROR = "Is this one of those sculptures where the eyes follow you around the room?",
         CHESSPIECE_DAYWALKER = "I sure hope we get to see him again!",
+        CHESSPIECE_DAYWALKER2 = "We did see him again!",
         CHESSPIECE_DEERCLOPS_MUTATED = "I still feel kind of bad for her.",
         CHESSPIECE_WARG_MUTATED = "They weren't nearly as nice as you, Woby.",
         CHESSPIECE_BEARGER_MUTATED = "We bearly escaped! Get it?",
         CHESSPIECE_SHARKBOI = "Your bark was worse than their bite, Woby!",
+        CHESSPIECE_WORMBOSS = "It was gross inside and out!",
 
         CHESSJUNK1 = "I don't think they're going to get up anytime soon.",
         CHESSJUNK2 = "I don't think they're going to get up anytime soon.",
@@ -5414,6 +5432,12 @@ return{
         SHADOWTHRALL_PARASITE = "I think it just wants a friend.",
 
         PUMPKINCARVER = "Safety first, Woby!",
+		SNOWMAN =
+		{
+			GENERIC = "Ice to meet ya!",
+			SNOWBALL = "I've seen you a round! Hehe.",
+		},
+        SNOWBALL_ITEM = "Hehe.",
     },
 
     DESCRIBE_GENERIC = "That sure is a mystery!",

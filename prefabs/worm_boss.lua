@@ -13,6 +13,8 @@ local prefabs =
     "worm_boss_dirt_ground_fx",
     "worm_boss_head",
     "worm_boss_segment",
+    "chesspiece_wormboss_sketch",
+    "winter_ornament_boss_wormboss",
 }
 
 -----------------------------------------------------------------------------------------------------------------------
@@ -30,6 +32,8 @@ SetSharedLootTable("worm_boss",
     { "monstermeat",  0.66 },
     { "monstermeat",  0.66 },
     { "wormlight",    1.00 },
+
+    { "chesspiece_wormboss_sketch", 1.00 },
 })
 
 -----------------------------------------------------------------------------------------------------------------------

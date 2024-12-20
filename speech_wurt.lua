@@ -429,6 +429,18 @@ return{
         {
             ALREADYKNOWN = "Glurgh, know it already!",
         },
+		CARVEPUMPKIN =
+		{
+			INUSE = "Can't!",
+			BURNING = "Florp! Burning!",
+		},
+		DECORATESNOWMAN =
+		{
+			INUSE = "Can't!",
+			HASHAT = "Dumb hat!",
+			STACKEDTOOHIGH = "So high already! Glurgh!",
+			MELTING = "No more. Snowfolk is melting.",
+		},
     },
 
 	ANNOUNCE_CANNOT_BUILD =
@@ -997,6 +1009,10 @@ return{
 
 	-- Hallowed Nights 2024
 	ANNOUNCE_NOPUMPKINCARVINGONFIRE = "Haha! Burning.",
+
+	-- Winter's Feast 2024
+	ANNOUNCE_SNOWBALL_TOO_BIG = "Won't go bigger.",
+	ANNOUNCE_SNOWBALL_NO_SNOW = "No snow. Glurph.",
 
 	BATTLECRY =
 	{
@@ -1922,10 +1938,12 @@ return{
         CHESSPIECE_EYEOFTERROR = "Oh no... got dried out, glorp...",
         CHESSPIECE_TWINSOFTERROR = "Ha ha, they just rocks now!",
         CHESSPIECE_DAYWALKER = "Grrr... why we have nasty Pig statue?!",
+        CHESSPIECE_DAYWALKER2 = "Another nasty Pig statue! GRRRRR!",
         CHESSPIECE_DEERCLOPS_MUTATED = "Bye bye deer. No more eye pokey.",
         CHESSPIECE_WARG_MUTATED = "Poor doggy. Not so bad.",
         CHESSPIECE_BEARGER_MUTATED = "Remember bad teddy.",
         CHESSPIECE_SHARKBOI = "Haha! Bad fishie frozen.",
+        CHESSPIECE_WORMBOSS = "Hungriest worm.",
 
         CHESSJUNK1 = "It all broken.",
         CHESSJUNK2 = "Didn't do it!!",
@@ -5414,6 +5432,12 @@ return{
         SHADOWTHRALL_PARASITE = "Aww. Just wants a hug. Florp!",
 
         PUMPKINCARVER = "Florp! Pumpkin poker.",
+		SNOWMAN =
+		{
+			GENERIC = "Hey, Snowfolk.",
+			SNOWBALL = "Snowfolk missing part.",
+		},
+        SNOWBALL_ITEM = "Oh, Webby boy...",
     },
 
     DESCRIBE_GENERIC = "What that?",
