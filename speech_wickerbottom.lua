@@ -1944,6 +1944,7 @@ return{
         CHESSPIECE_BEARGER_MUTATED = "The artist truly captured its ferocity!",
         CHESSPIECE_SHARKBOI = "The mouthiest of its species.",
         CHESSPIECE_WORMBOSS = "This ancestor of the predatory annelid was far worse.",
+        CHESSPIECE_YOTS = "One of the hungriest large invertebrates.",
 
         CHESSJUNK1 = "The magician's unfinished projects?",
         CHESSJUNK2 = "The magician's unfinished projects?",
@@ -5438,6 +5439,22 @@ return{
 			SNOWBALL = "It needs much more to call it a snowman.",
 		},
         SNOWBALL_ITEM = "Those young ones better mind their manners.",
+
+        -- Year of the Snake
+        YOTS_SNAKESHRINE =
+        {
+            GENERIC = "The appropriate offering was made.",
+            EMPTY = "It requires a meat sacrifice of the monster variety.",
+            BURNT = "Somehow most of our things get reduced to carbon.",
+        },
+        YOTS_WORM = "A surface dwelling worm. Interesting.",
+        YOTS_LANTERN_POST = 
+        {
+            GENERIC = "Delightful!",
+            BURNT = "Carbonized. Pity.",
+        },
+        YOTS_LANTERN_POST_ITEM = "One of those whippersnappers should find themselves useful and construct this.",
+        CHESSPIECE_DEPTHWORM  = "One of the hungriest large invertebrates.",
     },
 
     DESCRIBE_GENERIC = "A rare occurrence. I don't know what that is.",

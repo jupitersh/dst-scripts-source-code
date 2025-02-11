@@ -1945,6 +1945,7 @@ return{
         CHESSPIECE_BEARGER_MUTATED = "Wolfgang stronger than bear. Even weird bear.",
         CHESSPIECE_SHARKBOI = "Wolfgang and talking shark could be buddy in different life.",
         CHESSPIECE_WORMBOSS = "Wolfgang prefer not to talk about giant worm experience.",
+        CHESSPIECE_YOTS = "Worm was no match for Wolfgang.",
 
         CHESSJUNK1 = "Metal junk.",
         CHESSJUNK2 = "Metal junk.",
@@ -5439,6 +5440,22 @@ return{
 			SNOWBALL = "What a cute snowball.",
 		},
         SNOWBALL_ITEM = "Wolfgang is snowball fight champion.",
+
+        -- Year of the Snake
+        YOTS_SNAKESHRINE =
+        {
+            GENERIC = "Wormy treats for Wolfgang!",
+            EMPTY = "Are you hungry, wormy?",
+            BURNT = "Wolfgang not crying. Just smokey.",
+        },
+        YOTS_WORM = "Hey, worm not allowed up here!",
+        YOTS_LANTERN_POST = 
+        {
+            GENERIC = "Post is both dazzling and useful, like Wolfgang.",
+            BURNT = "It was good post.",
+        },
+        YOTS_LANTERN_POST_ITEM = "Wolfgang light up the dance floor.",
+        CHESSPIECE_DEPTHWORM  = "Worm was no match for Wolfgang.",
     },
 
     DESCRIBE_GENERIC = "What is this thing?",

@@ -676,8 +676,8 @@ local actionhandlers =
 
     ActionHandler(ACTIONS.INTERACT_WITH,
         function(inst, action)
-            return inst:HasTag("plantkin") and "domediumaction" or
-                   action.target:HasTag("yotb_stage") and "doshortaction" or
+            return action.target:HasTag("yotb_stage") and "doshortaction" or
+                   inst:HasTag("plantkin") and "domediumaction" or
                    "dolongaction"
         end),
     ActionHandler(ACTIONS.PLANTREGISTRY_RESEARCH_FAIL, "dolongaction"),

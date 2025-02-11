@@ -1945,6 +1945,7 @@ return{
         CHESSPIECE_BEARGER_MUTATED = "We sure showed big boy, eh Luce?",
         CHESSPIECE_SHARKBOI = "Hey there, fish breath.",
         CHESSPIECE_WORMBOSS = "I still have nightmares about that thing.",
+        CHESSPIECE_YOTS = "It would've looked better carved out of wood.",
 
         CHESSJUNK1 = "Dead metal.",
         CHESSJUNK2 = "Dead metal.",
@@ -5439,6 +5440,22 @@ return{
 			SNOWBALL = "Yup. That's a big ol' snowball.",
 		},
         SNOWBALL_ITEM = "The kids always used to aim for my head.",
+
+        -- Year of the Snake
+        YOTS_SNAKESHRINE =
+        {
+            GENERIC = "I’m feeling lucky, Luce!",
+            EMPTY = "What do you feed a monster like that?",
+            BURNT = "So that’s why I smelled smoke.",
+        },
+        YOTS_WORM = "WOO..orm?",
+        YOTS_LANTERN_POST = 
+        {
+            GENERIC = "No, Lucy. You are not chopping it down.",
+            BURNT = "There’s nothing left to chop, Lucy.",
+        },
+        YOTS_LANTERN_POST_ITEM = "These would look great around my cabin.",
+        CHESSPIECE_DEPTHWORM  = "We had some close calls with this guy, eh Luce?",
     },
 
     DESCRIBE_GENERIC = "What's that, eh?",

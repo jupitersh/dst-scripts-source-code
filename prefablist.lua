@@ -1374,5 +1374,8 @@ PREFABFILES = {
   "yotr_fightring",
   "yotr_food",
   "yotr_rabbitshrine",
-  "yotr_token" 
+  "yotr_token",
+  "yots_lantern_post",
+  "yots_snakeshrine",
+  "yots_worm_lantern" 
 }

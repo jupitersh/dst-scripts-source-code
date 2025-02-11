@@ -47,6 +47,7 @@ LOADING_IMAGES =
         { atlas = "images/bg_loading_yotcc1.xml", tex = "bg_image1.tex" },
     },
 
+
     [SPECIAL_EVENTS.NONE] =
     {
         { atlas = "images/bg_spiral_fill1.xml", tex = "bg_image1.tex", spiral = true },
@@ -204,6 +205,18 @@ local SPECIAL_EVENT_DEPS =
             },
         },
     },
+
+    [SPECIAL_EVENTS.YOTS] =
+    {
+        frontend =
+        {
+            assets =
+            {
+                Asset("ANIM", "anim/dst_menu_yots.zip"),
+            },
+        },
+    },
+
 
     [SPECIAL_EVENTS.YOTR] =
     {

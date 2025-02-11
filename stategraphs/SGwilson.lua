@@ -1118,8 +1118,8 @@ local actionhandlers =
         end),
     ActionHandler(ACTIONS.INTERACT_WITH,
         function(inst, action)
-            return inst:HasTag("plantkin") and "domediumaction" or
-                   action.target:HasTag("yotb_stage") and "doshortaction" or
+            return action.target:HasTag("yotb_stage") and "doshortaction" or
+                   inst:HasTag("plantkin") and "domediumaction" or
                    "dolongaction"
         end),
     ActionHandler(ACTIONS.PLANTREGISTRY_RESEARCH_FAIL, "dolongaction"),
@@ -18878,7 +18878,7 @@ local states =
         },
 
         onupdate = function(inst)
-            if not inst:IsInLight() then
+			if not CanEntitySeeTarget(inst, inst.sg.statemem.target) then
                 inst.sg.statemem.is_in_dark = true
                 inst.sg:GoToState("idle")
             end

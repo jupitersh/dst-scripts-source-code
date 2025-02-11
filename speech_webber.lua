@@ -1944,6 +1944,7 @@ return{
         CHESSPIECE_BEARGER_MUTATED = "Those teeth look just as sharp as we remember.",
         CHESSPIECE_SHARKBOI = "They weren't so bad after we got to know them.",
         CHESSPIECE_WORMBOSS = "That big worm had a big mouth.",
+        CHESSPIECE_YOTS = "We can play with this worm!",
 
         CHESSJUNK1 = "A mess of chess.",
         CHESSJUNK2 = "A mess of chess.",
@@ -5438,6 +5439,22 @@ return{
 			SNOWBALL = "It's so... round!",
 		},
         SNOWBALL_ITEM = "Snowball fight!",
+
+        -- Year of the Snake
+        YOTS_SNAKESHRINE =
+        {
+            GENERIC = "A surprise for us!",
+            EMPTY = "What do we give it?",
+            BURNT = "It wasn’t us.",
+        },
+        YOTS_WORM = "You’ll never catch us, worm!",
+        YOTS_LANTERN_POST = 
+        {
+            GENERIC = "Fancy!",
+            BURNT = "Aw. It burned.",
+        },
+        YOTS_LANTERN_POST_ITEM = "We can build it!",
+        CHESSPIECE_DEPTHWORM  = "Can we play with this worm?",
     },
 
     DESCRIBE_GENERIC = "Can we play with it?",

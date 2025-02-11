@@ -545,6 +545,30 @@ function params.mushroom_light2.itemtestfn(container, item, slot)
 end
 
 --------------------------------------------------------------------------
+--[[ yots_lantern_post ]]
+--------------------------------------------------------------------------
+
+params.yots_lantern_post = {
+    widget =
+    {
+        slotpos =
+        {
+             Vector3(-2, 18, 0),
+        },
+        animbank = "ui_chest_1x1",
+        animbuild = "ui_chest_1x1",
+        pos = Vector3(0, 160, 0),
+        side_align_tip = 100,
+    },
+    acceptsstacks = false,
+    type = "chest",
+}
+
+function params.yots_lantern_post.itemtestfn(container, item, slot)
+    return (item:HasTag("lightbattery") or item:HasTag("spore") or item:HasTag("lightcontainer")) and not container.inst:HasTag("burnt")
+end
+
+--------------------------------------------------------------------------
 --[[ winter_tree ]]
 --------------------------------------------------------------------------
 

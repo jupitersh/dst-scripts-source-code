@@ -1944,6 +1944,7 @@ return{
         CHESSPIECE_BEARGER_MUTATED = "A second course of monster that I didn't ask for!",
         CHESSPIECE_SHARKBOI = "It seemed to think it was top of the food chain.",
         CHESSPIECE_WORMBOSS = "It sure had an appetite.",
+        CHESSPIECE_YOTS = "I remember the chewing.",
 
         CHESSJUNK1 = "Broken chess pieces?",
         CHESSJUNK2 = "More broken chess pieces?",
@@ -5438,6 +5439,22 @@ return{
 			SNOWBALL = "It needs... something.",
 		},
         SNOWBALL_ITEM = "Oh fun!",
+
+        -- Year of the Snake
+        YOTS_SNAKESHRINE =
+        {
+            GENERIC = "The worm is well fed!",
+            EMPTY = "I think monster meat is on the menu!",
+            BURNT = "The worm is toast.",
+        },
+        YOTS_WORM = "Look out for that most exquisite worm!",
+        YOTS_LANTERN_POST = 
+        {
+            GENERIC = "It sets a festive mood!",
+            BURNT = "Hey! I was using that!",
+        },
+        YOTS_LANTERN_POST_ITEM = "It will look lovely in the evening.",
+        CHESSPIECE_DEPTHWORM  = "How could I forget the chewing.",
     },
 
     DESCRIBE_GENERIC = "It is what it is...",

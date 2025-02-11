@@ -630,6 +630,18 @@ local function OnDisconnectCircuit(inst)--, node)
 	end
 end
 
+local function OnItemGet(inst, data)
+    if inst.components.inventory:HasItemWithTag("nobundling", 1) then
+        inst:AddTag("nobundling")
+    end
+end
+
+local function OnItemLose(inst, data)
+    if not inst.components.inventory:HasItemWithTag("nobundling", 1) then
+        inst:RemoveTag("nobundling")
+    end
+end
+
 local function fn()
 	local inst = CreateEntity()
 
@@ -722,6 +734,8 @@ local function fn()
 	inst:ListenForEvent("on_no_longer_landed", OnNoLongerLanded)
 	inst:ListenForEvent("on_landed", OnLanded)
 	inst:ListenForEvent("floater_startfloating", OnStartFloating)
+    inst:ListenForEvent("itemget", OnItemGet)
+    inst:ListenForEvent("itemlose", OnItemLose)
 
 	MakeHauntable(inst)
 

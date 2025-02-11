@@ -1950,6 +1950,7 @@ return{
         CHESSPIECE_BEARGER_MUTATED = "It bears a strong resemblance.",
         CHESSPIECE_SHARKBOI = "We avoided the maw of the rowdy Frostjaw.",
         CHESSPIECE_WORMBOSS = "Its jaws were near, but I disappeared! Hyuyu!",
+        CHESSPIECE_YOTS = "Make no error facing this writhing terror.",
 
         CHESSJUNK1 = "It looks quite broke, and that's no joke!",
         CHESSJUNK2 = "It looks quite broke, and that's no joke!",
@@ -5444,6 +5445,22 @@ return{
 			SNOWBALL = "Of all the snowballs...",
 		},
         SNOWBALL_ITEM = "No greater delight than a snowball fight!",
+
+        -- Year of the Snake
+        YOTS_SNAKESHRINE =
+        {
+            GENERIC = "The worm’s terms are met!",
+            EMPTY = "On what does the beast wish to feast?",
+            BURNT = "My head was turned, and it was burned.",
+        },
+        YOTS_WORM = "Stand firm against the squirm of the worm!",
+        YOTS_LANTERN_POST = 
+        {
+            GENERIC = "A post with the most to boast!",
+            BURNT = "Who cares! We have spares! Right?",
+        },
+        YOTS_LANTERN_POST_ITEM = "It will stand tall with them all!",
+        CHESSPIECE_DEPTHWORM  = "Make no error facing this writhing terror.",
     },
 
     DESCRIBE_GENERIC = "Ooo, a mystery!",

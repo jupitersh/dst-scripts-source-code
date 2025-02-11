@@ -170,15 +170,15 @@ local function PlanNextAttack()
 	end
 
 	if _spawnmode ~= "never" then
-		local timetoattackbase, timetoattackvariance = _attackdelayfn()
-		_timetoattack = timetoattackbase + timetoattackvariance
-		_warnduration = _warndurationfn()
-		_attackplanned = true
 		_wave_pre_upgraded = nil
-
     	if _spawndata.specialupgradecheck then
     		_wave_pre_upgraded, _wave_override_chance = _spawndata.specialupgradecheck(_wave_pre_upgraded, _wave_override_chance, _wave_override_settings)
-    	end
+    	end			
+		local timetoattackbase, timetoattackvariance = _attackdelayfn()
+		_timetoattack = timetoattackbase + timetoattackvariance	
+		_warnduration = _warndurationfn(_wave_pre_upgraded)
+		_attackplanned = true
+
 	else
 		_attackplanned = false
 	end
@@ -791,6 +791,10 @@ function self:DoWarningSound()
     			local player = Ents[GUID]
     			if player and data == "land" then
     				player:PushEvent("houndwarning",HOUNDWARNINGTYPE[v.sound])
+
+					if v.quake then
+						TheWorld:PushEvent("ms_miniquake", { rad = 20, num = 20, duration = 1.5, target = player })
+					end
     			end
     		end
     		break
@@ -979,6 +983,10 @@ function self:OnUpdate(dt)
                 (_timetoattack < 90 and 4 + math.random(2)) or
                                         5 + math.random(4)
 
+            if _wave_pre_upgraded then
+            	_timetonextwarningsound = _timetonextwarningsound + 4
+            end
+
             self:DoWarningSound()
         end
     end
@@ -1004,6 +1012,7 @@ function self:OnSave()
 		attackplanned = _attackplanned,
 		missingplayerspawninfo = missingspawninfo,
 		wave_override_chance = _wave_override_chance,
+		wave_pre_upgraded = _wave_pre_upgraded,
 	}
 end
 
@@ -1014,6 +1023,7 @@ function self:OnLoad(data)
 	_attackplanned = data.attackplanned  or false
 	_missingplayerspawninfo = data.missingplayerspawninfo or {}
 	_wave_override_chance = data.wave_override_chance or 0
+	_wave_pre_upgraded = data.wave_pre_upgraded or nil
 
 	if _timetoattack > _warnduration then
 		-- in case everything went out of sync
@@ -1035,7 +1045,7 @@ end
 
 function self:GetDebugString()
     if _timetoattack > 0 then
-        return string.format("%s spawns are coming in %2.2f", (_warning and "WARNING") or (_pausesources:Get() and "BLOCKED") or "WAITING", _timetoattack)
+        return string.format("%s spawns are coming in %2.2f  _wave_override_chance: %2f, _wave_pre_upgraded: %s", (_warning and "WARNING") or (_pausesources:Get() and "BLOCKED") or "WAITING", _timetoattack, _wave_override_chance, _wave_pre_upgraded or "NO")
     end
 
     local s = "DORMANT"
@@ -1049,7 +1059,6 @@ function self:GetDebugString()
 			s = s.."} - spawns left:"..tostring(spawninforec.spawnstorelease).." next spawn:"..tostring(spawninforec.timetonext)
 		end
 	end
-    return s
 end
 
 end)

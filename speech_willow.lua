@@ -1951,6 +1951,7 @@ return{
         CHESSPIECE_BEARGER_MUTATED = "I guess I'd be cranky too if I was woken up from the Big Sleep.",
         CHESSPIECE_SHARKBOI = "Reminded me of someone from my old neighborhood.",
         CHESSPIECE_WORMBOSS = "I hope it gets indigestion.",
+        CHESSPIECE_YOTS = "Still gross.",
 
         CHESSJUNK1 = "Dead windup horsey.",
         CHESSJUNK2 = "Dead windup priest.",
@@ -5445,6 +5446,22 @@ return{
 			SNOWBALL = "Great. Now what?",
 		},
         SNOWBALL_ITEM = "Who needs a snowball to the face?",
+
+        -- Year of the Snake
+        YOTS_SNAKESHRINE =
+        {
+            GENERIC = "I still think we should torch it.",
+            EMPTY = "I vote for torching it.",
+            BURNT = "See? It worked!",
+        },
+        YOTS_WORM = " Are those scales wooden? Interesting.",
+        YOTS_LANTERN_POST = 
+        {
+            GENERIC = "It'll be brighter if I burn it.",
+            BURNT = "At least it burned bright!",
+        },
+        YOTS_LANTERN_POST_ITEM = "I can burn it as is.",
+        CHESSPIECE_DEPTHWORM  = "Still gross.",
     },
 
     DESCRIBE_GENERIC = "I have no idea what that is!",

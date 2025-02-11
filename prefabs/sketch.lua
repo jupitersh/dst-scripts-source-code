@@ -44,6 +44,7 @@ local SKETCHES =
     { item = "chesspiece_sharkboi",         recipe = "chesspiece_sharkboi_builder" },
     { item = "chesspiece_wormboss",         recipe = "chesspiece_wormboss_builder" },
     { item = "chesspiece_daywalker2",       recipe = "chesspiece_daywalker2_builder" },
+    { item = "chesspiece_yots",             recipe = "chesspiece_yots_builder" },    
 }
 
 local function GetSketchID(item)

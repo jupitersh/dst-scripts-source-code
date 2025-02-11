@@ -1338,6 +1338,11 @@ function Tune(overrides)
                 PERDOFFERING = 1,
             }),
 
+            WORMSHRINE = TechTree.Create({
+                WORMOFFERING = 3,
+                PERDOFFERING = 1,
+            }),
+
             MADSCIENCE = TechTree.Create({
                 MADSCIENCE = 1,
             }),
@@ -8048,6 +8053,8 @@ function Tune(overrides)
         SHADOWTHRALL_PARASITE_MASK_ARMOR = wilson_health*20*multiplayer_armor_durability_modifier,
         SHADOWTHRALL_PARASITE_MASK_ABSORPTION = 0.2,
 
+        SHADOWTHRALL_PARASITE_TIMEOUT = total_day_time*5,
+
 		-- Winter's Feast 2024
 		SNOWMAN_MAX_DECOR = { 5, 15, 20 },
 
@@ -8068,6 +8075,11 @@ function Tune(overrides)
         SNOWBALLMANAGER_DENSITY = 2, -- Max number of weather created snow balls to create per partition.
         SNOWBALLMANAGER_SECONDS_PER_SPAWN = 5,
         SNOWBALLMANAGER_SECONDS_PER_DESPAWN = 0.5,
+
+        -- Year of the Snake
+        YOTS_LANTERN_POST_FUEL_MAX = total_day_time*2,
+        YOTS_WORM_HEALTH = 600,
+        YOTS_WORM_COUNT = 3,
     }
 
     TUNING_MODIFIERS = {}

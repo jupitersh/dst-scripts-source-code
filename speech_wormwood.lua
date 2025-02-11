@@ -1948,6 +1948,7 @@ return{
         CHESSPIECE_BEARGER_MUTATED = "Fuzzy hungry?",
         CHESSPIECE_SHARKBOI = "Toothy Fish Friend",
         CHESSPIECE_WORMBOSS = "Don't eat me!",
+        CHESSPIECE_YOTS = "Little wiggly",
 
         CHESSJUNK1 = "Machine stuff",
         CHESSJUNK2 = "Lots of machine stuff",
@@ -5442,6 +5443,22 @@ return{
 			SNOWBALL = "Snow friend head?",
 		},
         SNOWBALL_ITEM = "Snowthrow!",
+
+        -- Year of the Snake
+        YOTS_SNAKESHRINE =
+        {
+            GENERIC = "Wiggly full",
+            EMPTY = "What wiggly eat?",
+            BURNT = "Bad, bad fire",
+        },
+        YOTS_WORM = "Shiny wiggly?",
+        YOTS_LANTERN_POST = 
+        {
+            GENERIC = "Pretty tall friend",
+            BURNT = "Poor tall friend",
+        },
+        YOTS_LANTERN_POST_ITEM = "Make tall friend!",
+        CHESSPIECE_DEPTHWORM  = "Little wiggly",
     },
 
     DESCRIBE_GENERIC = "Friend?",

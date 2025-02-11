@@ -3595,6 +3595,20 @@ MISC_ITEMS =
 		output_items = {  "wanda_masquerade", "body_wanda_masquerade", "legs_wanda_masquerade", "wathgrithr_masquerade", "body_wathgrithr_masquerade", "legs_wathgrithr_masquerade", "feet_wathgrithr_masquerade", "wurt_masquerade", "body_wurt_masquerade", "waxwell_masquerade", "body_waxwell_masquerade", "legs_waxwell_masquerade", "feet_waxwell_masquerade", "wilson_masquerade", "body_wilson_masquerade", "legs_wilson_masquerade", "hand_wilson_masquerade", "wilson_beard_masquerade", },
 		release_group = 151,
 	},
+	pack_masquerade_3 =
+	{
+		type = "purchase",
+		skin_tags = { },
+		featured_pack = true,
+		display_order = 1,
+		build_name_override = "pack_common",
+		display_atlas = "images/iap_images_masquerade3.xml",
+		display_tex = "masquerade3.tex",
+		box_build = "box_shop_plain",
+		display_items = {  "wendy_masquerade", "abigail_masquerade", "winona_masquerade", "wx78_masquerade", "webber_masquerade", "webber_beard_masquerade", "wickerbottom_masquerade", },
+		output_items = {  "wendy_masquerade", "body_wendy_masquerade", "feet_wendy_masquerade", "abigail_masquerade", "winona_masquerade", "body_winona_masquerade", "wx78_masquerade", "body_wx78_masquerade", "legs_wx78_masquerade", "feet_wx78_masquerade", "webber_masquerade", "body_webber_masquerade", "feet_webber_masquerade", "webber_beard_masquerade", "wickerbottom_masquerade", "body_wickerbottom_masquerade", "feet_wickerbottom_masquerade", },
+		release_group = 161,
+	},
 	pack_masquerade_wanda =
 	{
 		type = "purchase",
@@ -4438,8 +4452,8 @@ MISC_ITEMS =
 		display_atlas = "images/iap_images_starter_2025.xml",
 		display_tex = "starter_2025.tex",
 		box_build = "box_shop_plain",
-		display_items = {  "wanda_none", "wilson_pirate", "wilson_beard_pirate", "wendy_shadowp", "abigail_shadow", "winona_victorian", "waxwell_ice", "firepit_fanged", "backpack_catcoon", "body_pj_grey", "legs_pj_grey", "bedroll_furry_quilt_grey", },
-		output_items = {  "wanda_none", "wilson_pirate", "body_wilson_pirate", "legs_wilson_pirate", "wilson_beard_pirate", "wendy_shadowp", "body_wendy_shadowp", "abigail_shadow", "winona_victorian", "body_winona_victorian", "hand_winona_victorian", "legs_winona_victorian", "waxwell_ice", "body_waxwell_ice", "hand_waxwell_ice", "legs_waxwell_ice", "firepit_fanged", "backpack_catcoon", "body_pj_grey", "legs_pj_grey", "bedroll_furry_quilt_grey", },
+		display_items = {  "wanda_none", "wilson_pirate", "wilson_beard_pirate", "wendy_shadowp", "abigail_shadow", "winona_victorian", "waxwell_ice", "firepit_fangedp", "backpack_catcoonp", "body_pj_grey", "legs_pj_grey", "bedroll_furry_quilt_grey", },
+		output_items = {  "wanda_none", "wilson_pirate", "body_wilson_pirate", "legs_wilson_pirate", "wilson_beard_pirate", "wendy_shadowp", "body_wendy_shadowp", "abigail_shadow", "winona_victorian", "body_winona_victorian", "hand_winona_victorian", "legs_winona_victorian", "waxwell_ice", "body_waxwell_ice", "hand_waxwell_ice", "legs_waxwell_ice", "firepit_fangedp", "backpack_catcoonp", "body_pj_grey", "legs_pj_grey", "bedroll_furry_quilt_grey", },
 		release_group = 160,
 	},
 	pack_sw_gift =
@@ -5426,6 +5440,19 @@ MISC_ITEMS =
 		output_items = {  "webber_formalp", "body_webber_formalp", "webber_beard_formal", },
 		release_group = 120,
 	},
+	pack_webber_masquerade =
+	{
+		type = "purchase",
+		skin_tags = { },
+		display_order = 111,
+		build_name_override = "webber_masquerade",
+		display_atlas = "bigportraits/webber_masquerade.xml",
+		display_tex = "webber_masquerade_oval.tex",
+		box_build = "box_shop_plain",
+		display_items = {  "webber_masquerade", "body_webber_masquerade", "feet_webber_masquerade", "webber_beard_masquerade", },
+		output_items = {  "webber_masquerade", "body_webber_masquerade", "feet_webber_masquerade", "webber_beard_masquerade", },
+		release_group = 161,
+	},
 	pack_webber_pirate =
 	{
 		type = "purchase",
@@ -5530,6 +5557,19 @@ MISC_ITEMS =
 		display_items = {  "wendy_handmedown", "body_wendy_handmedown", "feet_wendy_handmedown", "hand_wendy_handmedown", "abigail_handmedown", },
 		output_items = {  "wendy_handmedown", "body_wendy_handmedown", "feet_wendy_handmedown", "hand_wendy_handmedown", "abigail_handmedown", },
 		release_group = 93,
+	},
+	pack_wendy_masquerade =
+	{
+		type = "purchase",
+		skin_tags = { },
+		display_order = 104,
+		build_name_override = "wendy_masquerade",
+		display_atlas = "bigportraits/wendy_masquerade.xml",
+		display_tex = "wendy_masquerade_oval.tex",
+		box_build = "box_shop_plain",
+		display_items = {  "wendy_masquerade", "body_wendy_masquerade", "feet_wendy_masquerade", "abigail_masquerade", },
+		output_items = {  "wendy_masquerade", "body_wendy_masquerade", "feet_wendy_masquerade", "abigail_masquerade", },
+		release_group = 161,
 	},
 	pack_wendy_rose =
 	{
@@ -5701,6 +5741,19 @@ MISC_ITEMS =
 		display_items = {  "wickerbottom_formalp", "body_wickerbottom_formalp", "feet_formal_highheelp_white_pure", },
 		output_items = {  "wickerbottom_formalp", "body_wickerbottom_formalp", "feet_formal_highheelp_white_pure", },
 		release_group = 134,
+	},
+	pack_wickerbottom_masquerade =
+	{
+		type = "purchase",
+		skin_tags = { },
+		display_order = 106,
+		build_name_override = "wickerbottom_masquerade",
+		display_atlas = "bigportraits/wickerbottom_masquerade.xml",
+		display_tex = "wickerbottom_masquerade_oval.tex",
+		box_build = "box_shop_plain",
+		display_items = {  "wickerbottom_masquerade", "body_wickerbottom_masquerade", "feet_wickerbottom_masquerade", },
+		output_items = {  "wickerbottom_masquerade", "body_wickerbottom_masquerade", "feet_wickerbottom_masquerade", },
+		release_group = 161,
 	},
 	pack_wickerbottom_ornate =
 	{
@@ -6016,6 +6069,19 @@ MISC_ITEMS =
 		display_items = {  "winona_formalp", "body_winona_formalp", },
 		output_items = {  "winona_formalp", "body_winona_formalp", },
 		release_group = 61,
+	},
+	pack_winona_masquerade =
+	{
+		type = "purchase",
+		skin_tags = { },
+		display_order = 112,
+		build_name_override = "winona_masquerade",
+		display_atlas = "bigportraits/winona_masquerade.xml",
+		display_tex = "winona_masquerade_oval.tex",
+		box_build = "box_shop_plain",
+		display_items = {  "winona_masquerade", "body_winona_masquerade", },
+		output_items = {  "winona_masquerade", "body_winona_masquerade", },
+		release_group = 161,
 	},
 	pack_winona_rose =
 	{
@@ -6728,6 +6794,19 @@ MISC_ITEMS =
 		display_items = {  "wx78_formalp", "body_wx78_formalp", },
 		output_items = {  "wx78_formalp", "body_wx78_formalp", },
 		release_group = 130,
+	},
+	pack_wx78_masquerade =
+	{
+		type = "purchase",
+		skin_tags = { },
+		display_order = 105,
+		build_name_override = "wx78_masquerade",
+		display_atlas = "bigportraits/wx78_masquerade.xml",
+		display_tex = "wx78_masquerade_oval.tex",
+		box_build = "box_shop_plain",
+		display_items = {  "wx78_masquerade", "body_wx78_masquerade", "legs_wx78_masquerade", "feet_wx78_masquerade", },
+		output_items = {  "wx78_masquerade", "body_wx78_masquerade", "legs_wx78_masquerade", "feet_wx78_masquerade", },
+		release_group = 161,
 	},
 	pack_wx78_retro =
 	{
@@ -7947,6 +8026,13 @@ MISC_ITEMS =
 		rarity = "Classy",
 		rarity_modifier = "Woven",
 		release_group = 32,
+	},
+	playerportrait_bg_toothtrap_rose =
+	{
+		type = "playerportrait",
+		skin_tags = { "ROSE", "PLAYERPORTRAIT", },
+		rarity = "Loyal",
+		release_group = 161,
 	},
 	playerportrait_bg_toothtraps =
 	{
@@ -9526,6 +9612,13 @@ MISC_ITEMS =
 		rarity_modifier = "Woven",
 		release_group = 51,
 	},
+	profileflair_toothtrap_rose =
+	{
+		type = "profileflair",
+		skin_tags = { "ROSE", "PROFILEFLAIR", },
+		rarity = "Loyal",
+		release_group = 161,
+	},
 	profileflair_tophat_circus =
 	{
 		type = "profileflair",
@@ -10010,6 +10103,14 @@ MISC_ITEMS =
 		rarity = "Classy",
 		rarity_modifier = "Woven",
 		release_group = 102,
+	},
+	webber_beard_masquerade =
+	{
+		type = "beard",
+		skin_tags = { "MASQUERADE", "WEBBER_BEARD", },
+		rarity = "Classy",
+		rarity_modifier = "Woven",
+		release_group = 161,
 	},
 	webber_beard_nature =
 	{

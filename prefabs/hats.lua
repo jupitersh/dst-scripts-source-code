@@ -5150,6 +5150,10 @@ local function MakeHat(name)
             owner:AddComponent("planarentity")
         end
 
+        if owner.components.herdmember then
+            owner.components.herdmember:Enable(false)
+        end
+
         if owner.components.planardamage == nil then
             owner.planardamage_added = true
 
@@ -5232,6 +5236,25 @@ local function MakeHat(name)
         inst:AddTag("shadowthrall_parasite")
     end
 
+    fns.shadowthrall_parasite_OnEntitySleep = function(inst)
+        inst.remove_self_task = inst:DoTaskInTime( TUNING.SHADOWTHRALL_PARASITE_TIMEOUT , function()
+            local owner = inst.components.inventoryitem.owner or nil
+            if owner then
+                owner:Remove()
+            end
+            if inst:IsValid() then
+                inst:Remove()
+            end
+        end )
+    end
+
+    fns.shadowthrall_parasite_OnEntityWake = function(inst)
+        if inst.remove_self_task then
+            inst.remove_self_task:Cancel()
+            inst.remove_self_task = nil
+        end
+    end
+
     fns.shadowthrall_parasite = function()
         local inst = simple(fns.shadowthrall_parasite_custom_init)
 
@@ -5255,6 +5278,9 @@ local function MakeHat(name)
         inst.components.inventoryitem.keepondeath = true
 
         MakeHauntableLaunch(inst)
+
+        inst.OnEntitySleep = fns.shadowthrall_parasite_OnEntitySleep
+        inst.OnEntityWake = fns.shadowthrall_parasite_OnEntityWake
 
         return inst
     end

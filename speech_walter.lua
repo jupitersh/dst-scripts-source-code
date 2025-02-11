@@ -1944,6 +1944,7 @@ return{
         CHESSPIECE_BEARGER_MUTATED = "We bearly escaped! Get it?",
         CHESSPIECE_SHARKBOI = "Your bark was worse than their bite, Woby!",
         CHESSPIECE_WORMBOSS = "It was gross inside and out!",
+        CHESSPIECE_YOTS = "The carving still looks slithery!",
 
         CHESSJUNK1 = "I don't think they're going to get up anytime soon.",
         CHESSJUNK2 = "I don't think they're going to get up anytime soon.",
@@ -5438,6 +5439,22 @@ return{
 			SNOWBALL = "I've seen you a round! Hehe.",
 		},
         SNOWBALL_ITEM = "Hehe.",
+
+        -- Year of the Snake
+        YOTS_SNAKESHRINE =
+        {
+            GENERIC = "I'm squirming with excitement!",
+            EMPTY = "What should we feed it, Woby?",
+            BURNT = "Looks like someone forgot their fire safety.",
+        },
+        YOTS_WORM = "Woby, watch out for that worm!",
+        YOTS_LANTERN_POST = 
+        {
+            GENERIC = "It makes me happy too, Woby!",
+            BURNT = "Went up like a giant matchstick!",
+        },
+        YOTS_LANTERN_POST_ITEM = "Light it up, post to post!",
+        CHESSPIECE_DEPTHWORM  = "The carving somehow still feels slithery!",
     },
 
     DESCRIBE_GENERIC = "That sure is a mystery!",

@@ -939,28 +939,33 @@ local function _Mutations_TalkAboutMutatedCreature_Internal(inst)
 end
 
 local function Mutations_TalkAboutMutatedCreature(inst, existing)
-    if inst._lunarriftmutationsmanager ~= nil then
-        local quest_done = inst._lunarriftmutationsmanager:ShouldGiveReward()
+    if not inst:IsValid() then
+        return -- We might have been removed by OnEntitySleep already!
+    end
 
-        if quest_done then
-            inst.persists = true
-        end
+    if inst._lunarriftmutationsmanager == nil then
+        return
+    end
 
-        local talktask_time = inst._lunarriftmutationsmanager:IsTaskCompleted() and MUTATIONS_TASK_DELAYS.START_TALKING_TASKCOMPLETED or MUTATIONS_TASK_DELAYS.START_TALKING 
+    local quest_done = inst._lunarriftmutationsmanager:ShouldGiveReward()
 
-        if not existing then
-            inst:DoTaskInTime(MUTATIONS_TASK_DELAYS.SHOW_UP, ShowUp)
-            inst._talktask = inst:DoTaskInTime(talktask_time, _Mutations_TalkAboutMutatedCreature_Internal)
+    if quest_done then
+        inst.persists = true
+    end
 
-        elseif inst._talktask == nil then
-            _Mutations_TalkAboutMutatedCreature_Internal(inst)
-        end
+    local talktask_time = inst._lunarriftmutationsmanager:IsTaskCompleted() and MUTATIONS_TASK_DELAYS.START_TALKING_TASKCOMPLETED or MUTATIONS_TASK_DELAYS.START_TALKING
+
+    if not existing then
+        inst:DoTaskInTime(MUTATIONS_TASK_DELAYS.SHOW_UP, ShowUp)
+        inst._talktask = inst:DoTaskInTime(talktask_time, _Mutations_TalkAboutMutatedCreature_Internal)
+
+    elseif inst._talktask == nil then
+        _Mutations_TalkAboutMutatedCreature_Internal(inst)
     end
 end
 
 local function Mutations_OnLoad(inst)
     -- Wagstaff persist only if the quest is complete.
-
     if inst._lunarriftmutationsmanager ~= nil then
         inst._lunarriftmutationsmanager:OnRewardGiven()
 
@@ -971,8 +976,7 @@ local function Mutations_OnLoad(inst)
 end
 
 local function Mutations_OnEntitySleep(inst)
-    -- Wagstaff persist only if the quest is complete.
-    if inst._lunarriftmutationsmanager ~= nil and inst.persists then
+    if inst._lunarriftmutationsmanager ~= nil and inst._lunarriftmutationsmanager:ShouldGiveReward() then
         inst._lunarriftmutationsmanager:OnRewardGiven()
 
         return ReplacePrefab(inst, "security_pulse_cage")

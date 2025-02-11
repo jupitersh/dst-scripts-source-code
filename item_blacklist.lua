@@ -11,6 +11,7 @@ ITEM_DISPLAY_BLACKLIST =
 	abigail_flower_lunar = true,
 	abigail_flower_lureplant = true,
 	abigail_flower_magma = true,
+	abigail_flower_masquerade = true,
 	abigail_flower_nature = true,
 	abigail_flower_rose = true,
 	abigail_flower_shadow = true,

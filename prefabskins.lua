@@ -12,6 +12,7 @@ PREFAB_SKINS = {
 		"abigail_lunar",
 		"abigail_lureplant",
 		"abigail_magma",
+		"abigail_masquerade",
 		"abigail_nature",
 		"abigail_rose",
 		"abigail_shadow",
@@ -30,6 +31,7 @@ PREFAB_SKINS = {
 		"abigail_flower_lunar",
 		"abigail_flower_lureplant",
 		"abigail_flower_magma",
+		"abigail_flower_masquerade",
 		"abigail_flower_nature",
 		"abigail_flower_rose",
 		"abigail_flower_shadow",
@@ -134,6 +136,7 @@ PREFAB_SKINS = {
 		"backpack_camping_red_koalefant",
 		"backpack_carrat",
 		"backpack_catcoon",
+		"backpack_catcoonp",
 		"backpack_chester",
 		"backpack_crab",
 		"backpack_deerclops",
@@ -661,6 +664,7 @@ PREFAB_SKINS = {
 	firepit =
 	{
 		"firepit_fanged",
+		"firepit_fangedp",
 		"firepit_firebird",
 		"firepit_hole",
 		"firepit_hole_alt",
@@ -1441,6 +1445,7 @@ PREFAB_SKINS = {
 	},
 	trap_teeth =
 	{
+		"trap_teeth_rose",
 		"trap_teeth_tiger",
 	},
 	treasurechest =
@@ -1492,6 +1497,10 @@ PREFAB_SKINS = {
 	trophyscale_oversizedveggies =
 	{
 		"trophyscale_oversizedveggies_plant",
+	},
+	trunkvest_summer =
+	{
+		"armor_trunkvest_summer_quilted",
 	},
 	trunkvest_winter =
 	{
@@ -1745,6 +1754,7 @@ PREFAB_SKINS = {
 		"webber_ice",
 		"webber_lunar",
 		"webber_magma",
+		"webber_masquerade",
 		"webber_nature",
 		"webber_none",
 		"webber_pirate",
@@ -1768,6 +1778,7 @@ PREFAB_SKINS = {
 		"webber_beard_ice",
 		"webber_beard_lunar",
 		"webber_beard_magma",
+		"webber_beard_masquerade",
 		"webber_beard_nature",
 		"webber_beard_pirate",
 		"webber_beard_punk",
@@ -1793,6 +1804,7 @@ PREFAB_SKINS = {
 		"wendy_lureplant_d",
 		"wendy_lureplant_p",
 		"wendy_magma",
+		"wendy_masquerade",
 		"wendy_nature",
 		"wendy_none",
 		"wendy_rose",
@@ -1850,6 +1862,7 @@ PREFAB_SKINS = {
 		"wickerbottom_lightninggoat_p",
 		"wickerbottom_lunar",
 		"wickerbottom_magma",
+		"wickerbottom_masquerade",
 		"wickerbottom_nature",
 		"wickerbottom_none",
 		"wickerbottom_ornate",
@@ -1959,6 +1972,7 @@ PREFAB_SKINS = {
 		"winona_ice",
 		"winona_lunar",
 		"winona_magma",
+		"winona_masquerade",
 		"winona_nature",
 		"winona_none",
 		"winona_pirate",
@@ -2193,6 +2207,7 @@ PREFAB_SKINS = {
 		"wx78_ice",
 		"wx78_lunar",
 		"wx78_magma",
+		"wx78_masquerade",
 		"wx78_nature",
 		"wx78_none",
 		"wx78_retro",

@@ -607,6 +607,7 @@ STRINGS =
             SPIN = "Spin",
             CALM = "Calm",
             GATHER_MERM = "Gather Merm",
+            FAKE_PICKUP = "Pick up",
         },
 
 		OPEN_CRAFTING =
@@ -2329,6 +2330,7 @@ STRINGS =
         CHESSPIECE_YOTD = "Start Tower Figure",
         CHESSPIECE_SHARKBOI = "Frostjaw Figure",
         CHESSPIECE_WORMBOSS = "Great Depths Worm Figure",
+        CHESSPIECE_YOTS = "Gilded Depths Worm Figure",
 
         CHESSPIECE_PAWN_BUILDER = "Pawn Figure",
         CHESSPIECE_ROOK_BUILDER = "Rook Figure",
@@ -2371,6 +2373,7 @@ STRINGS =
         CHESSPIECE_YOTD_BUILDER = "Start Tower Figure",
         CHESSPIECE_SHARKBOI_BUILDER = "Frostjaw Figure",
         CHESSPIECE_WORMBOSS_BUILDER = "Great Depths Worm Figure",
+        CHESSPIECE_YOTS_BUILDER = "Gilded Depths Worm Figure",
 
         CHESSPIECE_BUTTERFLY_SKETCH = "Moon Moth Figure Sketch",
         CHESSPIECE_ANCHOR_SKETCH = "Anchor Figure Sketch",
@@ -2390,6 +2393,7 @@ STRINGS =
         CHESSPIECE_BEARGER_MUTATED_SKETCH = "Armored Bearger Figure Sketch",
         CHESSPIECE_YOTD_SKETCH = "Start Tower Figure Sketch",
         CHESSPIECE_SHARKBOI_SKETCH = "Frostjaw Figure Sketch",
+        CHESSPIECE_YOTS_SKETCH = "Gilded Depths Worm Figure Sketch",
 
         SHADOW_ROOK = "Shadow Rook",
         SHADOW_KNIGHT = "Shadow Knight",
@@ -4135,6 +4139,13 @@ STRINGS =
 		SNOWMAN = "Snowman",
 		SNOWBALL_LARGE = "Large Snowball",
 		SNOWBALL_ITEM = "Snowball",
+
+        -- Year of the Snake
+        YOTS_SNAKESHRINE = "Depths Worm Shrine",
+        YOTS_WORM = "Gilded Depths Worm",
+        YOTS_LANTERN_POST = "Jubilantern Post",
+        YOTS_LANTERN_POST_ITEM = "Jubilantern Post Kit",        
+
 	},
 
     NAME_DETAIL_EXTENTION =
@@ -5203,6 +5214,10 @@ STRINGS =
         CARPENTRY_BLADE_MOONGLASS = "For when a regular blade just won't cut it.",
 
         GELBLOB_STORAGE_KIT = "Keep your perishables fresh in this deadly dark jelly.",
+
+        YOTS_SNAKESHRINE = "Make offerings to the hungry Depths Worm.",
+        YOTS_LANTERN_POST = "A most festive post for stringing lanterns.",
+        YOTS_LANTERN_POST_ITEM = "A most festive post for stringing lanterns.",
     },
 
     -- MAXWELL_TEST = {"Say pal, you don't look so good.", "You better find something to eat before night comes!"},
@@ -7698,6 +7713,8 @@ STRINGS.UI =
         NEEDSYOTR = "Available during Year of the Bunnyman!",
 		NEEDSHALLOWED_NIGHTS = "Available during Hallowed Nights!",
 		NEEDSWINTERS_FEAST = "Available during Winter's Feast!",
+        NEEDSYOTD = "Available during Year of the Dragonfly!",
+        NEEDSYOTS = "Available during Year of the Depths Worm!",
 
         NEEDSPERDSHRINE = "Make an offering at the Gobbler Shrine!",
         NEEDSWARGSHRINE = "Make an offering at the Varg Shrine!",
@@ -10078,6 +10095,7 @@ STRINGS.UI =
 		YEAR_OF_THE_CATCOON = "Year of the Catcoon",
         YEAR_OF_THE_BUNNYMAN = "Year of the Bunnyman",
         YEAR_OF_THE_DRAGONFLY = "Year of the Dragonfly",
+        YEAR_OF_THE_SNAKE = "Year of the Depths Worm",        
 
         PREFABSWAPS = "Changing Resources",
         PREFABSWAPS_START = "Starting Resource Variety",
@@ -16379,6 +16397,7 @@ STRINGS.SCRAPBOOK = {
 		-- WintersFeast2024
 
 		SNOWMAN = "Roll'em! Stack'em! Decorate them with a variety of items!",
+
     },
 
     -- Full name: "{name} Scrapbook Page"

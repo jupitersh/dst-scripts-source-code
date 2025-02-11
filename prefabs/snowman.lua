@@ -680,6 +680,7 @@ local function fn()
 	inst.components.inventoryitem:SetOnPutInInventoryFn(OnPutInInventory)
 	inst.components.inventoryitem:SetSinks(true)
 
+	inst:AddComponent("submersible")
 	inst:AddComponent("symbolswapdata")
 	inst.components.symbolswapdata:SetData("snowball", "swap_body_large")
 

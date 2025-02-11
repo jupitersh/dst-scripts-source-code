@@ -214,6 +214,22 @@ return
 			"webber_yule",
 			"body_webber_yule",
 		},
+		{
+			"wortox_yule",
+			"body_wortox_yule",
+			"legs_wortox_yule",
+		},
+		{
+			"warly_yule",
+			"body_warly_yule",
+			"legs_warly_yule",
+		},
+		{
+			"wolfgang_yule",
+			"body_wolfgang_yule",
+			"legs_wolfgang_yule",
+			"feet_wolfgang_yule",
+		},
 	},
 	emote_fistshake =
 	{

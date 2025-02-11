@@ -1954,6 +1954,7 @@ return {
         CHESSPIECE_BEARGER_MUTATED = "Somehow it seems crankier than the real one.",
         CHESSPIECE_SHARKBOI = "There's just some-fin about it.",
         CHESSPIECE_WORMBOSS = "It still shakes me up.",
+        CHESSPIECE_YOTS = "I usually try to stay away from gold diggers.",
 
         CHESSJUNK1 = "A pile of broken chess pieces.",
         CHESSJUNK2 = "Another pile of broken chess pieces.",
@@ -5448,6 +5449,22 @@ return {
 			SNOWBALL = "Someone knew their roll!",
 		},
         SNOWBALL_ITEM = "Not throwing this chance away...",
+
+        -- Year of the Snake
+        YOTS_SNAKESHRINE =
+        {
+            GENERIC = "It’s bursting with promise!",
+            EMPTY = "It has a monstrous appetite.",
+            BURNT = "Willow!",
+        },
+        YOTS_WORM = "It comes from lesser depths.",
+        YOTS_LANTERN_POST = 
+        {
+            GENERIC = "It's post to be there.",
+            BURNT = "It's post post",
+        },
+        YOTS_LANTERN_POST_ITEM = "Where's it post to go?",
+        CHESSPIECE_DEPTHWORM  = "It's a worm, figures.",
     },
 
     DESCRIBE_GENERIC = "It's a... thing.",

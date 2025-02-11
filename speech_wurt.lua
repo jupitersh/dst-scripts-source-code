@@ -1944,6 +1944,7 @@ return{
         CHESSPIECE_BEARGER_MUTATED = "Remember bad teddy.",
         CHESSPIECE_SHARKBOI = "Haha! Bad fishie frozen.",
         CHESSPIECE_WORMBOSS = "Hungriest worm.",
+        CHESSPIECE_YOTS = "Cute little worm.",
 
         CHESSJUNK1 = "It all broken.",
         CHESSJUNK2 = "Didn't do it!!",
@@ -5438,6 +5439,22 @@ return{
 			SNOWBALL = "Snowfolk missing part.",
 		},
         SNOWBALL_ITEM = "Oh, Webby boy...",
+
+        -- Year of the Snake
+        YOTS_SNAKESHRINE =
+        {
+            GENERIC = "Gimme, gimme!",
+            EMPTY = "No Mermfolk meat for you!",
+            BURNT = "Bye, worm!",
+        },
+        YOTS_WORM = "GOLD WORM!",
+        YOTS_LANTERN_POST = 
+        {
+            GENERIC = "Party post? Party post!",
+            BURNT = "Glurgh, party over.",
+        },
+        YOTS_LANTERN_POST_ITEM = "Me good builder.",
+        CHESSPIECE_DEPTHWORM  = "Little worm is so cute!",
     },
 
     DESCRIBE_GENERIC = "What that?",

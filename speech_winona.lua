@@ -1950,6 +1950,7 @@ return{
         CHESSPIECE_BEARGER_MUTATED = "That was one ornery son of a beast.",
         CHESSPIECE_SHARKBOI = "That shark was kind of a jerk.",
         CHESSPIECE_WORMBOSS = "What a big nasty worm that was. Blegh.",
+        CHESSPIECE_YOTS = "Ugh, still makes my skin crawl.",
 
         CHESSJUNK1 = "A heap of spare parts.",
         CHESSJUNK2 = "A heap of spare parts.",
@@ -5444,6 +5445,22 @@ return{
 			SNOWBALL = "It's a start.",
 		},
         SNOWBALL_ITEM = "This could be fun.",
+
+        -- Year of the Snake
+        YOTS_SNAKESHRINE =
+        {
+            GENERIC = "Alright, worm. Whatd’ya got for me?",
+            EMPTY = "This worm’s lookin’ famished.",
+            BURNT = "What a shame.",
+        },
+        YOTS_WORM = "Them worms came dressed to party.",
+        YOTS_LANTERN_POST = 
+        {
+            GENERIC = "Not bad.",
+            BURNT = "That’s not how it works.",
+        },
+        YOTS_LANTERN_POST_ITEM = "Party lights? Hmm...",
+        CHESSPIECE_DEPTHWORM  = "Ugh, still makes my skin crawl.",
     },
 
     DESCRIBE_GENERIC = "Incredible! I have no idea what that is.",

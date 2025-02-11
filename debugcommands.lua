@@ -2528,6 +2528,7 @@ local NOT_ALLOWED_RECIPE_TECH =
     [TechTree.Create(TECH.CATCOONOFFERING_THREE)] = true,
     [TechTree.Create(TECH.RABBITOFFERING_THREE)] = true,
     [TechTree.Create(TECH.DRAGONOFFERING_THREE)] = true,
+    [TechTree.Create(TECH.SNAKEOFFERING_THREE)] = true,
 
     [TechTree.Create(TECH.YOTG)] = true,
     [TechTree.Create(TECH.YOTV)] = true,
@@ -2537,6 +2538,7 @@ local NOT_ALLOWED_RECIPE_TECH =
     [TechTree.Create(TECH.YOT_CATCOON)] = true,
     [TechTree.Create(TECH.YOTR)] = true,
     [TechTree.Create(TECH.YOTD)] = true,
+    [TechTree.Create(TECH.YOTS)] = true,
 }
 
 function d_createscrapbookdata(print_missing_icons, noreset)

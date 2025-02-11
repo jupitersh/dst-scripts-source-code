@@ -1944,6 +1944,7 @@ return{
         CHESSPIECE_BEARGER_MUTATED = "Oh, wonderful. It's even worse than I remembered.",
         CHESSPIECE_SHARKBOI = "How could I forget this ruffian?",
         CHESSPIECE_WORMBOSS = "Rather not relive this one.",
+        CHESSPIECE_YOTS = "And I just managed to forget you.",
 
         CHESSJUNK1 = "I don't see much in the way of proper clockwork in there.",
         CHESSJUNK2 = "I have a suspicion these were held together with more magic than craftsmanship.",
@@ -5438,6 +5439,22 @@ return{
 			SNOWBALL = "Must admit I have a few ideas for this one.",
 		},
         SNOWBALL_ITEM = "There's always time for a snowball fight.",
+
+        -- Year of the Snake
+        YOTS_SNAKESHRINE =
+        {
+            GENERIC = "Offering made. Let’s get on with it, worm!",
+            EMPTY = "If I recall, it needs monster meat.",
+            BURNT = "It was just a matter of time.",
+        },
+        YOTS_WORM = "I don’t remember seeing you up here.",
+        YOTS_LANTERN_POST = 
+        {
+            GENERIC = "Who has time to celebrate? Okay, fine.",
+            BURNT = "Who saw that coming? Me.",
+        },
+        YOTS_LANTERN_POST_ITEM = "Let's put it up already!",
+        CHESSPIECE_DEPTHWORM  = "And I just managed to forget you.",
     },
 
     DESCRIBE_GENERIC = "A very particular something or other.",

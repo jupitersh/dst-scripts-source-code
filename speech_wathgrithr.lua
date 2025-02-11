@@ -1944,6 +1944,7 @@ return{
         CHESSPIECE_BEARGER_MUTATED = "May the beast now be at peace.",
         CHESSPIECE_SHARKBOI = "Until we meet again, bait-breathed warrior.",
         CHESSPIECE_WORMBOSS = "I shall never forget this hungry cave serpent.",
+        CHESSPIECE_YOTS = "I do relish thy slaying, worm.",
 
         CHESSJUNK1 = "It's only a pile of fallen warriors.",
         CHESSJUNK2 = "More fallen mechanical warriors.",
@@ -5438,6 +5439,22 @@ return{
 			SNOWBALL = "Not quite.",
 		},
         SNOWBALL_ITEM = "I do love a snow skirmish.",
+
+        -- Year of the Snake
+        YOTS_SNAKESHRINE =
+        {
+            GENERIC = "The worm hath been appeased.",
+            EMPTY = "The worm doth demand a worthy sacrifice.",
+            BURNT = "The shrine itself offered to the implacable gods!",
+        },
+        YOTS_WORM = "I shall send thee back to the depths, worm!",
+        YOTS_LANTERN_POST = 
+        {
+            GENERIC = "I hope she'll hold.",
+            BURNT = "Must the gods taketh everything?",
+        },
+        YOTS_LANTERN_POST_ITEM = "Prepare thyself, for revelry doth await.",
+        CHESSPIECE_DEPTHWORM  = "I do relish thy slaying, worm.",
     },
 
     DESCRIBE_GENERIC = "It is an artifact of this realm.",

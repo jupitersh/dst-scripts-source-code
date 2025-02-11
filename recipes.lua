@@ -47,7 +47,7 @@ PROTOTYPER_DEFS.yotb_beefaloshrine = PROTOTYPER_DEFS.perdshrine
 PROTOTYPER_DEFS.yot_catcoonshrine = PROTOTYPER_DEFS.perdshrine
 PROTOTYPER_DEFS.yotr_rabbitshrine = PROTOTYPER_DEFS.perdshrine
 PROTOTYPER_DEFS.yotd_dragonshrine = PROTOTYPER_DEFS.perdshrine
-
+PROTOTYPER_DEFS.yots_snakeshrine = PROTOTYPER_DEFS.perdshrine
 
 
 local function IsMarshLand(pt, rot)
@@ -786,6 +786,7 @@ Recipe2("chesspiece_bearger_mutated_builder",	{Ingredient(TECH_INGREDIENT.SCULPT
 Recipe2("chesspiece_yotd_builder",				{Ingredient(TECH_INGREDIENT.SCULPTING, 2), Ingredient("rocks", 2)},									TECH.LOST,					{nounlock = true, actionstr="SCULPTING", image="chesspiece_yotd.tex"})
 Recipe2("chesspiece_sharkboi_builder",			{Ingredient(TECH_INGREDIENT.SCULPTING, 2), Ingredient("rocks", 2)},									TECH.LOST,					{nounlock = true, actionstr="SCULPTING", image="chesspiece_sharkboi.tex"})
 Recipe2("chesspiece_wormboss_builder",			{Ingredient(TECH_INGREDIENT.SCULPTING, 2), Ingredient("rocks", 2)},									TECH.LOST,					{nounlock = true, actionstr="SCULPTING", image="chesspiece_wormboss.tex"})
+Recipe2("chesspiece_yots_builder",				{Ingredient(TECH_INGREDIENT.SCULPTING, 2), Ingredient("rocks", 2)},									TECH.LOST,					{nounlock = true, actionstr="SCULPTING", image="chesspiece_yots.tex"})
 
 -- Hermitcrab
 Recipe2("hermitshop_hermit_bundle_shells",				{Ingredient("messagebottleempty", 1)},														TECH.HERMITCRABSHOP_ONE,	{nounlock = true, sg_state="give", product="hermit_bundle_shells",		image="hermit_bundle.tex"})
@@ -843,6 +844,10 @@ Recipe2("record",										{Ingredient("batwing", 1), Ingredient("charcoal", 1)}
 
 
 ----YEAR OF THE X-----
+
+Recipe2("yots_lantern_post_item",					{Ingredient("lucky_goldnugget", 6)},                                 							TECH.PERDOFFERING_ONE,	    {nounlock=true, actionstr="PERDOFFERING"})
+Recipe2("chesspiece_yots_sketch",					{Ingredient("lucky_goldnugget", 8)},															TECH.WORMOFFERING_THREE,	{nounlock=true, actionstr="PERDOFFERING"})
+
 Recipe2("dragonboat_kit",							{Ingredient("goldnugget", 3)},															        TECH.DRAGONOFFERING_THREE,	{nounlock=true, actionstr="PERDOFFERING", image="boat_yotd_item.tex"})
 Recipe2("yotd_oar",									{Ingredient("goldnugget", 1)},       															TECH.DRAGONOFFERING_THREE,	{nounlock=true, actionstr="PERDOFFERING"})
 Recipe2("boatrace_start_throwable_deploykit",		{Ingredient("goldnugget", 4), },																TECH.DRAGONOFFERING_THREE,	{nounlock=true, actionstr="PERDOFFERING"})
@@ -1006,6 +1011,7 @@ Recipe2("yotb_beefaloshrine",			{Ingredient("goldnugget", 4), Ingredient("boards
 Recipe2("yot_catcoonshrine",			{Ingredient("goldnugget", 4), Ingredient("boards", 2)},																	TECH.YOT_CATCOON,				{placer="yot_catcoonshrine_placer", min_spacing=2.2, hint_msg = "NEEDSYOTCATCOON"})
 Recipe2("yotr_rabbitshrine",			{Ingredient("goldnugget", 4), Ingredient("boards", 2)},																	TECH.YOTR,						{placer="yotr_rabbitshrine_placer", min_spacing=2.2, hint_msg = "NEEDSYOTR"})
 Recipe2("yotd_dragonshrine",			{Ingredient("goldnugget", 4), Ingredient("boards", 2)},																	TECH.YOTD,						{placer="yotd_dragonshrine_placer", min_spacing=2.2, hint_msg = "NEEDSYOTD"})
+Recipe2("yots_snakeshrine",				{Ingredient("goldnugget", 4), Ingredient("boards", 2)},																	TECH.YOTS,						{placer="yots_snakeshrine_placer", min_spacing=2.2, hint_msg = "NEEDSYOTS"})
 
 --WILSON TRANSMUTATION
 Recipe2("transmute_log",                {Ingredient("twigs", 3)}, 	TECH.NONE, 				{product="log", image="log.tex",     builder_skill="wilson_alchemy_1", description="transmute_log"})
@@ -1174,6 +1180,7 @@ DeconstructRecipe("shadow_forge",  					{Ingredient("nightmarefuel", 5), Ingredi
 DeconstructRecipe("deerclopseyeball_sentryward",  	{Ingredient("security_pulse_cage_full", 1, nil, true), Ingredient("moonglass", 8), Ingredient("purebrilliance", 5), Ingredient("moonrocknugget", 3)})
 DeconstructRecipe("winona_teleport_pad",  			{Ingredient("sewing_tape", 6), Ingredient("boards", 3), Ingredient("transistor", 6)}, {source_recipename = "winona_teleport_pad_item",})
 DeconstructRecipe("gelblob_storage",  				{Ingredient("dreadstone", 5), Ingredient("nightmarefuel", 4)})
+DeconstructRecipe("yots_lantern_post",				{Ingredient("lucky_goldnugget", 6)})
 
 -- Loot drops.
 DeconstructRecipe("archive_resonator",				{Ingredient("moonrocknugget", 1), Ingredient("thulecite", 1)})

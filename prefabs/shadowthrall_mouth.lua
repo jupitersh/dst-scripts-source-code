@@ -153,6 +153,16 @@ local function CanMouseThrough(inst)
 	return inst:HasTag("stealth"), true
 end
 
+
+local function lootsetfn(lootdropper)
+    lootdropper:AddChanceLoot("lucky_goldnugget", 1)
+    lootdropper:AddChanceLoot("lucky_goldnugget", 1)
+    lootdropper:AddChanceLoot("lucky_goldnugget", 1)
+    lootdropper:AddChanceLoot("lucky_goldnugget", 1)
+    lootdropper:AddChanceLoot("lucky_goldnugget", 1)    
+end
+
+
 local function fn()
 	local inst = CreateEntity()
 
@@ -247,6 +257,11 @@ local function fn()
 	inst.OnRemoveEntity = OnRemoveEntity_Server
 	inst.OnSave = OnSave
 	inst.OnLoad = OnLoad
+
+
+    if IsSpecialEventActive(SPECIAL_EVENTS.YOTS) then
+        inst.components.lootdropper:SetLootSetupFn(lootsetfn)
+    end
 
 	return inst
 end

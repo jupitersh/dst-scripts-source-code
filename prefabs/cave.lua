@@ -207,11 +207,11 @@ local wormspawn =
 
     attack_levels =
     {
-        intro   = { warnduration = function() return 120 end, numspawns = function() return 1 end },                     -- 1
-        light   = { warnduration = function() return 60 end, numspawns = function() return 1 + math.random(0,1) end },   -- 1-2
-        med     = { warnduration = function() return 45 end, numspawns = function() return 1 + math.random(0,1) end },   -- 1-2 
-        heavy   = { warnduration = function() return 30 end, numspawns = function() return 2 + math.random(0,1) end },   -- 2-3
-        crazy   = { warnduration = function() return 30 end, numspawns = function() return 3 + math.random(0,2) end },   -- 3-5
+        intro   = { warnduration = function(preupgraded) return 120 end, numspawns = function() return 1 end },                     -- 1
+        light   = { warnduration = function(preupgraded) return preupgraded and 90 or 60 end, numspawns = function() return 1 + math.random(0,1) end },   -- 1-2
+        med     = { warnduration = function(preupgraded) return preupgraded and 90 or 45 end, numspawns = function() return 1 + math.random(0,1) end },   -- 1-2 
+        heavy   = { warnduration = function(preupgraded) return preupgraded and 60 or 30 end, numspawns = function() return 2 + math.random(0,1) end },   -- 2-3
+        crazy   = { warnduration = function(preupgraded) return preupgraded and 60 or 30 end, numspawns = function() return 3 + math.random(0,2) end },   -- 3-5
     },
 
     attack_delays =
@@ -250,10 +250,10 @@ local wormspawn =
     warning_sound_thresholds = function(wave_pre_upgraded, wave_override_chance)
         if wave_pre_upgraded then
             return {
-                { time = 30, sound = "WORM_BOSS" },
-                { time = 60, sound = "WORM_BOSS" },
-                { time = 90, sound = "WORM_BOSS" },
-                { time = 500, sound = "WORM_BOSS" },
+                { time = 90, sound = "WORM_BOSS", quake = true },
+                { time = 90, sound = "WORM_BOSS", quake = true },
+                { time = 90, sound = "WORM_BOSS", quake = true },
+                { time = 500, sound = "WORM_BOSS", quake = true },
             }, wave_pre_upgraded
         else
             return {

@@ -323,6 +323,12 @@ local ANCIENTFRUIT_NIGHTVISION_COLOURCUBES =
     nightvision_fruit = true, -- NOTES(DiogoW): Here for convinience.
 }
 
+local ANCIENTFRUIT_NIGHTVISION_AMBIENT_COLOURS =
+{
+	default = { colour = Vector3(255/255, 175/255, 255/255) },
+	fixedcolour = true,
+}
+
 local BEAT_SOUNDNAME = "BEAT_SOUND"
 
 local function NightVision_OnEaten(inst, eater)
@@ -519,7 +525,7 @@ local function buff_OnAttached(inst, target)
     end, target)
 
     if target.components.playervision ~= nil then
-        target.components.playervision:PushForcedNightVision(inst, 1, ANCIENTFRUIT_NIGHTVISION_COLOURCUBES, true)
+		target.components.playervision:PushForcedNightVision(inst, 1, ANCIENTFRUIT_NIGHTVISION_COLOURCUBES, true, ANCIENTFRUIT_NIGHTVISION_AMBIENT_COLOURS)
         inst._enabled:set(true)
     end
 
@@ -599,7 +605,7 @@ end
 local function buff_OnEnabledDirty(inst)
     if ThePlayer ~= nil and inst.entity:GetParent() == ThePlayer and ThePlayer.components.playervision ~= nil then
         if inst._enabled:value() then
-            ThePlayer.components.playervision:PushForcedNightVision(inst, 1, ANCIENTFRUIT_NIGHTVISION_COLOURCUBES, true)
+			ThePlayer.components.playervision:PushForcedNightVision(inst, 1, ANCIENTFRUIT_NIGHTVISION_COLOURCUBES, true, ANCIENTFRUIT_NIGHTVISION_AMBIENT_COLOURS)
         else
             ThePlayer.components.playervision:PopForcedNightVision(inst)
         end

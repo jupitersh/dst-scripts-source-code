@@ -1944,6 +1944,7 @@ return{
         CHESSPIECE_BEARGER_MUTATED = "It'll scare away anyone with good taste.",
         CHESSPIECE_SHARKBOI = "Bottom feeding lone shark.",
         CHESSPIECE_WORMBOSS = "I can still smell it's breath.",
+        CHESSPIECE_YOTS = "Let's leave this underground.",
 
         CHESSJUNK1 = "There's a reason I never finished that.",
         CHESSJUNK2 = "That one was a jerk.",
@@ -5438,6 +5439,22 @@ return{
 			SNOWBALL = "Nice snowball.",
 		},
         SNOWBALL_ITEM = "Hmm. Where's Wilson?",
+
+        -- Year of the Snake
+        YOTS_SNAKESHRINE =
+        {
+            GENERIC = " Happy now? What do I get?",
+            EMPTY = "Greedy little worm, aren’t you?",
+            BURNT = "My money is on Little Miss Pyro.",
+        },
+        YOTS_WORM = "What are you doing up here?",
+        YOTS_LANTERN_POST = 
+        {
+            GENERIC = "Nice post.",
+            BURNT = "What a waste.",
+        },
+        YOTS_LANTERN_POST_ITEM = "I have to do everything!",
+        CHESSPIECE_DEPTHWORM  = "Let's leave this underground.",
     },
 
     DESCRIBE_GENERIC = "You tell me.",

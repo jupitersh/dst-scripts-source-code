@@ -187,6 +187,14 @@ local function MakeYOTDBanner(self, banner_root, anim)
     anim:GetAnimState():PlayAnimation("loop", true)
 end
 
+
+local function MakeYOTSBanner(self, banner_root, anim)
+    anim:GetAnimState():SetBuild("dst_menu_yots")
+    anim:GetAnimState():SetBank ("dst_menu_yots")
+    anim:SetScale(.667/2)
+    anim:GetAnimState():PlayAnimation("loop", true)
+end
+
 local function MakeYOTCatcoonBanner(self, banner_root, anim)
     anim:GetAnimState():SetBuild("dst_menu_yot_catcoon")
     anim:GetAnimState():SetBank ("dst_menu_yot_catcoon")
@@ -489,7 +497,12 @@ function MakeBanner(self)
 		--
 		--REMINDER: Check MakeBannerFront as well!
 		--
-        MakeWintersFeast2024Banner(self, banner_root, anim)
+        --MakeWintersFeast2024Banner(self, banner_root, anim)
+        MakeYOTSBanner(self, banner_root, anim)
+
+        
+    elseif IsSpecialEventActive(SPECIAL_EVENTS.YOTS) then
+        MakeYOTSBanner(self, banner_root, anim)        
     elseif IsSpecialEventActive(SPECIAL_EVENTS.YOTD) then
         MakeYOTDBanner(self, banner_root, anim)
     elseif IsSpecialEventActive(SPECIAL_EVENTS.YOTR) then

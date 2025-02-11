@@ -325,7 +325,7 @@ CRAFTING_FILTERS.SPECIAL_EVENT.recipes =
 	"yot_catcoonshrine",
 	"yotr_rabbitshrine",
 	"yotd_dragonshrine",
-
+	"yots_snakeshrine",
 }
 
 CRAFTING_FILTERS.CRAFTING_STATION.recipes =
@@ -488,6 +488,7 @@ CRAFTING_FILTERS.CRAFTING_STATION.recipes =
 	"chesspiece_yotd_builder",
 	"chesspiece_sharkboi_builder",
 	"chesspiece_wormboss_builder",
+	"chesspiece_yots_builder",
 
 	-- wintersfeastoven
 	"wintercooking_berrysauce",
@@ -516,6 +517,10 @@ CRAFTING_FILTERS.CRAFTING_STATION.recipes =
 	"halloween_experiment_volatile",
 	"halloween_experiment_moon",
 	"halloween_experiment_root",
+
+	-- Year of the Snake
+	"yots_lantern_post_item",
+	"chesspiece_yots_sketch",
 
     -- Year of the Dragon
     "dragonboat_pack",
@@ -761,6 +766,7 @@ CRAFTING_FILTERS.PROTOTYPERS.recipes =
 	"yot_catcoonshrine",
 	"yotr_rabbitshrine",
 	"yotd_dragonshrine",
+	"yots_snakeshrine",
 }
 
 CRAFTING_FILTERS.REFINE.recipes =
@@ -1080,6 +1086,7 @@ CRAFTING_FILTERS.STRUCTURES.recipes =
 	"yot_catcoonshrine",
 	"yotr_rabbitshrine",
 	"yotd_dragonshrine",
+	"yots_snakeshrine",
 
 	"researchlab",
 	"researchlab2",

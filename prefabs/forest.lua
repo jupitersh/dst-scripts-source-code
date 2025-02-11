@@ -504,6 +504,9 @@ local prefabs =
     -- snowballmanager
     "snowball_item",
     "snowball_shatter_fx",
+
+    -- YOTS
+    "yots_worm_lantern_spawner",
 }
 
 local FISH_DATA = require("prefabs/oceanfishdef")

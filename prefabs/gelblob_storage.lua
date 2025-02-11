@@ -87,6 +87,8 @@ local function OnFoodGiven(inst, item, giver)
 	item:AddTag("NOCLICK")
 	item:ReturnToScene()
 
+    item.components.inventoryitem.canbepickedup = false
+
     inst.takeitem:set(item)
 
 	if item.Follower == nil then
@@ -118,6 +120,8 @@ local function OnFoodTaken(inst, item, taker, wholestack)
     if item.components.perishable ~= nil then
         item.components.perishable:StartPerishing()
     end
+
+    item.components.inventoryitem.canbepickedup = true
 
 	item:RemoveTag("NOCLICK")
 	item.Follower:StopFollowing()

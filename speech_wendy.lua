@@ -1948,6 +1948,7 @@ return{
         CHESSPIECE_BEARGER_MUTATED = "Its new lease on life was, well, short-lived.",
         CHESSPIECE_SHARKBOI = "Their cold shark heart was just misunderstood.",
         CHESSPIECE_WORMBOSS = "It consumed to fill its endless void.",
+        CHESSPIECE_YOTS = "How curious, the things we choose to commemorate.",
 
         CHESSJUNK1 = "Cold, dead artificial life.",
         CHESSJUNK2 = "Cold, dead artificial life.",
@@ -5442,6 +5443,22 @@ return{
 			SNOWBALL = "It has potential.",
 		},
         SNOWBALL_ITEM = "I remember fun.",
+
+        -- Year of the Snake
+        YOTS_SNAKESHRINE =
+        {
+            GENERIC = "Abigail loved surprises.",
+            EMPTY = "Perhaps like consumes like.",
+            BURNT = "Inevitable, really.",
+        },
+        YOTS_WORM = "It’s actually quite beautiful.",
+        YOTS_LANTERN_POST = 
+        {
+            GENERIC = "It does seem to bring some cheer.",
+            BURNT = "Shame, it was pretty.",
+        },
+        YOTS_LANTERN_POST_ITEM = "Shall I cast some light upon the darkness?",
+        CHESSPIECE_DEPTHWORM  = "How curious, the things we choose to commemorate.",
     },
 
     DESCRIBE_GENERIC = "Sigh... I don't know.",
