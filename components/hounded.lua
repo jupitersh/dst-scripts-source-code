@@ -1059,6 +1059,8 @@ function self:GetDebugString()
 			s = s.."} - spawns left:"..tostring(spawninforec.spawnstorelease).." next spawn:"..tostring(spawninforec.timetonext)
 		end
 	end
+
+	return s
 end
 
 end)

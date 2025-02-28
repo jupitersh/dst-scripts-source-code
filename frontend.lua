@@ -424,8 +424,21 @@ function FrontEnd:OnControl(control, down)
     -- while editing a text box and hovering over something else, consume the accept button (the raw key handlers will deal with it).
     elseif #self.screenstack > 0
         and not (self.textProcessorWidget ~= nil and not self.textProcessorWidget.focus and self.textProcessorWidget:OnControl(control == CONTROL_PRIMARY and CONTROL_ACCEPT or control, down))
-        and self.screenstack[#self.screenstack]:OnControl(control == CONTROL_PRIMARY and CONTROL_ACCEPT or control, down) then
-            self.isprimary = false
+		and self.screenstack[#self.screenstack]:OnControl(control == CONTROL_PRIMARY and CONTROL_ACCEPT or control, down)
+	then
+		self.isprimary = false
+
+		--@V2C: #FIX_LEFT_CLICK_UI_TRIGGERS_AUTO_ATTACK (see playercontroller.lua)
+		--@V2C: #HACK fix auto repeat attack bug in playercontroller where clicking down on
+		--      UI elements still triggers attacks
+		local player = ThePlayer
+		if player and player.sg and player.sg.statemem.retarget and
+			not (TheInput:IsControlPressed(CONTROL_ATTACK) or
+				TheInput:IsControlPressed(CONTROL_CONTROLLER_ATTACK))
+		then
+			player.sg.statemem.retarget = nil
+		end
+		--
         return true
 
     elseif CONSOLE_ENABLED and not down and control == CONTROL_OPEN_DEBUG_CONSOLE then

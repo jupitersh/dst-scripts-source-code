@@ -111,16 +111,41 @@ Recipe2("merm_toolshed_upgraded",       {Ingredient("boards", 4), Ingredient("te
 Recipe2("wurt_swampitem_shadow",		{Ingredient("driftwood_log", 1), Ingredient("turf_marsh", 1), Ingredient("horrorfuel", 1)},		TECH.NONE,				{builder_skill="wurt_shadow_allegiance_2"})
 Recipe2("wurt_swampitem_lunar",			{Ingredient("driftwood_log", 1), Ingredient("turf_marsh", 1), Ingredient("purebrilliance", 1)},	TECH.NONE,				{builder_skill="wurt_lunar_allegiance_2"})
 
-
 -- Wendy
+local function elixir_numtogive(recipe, doer)
+	local total = 1
+	if doer.components.skilltreeupdater and doer.components.skilltreeupdater:IsActivated("wendy_potion_yield") then
+		if math.random() < 0.4 then
+			total = total+1
+		end
+		if math.random() < 0.1 then
+			total = total+1
+		end	
+		if total > 1 then
+			doer:PushEvent("craftedextraelixir",total)
+		end
+	end
+	return total	
+end
+
 Recipe2("abigail_flower",				{Ingredient("ghostflower", 1), Ingredient("nightmarefuel", 1)},									TECH.NONE,				{builder_tag="ghostlyfriend"})
 Recipe2("sisturn",						{Ingredient("cutstone", 3), Ingredient("boards", 3), Ingredient("ash", 1)},						TECH.NONE,				{builder_tag="ghostlyfriend", placer="sisturn_placer", min_spacing=2})
-Recipe2("ghostlyelixir_slowregen",		{Ingredient("spidergland", 1), Ingredient("ghostflower", 1)},									TECH.NONE,				{builder_tag="elixirbrewer"})
-Recipe2("ghostlyelixir_fastregen",		{Ingredient("reviver", 1), Ingredient("ghostflower", 3)},										TECH.NONE,				{builder_tag="elixirbrewer"})
-Recipe2("ghostlyelixir_shield",			{Ingredient("log", 1), Ingredient("ghostflower", 1)},											TECH.NONE,				{builder_tag="elixirbrewer"})
-Recipe2("ghostlyelixir_retaliation",	{Ingredient("livinglog", 1),Ingredient("ghostflower", 3)},										TECH.NONE,				{builder_tag="elixirbrewer"})
-Recipe2("ghostlyelixir_attack",			{Ingredient("stinger", 1), Ingredient("ghostflower", 3)},										TECH.NONE,				{builder_tag="elixirbrewer"})
-Recipe2("ghostlyelixir_speed",			{Ingredient("honey", 1), Ingredient("ghostflower", 1)},											TECH.NONE,				{builder_tag="elixirbrewer"})
+Recipe2("ghostlyelixir_slowregen",		{Ingredient("spidergland", 1), Ingredient("ghostflower", 1)},									TECH.NONE,				{builder_tag="elixirbrewer", override_numtogive_fn = elixir_numtogive, no_deconstruction=true})
+Recipe2("ghostlyelixir_fastregen",		{Ingredient("reviver", 1), Ingredient("ghostflower", 3)},										TECH.NONE,				{builder_tag="elixirbrewer", override_numtogive_fn = elixir_numtogive, no_deconstruction=true})
+Recipe2("ghostlyelixir_shield",			{Ingredient("log", 1), Ingredient("ghostflower", 1)},											TECH.NONE,				{builder_tag="elixirbrewer", override_numtogive_fn = elixir_numtogive, no_deconstruction=true})
+Recipe2("ghostlyelixir_retaliation",	{Ingredient("livinglog", 1),Ingredient("ghostflower", 3)},										TECH.NONE,				{builder_tag="elixirbrewer", override_numtogive_fn = elixir_numtogive, no_deconstruction=true})
+Recipe2("ghostlyelixir_attack",			{Ingredient("stinger", 1), Ingredient("ghostflower", 3)},										TECH.NONE,				{builder_tag="elixirbrewer", override_numtogive_fn = elixir_numtogive, no_deconstruction=true})
+Recipe2("ghostlyelixir_speed",			{Ingredient("honey", 1), Ingredient("ghostflower", 1)},											TECH.NONE,				{builder_tag="elixirbrewer", override_numtogive_fn = elixir_numtogive, no_deconstruction=true})
+Recipe2("ghostlyelixir_revive",			{Ingredient("forgetmelots", 1), Ingredient("ghostflower", 3)},									TECH.NONE,				{builder_skill="wendy_potion_revive", override_numtogive_fn = elixir_numtogive, no_deconstruction=true})
+Recipe2("ghostlyelixir_shadow",			{Ingredient("horrorfuel", 1), Ingredient("ghostflower", 3)},									TECH.NONE,				{builder_skill="wendy_shadow_2", override_numtogive_fn = elixir_numtogive, no_deconstruction=true})
+Recipe2("ghostlyelixir_lunar",			{Ingredient("purebrilliance", 1), Ingredient("ghostflower", 3)},								TECH.NONE,				{builder_skill="wendy_lunar_2", override_numtogive_fn = elixir_numtogive, no_deconstruction=true})
+Recipe2("graveurn",						{Ingredient("ash", 1), Ingredient("slurtle_shellpieces", 1)},									TECH.NONE,				{builder_skill="wendy_makegravemounds"})
+Recipe2("wendy_gravestone",				{Ingredient("cutstone", 1), Ingredient("petals_evil", 4)}, 										TECH.NONE,				{builder_skill="wendy_makegravemounds", product="wendy_recipe_gravestone", placer="wendy_recipe_gravestone_placer", min_spacing=0, no_deconstruction=true, image="dug_gravestone.tex"})
+Recipe2("elixir_container",				{Ingredient("twigs", 6), Ingredient("boards", 1), Ingredient("silk", 4)},						TECH.NONE,				{builder_skill="wendy_potion_container"})
+Recipe2("ghostflowerhat",				{Ingredient("ghostflower", 6)},																	TECH.NONE,				{builder_skill="wendy_ghostflower_hat"})
+Recipe2("wendy_butterfly",				{Ingredient("ghostflower", 2), Ingredient("butterflywings", 1)},								TECH.NONE,				{builder_skill="wendy_ghostflower_butterfly", product="butterfly",image="butterfly.tex"})
+Recipe2("wendy_moonbutterfly",			{Ingredient("ghostflower", 4), Ingredient("moonbutterflywings", 1)},							TECH.NONE,				{builder_skill="wendy_ghostflower_butterfly", product="moonbutterfly",image="moonbutterfly.tex"})
+Recipe2("wendy_resurrectiongrave",		{Ingredient("ghostflower", 10), Ingredient("cutstone", 1), Ingredient(CHARACTER_INGREDIENT.HEALTH, TUNING.EFFIGY_HEALTH_PENALTY)}, TECH.NONE, {builder_skill="wendy_ghostflower_grave", placer="wendy_resurrectiongraveplacer"})
 
 -- Woodie
 Recipe2("wereitem_goose",				{Ingredient("monstermeat", 3), Ingredient("seeds", 3)},											TECH.NONE,				{builder_tag="werehuman"})
@@ -153,16 +178,59 @@ Recipe2("battlesong_container",			{Ingredient("boards", 2),     Ingredient("gold
 Recipe2("wathgrithr_shield",			{Ingredient("goldnugget", 4), Ingredient("beefalowool", 3)},																	TECH.NONE,		{builder_skill="wathgrithr_arsenal_shield_1"         })
 
 -- Walter
+local function calc_slingshotammo_numtogive(recipe, doer)
+	return doer.components.skilltreeupdater
+		and doer.components.skilltreeupdater:IsActivated("walter_ammo_efficiency")
+		and recipe.numtogive * 1.5
+		or nil
+end
+local function get_slingshotammo_sg_state(recipe, doer)
+	return doer.components.skilltreeupdater
+		and doer.components.skilltreeupdater:IsActivated("walter_ammo_efficiency")
+		and "domediumaction"
+		or nil
+end
 Recipe2("slingshot",					{Ingredient("twigs", 1), Ingredient("mosquitosack", 2)},										TECH.NONE,				{builder_tag="pebblemaker"})
 Recipe2("walterhat", 					{Ingredient("silk", 4)}, 																		TECH.NONE,				{builder_tag="pinetreepioneer"})
 Recipe2("portabletent_item",			{Ingredient("bedroll_straw", 1), Ingredient("twigs", 4), Ingredient("rope", 2)},				TECH.SCIENCE_ONE,		{builder_tag="pinetreepioneer"})
-Recipe2("slingshotammo_rock",			{Ingredient("rocks", 1)},											   							TECH.NONE,				{builder_tag="pebblemaker", numtogive = 10, no_deconstruction=true, })
-Recipe2("slingshotammo_gold",			{Ingredient("goldnugget", 1)},									   								TECH.SCIENCE_ONE,		{builder_tag="pebblemaker", numtogive = 10, no_deconstruction=true, })
-Recipe2("slingshotammo_marble",			{Ingredient("marble", 1)},										   								TECH.SCIENCE_TWO,		{builder_tag="pebblemaker", numtogive = 10, no_deconstruction=true, })
-Recipe2("slingshotammo_poop",			{Ingredient("poop", 1)},											   							TECH.SCIENCE_ONE,		{builder_tag="pebblemaker", numtogive = 10, no_deconstruction=true, })
-Recipe2("slingshotammo_freeze",			{Ingredient("moonrocknugget", 1), Ingredient("bluegem", 1)},		   							TECH.MAGIC_TWO,			{builder_tag="pebblemaker", numtogive = 10, no_deconstruction=true, })
-Recipe2("slingshotammo_slow",			{Ingredient("moonrocknugget", 1), Ingredient("purplegem", 1)},	   								TECH.MAGIC_THREE,		{builder_tag="pebblemaker", numtogive = 10, no_deconstruction=true, })
-Recipe2("slingshotammo_thulecite",		{Ingredient("thulecite_pieces", 1), Ingredient("nightmarefuel", 1)}, 							TECH.ANCIENT_TWO,		{builder_tag="pebblemaker", numtogive = 10, no_deconstruction=true, nounlock=true})
+Recipe2("slingshotammo_rock",			{Ingredient("rocks", 1)},																		TECH.NONE,				{builder_tag="pebblemaker",					sg_state=get_slingshotammo_sg_state, numtogive=20, override_numtogive_fn=calc_slingshotammo_numtogive, no_deconstruction=true, allowautopick=true, })
+Recipe2("slingshotammo_gold",			{Ingredient("goldnugget", 1)},																	TECH.SCIENCE_ONE,		{builder_tag="pebblemaker",					sg_state=get_slingshotammo_sg_state, numtogive=20, override_numtogive_fn=calc_slingshotammo_numtogive, no_deconstruction=true, allowautopick=true, })
+Recipe2("slingshotammo_marble",			{Ingredient("marble", 1)},																		TECH.SCIENCE_TWO,		{builder_tag="pebblemaker",					sg_state=get_slingshotammo_sg_state, numtogive=20, override_numtogive_fn=calc_slingshotammo_numtogive, no_deconstruction=true, allowautopick=true, })
+Recipe2("slingshotammo_poop",			{Ingredient("poop", 1)},																		TECH.SCIENCE_ONE,		{builder_tag="pebblemaker",					sg_state=get_slingshotammo_sg_state, numtogive=20, override_numtogive_fn=calc_slingshotammo_numtogive, no_deconstruction=true, allowautopick=true, })
+Recipe2("slingshotammo_honey",			{Ingredient("honey", 1)},																		TECH.NONE,				{builder_skill="walter_ammo_utility",		sg_state=get_slingshotammo_sg_state, numtogive=20, override_numtogive_fn=calc_slingshotammo_numtogive, no_deconstruction=true, allowautopick=true, nounlock=true})
+Recipe2("slingshotammo_freeze",			{Ingredient("moonrocknugget", 1), Ingredient("bluegem", 1)},									TECH.MAGIC_TWO,			{builder_tag="pebblemaker",					sg_state=get_slingshotammo_sg_state, numtogive=20, override_numtogive_fn=calc_slingshotammo_numtogive, no_deconstruction=true, allowautopick=true, })
+Recipe2("slingshotammo_slow",			{Ingredient("moonrocknugget", 1), Ingredient("purplegem", 1)},									TECH.MAGIC_THREE,		{builder_tag="pebblemaker",					sg_state=get_slingshotammo_sg_state, numtogive=20, override_numtogive_fn=calc_slingshotammo_numtogive, no_deconstruction=true, allowautopick=true, })
+Recipe2("slingshotammo_stinger",		{Ingredient("stinger", 2)},																		TECH.NONE,				{builder_skill="walter_ammo_shattershots",	sg_state=get_slingshotammo_sg_state, numtogive=20, override_numtogive_fn=calc_slingshotammo_numtogive, no_deconstruction=true, allowautopick=true, nounlock=true})
+Recipe2("slingshotammo_dreadstone",		{Ingredient("dreadstone", 1)},																	TECH.NONE,				{builder_skill="walter_ammo_lucky",			sg_state=get_slingshotammo_sg_state, numtogive=20, override_numtogive_fn=calc_slingshotammo_numtogive, no_deconstruction=true, allowautopick=true, nounlock=true})
+Recipe2("slingshotammo_scrapfeather",	{Ingredient("wagpunk_bits", 1), Ingredient("feather_canary", 1)},								TECH.NONE,				{builder_skill="walter_ammo_utility",		sg_state=get_slingshotammo_sg_state, numtogive=20, override_numtogive_fn=calc_slingshotammo_numtogive, no_deconstruction=true, allowautopick=true, nounlock=true})
+Recipe2("slingshotammo_gunpowder",		{Ingredient("gunpowder", 1), Ingredient("cutgrass", 1), Ingredient("flint", 1)},				TECH.NONE,				{builder_skill="walter_ammo_lucky",			sg_state=get_slingshotammo_sg_state, numtogive=20, override_numtogive_fn=calc_slingshotammo_numtogive, no_deconstruction=true, allowautopick=true, nounlock=true})
+--slingshot ammo that is prototyped at a station
+Recipe2("slingshotammo_thulecite",		{Ingredient("thulecite_pieces", 1), Ingredient("nightmarefuel", 1)},							TECH.ANCIENT_TWO,		{builder_tag="pebblemaker",					sg_state=get_slingshotammo_sg_state, numtogive=20, override_numtogive_fn=calc_slingshotammo_numtogive, no_deconstruction=true, allowautopick=true, force_hint=true, station_tag="ancient_station"})
+Recipe2("slingshotammo_moonglass",		{Ingredient("moonglass", 1)},																	TECH.CELESTIAL_THREE,	{builder_skill="walter_ammo_shattershots",	sg_state=get_slingshotammo_sg_state, numtogive=20, override_numtogive_fn=calc_slingshotammo_numtogive, no_deconstruction=true, allowautopick=true, force_hint=true, station_tag="celestial_station"})
+Recipe2("slingshotammo_lunarplanthusk",	{Ingredient("lunarplant_husk", 1)},																TECH.LUNARFORGING_TWO,	{builder_skill="walter_ammo_lunar",			sg_state=get_slingshotammo_sg_state, numtogive=20, override_numtogive_fn=calc_slingshotammo_numtogive, no_deconstruction=true, allowautopick=true, force_hint=true, station_tag="lunar_forge"})
+Recipe2("slingshotammo_purebrilliance",	{Ingredient("purebrilliance", 1)},																TECH.LUNARFORGING_TWO,	{builder_skill="walter_ammo_lunar",			sg_state=get_slingshotammo_sg_state, numtogive=20, override_numtogive_fn=calc_slingshotammo_numtogive, no_deconstruction=true, allowautopick=true, force_hint=true, station_tag="lunar_forge"})
+Recipe2("slingshotammo_gelblob",		{Ingredient("gelblob_bottle", 1)},																TECH.SHADOWFORGING_TWO,	{builder_skill="walter_ammo_shadow",		sg_state=get_slingshotammo_sg_state, numtogive=10, override_numtogive_fn=calc_slingshotammo_numtogive, no_deconstruction=true, allowautopick=true, force_hint=true, station_tag="shadow_forge"})
+Recipe2("slingshotammo_horrorfuel",		{Ingredient("horrorfuel", 1), Ingredient("rocks", 1)},											TECH.SHADOWFORGING_TWO,	{builder_skill="walter_ammo_shadow",		sg_state=get_slingshotammo_sg_state, numtogive=20, override_numtogive_fn=calc_slingshotammo_numtogive, no_deconstruction=true, allowautopick=true, force_hint=true, station_tag="shadow_forge"})
+--
+
+Recipe2("slingshotmodkit",				{Ingredient("papyrus", 2), Ingredient("twigs", 1)},										 		TECH.NONE,				{builder_skill="walter_slingshot_modding",	nounlock=true})
+Recipe2("slingshot_band_pigskin",		{Ingredient("pigskin", 1)},										 								TECH.NONE,				{builder_skill="walter_slingshot_modding",	nounlock=true})
+Recipe2("slingshot_band_tentacle",		{Ingredient("coontail", 1), Ingredient("tentaclespots", 1)},								 	TECH.NONE,				{builder_skill="walter_slingshot_bands",	nounlock=true})
+Recipe2("slingshot_frame_bone",			{Ingredient("boneshard", 2), Ingredient("rope", 1)},	 										TECH.NONE,				{builder_skill="walter_slingshot_modding",	nounlock=true})
+Recipe2("slingshot_frame_wagpunk_0",	{Ingredient("wagpunk_bits", 2), Ingredient("transistor", 1), Ingredient("trinket_6", 1)},		TECH.NONE,				{builder_skill="walter_slingshot_frames",	nounlock=true})
+Recipe2("slingshot_frame_wagpunk_1",	{Ingredient("slingshot_frame_wagpunk_0", 1), Ingredient("chestupgrade_stacksize", 1)},			TECH.NONE,				{builder_skill="walter_slingshot_frames",	nounlock=true, product="slingshot_frame_wagpunk"})
+Recipe2("slingshot_handle_sticky",		{Ingredient("glommerfuel", 1)},									 								TECH.NONE,				{builder_skill="walter_slingshot_handles",	nounlock=true})
+Recipe2("slingshot_handle_jelly",		{Ingredient("royal_jelly", 1)},									 								TECH.NONE,				{builder_skill="walter_slingshot_handles",	nounlock=true})
+Recipe2("slingshot_handle_silk",		{Ingredient("silk", 2)},										 								TECH.NONE,				{builder_skill="walter_slingshot_modding",	nounlock=true})
+--slingshot parts that are prototyped at a station
+Recipe2("slingshot_frame_gems",			{Ingredient("thulecite", 2), Ingredient("nightmarefuel", 2), Ingredient("redgem", 1), Ingredient("bluegem", 1)},	TECH.ANCIENT_TWO,		{builder_skill="walter_slingshot_frames",	force_hint=true, station_tag="ancient_station"})
+Recipe2("slingshot_handle_voidcloth",	{Ingredient("voidcloth", 1)},										 												TECH.SHADOWFORGING_TWO,	{builder_skill="walter_slingshot_handles",	force_hint=true, station_tag="shadow_forge"})
+--
+
+Recipe2("woby_treat",					{Ingredient("monstermeat_dried", 1)},															TECH.NONE,				{builder_skill="walter_camp_wobytreat", no_deconstruction=true, numtogive=2})
+Recipe2("bandage_butterflywings",		{Ingredient("butterflywings", 3)},																TECH.NONE,				{builder_skill="walter_camp_firstaid" })
+Recipe2("slingshotammo_container",		{Ingredient("pigskin", 4), Ingredient("silk", 6), Ingredient("goldnugget", 2)},					TECH.NONE,				{builder_skill="walter_ammo_bag"      })
+Recipe2("portablefirepit_item",			{Ingredient("log", 3), Ingredient("rope", 1), Ingredient("rocks", 4)},							TECH.NONE,				{builder_skill="walter_camp_fire"})
 
 -- Wolfgang
 Recipe2("mighty_gym",					{Ingredient("boards", 4), Ingredient("cutstone", 2), Ingredient("rope", 3)},					TECH.SCIENCE_ONE,		{builder_tag="strongman", placer="mighty_gym_placer"})
@@ -215,10 +283,10 @@ Recipe("shadowduelist_builder",			{Ingredient("nightmarefuel", 2), Ingredient("s
 
 -- Winona
 Recipe2("sewing_tape",					{Ingredient("silk", 1), Ingredient("cutgrass", 3)},												TECH.NONE,				{builder_tag="handyperson"})
-Recipe2("winona_catapult",				{Ingredient("sewing_tape", 1), Ingredient("twigs", 3), Ingredient("rocks", 15)},				TECH.NONE,				{builder_tag="basicengineer", placer="winona_catapult_item_placer"})
-Recipe2("winona_spotlight",				{Ingredient("sewing_tape", 1), Ingredient("goldnugget", 2), Ingredient("fireflies", 1)},		TECH.NONE,				{builder_tag="basicengineer", placer="winona_spotlight_item_placer"})
-Recipe2("winona_battery_low",			{Ingredient("sewing_tape", 1), Ingredient("log", 2), Ingredient("nitre", 2)},					TECH.NONE,				{builder_tag="basicengineer", placer="winona_battery_low_item_placer"})
-Recipe2("winona_battery_high",			{Ingredient("sewing_tape", 1), Ingredient("boards", 2), Ingredient("transistor", 2)},			TECH.NONE,				{builder_tag="basicengineer", placer="winona_battery_high_item_placer"})
+Recipe2("winona_catapult",				{Ingredient("sewing_tape", 1), Ingredient("twigs", 3), Ingredient("rocks", 15)},				TECH.NONE,				{builder_tag="handyperson", no_builder_tag="portableengineer", placer="winona_catapult_item_placer"})
+Recipe2("winona_spotlight",				{Ingredient("sewing_tape", 1), Ingredient("goldnugget", 2), Ingredient("fireflies", 1)},		TECH.NONE,				{builder_tag="handyperson", no_builder_tag="portableengineer", placer="winona_spotlight_item_placer"})
+Recipe2("winona_battery_low",			{Ingredient("sewing_tape", 1), Ingredient("log", 2), Ingredient("nitre", 2)},					TECH.NONE,				{builder_tag="handyperson", no_builder_tag="portableengineer", placer="winona_battery_low_item_placer"})
+Recipe2("winona_battery_high",			{Ingredient("sewing_tape", 1), Ingredient("boards", 2), Ingredient("transistor", 2)},			TECH.NONE,				{builder_tag="handyperson", no_builder_tag="portableengineer", placer="winona_battery_high_item_placer"})
 
 -- Winona portable versions of the basic machines
 Recipe2("winona_catapult_item",			{Ingredient("sewing_tape", 1), Ingredient("twigs", 3), Ingredient("rocks", 15)},				TECH.NONE,				{builder_tag="portableengineer", nameoverride="winona_catapult", description="winona_catapult"})
@@ -265,6 +333,11 @@ Recipe2("wormwood_lightflier",			{Ingredient(CHARACTER_INGREDIENT.HEALTH, 10), I
 Recipe2("wormwood_fruitdragon",			{Ingredient(CHARACTER_INGREDIENT.HEALTH, 25), Ingredient("dragonfruit", 1)},									TECH.NONE,	{builder_skill="wormwood_allegiance_lunar_mutations_3", product="wormwood_mutantproxy_fruitdragon", sg_state="spawn_mutated_creature", actionstr="TRANSFORM", no_deconstruction=true, dropitem=true, nameoverride = "fruitdragon", description="wormwood_fruitdragon", canbuild = function(inst, builder) return (builder.components.petleash and not builder.components.petleash:IsFullForPrefab("wormwood_fruitdragon")), "HASPET" end})
 Recipe2("armor_lunarplant_husk",		{Ingredient("armor_lunarplant", 1), Ingredient("armor_bramble", 1)},											TECH.NONE,	{builder_skill="wormwood_allegiance_lunar_plant_gear_1"})
 
+-- Wortox
+Recipe2("wortox_reviver",				{Ingredient("wortox_soul", 10)},																				TECH.NONE,	{builder_skill="wortox_lifebringer_1"})
+Recipe2("wortox_souljar",				{Ingredient("messagebottleempty", 1), Ingredient("marble", 2), Ingredient("redgem", 1)},						TECH.NONE,	{builder_skill="wortox_souljar_1"})
+Recipe2("wortox_nabbag",				{Ingredient("wortox_soul", 4), Ingredient("silk", 2)},															TECH.NONE,	{builder_skill="wortox_nabbag"})
+
 -- Wanda --
 local function pocketwatch_nodecon(inst) return not inst:HasTag("pocketwatch_inactive") end
 
@@ -306,6 +379,7 @@ Recipe2("goldenpickaxe",					{Ingredient("twigs", 4),Ingredient("goldnugget", 2)
 Recipe2("shovel",							{Ingredient("twigs", 2),Ingredient("flint", 2)},												TECH.SCIENCE_ONE)
 Recipe2("goldenshovel",						{Ingredient("twigs", 4),Ingredient("goldnugget", 2)},											TECH.SCIENCE_TWO)
 Recipe2("bugnet",							{Ingredient("twigs", 4), Ingredient("silk", 2), Ingredient("rope", 1)},							TECH.SCIENCE_ONE)
+Recipe2("thulecitebugnet",					{Ingredient("thulecite", 2), Ingredient("refined_dust", 1)},									TECH.LOST)
 Recipe2("hammer",							{Ingredient("twigs", 3),Ingredient("rocks", 3), Ingredient("cutgrass", 6)},						TECH.NONE)
 Recipe2("pitchfork",						{Ingredient("twigs", 2),Ingredient("flint", 2)},												TECH.SCIENCE_ONE)
 Recipe2("goldenpitchfork",					{Ingredient("twigs", 4),Ingredient("goldnugget", 2)},											TECH.SCIENCE_TWO)
@@ -362,7 +436,8 @@ Recipe2("birdcage",							{Ingredient("papyrus", 2), Ingredient("goldnugget", 6)
 
 Recipe2("heatrock",							{Ingredient("rocks", 10),Ingredient("pickaxe", 1), Ingredient("flint", 3)},						TECH.SCIENCE_TWO)
 
-Recipe2("rope",								{Ingredient("cutgrass", 3)},																	TECH.SCIENCE_ONE)
+Recipe2("rope",								{Ingredient("cutgrass", 3)},																	TECH.SCIENCE_ONE,			{no_builder_skill="walter_camp_rope", forward_ingredients={"walter_rope"}})
+Recipe2("walter_rope",						{Ingredient("cutgrass", 2)},																	TECH.NONE,					{builder_skill="walter_camp_rope", sg_state="domediumaction", product="rope", description="rope", no_deconstruction=true})
 Recipe2("boards",							{Ingredient("log", 4)}, 																		TECH.SCIENCE_ONE)
 Recipe2("cutstone",							{Ingredient("rocks", 3)}, 																		TECH.SCIENCE_ONE)
 Recipe2("papyrus",							{Ingredient("cutreeds", 4)}, 																	TECH.SCIENCE_ONE)
@@ -1181,6 +1256,8 @@ DeconstructRecipe("deerclopseyeball_sentryward",  	{Ingredient("security_pulse_c
 DeconstructRecipe("winona_teleport_pad",  			{Ingredient("sewing_tape", 6), Ingredient("boards", 3), Ingredient("transistor", 6)}, {source_recipename = "winona_teleport_pad_item",})
 DeconstructRecipe("gelblob_storage",  				{Ingredient("dreadstone", 5), Ingredient("nightmarefuel", 4)})
 DeconstructRecipe("yots_lantern_post",				{Ingredient("lucky_goldnugget", 6)})
+DeconstructRecipe("gravestone",						{Ingredient("rocks", 3), Ingredient("petals_evil", 4), Ingredient("boneshard", 2)})
+DeconstructRecipe("portablefirepit",				{Ingredient("log", 3), Ingredient("rope", 1), Ingredient("rocks", 4)})
 
 -- Loot drops.
 DeconstructRecipe("archive_resonator",				{Ingredient("moonrocknugget", 1), Ingredient("thulecite", 1)})
@@ -1211,6 +1288,15 @@ DeconstructRecipe("merm_tool_upgraded",				{Ingredient("twigs", 1), Ingredient("
 DeconstructRecipe("slow_farmplot",					{Ingredient("cutgrass", 8), Ingredient("poop", 4), Ingredient("log", 4)})
 DeconstructRecipe("fast_farmplot",					{Ingredient("cutgrass", 10), Ingredient("poop", 6),Ingredient("rocks", 4)})
 DeconstructRecipe("book_gardening",					{Ingredient("papyrus", 2), Ingredient("seeds", 1), Ingredient("poop", 1)})
+
+-- Modded slingshots need to deconstruct with the same recipe as regular slingshot
+DeconstructRecipe("slingshotex",					{Ingredient("twigs", 1), Ingredient("mosquitosack", 2)})
+DeconstructRecipe("slingshot999ex",					{Ingredient("twigs", 1), Ingredient("mosquitosack", 2)})
+DeconstructRecipe("slingshot2",						{Ingredient("twigs", 1), Ingredient("mosquitosack", 2)})
+DeconstructRecipe("slingshot2ex",					{Ingredient("twigs", 1), Ingredient("mosquitosack", 2)})
+
+-- Upgraded wagpunk frame deconstructs to frame ingredients + shard
+DeconstructRecipe("slingshot_frame_wagpunk",		{Ingredient("wagpunk_bits", 2), Ingredient("transistor", 1), Ingredient("trinket_6", 1), Ingredient("alterguardianhatshard", 1)})
 
 require("recipes_filter")
 -- verify that all recipes are placed in at least one filter group

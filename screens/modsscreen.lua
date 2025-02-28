@@ -1052,7 +1052,6 @@ function ModsScreen:ShowModDetails(idx, client_mod)
     local nameLines = self.detailtitle:GetString():split("\n")
     if #nameLines > 1 then
         self.detailtitle:SetString(nameLines[1])
-        print(self.detailtitle:GetString():len())
         local w = self.detailtitle:GetRegionSize()
         self.detailtitle:SetPosition(title_x + w * .5, 189)
         self.detailtitle2:SetString(nameLines[2])

@@ -4,6 +4,7 @@ return
 {
 	walter =
 	{
+		"body_walter_ancient",
 		"body_walter_bee",
 		"body_walter_beep",
 		"body_walter_detective",
@@ -22,8 +23,10 @@ return
 		"feet_walter_survivor",
 		"feet_walter_ventriloquist",
 		"feet_walter_yule",
+		"hand_walter_ancient",
 		"hand_walter_ice",
 		"hand_walter_nature",
+		"legs_walter_ancient",
 		"legs_walter_detective",
 		"legs_walter_formal",
 		"legs_walter_ice",
@@ -34,6 +37,7 @@ return
 		"legs_walter_ventriloquist",
 		"legs_walter_victorian",
 		"legs_walter_yule",
+		"walter_ancient",
 		"walter_bee",
 		"walter_bee_d",
 		"walter_bee_p",
@@ -380,6 +384,7 @@ return
 	},
 	wendy =
 	{
+		"body_wendy_ancient",
 		"body_wendy_cook",
 		"body_wendy_creepy",
 		"body_wendy_formal",
@@ -403,6 +408,7 @@ return
 		"body_wendy_yule",
 		"feet_maryjanes_white_pure",
 		"feet_maryjanesp_white_pure",
+		"feet_wendy_ancient",
 		"feet_wendy_creepy",
 		"feet_wendy_gladiator",
 		"feet_wendy_handmedown",
@@ -413,12 +419,14 @@ return
 		"feet_wendy_nature",
 		"feet_wendy_victorian",
 		"feet_wendy_yule",
+		"hand_wendy_ancient",
 		"hand_wendy_gladiator",
 		"hand_wendy_handmedown",
 		"hand_wendy_ice",
 		"hand_wendy_magma",
 		"hand_wendy_victorian",
 		"hand_wendy_yule",
+		"wendy_ancient",
 		"wendy_combatant",
 		"wendy_cook",
 		"wendy_creepy",
@@ -1014,6 +1022,7 @@ return
 	},
 	wortox =
 	{
+		"body_wortox_ancient",
 		"body_wortox_dragon",
 		"body_wortox_formal",
 		"body_wortox_ice",
@@ -1036,6 +1045,7 @@ return
 		"hand_wortox_shadow",
 		"hand_wortox_survivor",
 		"hand_wortox_victorian",
+		"legs_wortox_ancient",
 		"legs_wortox_dragon",
 		"legs_wortox_formal",
 		"legs_wortox_ice",
@@ -1049,6 +1059,7 @@ return
 		"legs_wortox_survivor",
 		"legs_wortox_victorian",
 		"legs_wortox_yule",
+		"wortox_ancient",
 		"wortox_dragon",
 		"wortox_formal",
 		"wortox_ice",

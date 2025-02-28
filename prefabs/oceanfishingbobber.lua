@@ -114,6 +114,7 @@ local function projectile_fn(data, name)
 
     --projectile (from complexprojectile component) added to pristine state for optimization
     inst:AddTag("projectile")
+	inst:AddTag("complexprojectile")
 
     inst:AddTag("NOCLICK")
 

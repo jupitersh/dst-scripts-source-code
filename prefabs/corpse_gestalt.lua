@@ -81,7 +81,7 @@ local function fn()
     inst.components.locomotor.runspeed = TUNING.CORPSE_GESTALT_RUN_SPEED
     inst.components.locomotor:EnableGroundSpeedMultiplier(false)
     inst.components.locomotor:SetTriggersCreep(false)
-    inst.components.locomotor.pathcaps = { ignorecreep = true }
+    inst.components.locomotor.pathcaps = { ignorecreep = true, allowocean = true }
 
     inst.Spawn = Spawn
     inst.SetTarget = SetTarget

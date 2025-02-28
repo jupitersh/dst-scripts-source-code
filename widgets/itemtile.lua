@@ -12,6 +12,52 @@ local function DoInspected(invitem, tried)
     end
 end
 
+local function SetImageFromItem(im, item)
+	if item.layeredinvimagefn then
+		local layers = item.layeredinvimagefn(item)
+		if layers and #layers > 0 then
+			local row = layers[1]
+			im:SetTexture(row.atlas or GetInventoryItemAtlas(row.image), row.image)
+			if #layers > 1 then
+				if im.layers == nil then
+					im.layers = {}
+				end
+				local usecc = GetGameModeProperty("icons_use_cc")
+				local j = 1
+				for i = 2, #layers do
+					row = layers[i]
+					local w = im.layers[j]
+					if w then
+						w:SetTexture(row.atlas or GetInventoryItemAtlas(row.image), row.image)
+					else
+						im.layers[j] = im:AddChild(Image(row.atlas or GetInventoryItemAtlas(row.image), row.image))
+						if usecc then
+							im.layers[j]:SetEffect("shaders/ui_cc.ksh")
+						end
+					end
+					j = j + 1
+				end
+				for i = j, #im.layers do
+					im.layers[i]:Kill()
+					im.layers[i] = nil
+				end
+			end
+			return im
+		end
+	end
+	local inventoryitem = item.replica.inventoryitem
+	if inventoryitem then
+		if im.layers then
+			for i, v in ipairs(im.layers) do
+				v:Kill()
+			end
+			im.layers = nil
+		end
+		im:SetTexture(inventoryitem:GetAtlas(), inventoryitem:GetImage())
+	end
+	return im
+end
+
 local ItemTile = Class(Widget, function(self, invitem)
     Widget._ctor(self, "ItemTile")
     self.item = invitem
@@ -69,6 +115,11 @@ local ItemTile = Class(Widget, function(self, invitem)
         self.rechargeframe:GetAnimState():SetBuild("recharge_meter")
         self.rechargeframe:GetAnimState():PlayAnimation("frame")
         self.rechargeframe:GetAnimState():AnimateWhilePaused(false)
+        if self.item:HasTag("rechargeable_bonus") then
+            self.rechargeframe:GetAnimState():SetMultColour(0, 0.2, 0, 0.7) -- 'Bonus while' with DARK GREEN colour.
+        else
+            self.rechargeframe:GetAnimState():SetMultColour(0, 0, 0.3, 0.54) -- 'Cooldown until' with DARK BLUE colour.
+        end
     end
 
     if self.item.inv_image_bg ~= nil then
@@ -78,7 +129,7 @@ local ItemTile = Class(Widget, function(self, invitem)
             self.imagebg:SetEffect("shaders/ui_cc.ksh")
         end
     end
-    self.image = self:AddChild(Image(invitem.replica.inventoryitem:GetAtlas(), invitem.replica.inventoryitem:GetImage(), "default.tex"))
+	self.image = self:AddChild(SetImageFromItem(Image(), invitem))
     if GetGameModeProperty("icons_use_cc") then
         self.image:SetEffect("shaders/ui_cc.ksh")
     end
@@ -92,6 +143,7 @@ local ItemTile = Class(Widget, function(self, invitem)
 
 	self:ToggleShadowFX()
 	self:HandleAcidSizzlingFX()
+    self:HandleBuffFX(invitem)
 
     if self.rechargeframe ~= nil then
         self.recharge = self:AddChild(UIAnim())
@@ -116,13 +168,13 @@ local ItemTile = Class(Widget, function(self, invitem)
                     self.imagebg:Hide()
                 end
             end
-            self.image:SetTexture(invitem.replica.inventoryitem:GetAtlas(), invitem.replica.inventoryitem:GetImage())
+			SetImageFromItem(self.image, invitem)
         end, invitem)
     if invitem:HasClientSideInventoryImageOverrides() then
         self.inst:ListenForEvent("clientsideinventoryflagschanged",
             function(player)
-                if invitem and invitem.replica.inventoryitem then
-                    self.image:SetTexture(invitem.replica.inventoryitem:GetAtlas(), invitem.replica.inventoryitem:GetImage())
+				if invitem then
+					SetImageFromItem(self.image, invitem)
                 end
             end, ThePlayer)
     end
@@ -152,6 +204,11 @@ local ItemTile = Class(Widget, function(self, invitem)
                     self:UpdateTooltip()
                 end
             end, ThePlayer)
+    self.inst:ListenForEvent("item_buff_changed",
+        function(player)
+            self:HandleBuffFX(invitem, true)
+        end,
+    ThePlayer)
     self.inst:ListenForEvent("stacksizechange",
         function(invitem, data)
             if invitem.replica.stackable ~= nil then
@@ -166,7 +223,7 @@ local ItemTile = Class(Widget, function(self, invitem)
                         self.movinganim:Kill()
                     end
                     local dest_pos = self:GetWorldPosition()
-                    local im = Image(invitem.replica.inventoryitem:GetAtlas(), invitem.replica.inventoryitem:GetImage())
+					local im = SetImageFromItem(Image(), invitem)
                     if GetGameModeProperty("icons_use_cc") then
                         im:SetEffect("shaders/ui_cc.ksh")
                     end
@@ -275,6 +332,9 @@ local ItemTile = Class(Widget, function(self, invitem)
     self:Refresh()
 end)
 
+--static function so we can share it to other files without making it global
+ItemTile.sSetImageFromItem = SetImageFromItem
+
 function ItemTile:Refresh()
     self.ispreviewing = false
     self.ignore_stacksize_anim = nil
@@ -353,8 +413,22 @@ function ItemTile:GetDescriptionString()
                 --self.namedisp:SetHAlign(ANCHOR_LEFT)
                 if TheInput:IsControlPressed(CONTROL_FORCE_INSPECT) then
                     str = str.."\n"..TheInput:GetLocalizedControl(TheInput:GetControllerID(), CONTROL_PRIMARY)..": "..STRINGS.INSPECTMOD
-                elseif TheInput:IsControlPressed(CONTROL_FORCE_TRADE) and not self.item.replica.inventoryitem:CanOnlyGoInPocket() then
-                    if next(player.replica.inventory:GetOpenContainers()) ~= nil then
+                elseif TheInput:IsControlPressed(CONTROL_FORCE_TRADE) then
+                    local showhint = false
+                    local containers = player.replica.inventory:GetOpenContainers()
+                    if containers then
+                        if self.item.replica.inventoryitem:CanOnlyGoInPocketOrPocketContainers() then
+                            for container, _ in pairs(containers) do
+                                if container.replica.inventoryitem and container.replica.inventoryitem:CanOnlyGoInPocket() then
+                                    showhint = true
+                                    break
+                                end
+                            end
+                        elseif not self.item.replica.inventoryitem:CanOnlyGoInPocket() then
+                            showhint = next(containers) ~= nil
+                        end
+                    end
+                    if showhint then
                         str = str.."\n"..TheInput:GetLocalizedControl(TheInput:GetControllerID(), CONTROL_PRIMARY)..": "..((TheInput:IsControlPressed(CONTROL_FORCE_STACK) and self.item.replica.stackable ~= nil) and (STRINGS.STACKMOD.." "..STRINGS.TRADEMOD) or STRINGS.TRADEMOD)
                     end
                 elseif TheInput:IsControlPressed(CONTROL_FORCE_STACK) and self.item.replica.stackable ~= nil then
@@ -464,6 +538,9 @@ function ItemTile:SetChargePercent(percent)
     self.rechargepct = percent
 	if self.recharge.shown then
 		if percent < 1 then
+            if self.recharge.ResetColour ~= nil then
+                self.recharge.ResetColour()
+            end
 			self.recharge:GetAnimState():SetPercent("recharge", percent)
 			if not self.rechargeframe.shown then
 				self.rechargeframe:Show()
@@ -476,6 +553,19 @@ function ItemTile:SetChargePercent(percent)
 		else
 			if prev_precent < 1 and not self.recharge:GetAnimState():IsCurrentAnimation("frame_pst") then
 				self.recharge:GetAnimState():PlayAnimation("frame_pst")
+                self.recharge:GetAnimState():SetMultColour(1, 1, 1, 1)
+                local isbonus = self.item:HasTag("rechargeable_bonus")
+                self.recharge.ResetColour = function()
+                    if isbonus then
+                        self.recharge:GetAnimState():SetMultColour(0, 0.3, 0, 0.8) -- 'Bonus while' with GREEN colour.
+                    else
+                        self.recharge:GetAnimState():SetMultColour(0, 0, 0.4, 0.64) -- 'Cooldown until' with BLUE colour.
+                    end
+                    self.recharge.inst:RemoveEventCallback("animover", self.recharge.ResetColour)
+                    self.recharge.ResetColour = nil
+                end
+                
+                self.recharge.inst:ListenForEvent("animover", self.recharge.ResetColour)
 			end
 			if self.rechargeframe.shown then
 				self.rechargeframe:Hide()
@@ -657,6 +747,49 @@ function ItemTile:HandleAcidSizzlingFX(isacidsizzling)
         if self.acidsizzling ~= nil then
             self.acidsizzling:Kill()
             self.acidsizzling = nil
+        end
+    end
+end
+
+function ItemTile:HandleBuffFX(invitem, fromchanged)
+    local player_classified = ThePlayer and ThePlayer.player_classified or nil
+    if not player_classified then
+        return
+    end
+
+    if invitem.prefab == "panflute" then
+        if player_classified.wortox_panflute_buff:value() then
+            if self.freecastpanflute == nil then
+                self.freecastpanflute = self.image:AddChild(UIAnim())
+                local ref = self.freecastpanflute
+                ref:GetAnimState():SetBank("inventory_fx_buff_panflute")
+                ref:GetAnimState():SetBuild("inventory_fx_buff_panflute")
+                
+                local function RandomizeLoop()
+                    ref:GetAnimState():PlayAnimation("notes_loop", true)
+                    ref:GetAnimState():SetTime(math.random())
+                end
+                if fromchanged then
+                    ref:GetAnimState():PlayAnimation("notes_pre")
+                    local function DoRandomizeLoop()
+                        RandomizeLoop()
+                        ref.inst:RemoveEventCallback("animover", DoRandomizeLoop)
+                    end
+                    ref.inst:ListenForEvent("animover", DoRandomizeLoop)
+                else
+                    RandomizeLoop()
+                end
+                ref:GetAnimState():SetMultColour(1, 1, 1, 0.9)
+                ref:GetAnimState():AnimateWhilePaused(false)
+                ref:SetClickable(false)
+            end
+        else
+            if self.freecastpanflute ~= nil then
+                local ref = self.freecastpanflute
+                self.freecastpanflute = nil
+                ref:GetAnimState():PlayAnimation("notes_pst")
+                ref.inst:ListenForEvent("animover", function() ref:Kill() end)
+            end
         end
     end
 end

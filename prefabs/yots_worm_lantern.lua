@@ -165,7 +165,7 @@ end
 local function spawner_onsave(inst, data)
     local ents = {}
 
-    if next(inst._spawned) ~= nil then
+	if inst._spawned and next(inst._spawned) ~= nil then
         data.lanterns = {}
 
         for lantern in pairs(inst._spawned) do
@@ -180,13 +180,13 @@ local function spawner_onsave(inst, data)
 end
 
 local function spawner_onload(inst, data)
-    if data.lanterns ~= nil then
+	if data and data.lanterns then
         inst._spawned = {}
     end
 end
 
 local function spawner_onloadpostpass(inst, newents, data)
-    if data.lanterns == nil then
+	if not (data and data.lanterns) then
         return
     end
 

@@ -301,6 +301,10 @@ local function MakeProjectile(name, bombname)
 
         inst:AddTag("NOCLICK")
 
+		-- Projectile (from complexprojectile component) added to pristine state for optimization.
+		inst:AddTag("projectile")
+		inst:AddTag("complexprojectile")
+
         inst.entity:SetPristine()
 
         if not TheWorld.ismastersim then

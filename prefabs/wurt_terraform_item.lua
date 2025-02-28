@@ -355,7 +355,10 @@ local function terraform_projectile()
     inst.AnimState:PlayAnimation("blob_loop", true)
 
     inst:AddTag("NOCLICK")
-    inst:AddTag("projectile") -- from 'complexprojectile'
+
+	--projectile (from complexprojectile component) added to pristine state for optimization
+	inst:AddTag("projectile")
+	inst:AddTag("complexprojectile")
 
     if not TheNet:IsDedicated() then
         local groundshadowhandler = inst:AddComponent("groundshadowhandler")

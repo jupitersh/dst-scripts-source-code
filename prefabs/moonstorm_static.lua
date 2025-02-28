@@ -109,6 +109,22 @@ local function fn()
     return inst
 end
 
+local IDLE_SOUND_LOOP_NAME = "loop"
+
+local function OnEntityWake(inst)
+    if inst:IsInLimbo() or inst:IsAsleep() then
+        return
+    end
+
+    if not inst.SoundEmitter:PlayingSound(IDLE_SOUND_LOOP_NAME) then
+        inst.SoundEmitter:PlaySound("moonstorm/common/static_ball_contained/finished_idle_LP", IDLE_SOUND_LOOP_NAME)
+    end
+end
+
+local function OnEntitySleep(inst)
+    inst.SoundEmitter:KillSound(IDLE_SOUND_LOOP_NAME)
+end
+
 local function itemfn()
     local inst = CreateEntity()
 
@@ -135,22 +151,18 @@ local function itemfn()
         return inst
     end
 
-    inst.SoundEmitter:PlaySound("moonstorm/common/static_ball_contained/finished_idle_LP","loop")
-
     inst:AddComponent("tradable")
+    inst:AddComponent("inspectable")
+    inst:AddComponent("inventoryitem")
 
     inst:AddComponent("upgrader")
     inst.components.upgrader.upgradetype = UPGRADETYPES.SPEAR_LIGHTNING
 
-    inst:AddComponent("inspectable")
+    inst.OnEntityWake  = OnEntityWake
+    inst.OnEntitySleep = OnEntitySleep
 
-    inst:AddComponent("inventoryitem")
-    inst.components.inventoryitem:SetOnPickupFn(function()
-        inst.SoundEmitter:KillSound("loop")
-    end)
-    inst.components.inventoryitem:SetOnDroppedFn(function()
-        inst.SoundEmitter:PlaySound("moonstorm/common/static_ball_contained/finished_idle_LP","loop")
-    end)
+    inst:ListenForEvent("exitlimbo", inst.OnEntityWake)
+    inst:ListenForEvent("enterlimbo", inst.OnEntitySleep)
 
     return inst
 end

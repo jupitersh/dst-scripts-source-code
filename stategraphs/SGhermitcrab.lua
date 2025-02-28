@@ -278,7 +278,8 @@ local actionhandlers =
                 inst:PushEvent("wonteatfood", { food = obj })
             end
 
-            return (soul and "eat")
+			return (obj:HasTag("quickeat") and "quickeat")
+				or (obj:HasTag("sloweat") and "eat")
                 or (edible.foodtype == FOODTYPE.MEAT and "eat")
                 or "quickeat"
         end),

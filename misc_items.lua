@@ -744,6 +744,30 @@ MISC_ITEMS =
 		rarity_modifier = "Woven",
 		release_group = 160,
 	},
+	loading_piglio5 =
+	{
+		type = "loading",
+		skin_tags = { "SHORTS", "LOADING", },
+		rarity = "Classy",
+		rarity_modifier = "Woven",
+		release_group = 164,
+	},
+	loading_piglio6 =
+	{
+		type = "loading",
+		skin_tags = { "SHORTS", "LOADING", },
+		rarity = "Classy",
+		rarity_modifier = "Woven",
+		release_group = 164,
+	},
+	loading_piglio7 =
+	{
+		type = "loading",
+		skin_tags = { "SHORTS", "LOADING", },
+		rarity = "Classy",
+		rarity_modifier = "Woven",
+		release_group = 164,
+	},
 	loading_pirates1 =
 	{
 		type = "loading",
@@ -1550,6 +1574,20 @@ MISC_ITEMS =
 		display_items = {  "birdcage_adventure", "eyebrellahat_adventure", "footballhat_adventure", "researchlab3_adventure", "lightning_rod_adventure", "dragonflyfurnace_adventure", "cookpot_kitchen", "icebox_kitchen", "saltbox_kitchen", "bundle_kitchen", "dock_woodposts_kitchen", "dock_woodposts_kitchen2", "dock_woodposts_kitchen3", "icepack_kitchen", "beehat_garden", "bugnet_garden", "golden_farmhoe_garden", "beebox_garden", "krampus_sack_garden", "seedpouch_garden", "fishbox_pirate", "mast_pirate", "boat_pirate_skin", "boat_grass_pirate", "ocean_trawler_pirate", "winch_pirate", },
 		output_items = {  "birdcage_adventure", "eyebrellahat_adventure", "footballhat_adventure", "researchlab3_adventure", "lightning_rod_adventure", "dragonflyfurnace_adventure", "cookpot_kitchen", "icebox_kitchen", "saltbox_kitchen", "bundle_kitchen", "dock_woodposts_kitchen", "dock_woodposts_kitchen2", "dock_woodposts_kitchen3", "icepack_kitchen", "beehat_garden", "bugnet_garden", "golden_farmhoe_garden", "beebox_garden", "krampus_sack_garden", "seedpouch_garden", "fishbox_pirate", "mast_pirate", "boat_pirate_skin", "boat_grass_pirate", "ocean_trawler_pirate", "winch_pirate", },
 		release_group = 156,
+	},
+	pack_ancient3 =
+	{
+		type = "purchase",
+		skin_tags = { },
+		featured_pack = true,
+		display_order = 3,
+		build_name_override = "pack_common",
+		display_atlas = "images/iap_images_ancient3.xml",
+		display_tex = "ancient3.tex",
+		box_build = "box_shop_plain",
+		display_items = {  "wendy_ancient", "abigail_ancient", "walter_ancient", "walterhat_ancient", "wortox_ancient", },
+		output_items = {  "wendy_ancient", "body_wendy_ancient", "hand_wendy_ancient", "feet_wendy_ancient", "abigail_ancient", "walter_ancient", "body_walter_ancient", "hand_walter_ancient", "legs_walter_ancient", "walterhat_ancient", "wortox_ancient", "body_wortox_ancient", "legs_wortox_ancient", },
+		release_group = 164,
 	},
 	pack_ancient_wolfgang =
 	{
@@ -3185,6 +3223,20 @@ MISC_ITEMS =
 		output_items = {  "winonabattery_high_fancy", "winonabattery_low_fancy", "winona_catapult_fancy", "winona_spotlight_fancy", "winonabattery_high_spike", "winonabattery_low_spike", "winona_catapult_spike", "winona_spotlight_spike", "lighter_glass", "lighter_heart", "lighter_old", "lighter_ragged", "lighter_rose", "bernie_dog", },
 		release_group = 158,
 	},
+	pack_lostandfound_items2 =
+	{
+		type = "purchase",
+		skin_tags = { },
+		featured_pack = true,
+		display_order = 6,
+		build_name_override = "pack_common",
+		display_atlas = "images/iap_images_lostandfound_items2.xml",
+		display_tex = "lostandfound_items2.tex",
+		box_build = "box_shop_plain",
+		display_items = {  "sisturn_beachhouse", "sisturn_nest", "lucy_broadaxe", "lucy_chained", "lucy_picnic", "lucy_punk", "wx78_scanner_fancy", "wx78_scanner_junky", "spicepack_porcelain", "spicepack_rustic", "spicepack_silver", "spicepack_survivor", "portable_blender_porcelain", "portable_blender_rustic", "portable_blender_silver", "portable_blender_survivor", "portable_cook_pot_porcelain", "portable_cook_pot_rustic", "portable_cook_pot_silver", "portable_cook_pot_survivor", "portable_spicer_porcelain", "portable_spicer_rustic", "portable_spicer_silver", "portable_spicer_survivor", "slingshot_bandaged", "slingshot_nature", "slingshot_spiked", "slingshot_straws", "pupington_woby_baddog", "pupington_woby_ribbon", },
+		output_items = {  "sisturn_beachhouse", "sisturn_nest", "lucy_broadaxe", "lucy_chained", "lucy_picnic", "lucy_punk", "wx78_scanner_fancy", "wx78_scanner_junky", "spicepack_porcelain", "spicepack_rustic", "spicepack_silver", "spicepack_survivor", "portable_blender_porcelain", "portable_blender_rustic", "portable_blender_silver", "portable_blender_survivor", "portable_cook_pot_porcelain", "portable_cook_pot_rustic", "portable_cook_pot_silver", "portable_cook_pot_survivor", "portable_spicer_porcelain", "portable_spicer_rustic", "portable_spicer_silver", "portable_spicer_survivor", "slingshot_bandaged", "slingshot_nature", "slingshot_spiked", "slingshot_straws", "pupington_woby_baddog", "pupington_woby_ribbon", },
+		release_group = 164,
+	},
 	pack_lunar_2 =
 	{
 		type = "purchase",
@@ -4219,6 +4271,34 @@ MISC_ITEMS =
 		output_items = {  "wurt_pirate", "body_wurt_pirate", "hand_wurt_pirate", "legs_wurt_pirate", },
 		release_group = 133,
 	},
+	pack_relic =
+	{
+		type = "purchase",
+		skin_tags = { },
+		featured_pack = true,
+		display_order = 6,
+		build_name_override = "pack_common",
+		display_atlas = "images/iap_images_relic.xml",
+		display_tex = "relic.tex",
+		box_build = "box_shop_plain",
+		display_items = {  "amulet_blue_relic", "amulet_green_relic", "amulet_orange_relic", "amulet_purple_relic", "amulet_red_relic", "amulet_yellow_relic", "armor_skeleton_relic", "skeletonhat_relic", "starstaff_relic", "wall_dreadstone_relic", "townportal_relic", "nightmare_torch_relic", },
+		output_items = {  "amulet_blue_relic", "amulet_green_relic", "amulet_orange_relic", "amulet_purple_relic", "amulet_red_relic", "amulet_yellow_relic", "armor_skeleton_relic", "skeletonhat_relic", "starstaff_relic", "wall_dreadstone_relic", "townportal_relic", "nightmare_torch_relic", },
+		release_group = 164,
+	},
+	pack_reliclostandfound_combo =
+	{
+		type = "purchase",
+		skin_tags = { },
+		featured_pack = true,
+		display_order = 5,
+		build_name_override = "pack_common",
+		display_atlas = "images/iap_images_reliclostandfound_combo.xml",
+		display_tex = "reliclostandfound_combo.tex",
+		box_build = "box_shop_plain",
+		display_items = {  "amulet_blue_relic", "amulet_green_relic", "amulet_orange_relic", "amulet_purple_relic", "amulet_red_relic", "amulet_yellow_relic", "armor_skeleton_relic", "skeletonhat_relic", "starstaff_relic", "wall_dreadstone_relic", "townportal_relic", "nightmare_torch_relic", "sisturn_beachhouse", "sisturn_nest", "lucy_broadaxe", "lucy_chained", "lucy_picnic", "lucy_punk", "wx78_scanner_fancy", "wx78_scanner_junky", "spicepack_porcelain", "spicepack_rustic", "spicepack_silver", "spicepack_survivor", "portable_blender_porcelain", "portable_blender_rustic", "portable_blender_silver", "portable_blender_survivor", "portable_cook_pot_porcelain", "portable_cook_pot_rustic", "portable_cook_pot_silver", "portable_cook_pot_survivor", "portable_spicer_porcelain", "portable_spicer_rustic", "portable_spicer_silver", "portable_spicer_survivor", "slingshot_bandaged", "slingshot_nature", "slingshot_spiked", "slingshot_straws", "pupington_woby_baddog", "pupington_woby_ribbon", },
+		output_items = {  "amulet_blue_relic", "amulet_green_relic", "amulet_orange_relic", "amulet_purple_relic", "amulet_red_relic", "amulet_yellow_relic", "armor_skeleton_relic", "skeletonhat_relic", "starstaff_relic", "wall_dreadstone_relic", "townportal_relic", "nightmare_torch_relic", "sisturn_beachhouse", "sisturn_nest", "lucy_broadaxe", "lucy_chained", "lucy_picnic", "lucy_punk", "wx78_scanner_fancy", "wx78_scanner_junky", "spicepack_porcelain", "spicepack_rustic", "spicepack_silver", "spicepack_survivor", "portable_blender_porcelain", "portable_blender_rustic", "portable_blender_silver", "portable_blender_survivor", "portable_cook_pot_porcelain", "portable_cook_pot_rustic", "portable_cook_pot_silver", "portable_cook_pot_survivor", "portable_spicer_porcelain", "portable_spicer_rustic", "portable_spicer_silver", "portable_spicer_survivor", "slingshot_bandaged", "slingshot_nature", "slingshot_spiked", "slingshot_straws", "pupington_woby_baddog", "pupington_woby_ribbon", },
+		release_group = 164,
+	},
 	pack_retro_items =
 	{
 		type = "purchase",
@@ -4817,6 +4897,19 @@ MISC_ITEMS =
 		display_items = {  "mast_malbatross_wagstaff", "boat_wagstaff", "steeringwheel_wagstaff", },
 		output_items = {  "mast_malbatross_wagstaff", "boat_wagstaff", "steeringwheel_wagstaff", },
 		release_group = 133,
+	},
+	pack_walter_ancient =
+	{
+		type = "purchase",
+		skin_tags = { },
+		display_order = 117,
+		build_name_override = "walter_ancient",
+		display_atlas = "bigportraits/walter_ancient.xml",
+		display_tex = "walter_ancient_oval.tex",
+		box_build = "box_shop_plain",
+		display_items = {  "walter_ancient", "body_walter_ancient", "hand_walter_ancient", "legs_walter_ancient", "walterhat_ancient", },
+		output_items = {  "walter_ancient", "body_walter_ancient", "hand_walter_ancient", "legs_walter_ancient", "walterhat_ancient", },
+		release_group = 164,
 	},
 	pack_walter_deluxe =
 	{
@@ -5517,6 +5610,33 @@ MISC_ITEMS =
 		display_items = {  "webber_yule", "body_webber_yule", "webber_beard_yule", },
 		output_items = {  "webber_yule", "body_webber_yule", "webber_beard_yule", },
 		release_group = 150,
+	},
+	pack_wendwaltwort_combo =
+	{
+		type = "purchase",
+		skin_tags = { },
+		featured_pack = true,
+		display_order = 1,
+		build_name_override = "pack_common",
+		display_atlas = "images/iap_images_wendwaltwort_combo.xml",
+		display_tex = "wendwaltwort_combo.tex",
+		box_build = "box_shop_plain",
+		display_items = {  "wendy_ancient", "abigail_ancient", "walter_ancient", "walterhat_ancient", "wortox_ancient", "amulet_blue_relic", "amulet_green_relic", "amulet_orange_relic", "amulet_purple_relic", "amulet_red_relic", "amulet_yellow_relic", "armor_skeleton_relic", "skeletonhat_relic", "starstaff_relic", "wall_dreadstone_relic", "townportal_relic", "nightmare_torch_relic", "sisturn_beachhouse", "sisturn_nest", "lucy_broadaxe", "lucy_chained", "lucy_picnic", "lucy_punk", "wx78_scanner_fancy", "wx78_scanner_junky", "spicepack_porcelain", "spicepack_rustic", "spicepack_silver", "spicepack_survivor", "portable_blender_porcelain", "portable_blender_rustic", "portable_blender_silver", "portable_blender_survivor", "portable_cook_pot_porcelain", "portable_cook_pot_rustic", "portable_cook_pot_silver", "portable_cook_pot_survivor", "portable_spicer_porcelain", "portable_spicer_rustic", "portable_spicer_silver", "portable_spicer_survivor", "slingshot_bandaged", "slingshot_nature", "slingshot_spiked", "slingshot_straws", "pupington_woby_baddog", "pupington_woby_ribbon", },
+		output_items = {  "wendy_ancient", "body_wendy_ancient", "hand_wendy_ancient", "feet_wendy_ancient", "abigail_ancient", "walter_ancient", "body_walter_ancient", "hand_walter_ancient", "legs_walter_ancient", "walterhat_ancient", "wortox_ancient", "body_wortox_ancient", "legs_wortox_ancient", "amulet_blue_relic", "amulet_green_relic", "amulet_orange_relic", "amulet_purple_relic", "amulet_red_relic", "amulet_yellow_relic", "armor_skeleton_relic", "skeletonhat_relic", "starstaff_relic", "wall_dreadstone_relic", "townportal_relic", "nightmare_torch_relic", "sisturn_beachhouse", "sisturn_nest", "lucy_broadaxe", "lucy_chained", "lucy_picnic", "lucy_punk", "wx78_scanner_fancy", "wx78_scanner_junky", "spicepack_porcelain", "spicepack_rustic", "spicepack_silver", "spicepack_survivor", "portable_blender_porcelain", "portable_blender_rustic", "portable_blender_silver", "portable_blender_survivor", "portable_cook_pot_porcelain", "portable_cook_pot_rustic", "portable_cook_pot_silver", "portable_cook_pot_survivor", "portable_spicer_porcelain", "portable_spicer_rustic", "portable_spicer_silver", "portable_spicer_survivor", "slingshot_bandaged", "slingshot_nature", "slingshot_spiked", "slingshot_straws", "pupington_woby_baddog", "pupington_woby_ribbon", },
+		release_group = 164,
+	},
+	pack_wendy_ancient =
+	{
+		type = "purchase",
+		skin_tags = { },
+		display_order = 104,
+		build_name_override = "wendy_ancient",
+		display_atlas = "bigportraits/wendy_ancient.xml",
+		display_tex = "wendy_ancient_oval.tex",
+		box_build = "box_shop_plain",
+		display_items = {  "wendy_ancient", "body_wendy_ancient", "hand_wendy_ancient", "feet_wendy_ancient", "abigail_ancient", },
+		output_items = {  "wendy_ancient", "body_wendy_ancient", "hand_wendy_ancient", "feet_wendy_ancient", "abigail_ancient", },
+		release_group = 164,
 	},
 	pack_wendy_deluxe =
 	{
@@ -6469,6 +6589,19 @@ MISC_ITEMS =
 		display_items = {  "wormwood_shadow", "body_wormwood_shadow", "hand_wormwood_shadow", "legs_wormwood_shadow", },
 		output_items = {  "wormwood_shadow", "body_wormwood_shadow", "hand_wormwood_shadow", "legs_wormwood_shadow", },
 		release_group = 101,
+	},
+	pack_wortox_ancient =
+	{
+		type = "purchase",
+		skin_tags = { },
+		display_order = 113,
+		build_name_override = "wortox_ancient",
+		display_atlas = "bigportraits/wortox_ancient.xml",
+		display_tex = "wortox_ancient_oval.tex",
+		box_build = "box_shop_plain",
+		display_items = {  "wortox_ancient", "body_wortox_ancient", "legs_wortox_ancient", },
+		output_items = {  "wortox_ancient", "body_wortox_ancient", "legs_wortox_ancient", },
+		release_group = 164,
 	},
 	pack_wortox_deluxe =
 	{

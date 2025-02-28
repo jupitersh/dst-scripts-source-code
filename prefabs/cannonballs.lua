@@ -213,6 +213,7 @@ local function common_fn(bank, build, anim, tag, isinventoryitem)
 
     --projectile (from complexprojectile component) added to pristine state for optimization
     inst:AddTag("projectile")
+	inst:AddTag("complexprojectile")
 
     inst.AnimState:SetBank(bank)
     inst.AnimState:SetBuild(build)

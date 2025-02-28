@@ -150,6 +150,9 @@ local assets =
     Asset("SOUNDPACKAGE", "sound/hallowednights2024.fev"),
     Asset("FILE", "sound/hallowednights2024.fsb"),     
 
+    Asset("SOUNDPACKAGE", "sound/meta5.fev"),
+    Asset("FILE", "sound/meta5.fsb"),     
+
     Asset("FILE", "sound/wilton.fsb"),         -- Legacy sound that can be used in mods
     Asset("FILE", "sound/winnie.fsb"),         -- Legacy sound that can be used in mods
     Asset("FILE", "sound/wallace.fsb"),        -- Legacy sound that can be used in mods
@@ -341,6 +344,8 @@ local assets =
     Asset("IMAGE", "images/overlays_moonstorm.tex"),
 
     Asset("IMAGE", "images/colour_cubes/identity_colourcube.tex"),
+
+    Asset("MINIMAP_IMAGE", "missing_asset"), -- NOTES(JBK): You better fix this if you see it!
 
     Asset("SHADER", "shaders/anim.ksh"),
     Asset("SHADER", "shaders/anim_fade.ksh"),

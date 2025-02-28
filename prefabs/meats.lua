@@ -148,8 +148,10 @@ local function common(bank, build, anim, tags, dryable, cookable)
     end
 
     if dryable ~= nil then
-        --dryable (from dryable component) added to pristine state for optimization
-        inst:AddTag("dryable")
+		if dryable.product then
+			--dryable (from dryable component) added to pristine state for optimization
+			inst:AddTag("dryable")
+		end
         inst:AddTag("lureplant_bait")
     end
 

@@ -999,9 +999,14 @@ portablespicer_item_clear_fn = portablespicer_clear_fn
 
 slingshot_init_fn = function(inst, build_name)
     basic_init_fn(inst, build_name, "slingshot")
+	if not TheWorld.ismastersim then
+		return
+	end
+	inst:OnSlingshotSkinChanged(build_name)
 end
 slingshot_clear_fn = function(inst)
     basic_clear_fn(inst, "slingshot")
+	inst:OnSlingshotSkinChanged(nil)
 end
 slingshotex_init_fn = slingshot_init_fn
 slingshot999ex_init_fn = slingshot_init_fn
@@ -1012,66 +1017,27 @@ slingshot999ex_clear_fn = slingshot_clear_fn
 slingshot2_clear_fn = slingshot_clear_fn
 slingshot2ex_clear_fn = slingshot_clear_fn
 
-WOBY_SMALL_SYMBOLS = { -- Not used just consistent with big symbols.
-    "tongue",
-    "tail",
-    "mouth",
-    "foot",
-    "face",
-    "eye",
-    "ear",
-    "chew",
-    "body",
-}
-WOBY_BIG_SYMBOLS = { -- Used in wobybig.
-    "woby_fur_slider",
-    "swap_saddle",
-    "swap_fire",
-    "beffalo_lips",
-    "beefalo_tail",
-    "beefalo_nose",
-    "beefalo_mouthmouth",
-    "beefalo_jowls",
-    "beefalo_hoof",
-    "beefalo_headbase",
-    "beefalo_facebase",
-    "beefalo_eye",
-    "beefalo_body_heat",
-    "beefalo_body",
-    "beefalo_beard",
-    "beefalo_antler",
-}
 wobysmall_init_fn = function(inst, build_name)
     basic_init_fn(inst, build_name, "pupington_woby_build")
     if not TheWorld.ismastersim then
         return
     end
-    local big_build = build_name:gsub("pupington_woby", "woby_big")
-    for _, symbol in ipairs(WOBY_BIG_SYMBOLS) do
-        inst.AnimState:OverrideItemSkinSymbol(symbol, big_build, symbol, inst.GUID, "woby_big_build")
-    end
+	inst:OnWobySkinChanged(build_name)
 end
 wobysmall_clear_fn = function(inst)
     basic_clear_fn(inst, "pupington_woby_build")
-    for _, symbol in ipairs(WOBY_BIG_SYMBOLS) do
-        inst.AnimState:ClearOverrideSymbol(symbol)
-    end
+	inst:OnWobySkinChanged(nil)
 end
 wobybig_init_fn = function(inst, build_name)
     basic_init_fn(inst, build_name, "woby_big_build")
     if not TheWorld.ismastersim then
         return
     end
-    local small_build = build_name:gsub("woby_big", "pupington_woby")
-    for _, symbol in ipairs(WOBY_SMALL_SYMBOLS) do
-        inst.AnimState:OverrideItemSkinSymbol(symbol, small_build, symbol, inst.GUID, "pupington_woby_build")
-    end
+	inst:OnWobySkinChanged(build_name)
 end
 wobybig_clear_fn = function(inst)
     basic_clear_fn(inst, "woby_big_build")
-    for _, symbol in ipairs(WOBY_SMALL_SYMBOLS) do
-        inst.AnimState:ClearOverrideSymbol(symbol)
-    end
+	inst:OnWobySkinChanged(nil)
 end
 
 trunkvest_summer_init_fn = function(inst, build_name) basic_init_fn( inst, build_name, "armor_trunkvest_summer") end
@@ -1500,7 +1466,7 @@ dug_gravestone_init_fn = function(inst, build_name)
 end
 dug_gravestone_clear_fn = function(inst)
     basic_clear_fn(inst, "gravestones" )
-    inst.components.inventoryitem:ChangeImageName("dug_gravestone" .. (inst.random_stone_choice == "1" and "" or inst.random_stone_choice))
+    inst.components.inventoryitem:ChangeImageName("dug_gravestone" .. (tostring(inst.random_stone_choice) == "1" and "" or inst.random_stone_choice))
 end
 
 --------------------------------------------------------------------------

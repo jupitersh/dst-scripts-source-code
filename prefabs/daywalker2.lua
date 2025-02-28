@@ -1065,7 +1065,6 @@ end
 
 --------------------------------------------------------------------------
 
--- NOTES(DiogoW): @V2C, please keep this updated :)
 local scrapbook_data =
 {
 	scrapbook_anim =			"scrapbook",
@@ -1076,6 +1075,7 @@ local scrapbook_data =
 	scrapbook_hide =			{ "follow_eye" },
 	scrapbook_hidesymbol =		{ "ww_armlower_red" },
 	scrapbook_deps =			{ "scraphat" },
+	scrapbook_damage = TUNING.DAYWALKER_XCLAW_DAMAGE * .5, -- playerdamagepercent
 }
 
 local function fn()

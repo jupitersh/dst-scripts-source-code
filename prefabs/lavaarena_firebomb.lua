@@ -67,6 +67,7 @@ local function fn()
     inst:AddTag("rechargeable")
 
     inst:AddComponent("aoetargeting")
+	inst.components.aoetargeting:SetAllowRiding(false)
     inst.components.aoetargeting.reticule.reticuleprefab = "reticuleaoesmall"
     inst.components.aoetargeting.reticule.pingprefab = "reticuleaoesmallping"
     inst.components.aoetargeting.reticule.targetfn = ReticuleTargetFn
@@ -132,6 +133,7 @@ local function projectilefn()
 
     --projectile (from complexprojectile component) added to pristine state for optimization
     inst:AddTag("projectile")
+	inst:AddTag("complexprojectile")
 
     inst.direction = net_float(inst.GUID, "lavaarena_firebomb_projectile.direction", "directiondirty")
 

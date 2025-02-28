@@ -123,7 +123,7 @@ local function prereveal(inst, doer)
 	end
 end
 
-local function messagebottlefn()
+local function commonmakebottle(common_postinit, master_postinit)
 	local inst = CreateEntity()
 
     inst.entity:AddTransform()
@@ -142,6 +142,10 @@ local function messagebottlefn()
 
 	--mapspotrevealer (from mapspotrevealer component) added to pristine state for optimization
 	inst:AddTag("mapspotrevealer")
+
+	if common_postinit then
+		common_postinit(inst)
+	end
 
     inst.entity:SetPristine()
 
@@ -166,7 +170,15 @@ local function messagebottlefn()
 
 	inst:ListenForEvent("ondropped", ondropped)
 
+	if master_postinit then
+		master_postinit(inst)
+	end
+
 	return inst
+end
+
+local function messagebottlefn()
+	return commonmakebottle()
 end
 
 local function playidleanim_empty(inst)
@@ -288,13 +300,13 @@ local function onthrown(inst)
     inst.Physics:SetCapsule(.2, .2)
 end
 
-local function throwingbottlefn()
-	local inst = messagebottlefn()
+local function throwing_common_postinit(inst)
+	--projectile (from complexprojectile component) added to pristine state for optimization
+	inst:AddTag("projectile")
+	inst:AddTag("complexprojectile")
+end
 
-    if not TheWorld.ismastersim then
-        return inst
-    end
-
+local function throwing_master_postinit(inst)
     inst:AddComponent("equippable")
     inst.components.equippable:SetOnEquip(onequip)
     inst.components.equippable:SetOnUnequip(onunequip)
@@ -309,7 +321,10 @@ local function throwingbottlefn()
     inst.components.complexprojectile:SetOnHit(OnHit)
     inst.components.complexprojectile.water_targetable = true
     inst.useonimpassible = true
-	return inst
+end
+
+local function throwingbottlefn(inst)
+	return commonmakebottle(throwing_common_postinit, throwing_master_postinit)
 end
 
 local function bobbottlefn()
@@ -409,6 +424,10 @@ local function gelblobbottlefn()
 
 	--waterproofer (from waterproofer component) added to pristine state for optimization
 	inst:AddTag("waterproofer")
+
+	--projectile (from complexprojectile component) added to pristine state for optimization
+	inst:AddTag("projectile")
+	inst:AddTag("complexprojectile")
 
 	MakeInventoryPhysics(inst)
 	MakeInventoryFloatable(inst, "small", 0.05, 1)

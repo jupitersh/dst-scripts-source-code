@@ -78,23 +78,49 @@ end
 -- skip_cooldown_fn: return true if you want to allow hit reacts while the hit react is in cooldown (allowing stun locking)
 local function hit_recovery_delay(inst, delay, max_hitreacts, skip_cooldown_fn)
 	local on_cooldown = false
-	if (inst._last_hitreact_time ~= nil and inst._last_hitreact_time + (delay or inst.hit_recovery or TUNING.DEFAULT_HIT_RECOVERY) >= GetTime()) then	-- is hit react is on cooldown?
+	local was_projectile, was_electric
+	local combat = inst.components.combat
+	if combat then
+		was_projectile = combat.lastattacktype == "projectile"
+		was_electric = combat.laststimuli == "electric"
+	end
+
+	local delaytime = delay or inst.hit_recovery or TUNING.DEFAULT_HIT_RECOVERY
+	if was_projectile then
+		if was_electric and
+			not (	inst:HasTag("electricdamageimmune") or
+					(inst.components.inventory and inst.components.inventory:IsInsulated())
+				)
+		then
+			--use melee hit recovery delay for electric projectiles
+		else
+			delaytime = delaytime * TUNING.DEFAULT_PROJECTILE_HIT_RECOVERY_MULTIPLIER
+		end
+	end
+
+	if (inst._last_hitreact_time ~= nil and inst._last_hitreact_time + delaytime >= GetTime()) then	-- is hit react is on cooldown?
 		max_hitreacts = max_hitreacts or inst._max_hitreacts
 		if max_hitreacts then
-			if inst._hitreact_count == nil then
-				inst._hitreact_count = 2
-				return false
-			elseif inst._hitreact_count < max_hitreacts then
-				inst._hitreact_count = inst._hitreact_count + 1
-				return false
+			if was_projectile then
+				local mult = TUNING.DEFAULT_PROJECTILE_MAX_HITREACTS_MULTIPLIER
+				max_hitreacts = mult > 0 and max_hitreacts * mult or nil
+			end
+			if max_hitreacts then
+				if inst._hitreact_count == nil then
+					inst._hitreact_count = 2
+					return false
+				elseif inst._hitreact_count < max_hitreacts then
+					inst._hitreact_count = inst._hitreact_count + 1
+					return false
+				end
 			end
 		end
 
 		skip_cooldown_fn = skip_cooldown_fn or inst._hitreact_skip_cooldown_fn
 		if skip_cooldown_fn ~= nil then
 			on_cooldown = not skip_cooldown_fn(inst, inst._last_hitreact_time, delay)
-		elseif inst.components.combat ~= nil then
-			on_cooldown = not (inst.components.combat:InCooldown() and inst.sg:HasStateTag("idle"))		-- skip the hit react cooldown if the creature is ready to attack
+		elseif combat then
+			on_cooldown = not (combat:InCooldown() and inst.sg:HasStateTag("idle")) -- skip the hit react cooldown if the creature is idle but not ready to attack
 		else
 			on_cooldown = true
 		end

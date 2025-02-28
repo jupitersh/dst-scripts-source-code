@@ -44,7 +44,10 @@ local Container = Class(function(self, inst)
     self.openlist = {}
     self.opencount = 0
 
+	--self.isexposed = false --flag to disable protection from rain
+
 	--self.droponopen = false
+    --self.restrictedtag = nil -- Only entities with this tag can interact.
 
     inst:ListenForEvent("player_despawn", OnOwnerDespawned)
 
@@ -205,6 +208,7 @@ function Container:DropItemAt(itemtodrop, x, y, z)
         item.prevslot = nil
         self.inst:PushEvent("dropitem", {item = item})
     end
+    return item
 end
 
 function Container:CanTakeItemInSlot(item, slot)
@@ -212,6 +216,7 @@ function Container:CanTakeItemInSlot(item, slot)
         and item.components.inventoryitem ~= nil
         and item.components.inventoryitem.cangoincontainer
         and not item.components.inventoryitem.canonlygoinpocket
+        and (not item.components.inventoryitem.canonlygoinpocketorpocketcontainers or self.inst.components.inventoryitem and self.inst.components.inventoryitem.canonlygoinpocket)
         and (slot == nil or (slot >= 1 and slot <= self.numslots))
         and not (GetGameModeProperty("non_item_equips") and item.components.equippable ~= nil)
         and (self.itemtestfn == nil or self:itemtestfn(item, slot))
@@ -235,6 +240,7 @@ function Container:ShouldPrioritizeContainer(item)
         and item.components.inventoryitem ~= nil
         and item.components.inventoryitem.cangoincontainer
         and not item.components.inventoryitem.canonlygoinpocket
+        and (not item.components.inventoryitem.canonlygoinpocketorpocketcontainers or self.inst.components.inventoryitem and self.inst.components.inventoryitem.canonlygoinpocket)
         and not (GetGameModeProperty("non_item_equips") and item.components.equippable ~= nil)
         and (self:priorityfn(item))
 end
@@ -866,20 +872,26 @@ function Container:OnUpdate(dt)
         self.inst:StopUpdatingComponent(self)
     else
         --attempt to close the chest for all players who have the chest opened who meet the requirements for closing it.
+		local owner = self.inst.components.inventoryitem and self.inst.components.inventoryitem:GetGrandOwner() or nil
+		local nonownerparent = owner == nil and self.inst.entity:GetParent() or nil
         for opener, _ in pairs(self.openlist) do
-			if self.inst.components.inventoryitem and self.inst.components.inventoryitem:GetGrandOwner() == opener then
+			local mount = opener.components.rider and opener.components.rider:GetMount() or nil
+			local ismount = mount == self.inst
+			if owner and (owner == opener or owner == mount) or ismount then
 				--V2C: special case handling for players who can open "portablestorage" containers from inventory without dropping
-				if self.inst:HasTag("portablestorage") and not (opener.sg and opener.sg:HasStateTag("keep_pocket_rummage")) then
+				--     pocket_rummage is now used for:
+				--       "portablestorage" in your inventory
+				--       "portablestorage" in your mount's inventory while mounted
+				--       your mount's container (e.g. Woby)
+				if (ismount or self.inst:HasTag("portablestorage")) and not (opener.sg and opener.sg:HasStateTag("keep_pocket_rummage")) then
 					self:Close(opener)
 					if opener.sg then
 						opener.sg:HandleEvent("ms_closeportablestorage", { item = self.inst })
 					end
 				end
-			elseif (opener.components.rider and opener.components.rider:IsRiding())
-				or not (opener:IsValid() and opener:IsNear(self.inst, 3) and CanEntitySeeTarget(opener, self.inst))
-			then
+			elseif mount or not (opener:IsValid() and opener:IsNear(self.inst, CONTAINER_AUTOCLOSE_DISTANCE) and CanEntitySeeTarget(opener, self.inst)) then
 				self:Close(opener)
-            end
+			end
         end
     end
 end
@@ -954,6 +966,29 @@ function Container:TakeActiveItemFromHalfOfSlot(slot, opener)
         halfstack.prevslot = slot
         halfstack.prevcontainer = self
         inventory:GiveActiveItem(halfstack)
+
+        self.currentuser = nil
+    end
+end
+
+function Container:TakeActiveItemFromCountOfSlot(slot, count, opener)
+    local inventory, active_item = QueryActiveItem(self, opener)
+    local item = self:GetItemInSlot(slot)
+    if item ~= nil and
+        active_item == nil and
+        inventory ~= nil then
+
+        self.currentuser = opener
+
+        if item.components.stackable and item.components.stackable:StackSize() > count then
+            local countedstack = item.components.stackable:Get(count)
+            countedstack.prevslot = slot
+            countedstack.prevcontainer = self
+            inventory:GiveActiveItem(countedstack)
+        else
+            self:RemoveItemBySlot(slot)
+            inventory:GiveActiveItem(item)
+        end
 
         self.currentuser = nil
     end
@@ -1186,6 +1221,60 @@ function Container:MoveItemFromHalfOfSlot(slot, container, opener)
     end
 end
 
+function Container:MoveItemFromCountOfSlot(slot, container, count, opener)
+    local item = self:GetItemInSlot(slot)
+    if item ~= nil and container ~= nil then
+        container = container.components.container or container.components.inventory
+        if container ~= nil and container:IsOpenedBy(opener) then
+
+            self.currentuser = opener
+            container.currentuser = opener
+
+            local targetslot =
+                opener.components.constructionbuilderuidata ~= nil and
+                opener.components.constructionbuilderuidata:GetContainer() == container.inst and
+                opener.components.constructionbuilderuidata:GetSlotForIngredient(item.prefab) or
+                nil
+
+            if container:CanTakeItemInSlot(item, targetslot) then
+                local countedstack
+                if item.components.stackable and item.components.stackable:StackSize() > count then
+                    countedstack = item.components.stackable:Get(count)
+                else
+                    countedstack = self:RemoveItemBySlot(slot)
+                end
+                countedstack.prevcontainer = nil
+                countedstack.prevslot = nil
+
+                --Hacks for altering normal inventory:GiveItem() behaviour
+                if container.ignoreoverflow ~= nil and container:GetOverflowContainer() == self then
+                    container.ignoreoverflow = true
+                end
+                if container.ignorefull ~= nil then
+                    container.ignorefull = true
+                end
+
+                if not container:GiveItem(countedstack, targetslot) then
+                    self.ignoresound = true
+                    self:GiveItem(countedstack, slot, nil, true)
+                    self.ignoresound = false
+                end
+
+                --Hacks for altering normal inventory:GiveItem() behaviour
+                if container.ignoreoverflow then
+                    container.ignoreoverflow = false
+                end
+                if container.ignorefull then
+                    container.ignorefull = false
+                end
+            end
+
+            self.currentuser = nil
+            container.currentuser = nil
+        end
+    end
+end
+
 function Container:ReferenceAllItems()
     local items = {}
     for i=1,self.numslots do
@@ -1221,6 +1310,17 @@ function Container:EnableInfiniteStackSize(enable)
 			self.inst.replica.container:EnableInfiniteStackSize(false)
 		end
 	end
+end
+
+function Container:IsRestricted(target)
+    if not target:HasTag("player") then
+        -- Restricted tags only apply to players.
+        return false
+    end
+
+    return self.restrictedtag ~= nil
+        and self.restrictedtag:len() > 0
+        and not target:HasTag(self.restrictedtag)
 end
 
 return Container

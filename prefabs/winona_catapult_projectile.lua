@@ -506,6 +506,7 @@ local function fn()
 
     --projectile (from complexprojectile component) added to pristine state for optimization
     inst:AddTag("projectile")
+	inst:AddTag("complexprojectile")
 
     inst.hideanim = net_bool(inst.GUID, "winona_catapult_projectile.hideanim", "hideanimdirty")
 	inst.element = net_tinybyte(inst.GUID, "winona_catapult_projectile.element", "elementdirty")

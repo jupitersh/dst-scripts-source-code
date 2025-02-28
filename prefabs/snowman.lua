@@ -262,7 +262,7 @@ end
 local function OnHatChanged(inst, hat, isloading)
 	CheckLiftAndPushable(inst)
 	if hat and not isloading then
-		inst.SoundEmitter:PlaySound("dontstarve/movement/run_snow_small")
+		inst.SoundEmitter:PlaySound("meta5/snowman/place_snow")
 	end
 end
 
@@ -425,7 +425,7 @@ local function OnStacksChanged(inst, stacks, stackoffsets, reason)
 				fx.Follower:FollowSymbol(inst.GUID, "snowman_ball", offset, -height, 0)
 			end
 			TryHitAnim(inst)
-			inst.SoundEmitter:PlaySound("dontstarve/movement/run_snow_small")
+			inst.SoundEmitter:PlaySound("meta5/snowman/place_snow")
 		end
 	end
 	if not TheNet:IsDedicated() then

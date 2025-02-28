@@ -58,7 +58,10 @@ local function fn()
     inst.Physics:SetDontRemoveOnSleep(true)
 
     inst:AddTag("NOCLICK")
+
+	--projectile (from complexprojectile component) added to pristine state for optimization
     inst:AddTag("projectile")
+	inst:AddTag("complexprojectile")
 
     inst.AnimState:SetBank("eyeofterror_mini")
     inst.AnimState:SetBuild("eyeofterror_mini_mob_build")

@@ -729,6 +729,12 @@ local function StartCastSpell(inst, freeze)
     inst.arms = nil
 end
 
+local function OnCrabMobLanded(inst)
+    inst:RemoveComponent("complexprojectile") -- To remove projectile tag.
+
+    inst:PushEvent("hit_ground")
+end
+
 local function LaunchCrabMob(inst, prefab)
     local pos = inst:GetPosition()
 
@@ -739,6 +745,8 @@ local function LaunchCrabMob(inst, prefab)
 
         if TheWorld.Map:IsVisualGroundAtPoint(pos.x+offset.x, 0, pos.z+offset.z) then
             local mob = inst:LaunchProjectile(pos+offset, prefab)
+
+            mob.components.complexprojectile:SetOnHit(OnCrabMobLanded)
 
             mob.components.sleeper:SetSleepTest(nil)
             mob.components.sleeper:SetWakeTest(nil)
@@ -763,6 +771,9 @@ local function LaunchCrabMob(inst, prefab)
 
             mob.components.health:SetMaxHealth(health)
             mob.components.health:SetPercent(1) -- For pushing events?
+
+            mob.sg:GoToState("flying")
+
             break
         end
     end

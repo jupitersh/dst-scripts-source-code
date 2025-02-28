@@ -328,6 +328,66 @@ PlayWaxAnimation = function(inst)
     inst.AnimState:PushAnimation("idle_oversized")
 end
 
+----------------------------------------------------------------------------------------------------------
+
+local function Carrot_StartSpinning(inst, time)
+    if inst._spinnerfx ~= nil and inst._spinnerfx:IsValid() then
+        inst._spinnerfx:FadeOut()
+        inst._spinnerfx = nil
+    end
+
+    inst.AnimState:PlayAnimation("spin_pre")
+    inst.AnimState:PushAnimation("spin_loop", true)
+    inst.components.timer:StartTimer("spin", time or 2)
+    inst.SoundEmitter:PlaySound("yotr_2023/common/carrot_spin", "spin_lp")
+end
+
+local function Carrot_StopSpinning(inst)
+    if inst._spinnerfx ~= nil and inst._spinnerfx:IsValid() then
+        inst._spinnerfx:FadeOut()
+        inst._spinnerfx = nil
+    end
+
+    inst.Transform:SetNoFaced()
+    inst.Transform:SetRotation(0)
+
+    inst.AnimState:PlayAnimation("idle")
+
+    inst.components.timer:StopTimer("spin")
+
+    inst.SoundEmitter:KillAllSounds()
+
+    inst.components.activatable.inactive = true
+end
+
+local function Carrot_TimerDone(inst, data)
+    if data == nil or data.name ~= "spin" then
+        return
+    end
+
+    inst.Transform:SetEightFaced()
+    inst.Transform:SetRotation(math.random()*360)
+    inst.AnimState:PlayAnimation("spin_pst")
+
+    inst.components.activatable.inactive = true
+
+    inst.SoundEmitter:PlaySound("yotr_2023/common/carrot_spin_pst")
+    inst.SoundEmitter:KillSound("spin_lp")
+
+    inst._spinnerfx = SpawnPrefab("carrot_spinner")
+    inst._spinnerfx:AttachTo(inst)
+end
+
+local function Carrot_GetActivateVerb()
+    return "SPIN"
+end
+
+local function Carrot_OnActivated(inst)
+    inst:Spin()
+end
+
+----------------------------------------------------------------------------------------------------------
+
 local function MakeVeggie(name, has_seeds)
     local assets =
     {
@@ -388,38 +448,6 @@ local function MakeVeggie(name, has_seeds)
         table.insert(prefabs, "splash_green")
 
         table.insert(assets_oversized, Asset("ANIM", "anim/"..plant_def.build..".zip"))
-    end
-
-    local function spin(inst, time)
-        inst.entity:AddSoundEmitter()
-        inst.AnimState:PlayAnimation("spin_pre")
-        inst.AnimState:PushAnimation("spin_loop",true)
-        inst.components.timer:StartTimer("spin",time or 2)
-        inst.SoundEmitter:PlaySound("yotr_2023/common/carrot_spin", "spin_lp")
-    end
-
-    local function timerdone(inst,data)
-        if data and data.name then
-            if data.name == "spin" then
-                inst.Transform:SetEightFaced()
-                inst.Transform:SetRotation(math.random()*360)
-                inst.AnimState:PlayAnimation("spin_pst")
-                inst.components.activatable.inactive = true
-                inst.SoundEmitter:PlaySound("yotr_2023/common/carrot_spin_pst")
-                inst.SoundEmitter:KillSound("spin_lp")
-
-                local fx = SpawnPrefab("carrot_spinner")
-                inst:AddChild(fx)
-            end
-        end
-    end
-
-    local function GetActivateVerb()
-        return "SPIN"
-    end    
-
-    local function OnActivateSpin(inst)
-        inst:Spin()
     end
 
     local function fn_seeds()
@@ -517,7 +545,7 @@ local function MakeVeggie(name, has_seeds)
 
         if name == "carrot" then
             inst.entity:AddSoundEmitter()
-            inst.GetActivateVerb = GetActivateVerb
+            inst.GetActivateVerb = Carrot_GetActivateVerb
         end
 
         MakeInventoryPhysics(inst)
@@ -659,15 +687,17 @@ local function MakeVeggie(name, has_seeds)
         MakeHauntableLaunchAndPerish(inst)
 
         if name == "carrot" then
-            inst.Spin = spin
+            inst.Spin = Carrot_StartSpinning
+
             inst:AddComponent("timer")
-            inst:ListenForEvent("timerdone", timerdone)
+
             inst:AddComponent("activatable")
-            inst.components.activatable.OnActivate = OnActivateSpin
+            inst.components.activatable.OnActivate = Carrot_OnActivated
             inst.components.activatable.quickaction = true
-            inst.components.inventoryitem:SetOnPickupFn(function()
-                inst.Transform:SetNoFaced()
-            end)
+
+            inst.components.inventoryitem:SetOnPutInInventoryFn(Carrot_StopSpinning)
+
+            inst:ListenForEvent("timerdone", Carrot_TimerDone)
         end
 
         return inst

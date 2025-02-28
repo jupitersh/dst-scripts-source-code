@@ -229,7 +229,7 @@ local function fn()
     inst.components.stackable.maxsize = TUNING.STACK_SIZE_SMALLITEM
 
     inst:AddComponent("inventoryitem")
-    inst.components.inventoryitem:SetOnPickupFn(OnStopFireMelt)
+    inst.components.inventoryitem:SetOnPutInInventoryFn(OnStopFireMelt)
 
     inst:AddComponent("watersource")
     inst.components.watersource.onusefn = OnUseAsWaterSource

@@ -24,6 +24,7 @@ SKIN_RARITY_COLORS.Complimentary = SKIN_RARITY_COLORS.Common
 SKIN_RARITY_COLORS.HeirloomClassy = SKIN_RARITY_COLORS.HeirloomElegant
 SKIN_RARITY_COLORS.HeirloomSpiffy = SKIN_RARITY_COLORS.HeirloomElegant
 SKIN_RARITY_COLORS.HeirloomDistinguished = SKIN_RARITY_COLORS.HeirloomElegant
+SKIN_RARITY_COLORS.Resurrected = SKIN_RARITY_COLORS.ProofOfPurchase
 
 DEFAULT_SKIN_COLOR = SKIN_RARITY_COLORS["Common"]
 
@@ -62,6 +63,7 @@ end
 RARITY_ORDER =
 {
 	ProofOfPurchase = 1,
+    Resurrected = 1.5,
 	Timeless = 2,
 	Loyal = 3,
 	Reward = 4,
@@ -118,6 +120,9 @@ function GetFrameSymbolForRarity( rarity )
 	if rarity == "Complimentary" then
 		return "common"
 	end
+    if rarity == "Resurrected" then
+        return "proofofpurchase"
+    end
 	return string.lower( rarity )
 end
 
@@ -643,61 +648,44 @@ function GetEventIconForItem(item)
 	return nil
 end
 
-local PrefabSwaps = {
-    ["portableblender"] = "portableblender_item",
-    ["portablecookpot"] = "portablecookpot_item",
-    ["portablespicer"] = "portablespicer_item",
-}
-local function GetSkinnedPrefab(prefab)
-    return PrefabSwaps[prefab] or prefab
-end
 function GetSkinUsableOnString(item_type, popup_txt)
-    local skin_data = GetSkinData(item_type)
+	local skin_data = GetSkinData(item_type)
 
-    local skin_str = GetSkinName(item_type)
+	local skin_str = GetSkinName(item_type)
 
-    local usable_on_str
-    if skin_data ~= nil then
-        local skinned_prefab = GetSkinnedPrefab(skin_data.base_prefab)
-        if skinned_prefab then
-            local item1_str, item2_str, item3_str
-            item1_str = STRINGS.NAMES[string.upper(skinned_prefab)]
-            if skin_data.granted_items ~= nil then
-                local granted_skin_data = GetSkinData(skin_data.granted_items[1])
-                if granted_skin_data ~= nil then
-                    skinned_prefab = GetSkinnedPrefab(granted_skin_data.base_prefab)
-                    if skinned_prefab then
-                        item2_str = STRINGS.NAMES[string.upper(skinned_prefab)]
-                        if item2_str == item1_str then
-                            item2_str = nil
-                        end
-                    end
-                end
-                granted_skin_data = GetSkinData(skin_data.granted_items[2])
-                if granted_skin_data ~= nil then
-                    skinned_prefab = GetSkinnedPrefab(granted_skin_data.base_prefab)
-                    if skinned_prefab then
-                        item3_str = STRINGS.NAMES[string.upper(skinned_prefab)]
-                        if item2_str == nil and item3_str ~= item1_str then
-                            item2_str = item3_str
-                            item3_str = nil
-                        elseif item1_str == item3_str or item2_str == item3_str then
-                            item3_str = nil
-                        end
-                    end
+	local usable_on_str
+	if skin_data ~= nil and skin_data.base_prefab ~= nil then
+        local item1_str, item2_str, item3_str
+        item1_str = STRINGS.NAMES[string.upper(skin_data.base_prefab)]
+        if skin_data.granted_items ~= nil then
+            local granted_skin_data = GetSkinData(skin_data.granted_items[1])
+            if granted_skin_data ~= nil and granted_skin_data.base_prefab ~= nil then
+                item2_str = STRINGS.NAMES[string.upper(granted_skin_data.base_prefab)]
+                if item2_str == item1_str then
+                    item2_str = nil
                 end
             end
-            if item2_str == nil then
-                usable_on_str = subfmt(popup_txt and STRINGS.UI.SKINSSCREEN.USABLE_ON_POPUP or STRINGS.UI.SKINSSCREEN.USABLE_ON, { skin = skin_str, item = item1_str })
-            elseif item3_str == nil then
-                usable_on_str = subfmt(popup_txt and STRINGS.UI.SKINSSCREEN.USABLE_ON_MULTIPLE_POPUP or STRINGS.UI.SKINSSCREEN.USABLE_ON_MULTIPLE, { skin = skin_str, item1 = item1_str, item2 = item2_str })
-            else
-                usable_on_str = subfmt(popup_txt and STRINGS.UI.SKINSSCREEN.USABLE_ON_MULTIPLE_3_POPUP or STRINGS.UI.SKINSSCREEN.USABLE_ON_MULTIPLE_3, { skin = skin_str, item1 = item1_str, item2 = item2_str, item3 = item3_str })
+            granted_skin_data = GetSkinData(skin_data.granted_items[2])
+            if granted_skin_data ~= nil and granted_skin_data.base_prefab ~= nil then
+                item3_str = STRINGS.NAMES[string.upper(granted_skin_data.base_prefab)]
+                if item2_str == nil and item3_str ~= item1_str then
+                    item2_str = item3_str
+                    item3_str = nil
+                elseif item1_str == item3_str or item2_str == item3_str then
+                    item3_str = nil
+                end
             end
         end
-    end
+        if item2_str == nil then
+            usable_on_str = subfmt(popup_txt and STRINGS.UI.SKINSSCREEN.USABLE_ON_POPUP or STRINGS.UI.SKINSSCREEN.USABLE_ON, { skin = skin_str, item = item1_str })
+        elseif item3_str == nil then
+            usable_on_str = subfmt(popup_txt and STRINGS.UI.SKINSSCREEN.USABLE_ON_MULTIPLE_POPUP or STRINGS.UI.SKINSSCREEN.USABLE_ON_MULTIPLE, { skin = skin_str, item1 = item1_str, item2 = item2_str })
+        else
+            usable_on_str = subfmt(popup_txt and STRINGS.UI.SKINSSCREEN.USABLE_ON_MULTIPLE_3_POPUP or STRINGS.UI.SKINSSCREEN.USABLE_ON_MULTIPLE_3, { skin = skin_str, item1 = item1_str, item2 = item2_str, item3 = item3_str })
+        end
+	end
 
-    return usable_on_str or ""
+	return usable_on_str or ""
 end
 
 function IsUserCommerceAllowedOnItemData(item_data)
@@ -1359,7 +1347,7 @@ function ShouldDisplayItemInCollection(item_type)
         return false
     end
 	local rarity = GetRarityForItem(item_type)
-	if rarity == "Event" or rarity == "ProofOfPurchase" or rarity == "Loyal" or rarity == "Timeless" then
+	if rarity == "Event" or rarity == "ProofOfPurchase" or rarity == "Resurrected" or rarity == "Loyal" or rarity == "Timeless" then
 		return TheInventory:CheckOwnership(item_type)
 	end
     return true
@@ -1973,7 +1961,7 @@ function GetBoxPopupLayoutDetails( num_item_types )
 	elseif num_item_types == 38 or num_item_types == 30 then
 		columns = 10
 		resize_root_small = true
-	elseif num_item_types == 41 or num_item_types == 42 then
+	elseif num_item_types == 41 or num_item_types == 42 or num_item_types == 47 then
 		columns = 10
 		resize_root_small_higher = true
     elseif num_item_types == 64 or num_item_types == 50 then

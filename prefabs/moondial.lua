@@ -113,6 +113,32 @@ local function OnLoad(inst, data)
 	end
 end
 
+local function domutatefn(inst,doer)
+    if not TheWorld.state.isnight then
+        return false, "NOTNIGHT"
+    elseif not doer.components.ghostlybond or not doer.components.ghostlybond.ghost then
+        return false, "NOGHOST"
+    elseif doer.components.ghostlybond.ghost:HasTag("gestalt") then
+        if  TheWorld.state.isnewmoon or (not TheWorld.state.isfullmoon and not TheWorld.state.iswaxingmoon) then
+            doer.components.ghostlybond.ghost:ChangeToGestalt(false)
+        else
+           return false, "NONEWMOON"
+        end
+    else    
+        if TheWorld.state.isfullmoon or (not TheWorld.state.isnewmoon and TheWorld.state.iswaxingmoon) then
+            doer.components.ghostlybond.ghost:ChangeToGestalt(true)            
+        else
+            return false, "NOFULLMOON"
+        end        
+    end
+
+    return true
+end
+
+local function getghostgestalttarget(inst,doer)
+    return STRINGS.NAMES.ABIGAIL
+end
+
 local function fn()
     local inst = CreateEntity()
 
@@ -142,6 +168,8 @@ local function fn()
     inst.MiniMapEntity:SetIcon("moondial.png")
     inst.MiniMapEntity:SetCanUseCache(false)
     inst.MiniMapEntity:SetDrawOverFogOfWar(true)
+    
+    inst.getghostgestalttarget = getghostgestalttarget
 
     inst.entity:SetPristine()
 
@@ -164,6 +192,11 @@ local function fn()
 
     inst:WatchWorldState("moonphase", onmoonphasechagned)
     inst:WatchWorldState("isalterawake", onalterawake)
+
+    inst:AddComponent("ghostgestalter")
+    inst.components.ghostgestalter.forcerightclickaction = true
+    inst.components.ghostgestalter.domutatefn = domutatefn
+
 
     inst:SetStateGraph("SGmoondial")
 

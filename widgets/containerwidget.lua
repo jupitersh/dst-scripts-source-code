@@ -132,6 +132,17 @@ function ContainerWidget:Open(container, doer)
             self.owner,
             container.replica.container
         )
+		if widget.slotscale then
+			local newscale = slot.base_scale * widget.slotscale
+			if widget.slothighlightscale == nil then
+				slot.highlight_scale = newscale + slot.highlight_scale - slot.base_scale
+			end
+			slot.base_scale = newscale
+			slot:SetScale(newscale)
+		end
+		if widget.slothighlightscale then
+			slot.highlight_scale = widget.slothighlightscale
+		end
         self.inv[i] = self:AddChild(slot)
 
         slot:SetPosition(v)
@@ -195,7 +206,18 @@ function ContainerWidget:OnItemGet(data)
 
         if data.src_pos ~= nil then
             local dest_pos = self.inv[data.slot]:GetWorldPosition()
-            local im = Image(data.item.replica.inventoryitem:GetAtlas(), data.item.replica.inventoryitem:GetImage())
+			local im = ItemTile.sSetImageFromItem(Image(), data.item)
+			if GetGameModeProperty("icons_use_cc") then
+				im:SetEffect("shaders/ui_cc.ksh")
+			end
+			if data.item.inv_image_bg then
+				local bg = Image(data.item.inv_image_bg.atlas, data.item.inv_image_bg.image)
+				bg:AddChild(im)
+				im = bg
+				if GetGameModeProperty("icons_use_cc") then
+					im:SetEffect("shaders/ui_cc.ksh")
+				end
+			end
             im:MoveTo(Vector3(TheSim:GetScreenPos(data.src_pos:Get())), dest_pos, .3, function() tile:Show() im:Kill() end)
         else
             tile:Show()

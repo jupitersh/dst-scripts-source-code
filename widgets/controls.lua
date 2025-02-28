@@ -82,6 +82,7 @@ local Controls = Class(Widget, function(self, owner)
     self.blackoverlay:SetTint(0,0,0,.5)
     self.blackoverlay:Hide()
 
+	self.containerroot_under = self:AddChild(Widget(""))
     self.containerroot = self:AddChild(Widget(""))
     self.containerroot_side_behind = self:AddChild(Widget(""))
     self:MakeScalingNodes()
@@ -248,6 +249,12 @@ local Controls = Class(Widget, function(self, owner)
     self.containerroot:SetMaxPropUpscale(MAX_HUD_SCALE)
     self.containerroot = self.containerroot:AddChild(Widget(""))
 
+	self.containerroot_under:SetHAnchor(ANCHOR_MIDDLE)
+	self.containerroot_under:SetVAnchor(ANCHOR_MIDDLE)
+	self.containerroot_under:SetScaleMode(SCALEMODE_PROPORTIONAL)
+	self.containerroot_under:SetMaxPropUpscale(MAX_HUD_SCALE)
+	self.containerroot_under = self.containerroot_under:AddChild(Widget("containerroot_under"))
+
     self.containerroot_side_behind:SetHAnchor(ANCHOR_RIGHT)
     self.containerroot_side_behind:SetVAnchor(ANCHOR_MIDDLE)
     self.containerroot_side_behind:SetScaleMode(SCALEMODE_PROPORTIONAL)
@@ -294,7 +301,11 @@ local Controls = Class(Widget, function(self, owner)
 	self.spellwheel = self.commandwheelroot:AddChild(Wheel("SpellWheel", owner, {ignoreleftstick = true,}))
 	self.spellwheel.selected_label:SetSize(26)
 	self.spellwheel.OnCancel = function() owner.HUD:CloseSpellWheel() end
-	self.spellwheel.OnExecute = function() owner.HUD:CloseSpellWheel(true) end
+	self.spellwheel.OnExecute = function(spellwheel)
+		if not (spellwheel.invobject and spellwheel.invobject.components.spellbook and not spellwheel.invobject.components.spellbook.closeonexecute) then
+			owner.HUD:CloseSpellWheel(true)
+		end
+	end
 
     if TheNet:GetIsClient() then
         --Not using topleft_root because we need to be on top of containerroot
@@ -462,6 +473,7 @@ function Controls:SetHUDSize()
     self.top_root:SetScale(scale)
     self.bottomright_root:SetScale(scale)
     self.containerroot:SetScale(scale)
+	self.containerroot_under:SetScale(scale)
     self.containerroot_side:SetScale(scale)
     self.containerroot_side_behind:SetScale(scale)
 
@@ -668,12 +680,26 @@ function Controls:OnUpdate(dt)
                 textblock:SetString(table.concat(cmds, "\n"))
             end
 		elseif not self.groundactionhint.shown then
-			if self.dismounthintdelay <= 0
-				and self.owner.replica.rider ~= nil
-				and self.owner.replica.rider:IsRiding() then
-				self.playeractionhint.text:SetString(TheInput:GetLocalizedControl(controller_id, CONTROL_CONTROLLER_ALTACTION).." "..STRINGS.ACTIONS.DISMOUNT)
+			local rider = self.owner.replica.rider
+			local mount = rider and rider:GetMount() or nil
+			local container = mount and mount.replica.container or nil
+			if container and container:IsOpenedBy(self.owner) then
+				self.playeractionhint.text:SetString(TheInput:GetLocalizedControl(controller_id, CONTROL_CONTROLLER_ALTACTION).." "..BufferedAction(self.owner, self.owner, ACTIONS.RUMMAGE):GetActionString())
 				self.playeractionhint:Show()
 				self.playeractionhint:SetTarget(self.owner)
+			elseif self.dismounthintdelay <= 0 then
+				if self.owner.components.spellbook and self.owner.components.spellbook:CanBeUsedBy(self.owner) then
+					self.playeractionhint.text:SetString(TheInput:GetLocalizedControl(controller_id, CONTROL_CONTROLLER_ALTACTION).." "..BufferedAction(self.owner, self.owner, ACTIONS.USESPELLBOOK):GetActionString())
+					self.playeractionhint:Show()
+					self.playeractionhint:SetTarget(self.owner)
+				elseif mount and not (self.owner.components.playercontroller and self.owner.components.playercontroller:HasAOETargeting()) then
+					self.playeractionhint.text:SetString(TheInput:GetLocalizedControl(controller_id, CONTROL_CONTROLLER_ALTACTION).." "..STRINGS.ACTIONS.DISMOUNT)
+					self.playeractionhint:Show()
+					self.playeractionhint:SetTarget(self.owner)
+				else
+					self.playeractionhint:Hide()
+					self.playeractionhint:SetTarget(nil)
+				end
 			else
 				self.playeractionhint:Hide()
 				self.playeractionhint:SetTarget(nil)
@@ -702,7 +728,7 @@ function Controls:OnUpdate(dt)
         self.groundactionhint:SetTarget(nil)
     end
 
-    if not self.owner:HasTag("idle") then
+	if self.owner.sg and not self.owner.sg:HasStateTag("idle") or not self.owner:HasTag("idle") then
         self.dismounthintdelay = .5
     elseif self.dismounthintdelay > 0 then
         self.dismounthintdelay = self.dismounthintdelay - dt
@@ -748,6 +774,10 @@ function Controls:OnUpdate(dt)
     end
 
     self:HighlightActionItem(shownItemIndex, itemInActions)
+end
+
+function Controls:DelayControllerSpellWheelHint()
+	self.dismounthintdelay = 0.5
 end
 
 function Controls:HighlightActionItem(itemIndex, itemInActions)

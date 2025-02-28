@@ -140,6 +140,18 @@ CRAFTING_FILTERS.CHARACTER.recipes =
 	"ghostlyelixir_retaliation",
 	"ghostlyelixir_attack",
 	"ghostlyelixir_speed",
+	"ghostlyelixir_revive",
+	"ghostlyelixir_shadow",
+	"ghostlyelixir_lunar",
+	"graveurn",
+	"wendy_gravestone",
+	"wendy_resurrectiongrave",
+	"petals",
+	"petals_evil",
+	"elixir_container",
+	"ghostflowerhat",
+	"wendy_butterfly",
+	"wendy_moonbutterfly",
 
 	-- Woodie
 	"wereitem_goose",
@@ -170,9 +182,8 @@ CRAFTING_FILTERS.CHARACTER.recipes =
 	"wathgrithr_shield",
 
 	-- Walter
+	"woby_treat",
 	"slingshot",
-	"walterhat",
-	"portabletent_item",
 	"slingshotammo_rock",
 	"slingshotammo_gold",
 	"slingshotammo_marble",
@@ -180,6 +191,32 @@ CRAFTING_FILTERS.CHARACTER.recipes =
 	"slingshotammo_freeze",
 	"slingshotammo_slow",
 	"slingshotammo_thulecite",
+	"slingshotammo_stinger",
+	"slingshotammo_moonglass",
+	"slingshotammo_honey",
+	"slingshotammo_scrapfeather",
+	"slingshotammo_gunpowder",
+	"slingshotammo_dreadstone",
+	"slingshotammo_horrorfuel",
+	"slingshotammo_gelblob",
+	"slingshotammo_lunarplanthusk",
+	"slingshotammo_purebrilliance",
+	"slingshotammo_container",
+	"slingshotmodkit",
+	"slingshot_band_pigskin",
+	"slingshot_band_tentacle",
+	"slingshot_frame_bone",
+	"slingshot_frame_gems",
+	"slingshot_frame_wagpunk_0",
+	"slingshot_frame_wagpunk_1",
+	"slingshot_handle_silk",
+	"slingshot_handle_sticky",
+	"slingshot_handle_jelly",
+	"slingshot_handle_voidcloth",
+	"portabletent_item",
+	"portablefirepit_item",
+	"bandage_butterflywings",
+	"walterhat",
 
 	-- Wolfgang
 	"mighty_gym",
@@ -269,6 +306,11 @@ CRAFTING_FILTERS.CHARACTER.recipes =
 	"wormwood_fruitdragon",
 	"armor_lunarplant_husk",
 
+    -- Wortox
+    "wortox_reviver",
+    "wortox_souljar",
+    "wortox_nabbag",
+
 	-- Wanda
 	"pocketwatch_dismantler",
 	"pocketwatch_parts",
@@ -345,6 +387,8 @@ CRAFTING_FILTERS.CRAFTING_STATION.recipes =
 	"ruinshat",
 	"armorruins",
 	"ruins_bat",
+	"slingshotammo_thulecite",
+	"slingshot_frame_gems",
 	"eyeturret_item",
     "shadow_forge_kit",
 	"blueprint_craftingset_ruins_builder",
@@ -363,6 +407,7 @@ CRAFTING_FILTERS.CRAFTING_STATION.recipes =
 	"moonglassaxe",
 	"glasscutter",
 	"carpentry_blade_moonglass",
+	"slingshotammo_moonglass",
 	"turf_meteor",
 	"turf_fungus_moon",
 	"bathbomb",
@@ -378,6 +423,8 @@ CRAFTING_FILTERS.CRAFTING_STATION.recipes =
 	"pickaxe_lunarplant",
 	"shovel_lunarplant",
 	"lunarplant_kit",
+	"slingshotammo_lunarplanthusk",
+	"slingshotammo_purebrilliance",
 
 	"beargerfur_sack",
 	"deerclopseyeball_sentryward_kit",
@@ -390,6 +437,9 @@ CRAFTING_FILTERS.CRAFTING_STATION.recipes =
 	"voidcloth_scythe",
 	"voidcloth_boomerang",
 	"voidcloth_kit",
+	"slingshotammo_gelblob",
+	"slingshotammo_horrorfuel",
+	"slingshot_handle_voidcloth",
 	
 	"shadow_battleaxe",
 	"shadow_beef_bell",
@@ -684,6 +734,7 @@ CRAFTING_FILTERS.TOOLS.recipes =
 	"trap",
 	"birdtrap",
 	"bugnet",
+    "thulecitebugnet",
 	"razor",
 	"compass",
 	"walking_stick",
@@ -716,6 +767,8 @@ CRAFTING_FILTERS.TOOLS.recipes =
 	"spider_repellent",
     "wx78_moduleremover",
     "wx78_scanner_item",
+    "wortox_nabbag",
+	"slingshotmodkit",
 }
 
 CRAFTING_FILTERS.LIGHT.recipes =
@@ -723,6 +776,7 @@ CRAFTING_FILTERS.LIGHT.recipes =
 	"lighter",
 	"torch",
 	"campfire",
+	"portablefirepit_item",
 	"firepit",
 	"cotl_tabernacle_level1",
 	"coldfire",
@@ -772,6 +826,7 @@ CRAFTING_FILTERS.PROTOTYPERS.recipes =
 CRAFTING_FILTERS.REFINE.recipes =
 {
 	"rope",
+	"walter_rope",
 	"boards",
 	"cutstone",
 	"papyrus",
@@ -795,6 +850,7 @@ CRAFTING_FILTERS.WEAPONS.recipes =
 	"slingshot",
 	"winona_catapult",
 	"winona_catapult_item",
+	"wortox_nabbag",
 	"spear",
 	"spear_wathgrithr",
 	"spear_wathgrithr_lightning",
@@ -910,11 +966,13 @@ CRAFTING_FILTERS.RESTORATION.recipes =
 	"spider_healer_item",
     "wx78module_bee",
 
+	"bandage_butterflywings",
 	"healingsalve",
 	"healingsalve_acid",
 	"bandage",
 	"tillweedsalve",
 	"compostwrap",
+    "wortox_reviver",
 	"reviver",
 	"lifeinjector",
 	"amulet",
@@ -940,6 +998,7 @@ CRAFTING_FILTERS.COOKING.recipes =
 	"cookpot",
 	"meatrack",
 	"campfire",
+	"portablefirepit_item",
 	"firepit",
 	"cotl_tabernacle_level1",
 	"icebox",
@@ -1028,7 +1087,6 @@ CRAFTING_FILTERS.SEAFARING.recipes =
 
 	"boat_bumper_kelp_kit",
 	"boat_bumper_shell_kit",
-	"boat_bumper_yotd_kit",
 
 	"boat_cannon_kit",
 	"cannonball_rock_item",
@@ -1037,7 +1095,6 @@ CRAFTING_FILTERS.SEAFARING.recipes =
 
 	"mastupgrade_lamp_item",
 	"mastupgrade_lightningrod_item",
-    "mastupgrade_lamp_item_yotd",
 
 	"fish_box",
 	"winch",
@@ -1062,14 +1119,17 @@ CRAFTING_FILTERS.CONTAINERS.recipes =
 	"spicepack",
 	"seedpouch",
 	"candybag",
+	"battlesong_container",
+    "wortox_souljar",
+	"slingshotammo_container",
+	"elixir_container",
 	"treasurechest",
-    "chestupgrade_stacksize",
 	"dragonflychest",
+    "chestupgrade_stacksize",
 	"magician_chest",
 	"icebox",
 	"saltbox",
 	"fish_box",
-	"battlesong_container",
 }
 
 CRAFTING_FILTERS.STRUCTURES.recipes =
@@ -1238,6 +1298,7 @@ CRAFTING_FILTERS.RIDING.recipes =
 CRAFTING_FILTERS.WINTER.recipes =
 {
 	"campfire",
+	"portablefirepit_item",
 	"firepit",
 	"cotl_tabernacle_level1",
 	"dragonflyfurnace",
@@ -1361,6 +1422,7 @@ CRAFTING_FILTERS.DECOR.recipes =
 	"turf_checkerfloor",
 	"turf_carpetfloor",
 	"turf_carpetfloor2",
+	"turf_beard_rug",
 	"turf_mosaic_red",
 	"turf_mosaic_blue",
 	"turf_mosaic_grey",
@@ -1391,7 +1453,6 @@ CRAFTING_FILTERS.DECOR.recipes =
 	"turf_fungus",
 	"turf_fungus_red",
 	"turf_fungus_green",
-	"turf_beard_rug",	
 
 	"ruinsrelic_plate",
 	"ruinsrelic_chipbowl",

@@ -18,6 +18,7 @@ RESOLUTION_X = 1280
 RESOLUTION_Y = 720
 
 PLAYER_REVEAL_RADIUS = 30.0 -- NOTES(JBK): Keep in sync with MiniMapRenderer.cpp!
+PLAYER_REVEAL_RADIUS_SQ = PLAYER_REVEAL_RADIUS * PLAYER_REVEAL_RADIUS
 PLAYER_CAMERA_SEE_DISTANCE = 40.0 -- NOTES(JBK): Based off of an approximation of the maximum default camera distance before seeing clouds and is the screen diagonal.
 PLAYER_CAMERA_SEE_DISTANCE_SQ = PLAYER_CAMERA_SEE_DISTANCE * PLAYER_CAMERA_SEE_DISTANCE -- Helper.
 PLAYER_CAMERA_SHOULD_SNAP_DISTANCE = 20.0 -- NOTES(JBK): This is an approximate distance traveled where the camera should snap and fade out to not cause disorientations.
@@ -785,7 +786,7 @@ SPECIAL_EVENTS =
     YOTD = "year_of_the_dragonfly",
     YOTS = "year_of_the_snake",
 }
-WORLD_SPECIAL_EVENT = SPECIAL_EVENTS.YOTS
+WORLD_SPECIAL_EVENT = SPECIAL_EVENTS.NONE
 --WORLD_SPECIAL_EVENT = IS_BETA and SPECIAL_EVENTS.NONE or SPECIAL_EVENTS.YOTR
 WORLD_EXTRA_EVENTS = {}
 
@@ -906,11 +907,14 @@ SPECIAL_EVENT_MUSIC =
     },
     
     --year of the depths worm
+    -- THE BETA HAS THIS EVENT TURNED ON, BUT IS USING THE META 5 BANNER AND MUSIC
+    --[[
     [SPECIAL_EVENTS.YOTS] =
     {
         bank = "music_frontend_yotg.fsb",
         sound = "dontstarve/music/music_FE_yotg",
-    },    
+    },  
+    ]]  
 }
 
 FESTIVAL_EVENT_MUSIC =
@@ -1093,7 +1097,7 @@ end
 FE_MUSIC =
     (FESTIVAL_EVENT_MUSIC[WORLD_FESTIVAL_EVENT] ~= nil and FESTIVAL_EVENT_MUSIC[WORLD_FESTIVAL_EVENT].sound) or
     (SPECIAL_EVENT_MUSIC[WORLD_SPECIAL_EVENT] ~= nil and SPECIAL_EVENT_MUSIC[WORLD_SPECIAL_EVENT].sound) or
-    "dontstarve/music/music_FE"
+    "dontstarve/music/music_FE_meta5"
     --"dontstarve/music/music_FE_hallowednights2024"
     --"dontstarve/music/music_FE_rifts4"
     --"dontstarve/music/music_FE_winonawurt"
@@ -1862,6 +1866,7 @@ UPGRADETYPES = -- NOTES(JBK): Keep this table updated in export_accountitems.lua
     MAST = "mast",
     SPEAR_LIGHTNING = "spear_lightning",
     CHEST = "chest",
+    GRAVESTONE = "gravestone",
 }
 
 SPELLTYPES = -- NOTES(JBK): Keep this table updated in export_accountitems.lua [EAITAB]
@@ -1870,6 +1875,7 @@ SPELLTYPES = -- NOTES(JBK): Keep this table updated in export_accountitems.lua [
     WURT_LUNAR = "wurt_lunar",
     SHADOW_SWAMP_BOMB = "shadow_swamp_bomb",
     LUNAR_SWAMP_BOMB = "lunar_swamp_bomb",
+    WORTOX_REVIVER_LOCK = "wortox_reviver_lock", -- Inverted and stops allowing to cast.
 }
 
 LOCKTYPE =
@@ -2030,6 +2036,7 @@ SKILLTREE_EQUIPPABLE_RESTRICTED_TAGS =
     ["inspectacleshatuser"]  = "winona",
     ["wathgrithrshielduser"] = "wathgrithr",
     [UPGRADETYPES.SPEAR_LIGHTNING.."_upgradeuser"] = "wathgrithr",
+    ["nabbaguser"] = "wortox",
 }
 
 -- IngredientMod must be one of the following values
@@ -2060,7 +2067,6 @@ TOOLACTIONS =
     NET = true,
     PLAY = true,
     UNSADDLE = true,
-	REACH_HIGH = true,
 	SCYTHE = true,
 }
 
@@ -2107,6 +2113,8 @@ DEPLOYSPACING =
     NONE = 3,
 	PLACER_DEFAULT = 4,
     LARGE = 5,
+	--V2C: late additions
+	ONEPOINTFIVE = 6,
 }
 
 --V2C: Deploy spacing is a legacy system where this is actually the distance
@@ -2123,6 +2131,7 @@ DEPLOYSPACING_RADIUS =
     [DEPLOYSPACING.NONE] = 0,
 	[DEPLOYSPACING.PLACER_DEFAULT] = 3.2,
     [DEPLOYSPACING.LARGE] = 4.0,
+	[DEPLOYSPACING.ONEPOINTFIVE] = 1.5,
 }
 
 TROPHYSCALE_TYPES =
@@ -2171,6 +2180,7 @@ SCREEN_FADE_TIME = .2
 BACK_BUTTON_X = 60
 BACK_BUTTON_Y = 60
 DOUBLE_CLICK_TIMEOUT = .5
+DOUBLE_CLICK_POS_THRESHOLD = 3 --how far ur mouse can move and still count as dbl click
 
 GOLD = {202/255, 174/255, 118/255, 255/255}
 GREY = {.57, .57, .57, 1}
@@ -2782,6 +2792,12 @@ CHARLIERESIDUE_MAP_ACTIONS = {
     WORMHOLE = 1,
 }
 
+MINIMAP_DECORATION_PRIORITY = 50 -- NOTES(JBK): Nothing should go above this to maintain the minimap UI space.
+
+WOBYCOURIER_NO_CHEST_COORD = -32767 -- Way off of any normal sized map.
+WOBYCOURIER_MIN_DIST_TO_PLAYER_SQ = 16 -- 4 * 4
+CONTAINER_AUTOCLOSE_DISTANCE = 3
+
 -- Constants to reduce network overhead.
 CLIENTAUTHORITATIVESETTINGS = {
     PLATFORMHOPDELAY = 0,
@@ -2790,4 +2806,12 @@ CLIENTAUTHORITATIVESETTINGS = {
 NIGHTSWORD_FX_OFFSETS = {
     RIGHT = 0.75,-- -1,
     DOWN = 2.9,-- 2.6,
+}
+
+-- Tag pairs in this list behave mutually exclusively,
+-- when trying to attune to different objects.
+EQUIVALENT_ATTUNABLE_TAGS =
+{
+    ["remoteresurrector"] = "gravestoneresurrector",
+    ["gravestoneresurrector"] = "remoteresurrector",
 }

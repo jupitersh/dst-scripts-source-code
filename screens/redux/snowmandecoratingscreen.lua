@@ -392,7 +392,7 @@ function SnowmanDecoratingScreen:PlaceItemAt(x, y, itemhash, itemdata, rot, flip
 	fx:SetPosition(x, y)
 	fx.inst:ListenForEvent("animover", OnFxAnimOver)
 
-	TheFrontEnd:GetSound():PlaySound("hallowednights2024/pumpkin/hole_punch")
+	TheFrontEnd:GetSound():PlaySound("meta5/snowman/snowman_decorate_UI")
 
 	if self.dragitem then
 		local inventory = self.owner and self.owner.replica.inventory or nil

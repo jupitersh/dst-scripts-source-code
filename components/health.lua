@@ -83,6 +83,7 @@ local Health = Class(function(self, inst)
     self.playerabsorb = 0 -- DEPRECATED, please use externalabsorbmodifiers instead
 
     self.externalabsorbmodifiers = SourceModifierList(inst, 0, SourceModifierList.additive)
+    self.externalreductionmodifiers = SourceModifierList(inst, 0, SourceModifierList.additive)    
 
     self.destroytime = nil
     self.canmurder = true
@@ -463,6 +464,8 @@ function Health:SetVal(val, cause, afflicter)
     local max_health = self:GetMaxWithPenalty()
     local min_health = math.min(self.minhealth or 0, max_health)
 
+    self.inst:PushEvent("pre_health_setval", {val=val, old_health=old_health})
+
     if val > max_health then
         val = max_health
     end
@@ -509,8 +512,9 @@ function Health:DoDelta(amount, overtime, cause, ignore_invincible, afflicter, i
         return 0
     elseif not ignore_invincible and (self:IsInvincible() or self.inst.is_teleporting) then
         return 0
-    elseif amount < 0 and not ignore_absorb then
+    elseif amount < 0 and not ignore_absorb then        
         amount = amount * math.clamp(1 - (self.playerabsorb ~= 0 and afflicter ~= nil and afflicter:HasTag("player") and self.playerabsorb + self.absorb or self.absorb), 0, 1) * math.max(1 - self.externalabsorbmodifiers:Get(), 0)
+        amount = afflicter ~= nil and math.min(0, amount + self.externalreductionmodifiers:Get()) or amount
     end
 
     if self.deltamodifierfn ~= nil then

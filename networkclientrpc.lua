@@ -128,16 +128,19 @@ local RPC_HANDLERS =
         end
     end,
 
-    AttackButton = function(player, target, forceattack, noforce)
+	--V2C: isleftmouse & isreleased at the end because added a lot later
+	AttackButton = function(player, target, forceattack, noforce, isleftmouse, isreleased)
         if not (optentity(target) and
                 optbool(forceattack) and
-                optbool(noforce)) then
+				optbool(noforce) and
+				optbool(isleftmouse) and
+				optbool(isreleased)) then
             printinvalid("AttackButton", player)
             return
         end
         local playercontroller = player.components.playercontroller
         if playercontroller ~= nil then
-            playercontroller:OnRemoteAttackButton(target, forceattack, noforce)
+			playercontroller:OnRemoteAttackButton(target, forceattack, noforce, isleftmouse, isreleased)
         end
     end,
 
@@ -339,23 +342,24 @@ local RPC_HANDLERS =
         end
     end,
 
-    PredictWalking = function(player, x, z, isdirectwalking, isstart, platform, platform_relative)
+	PredictWalking = function(player, x, z, isdirectwalking, isstart, platform, platform_relative, overridemovetime)
         if not (checknumber(x) and
                 checknumber(z) and
                 checkbool(isdirectwalking) and
                 checkbool(isstart) and
 				optentity(platform) and
-				checkbool(platform_relative)) then
+				checkbool(platform_relative) and
+				optnumber(overridemovetime)) then
             printinvalid("PredictWalking", player)
             return
         end
         local playercontroller = player.components.playercontroller
         if playercontroller ~= nil then
 			printinvalidplatform("PredictWalking", player, nil, x, z, platform, platform_relative)
-			x, z = ConvertPlatformRelativePositionToAbsolutePosition(x, z, platform, platform_relative)
-			if x ~= nil then
-				if IsPointInRange(player, x, z) then
-					playercontroller:OnRemotePredictWalking(x, z, isdirectwalking, isstart)
+			local x1, z1 = ConvertPlatformRelativePositionToAbsolutePosition(x, z, platform, platform_relative)
+			if x1 then
+				if IsPointInRange(player, x1, z1) then
+					playercontroller:OnRemotePredictWalking(x, z, isdirectwalking, isstart, platform_relative and platform or nil, overridemovetime)
 				else
 					print("Remote predict walking out of range")
 				end
@@ -499,6 +503,26 @@ local RPC_HANDLERS =
                 container = container.components.container
                 if container ~= nil and container:IsOpenedBy(player) then
                     container:TakeActiveItemFromHalfOfSlot(slot, player)
+                end
+            end
+        end
+    end,
+
+    TakeActiveItemFromCountOfSlot = function(player, slot, container, count)
+        if not (checkuint(slot) and
+                optentity(container) and
+                checkuint(count)) then
+            printinvalid("TakeActiveItemFromCountOfSlot", player)
+            return
+        end
+        local inventory = player.components.inventory
+        if inventory ~= nil then
+            if container == nil then
+                inventory:TakeActiveItemFromCountOfSlot(slot, count)
+            else
+                container = container.components.container
+                if container ~= nil and container:IsOpenedBy(player) then
+                    container:TakeActiveItemFromCountOfSlot(slot, count, player)
                 end
             end
         end
@@ -758,6 +782,19 @@ local RPC_HANDLERS =
         end
     end,
 
+    MoveInvItemFromCountOfSlot = function(player, slot, destcontainer, count)
+        if not (checkuint(slot) and
+                checkentity(destcontainer) and
+                checkuint(count)) then
+            printinvalid("MoveInvItemFromCountOfSlot", player)
+            return
+        end
+        local inventory = player.components.inventory
+        if inventory ~= nil then
+            inventory:MoveItemFromCountOfSlot(slot, destcontainer, count)
+        end
+    end,
+
     MoveItemFromAllOfSlot = function(player, slot, srccontainer, destcontainer)
         if not (checkuint(slot) and
                 checkentity(srccontainer) and
@@ -781,6 +818,20 @@ local RPC_HANDLERS =
         local container = srccontainer.components.container
         if container ~= nil and container:IsOpenedBy(player) then
             container:MoveItemFromHalfOfSlot(slot, destcontainer or player, player)
+        end
+    end,
+
+    MoveItemFromCountOfSlot = function(player, slot, srccontainer, destcontainer, count)
+        if not (checkuint(slot) and
+                checkentity(srccontainer) and
+                optentity(destcontainer) and
+                checkuint(count)) then
+            printinvalid("MoveItemFromCountOfSlot", player)
+            return
+        end
+        local container = srccontainer.components.container
+        if container ~= nil and container:IsOpenedBy(player) then
+            container:MoveItemFromCountOfSlot(slot, destcontainer or player, count, player)
         end
     end,
 
@@ -1040,6 +1091,58 @@ local RPC_HANDLERS =
         -- NOTES(JBK): Check passed in variables in the callback not in the RPC here.
         player:SetClientAuthoritativeSetting(variable, value)
     end,
+
+	AOECharging = function(player, rotation, startflag)
+		if not (checknumber(rotation) and
+				optuint(startflag)) then
+			printinvalid("AOECharging", player)
+			return
+		end
+		local playercontroller = player.components.playercontroller
+		if playercontroller then
+			playercontroller:OnRemoteAOECharging(rotation, startflag)
+		end
+	end,
+
+	DoubleTapAction = function(player, action, x, z, noforce, mod_name, platform, platform_relative)
+		if not (checknumber(action) and
+				checknumber(x) and
+				checknumber(z) and
+				optbool(noforce) and
+				optstring(mod_name) and
+				optentity(platform) and
+				checkbool(platform_relative)) then
+			printinvalid("DoubleTapAction", player)
+			return
+		end
+		local playercontroller = player.components.playercontroller
+		if playercontroller then
+			printinvalidplatform("DoubleTapAction", player, action, x, z, platform, platform_relative)
+			x, z = ConvertPlatformRelativePositionToAbsolutePosition(x, z, platform, platform_relative)
+			if x then
+				if IsPointInRange(player, x, z) then
+					playercontroller:OnRemoteDoubleTapAction(action, Vector3(x, 0, z), noforce, mod_name)
+				else
+					print("Remote left click out of range")
+				end
+			end
+		end
+	end,
+
+	WobyCommand = function(player, cmd)
+		if not checkuint(cmd) then
+			printinvalid("WobyCommand", player)
+			return
+		end
+		local playercontroller = player.components.playercontroller
+		if playercontroller then
+			if player.woby_commands_classified then
+				player.woby_commands_classified:ExecuteCommand(cmd)
+			else
+				print("Player cannot use Woby commands")
+			end
+		end
+	end,
 
     -- NOTES(JBK): RPC limit is at 128, with 1-127 usable.
 }

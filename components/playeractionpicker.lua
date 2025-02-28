@@ -200,6 +200,19 @@ function PlayerActionPicker:GetPointSpecialActions(pos, useitem, right, useretic
 	return {}
 end
 
+--pos: double click coords; nil when double tapping direction instead of mouse
+--dir: WASD/analog dir; nil if neutral (NOTE: this may be in a different direction than pos!)
+--target: double click mouseover target; nil when tapping direction instead of mouse
+--remote: only pos2 is sent to server, similar to actions that are aimed toward reticule pos
+function PlayerActionPicker:GetDoubleClickActions(pos, dir, target)
+	--V2C: pos2 may be returned (when dir or target is in a different direction than pos)
+	if self.doubleclickactionsfn then
+		local actions, pos2 = self.doubleclickactionsfn(self.inst, pos, dir, target)
+		return self:SortActionList(actions, pos2 or pos)
+	end
+	return {}
+end
+
 function PlayerActionPicker:GetEquippedItemActions(target, useitem, right)
     local actions = {}
 
@@ -489,6 +502,14 @@ function PlayerActionPicker:DoGetMouseActions(position, target, spellbook)
 
     local lmb = not isaoetargeting and self:GetLeftClickActions(position, target)[1] or nil
     local rmb = not wantsaoetargeting and self:GetRightClickActions(position, target, spellbook)[1] or nil
+
+	--@V2C: Filtering out local UI actions that we do not really want as explicit actions.
+	--e.g. CLOSESPELLBOOK we can just [Esc] or R.Click anywhere to achieve the same thing,
+	--     so we'd rather not have the player highlighted with an action prompt.
+	--     (NOTE: We still generate these actions so that they block lower priority ones.)
+	if rmb and rmb.action == ACTIONS.CLOSESPELLBOOK and rmb.target == rmb.doer then
+		rmb = nil
+	end
 
     return lmb, rmb ~= nil and (lmb == nil or lmb.action ~= rmb.action) and rmb or nil
 end

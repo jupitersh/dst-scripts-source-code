@@ -24,6 +24,11 @@ return{
             NOKELP = "only_used_by_wurt",
 --fallback to speech_wilson.lua             HASMERMLEADER = "only_used_by_wurt",
 		},
+        APPLYELIXIR =
+        {
+            TOO_SUPER = "DENIED. CONTENTS OVERLOADED",
+            NO_ELIXIRABLE = "only_used_by_wendy",
+        },
         APPLYMODULE =
         {
             COOLDOWN = "SYSTEM RECALIBRATION IN PROGRESS",
@@ -120,6 +125,10 @@ return{
             GENERIC = "I DON'T WANT TO COOK",
             INUSE = "YOU MAY FEED ME, INFERIOR",
             TOOFAR = "NOT IN OPTIMAL RANGE",
+        },
+        DIRECTCOURIER_MAP =
+        {
+--fallback to speech_wilson.lua             NOTARGET = "only_used_by_walter",
         },
 		DISMANTLE =
 		{
@@ -336,6 +345,8 @@ return{
 			INUSE = "I CAN HELP IF IT MAKES THIS GO FASTER",
             NOTMASTERCHEF = "MAKE MY MINION DO IT",
             NOTAMERM = "ACCESS DENIED. DON'T WANT ANYWAY",
+            NOTSOULJARHANDLER = "IT IS FULL OF FILTHY SOULS",
+            RESTRICTED = "ACCESS DENIED",
 		},
         SADDLE =
         {
@@ -367,6 +378,8 @@ return{
 			NOTALLOWED = "THAT INPUT IS NOT ALLOWED",
 			INUSE = "INFERIORS ARE USING IT RIGHT NOW",
             NOTMASTERCHEF = "MAKE MY MINION DO IT",
+            NOTSOULJARHANDLER = "IT IS FULL OF FILTHY SOULS",
+            RESTRICTED = "ACCESS DENIED",
 		},
         TEACH =
         {
@@ -404,6 +417,8 @@ return{
             BEEF_BELL_INVALID_TARGET = "ERROR: INVALID TARGET",
             BEEF_BELL_ALREADY_USED = "SOMEONE GOT TO THIS HAIRY FLESHBAG FIRST",
             BEEF_BELL_HAS_BEEF_ALREADY = "I HAVE ALREADY SELECTED A SATISFACTORY FLESHBAG",
+
+			NOT_MINE = "NOT EVEN WORTH STEALING",
         },
 		USEKLAUSSACKKEY =
         {
@@ -441,6 +456,13 @@ return{
 			STACKEDTOOHIGH = "MAXIMUM HEIGHT REACHED",
 			MELTING = "DENIED. STRUCTURAL INTEGRITY DEGRADING",
 		},
+        MUTATE = 
+        {
+            NOGHOST = "only_used_by_wendy",
+            NONEWMOON = "only_used_by_wendy",
+            NOFULLMOON = "only_used_by_wendy",
+            NOTNIGHT = "only_used_by_wendy",
+        },        
     },
 
 	ANNOUNCE_CANNOT_BUILD =
@@ -715,7 +737,23 @@ return{
 --fallback to speech_wilson.lua     {
 --fallback to speech_wilson.lua         "only_used_by_wortox",
 --fallback to speech_wilson.lua     },
+--fallback to speech_wilson.lua     ANNOUNCE_SOUL_EMPTY_NICE =
+--fallback to speech_wilson.lua     {
+--fallback to speech_wilson.lua         "only_used_by_wortox",
+--fallback to speech_wilson.lua     },
+--fallback to speech_wilson.lua     ANNOUNCE_SOUL_EMPTY_NAUGHTY =
+--fallback to speech_wilson.lua     {
+--fallback to speech_wilson.lua         "only_used_by_wortox",
+--fallback to speech_wilson.lua     },
 --fallback to speech_wilson.lua     ANNOUNCE_SOUL_FEW =
+--fallback to speech_wilson.lua     {
+--fallback to speech_wilson.lua         "only_used_by_wortox",
+--fallback to speech_wilson.lua     },
+--fallback to speech_wilson.lua     ANNOUNCE_SOUL_FEW_NICE =
+--fallback to speech_wilson.lua     {
+--fallback to speech_wilson.lua         "only_used_by_wortox",
+--fallback to speech_wilson.lua     },
+--fallback to speech_wilson.lua     ANNOUNCE_SOUL_FEW_NAUGHTY =
 --fallback to speech_wilson.lua     {
 --fallback to speech_wilson.lua         "only_used_by_wortox",
 --fallback to speech_wilson.lua     },
@@ -723,17 +761,52 @@ return{
 --fallback to speech_wilson.lua     {
 --fallback to speech_wilson.lua         "only_used_by_wortox",
 --fallback to speech_wilson.lua     },
+--fallback to speech_wilson.lua     ANNOUNCE_SOUL_MANY_NICE =
+--fallback to speech_wilson.lua     {
+--fallback to speech_wilson.lua         "only_used_by_wortox",
+--fallback to speech_wilson.lua     },
+--fallback to speech_wilson.lua     ANNOUNCE_SOUL_MANY_NAUGHTY =
+--fallback to speech_wilson.lua     {
+--fallback to speech_wilson.lua         "only_used_by_wortox",
+--fallback to speech_wilson.lua     },
 --fallback to speech_wilson.lua     ANNOUNCE_SOUL_OVERLOAD =
+--fallback to speech_wilson.lua     {
+--fallback to speech_wilson.lua         "only_used_by_wortox",
+--fallback to speech_wilson.lua     },
+--fallback to speech_wilson.lua     ANNOUNCE_SOUL_OVERLOAD_NICE =
+--fallback to speech_wilson.lua     {
+--fallback to speech_wilson.lua         "only_used_by_wortox",
+--fallback to speech_wilson.lua     },
+--fallback to speech_wilson.lua     ANNOUNCE_SOUL_OVERLOAD_NAUGHTY =
+--fallback to speech_wilson.lua     {
+--fallback to speech_wilson.lua         "only_used_by_wortox",
+--fallback to speech_wilson.lua     },
+--fallback to speech_wilson.lua     ANNOUNCE_SOUL_OVERLOAD_WARNING =
+--fallback to speech_wilson.lua     {
+--fallback to speech_wilson.lua         "only_used_by_wortox",
+--fallback to speech_wilson.lua     },
+--fallback to speech_wilson.lua     ANNOUNCE_SOUL_OVERLOAD_AVOIDED =
+--fallback to speech_wilson.lua     {
+--fallback to speech_wilson.lua         "only_used_by_wortox",
+--fallback to speech_wilson.lua     },
+--fallback to speech_wilson.lua     ANNOUNCE_PANFLUTE_BUFF_ACTIVE =
+--fallback to speech_wilson.lua     {
+--fallback to speech_wilson.lua         "only_used_by_wortox",
+--fallback to speech_wilson.lua     },
+--fallback to speech_wilson.lua     ANNOUNCE_PANFLUTE_BUFF_USED =
 --fallback to speech_wilson.lua     {
 --fallback to speech_wilson.lua         "only_used_by_wortox",
 --fallback to speech_wilson.lua     },
 
     --walter specfic
+--fallback to speech_wilson.lua 	ANNOUNCE_AMMO_SLOT_OVERSTACKED = "only_used_by_walter",
 --fallback to speech_wilson.lua 	ANNOUNCE_SLINGHSOT_OUT_OF_AMMO =
 --fallback to speech_wilson.lua 	{
 --fallback to speech_wilson.lua 		"only_used_by_walter",
 --fallback to speech_wilson.lua 		"only_used_by_walter",
 --fallback to speech_wilson.lua 	},
+--fallback to speech_wilson.lua 	ANNOUNCE_SLINGHSOT_NO_AMMO_SKILL = "only_used_by_walter",
+--fallback to speech_wilson.lua 	ANNOUNCE_SLINGHSOT_NO_PARTS_SKILL = "only_used_by_walter",
 --fallback to speech_wilson.lua 	ANNOUNCE_STORYTELLING_ABORT_FIREWENTOUT =
 --fallback to speech_wilson.lua 	{
 --fallback to speech_wilson.lua         "only_used_by_walter",
@@ -741,6 +814,34 @@ return{
 --fallback to speech_wilson.lua 	ANNOUNCE_STORYTELLING_ABORT_NOT_NIGHT =
 --fallback to speech_wilson.lua 	{
 --fallback to speech_wilson.lua         "only_used_by_walter",
+--fallback to speech_wilson.lua 	},
+--fallback to speech_wilson.lua 	ANNOUNCE_WOBY_RETURN =
+--fallback to speech_wilson.lua 	{
+--fallback to speech_wilson.lua 		"only_used_by_walter",
+--fallback to speech_wilson.lua 	},
+--fallback to speech_wilson.lua 	ANNOUNCE_WOBY_SIT =
+--fallback to speech_wilson.lua 	{
+--fallback to speech_wilson.lua 		"only_used_by_walter",
+--fallback to speech_wilson.lua 	},
+--fallback to speech_wilson.lua 	ANNOUNCE_WOBY_FOLLOW =
+--fallback to speech_wilson.lua 	{
+--fallback to speech_wilson.lua 		"only_used_by_walter",
+--fallback to speech_wilson.lua 	},
+--fallback to speech_wilson.lua 	ANNOUNCE_WOBY_PRAISE =
+--fallback to speech_wilson.lua 	{
+--fallback to speech_wilson.lua 		"only_used_by_walter",
+--fallback to speech_wilson.lua 	},
+--fallback to speech_wilson.lua 	ANNOUNCE_WOBY_FORAGE =
+--fallback to speech_wilson.lua 	{
+--fallback to speech_wilson.lua 		"only_used_by_walter",
+--fallback to speech_wilson.lua 	},
+--fallback to speech_wilson.lua 	ANNOUNCE_WOBY_WORK =
+--fallback to speech_wilson.lua 	{
+--fallback to speech_wilson.lua 		"only_used_by_walter",
+--fallback to speech_wilson.lua 	},
+--fallback to speech_wilson.lua 	ANNOUNCE_WOBY_COURIER =
+--fallback to speech_wilson.lua 	{
+--fallback to speech_wilson.lua 		"only_used_by_walter",
 --fallback to speech_wilson.lua 	},
 
     -- wx specific
@@ -840,6 +941,8 @@ return{
 --fallback to speech_wilson.lua         "only_used_by_wendy",
 --fallback to speech_wilson.lua     },
 --fallback to speech_wilson.lua 	ANNOUNCE_SISTURN_FULL = "only_used_by_wendy",
+    ANNOUNCE_SISTURN_FULL_EVIL = "only_used_by_wendy",
+    ANNOUNCE_SISTURN_FULL_BLOSSOM = "only_used_by_wendy",
 --fallback to speech_wilson.lua     ANNOUNCE_ABIGAIL_DEATH = "only_used_by_wendy",
 --fallback to speech_wilson.lua     ANNOUNCE_ABIGAIL_RETRIEVE = "only_used_by_wendy",
 --fallback to speech_wilson.lua 	ANNOUNCE_ABIGAIL_LOW_HEALTH = "only_used_by_wendy",
@@ -1013,6 +1116,20 @@ return{
 	-- Winter's Feast 2024
 	ANNOUNCE_SNOWBALL_TOO_BIG = "MAXIMUM SIZE REACHED",
 	ANNOUNCE_SNOWBALL_NO_SNOW = "INSUFFICIENT MATERIAL",
+
+    --rifts 5
+    ANNOUNCE_WENDY_BABYSITTER_SET = "only_used_by_wendy", 
+    ANNOUNCE_WENDY_BABYSITTER_STOP = "only_used_by_wendy",
+
+	ANNOUNCE_WORTOX_REVIVER_FAILTELEPORT = "ERROR: BAD LOOP DETECTED",
+
+    ANNOUNCE_NO_ABIGAIL_FLOWER = "only_used_by_wendy",
+
+    ANNOUNCE_ELIXIR_BOOSTED = "FUEL REPLENISHED AND SYSTEMS DEBUGGED",
+    ANNOUNCE_ELIXIR_GHOSTVISION = "POST-LIVING SENSORS ACTIVATED",
+    ANNOUNCE_ELIXIR_PLAYER_SPEED = "SYSTEMS POWERED UP",
+
+    ANNOUNCE_ELIXIR_TOO_SUPER = "DENIED. CONTENTS OVERLOADED",
 
 	BATTLECRY =
 	{
@@ -3974,14 +4091,28 @@ return{
             "IT SLOBBERED ON ME",
         },
 		WALTERHAT = "I HAVE NO INTEREST IN THIS",
-		SLINGSHOT = "A RUDIMENTARY FLESHSACK WEAPON",
+		SLINGSHOT =
+		{
+			GENERIC = "A RUDIMENTARY FLESHSACK WEAPON",
+--fallback to speech_wilson.lua 			NOT_MINE = "only_used_by_walter",
+		},
 		SLINGSHOTAMMO_ROCK = "FLESHSACKS, FINDING NEW INNOVATIVE WAYS TO THROW ROCKS AT EACH OTHER",
 		SLINGSHOTAMMO_MARBLE = "FLESHSACKS, FINDING NEW INNOVATIVE WAYS TO THROW ROCKS AT EACH OTHER",
 		SLINGSHOTAMMO_THULECITE = "FLESHSACKS, FINDING NEW INNOVATIVE WAYS TO THROW ROCKS AT EACH OTHER",
         SLINGSHOTAMMO_GOLD = "FLESHSACKS, FINDING NEW INNOVATIVE WAYS TO THROW ROCKS AT EACH OTHER",
+		SLINGSHOTAMMO_HONEY = "FLESHSACKS, FINDING NEW INNOVATIVE WAYS TO THROW... GLOOP AT EACH OTHER",
         SLINGSHOTAMMO_SLOW = "FLESHSACKS, FINDING NEW INNOVATIVE WAYS TO THROW ROCKS AT EACH OTHER",
         SLINGSHOTAMMO_FREEZE = "FLESHSACKS, FINDING NEW INNOVATIVE WAYS TO THROW ROCKS AT EACH OTHER",
 		SLINGSHOTAMMO_POOP = "DISGUSTING",
+		SLINGSHOTAMMO_STINGER = "FLESHSACKS, FINDING NEW INNOVATIVE WAYS TO THROW ROCKS AT EACH OTHER",
+		SLINGSHOTAMMO_MOONGLASS = "FLESHSACKS WASTING PRECIOUS INORGANIC MOON BITS",
+		SLINGSHOTAMMO_GELBLOB = "FLESHSACKS, FINDING NEW INNOVATIVE WAYS TO THROW... GUNK AT EACH OTHER",
+		SLINGSHOTAMMO_SCRAPFEATHER = "FLESHSACKS, FINDING NEW INNOVATIVE WAYS TO THROW ROCKS AT EACH OTHER",
+        SLINGSHOTAMMO_DREADSTONE = "FLESHSACKS, FINDING NEW INNOVATIVE WAYS TO THROW ROCKS AT EACH OTHER",
+        SLINGSHOTAMMO_GUNPOWDER = "FLESHSACKS, FINDING NEW INNOVATIVE WAYS TO THROW ROCKS AT EACH OTHER",
+        SLINGSHOTAMMO_LUNARPLANTHUSK = "FLESHSACKS, FINDING NEW INNOVATIVE WAYS TO THROW ROCKS AT EACH OTHER",
+        SLINGSHOTAMMO_PUREBRILLIANCE = "FLESHSACKS, FINDING NEW INNOVATIVE WAYS TO THROW ROCKS AT EACH OTHER",
+        SLINGSHOTAMMO_HORRORFUEL = "FLESHSACKS, FINDING NEW INNOVATIVE WAYS TO THROW ROCKS AT EACH OTHER",
         PORTABLETENT = "RECHARGING STATION",
         PORTABLETENT_ITEM = "TENT LOADING... INCOMPLETE",
 
@@ -4014,15 +4145,22 @@ return{
 		GHOSTLYELIXIR_ATTACK = "INFERIOR CRAFTSMANSHIP. A CHILD COULD HAVE MADE THIS",
 		GHOSTLYELIXIR_SPEED = "INFERIOR CRAFTSMANSHIP. A CHILD COULD HAVE MADE THIS",
 		GHOSTLYELIXIR_RETALIATION = "INFERIOR CRAFTSMANSHIP. A CHILD COULD HAVE MADE THIS",
+        GHOSTLYELIXIR_REVIVE = "INFERIOR CRAFTSMANSHIP. A CHILD COULD HAVE MADE THIS",
 		SISTURN =
 		{
 			GENERIC = "WEAK ORGANIC SENTIMENTALITY",
 			SOME_FLOWERS = "FRIVOLOUS",
 			LOTS_OF_FLOWERS = "FRIVOLOUS...",
+            LOTS_OF_FLOWERS_EVIL = "PROGRAMMING INTERFERENCE DETECTED",
+            LOTS_OF_FLOWERS_BLOSSOM = "UNUSUAL FREQUENCY",   
 		},
 
         --Wortox
 --fallback to speech_wilson.lua         WORTOX_SOUL = "only_used_by_wortox", --only wortox can inspect souls
+        --WORTOX_DECOY is not needed because it uses the default WORTOX inspection.
+        WORTOX_NABBAG = "FOR STEALING AND VIOLENCE. NOT BAD",
+        WORTOX_REVIVER = "FLESHBAGS AND THEIR SECOND CHANCES. HA",
+        WORTOX_SOULJAR = "HE EATS THEIR SOULS. GRUDGING RESPECT",
 
         PORTABLECOOKPOT_ITEM =
         {
@@ -5359,8 +5497,8 @@ return{
         MERM_ARMORY_UPGRADED = "STILL POORLY BUILT",
         MERM_TOOLSHED = "SHODDY CONSTRUCTION",
         MERM_TOOLSHED_UPGRADED = "STILL SHODDY CONSTRUCTION",
-        MERMARMORHAT = "JUST FOR FISHBEASTS? GOOD. IT’S UGLY",
-        MERMARMORUPGRADEDHAT = "JUST FOR FISHBEASTS? GOOD. IT’S UGLY",
+        MERMARMORHAT = "JUST FOR FISHBEASTS? GOOD. IT'S UGLY",
+        MERMARMORUPGRADEDHAT = "JUST FOR FISHBEASTS? GOOD. IT'S UGLY",
         MERM_TOOL = "INCREASES FISHFACE WORK EFFICIENCY",
         MERM_TOOL_UPGRADED = "THIS WILL MAKE FISHFACES MORE USEFUL TO ME",
 
@@ -5413,7 +5551,7 @@ return{
 
         CHEST_MIMIC_REVEALED = "CERTAINLY DISGUSTING",
 
-        GELBLOB_STORAGE = { 
+        GELBLOB_STORAGE = {
             GENERIC  = "I HAVE NO USE FOR THIS",
             FULL = "ONLY SENSITIVE FLESHBAGS NEED TO EAT UNSPOILED FOOD",
         },
@@ -5421,7 +5559,7 @@ return{
         GELBLOB_BOTTLE = "THROW IT AWAY",
 
         PLAYER_HOSTED =
-        {        
+        {
             GENERIC = "FILTY ORGANICS CAN'T EVEN STAY DEAD",
             ME = "NO, YOU ARE THE COPY!",
         },
@@ -5455,6 +5593,40 @@ return{
         },
         YOTS_LANTERN_POST_ITEM = "ASSEMBLY REQUIRED",
         CHESSPIECE_DEPTHWORM  = "PATHETIC FLESH LOG",
+
+        -- Meta 5
+        GHOSTLYELIXIR_LUNAR = "INFERIOR CRAFTSMANSHIP. A CHILD COULD HAVE MADE THIS",
+        GHOSTLYELIXIR_SHADOW = "INFERIOR CRAFTSMANSHIP. A CHILD COULD HAVE MADE THIS",
+
+		SLINGSHOTMODKIT = "WEAPON AUGMENTATION. NICE BUT STILL PRIMITIVE",
+		SLINGSHOT_BAND_PIGSKIN = "WEAPON AUGMENTATION. NICE BUT STILL PRIMITIVE",
+		SLINGSHOT_BAND_TENTACLE = "WEAPON AUGMENTATION. NICE BUT STILL PRIMITIVE",
+		SLINGSHOT_BAND_MIMIC = "WEAPON AUGMENTATION. NICE BUT STILL PRIMITIVE",
+		SLINGSHOT_FRAME_BONE = "WEAPON AUGMENTATION. NICE BUT STILL PRIMITIVE",
+		SLINGSHOT_FRAME_GEMS = "WEAPON AUGMENTATION. NICE BUT STILL PRIMITIVE",
+		SLINGSHOT_FRAME_WAGPUNK_0 = "WEAPON AUGMENTATION. NOT BAD",
+		SLINGSHOT_FRAME_WAGPUNK = "WEAPON AUGMENTATION. BETTER",
+		SLINGSHOT_HANDLE_STICKY = "WEAPON AUGMENTATION. NICE BUT STILL PRIMITIVE",
+		SLINGSHOT_HANDLE_JELLY = "WEAPON AUGMENTATION. NICE BUT STILL PRIMITIVE",
+		SLINGSHOT_HANDLE_SILK = "WEAPON AUGMENTATION. NICE BUT STILL PRIMITIVE",
+		SLINGSHOT_HANDLE_VOIDCLOTH = "WEAPON AUGMENTATION. NICE BUT STILL PRIMITIVE",
+
+		WOBY_TREAT = "ORGANICS DIED TO MAKE THIS. GOOD",
+		BANDAGE_BUTTERFLYWINGS = "TEMPORARY PATCH",
+		PORTABLEFIREPIT_ITEM = "PORTABLE INCINERATION UNIT",
+        SLINGSHOTAMMO_CONTAINER = "STORAGE EXPANDED. NOW HE CAN MISS EVEN MORE SHOTS",
+
+        ELIXIR_CONTAINER = "UNDEAD SYSTEM ENHANCEMENT PACK",
+        GHOSTFLOWERHAT = "POST-LIVING APPLICATION",
+        WENDY_RESURRECTIONGRAVE = "MORTAL REBOOT",
+        GRAVEURN =
+        {
+            GENERIC = "PERFECTLY SOULLESS",
+            HAS_SPIRIT = "FILTHY SOUL",
+        },
+
+        SHALLOW_GRAVE = " HA HA",
+        THULECITEBUGNET = "CATCH AND DESTROY",
     },
 
     DESCRIBE_GENERIC = "ERROR: UNKNOWN",
@@ -5477,4 +5649,8 @@ return{
         TALLBIRDEGG_CRACKED = "TRACES OF BEAK DETECTED",
 		WINTERSFEASTFUEL = "TRACE AMOUNTS OF SHADOW MAGIC DETECTED",
     },
+
+    WENDY_SKILLTREE_EASTEREGG = "only_used_by_wendy",
+
+
 }

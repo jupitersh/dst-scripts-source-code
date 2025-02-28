@@ -148,19 +148,63 @@ params.wobysmall =
         slotpos = {},
         animbank = "ui_woby_3x3",
         animbuild = "ui_woby_3x3",
-        pos = Vector3(0, 200, 0),
+		pos = Vector3(0, 330, 0),
         side_align_tip = 160,
     },
     type = "chest",
 }
 
+--V2C: y pos used to be 200, moved to 330 to match woby_rack_container so that it scales
+--     together in controller inventory screen. Shift all y-coords to account for this.
+--     Art was also shifted accordingly.  0.6 is the base scale (in inventorybar).
+local yshift = (330 - 200) / 0.6
 for y = 2, 0, -1 do
     for x = 0, 2 do
-        table.insert(params.wobysmall.widget.slotpos, Vector3(75 * x - 75 * 2 + 75, 75 * y - 75 * 2 + 75, 0))
+		table.insert(params.wobysmall.widget.slotpos, Vector3(75 * x - 75 * 2 + 75, 75 * y - 75 * 2 + 75 - yshift, 0))
     end
 end
+yshift = nil
 
 params.wobybig = params.wobysmall
+
+--------------------------------------------------------------------------
+--[[ woby_rack_container ]]
+--------------------------------------------------------------------------
+
+params.woby_rack_container =
+{
+	widget =
+	{
+		slotpos = {},
+		slotbg = {},
+		animbank = "ui_meatrack_3x1",
+		animbuild = "ui_meatrack_3x1",
+		pos = Vector3(0, 330, 0),
+		side_align_tip = 160,
+	},
+	acceptsstacks = false,
+	type = "top_rack",
+	openlimit = 1,
+}
+
+local dryer_slotbg = { image = "inv_slot_morsel.tex" }
+for x = 0, 2 do
+	table.insert(params.woby_rack_container.widget.slotpos, Vector3(75 * x - 75 * 2 + 75, 0, 0))
+	table.insert(params.woby_rack_container.widget.slotbg, dryer_slotbg)
+end
+dryer_slotbg = nil
+
+function params.woby_rack_container.itemtestfn(container, item, slot)
+	return item:HasTag("dryable")
+		or (TheWorld.ismastersim and (
+				item:GetTimeAlive() == 0 or --items perishing replaced by spoiled_food/fish
+				container.inst:GetTimeAlive() == 0 or --transferring items during woby transform
+				(	item.wobyrack_lastinfo and --failing to move items; return to slot
+					item.wobyrack_lastinfo.container == container and
+					item.wobyrack_lastinfo.slot == slot
+				)
+			))
+end
 
 --------------------------------------------------------------------------
 --[[ sewingmachine ]]
@@ -628,10 +672,23 @@ params.sisturn =
     },
     acceptsstacks = false,
     type = "cooker",
+    openlimit = 1,
 }
 
 function params.sisturn.itemtestfn(container, item, slot)
-    return item.prefab == "petals"
+    local owner
+    if TheWorld.ismastersim then
+        owner = container.inst.components.container:GetOpeners()[1]
+    elseif ThePlayer and container:IsOpenedBy(ThePlayer) then
+        owner = ThePlayer
+    end
+
+    --NOTE: can have no owner when loading
+    if not owner or (owner.components.skilltreeupdater and owner.components.skilltreeupdater:IsActivated("wendy_sisturn_3")) then
+        return item.prefab == "petals" or item.prefab == "moon_tree_blossom" or item.prefab == "petals_evil"
+    end
+
+    return item.prefab == "petals" 
 end
 
 --------------------------------------------------------------------------
@@ -1197,6 +1254,9 @@ end
 
 --------------------------------------------------------------------------
 --[[ slingshot ]]
+--[[ slingshotex ]]
+--[[ slingshot2 ]]
+--[[ slingshot2ex ]]
 --------------------------------------------------------------------------
 
 params.slingshot =
@@ -1215,15 +1275,131 @@ params.slingshot =
         animbuild = "ui_cookpot_1x2",
         pos = Vector3(0, 15, 0),
     },
-    usespecificslotsforitems = true,
     type = "hand_inv",
     excludefromcrafting = true,
 }
 
+params.slingshotex = deepcopy(params.slingshot)
+params.slingshotex.widget.animbank = "ui_slingshot_wagpunk_0"
+params.slingshotex.widget.animbuild = "ui_slingshot_wagpunk_0"
+
+params.slingshot999ex = deepcopy(params.slingshotex)
+params.slingshot999ex.widget.animbank = "ui_slingshot_wagpunk"
+params.slingshot999ex.widget.animbuild = "ui_slingshot_wagpunk"
+
+params.slingshot2 =
+{
+	widget =
+	{
+		slotpos =
+		{
+			--reversed so bottom is slot 1
+			Vector3(0, 32 + 4, 0),
+			Vector3(0, 64 + 32 + 8 + 4, 0),
+		},
+		slotbg =
+		{
+			{ image = "slingshot_ammo_slot.tex" },
+			{ image = "slingshot_ammo_slot.tex" },
+		},
+		animbank = "ui_slingshot_bone",
+		animbuild = "ui_slingshot_bone",
+		pos = Vector3(0, 15, 0),
+	},
+	type = "hand_inv",
+	excludefromcrafting = true,
+}
+
+params.slingshot2ex = deepcopy(params.slingshot2)
+params.slingshot2ex.widget.animbank = "ui_slingshot_gems"
+params.slingshot2ex.widget.animbuild = "ui_slingshot_gems"
+params.slingshot2ex.widget.slotpos[2].y = 64 + 32 + 8 + 4 + 32
+
 function params.slingshot.itemtestfn(container, item, slot)
+	if item.REQUIRED_SKILL then
+		local owner
+		if TheWorld.ismastersim then
+			owner = container.inst.components.container:GetOpeners()[1]
+		elseif ThePlayer and container:IsOpenedBy(ThePlayer) then
+			owner = ThePlayer
+		end
+		--NOTE: can have no owner when loading, or when replacing slingshots when swapping frames
+		if owner and not (owner.components.skilltreeupdater and owner.components.skilltreeupdater:IsActivated(item.REQUIRED_SKILL)) then
+			return false
+		end
+	end
 	return item:HasTag("slingshotammo")
 end
 
+params.slingshotex.itemtestfn = params.slingshot.itemtestfn
+params.slingshot999ex.itemtestfn = params.slingshot.itemtestfn
+params.slingshot2.itemtestfn = params.slingshot.itemtestfn
+params.slingshot2ex.itemtestfn = params.slingshot.itemtestfn
+
+--------------------------------------------------------------------------
+--[[ slingshotmodscontainer ]]
+--------------------------------------------------------------------------
+
+params.slingshotmodscontainer =
+{
+	widget =
+	{
+		slotpos =
+		{
+			Vector3(220, 125, 0),	--band
+			Vector3(20, -60, 0),	--frame
+			Vector3(220, -150, 0),	--handle
+		},
+		slotbg =
+		{
+			{ image = "inv_slot_sketchy.tex", atlas = "images/hud2.xml" },
+			{ image = "inv_slot_sketchy.tex", atlas = "images/hud2.xml" },
+			{ image = "inv_slot_sketchy.tex", atlas = "images/hud2.xml" },
+		},
+		slotscale = 1.6,
+		slothighlightscale = 1.75,
+		animbank = "ui_slingshotmods",
+		animbuild = "ui_slingshotmods",
+		pos = Vector3(200, 0, 0),
+		side_align_tip = 100,
+		--V2C: -override the default widget sound, which is heard only by the client
+		--     -most containers disable the client sfx via skipopensnd/skipclosesnd,
+		--      and play it in world space through the prefab instead.
+		opensound = "meta5/walter/slingshot_UI_open_close",
+		closesound = "meta5/walter/slingshot_UI_open_close",
+		--
+	},
+	usespecificslotsforitems = true,
+	acceptsstacks = false,
+	type = "cooker",
+	openlimit = 1,
+}
+
+function params.slingshotmodscontainer.itemtestfn(container, item, slot)
+	if item.REQUIRED_SKILL then
+		local owner
+		if TheWorld.ismastersim then
+			owner = container.inst.components.container:GetOpeners()[1]
+		elseif ThePlayer and container:IsOpenedBy(ThePlayer) then
+			owner = ThePlayer
+		end
+		--NOTE: can have no owner when loading
+		if owner and not (owner.components.skilltreeupdater and owner.components.skilltreeupdater:IsActivated(item.REQUIRED_SKILL)) then
+			return false
+		end
+	end
+
+	if slot == 1 then
+		return item:HasTag("slingshot_band")
+	elseif slot == 2 then
+		return item:HasTag("slingshot_frame")
+	elseif slot == 3 then
+		return item:HasTag("slingshot_handle")
+	elseif slot == nil then
+		return item:HasAnyTag("slingshot_band", "slingshot_frame", "slingshot_handle")
+	end
+	return false
+end
 
 --------------------------------------------------------------------------
 --[[ tacklecontainer ]]
@@ -1578,6 +1754,65 @@ function params.battlesong_container.itemtestfn(container, item, slot)
 end
 
 --------------------------------------------------------------------------
+--[[ wortox_souljar ]]
+--------------------------------------------------------------------------
+
+params.wortox_souljar =
+{
+    widget =
+    {
+        slotpos = {
+            Vector3(-2, 18, 0),
+        },
+        slotbg  = {
+            {image = "soul_slot.tex", atlas = "images/hud2.xml"},
+        },
+        animbank  = "ui_wortox_souljar_1x1",
+        animbuild = "ui_wortox_souljar_1x1",
+        pos = Vector3(0, 195, 0),
+        side_align_tip = 160,
+        opensound = "meta5/wortox/souljar_lid_pop",
+        closesound = "meta5/wortox/souljar_close_pop",
+    },
+    type = "chest",
+}
+
+function params.wortox_souljar.itemtestfn(container, item, slot)
+    return item:HasTag("soul") and not item:HasTag("nosouljar")
+end
+
+--------------------------------------------------------------------------
+--[[ wendy_elixir_container ]]
+--------------------------------------------------------------------------
+
+params.elixir_container =
+{
+    widget =
+    {
+        slotpos = {},
+        slotbg  = {},
+        animbank  = "ui_elixir_container_3x3",
+        animbuild = "ui_elixir_container_3x3",
+        pos = Vector3(0, 200, 0),
+        side_align_tip = 160,
+    },
+    type = "chest",
+}
+
+local elixir_container_bg = { image = "elixir_slot.tex", atlas = "images/hud2.xml" }
+
+for y = 2, 0, -1 do
+    for x = 0, 2 do
+        table.insert(params.elixir_container.widget.slotpos, Vector3(80 * x - 80 * 2 + 80, 80 * y - 80 * 2 + 80, 0))
+        table.insert(params.elixir_container.widget.slotbg, elixir_container_bg)
+    end
+end
+
+function params.elixir_container.itemtestfn(container, item, slot)
+    return item:HasTag("ghostlyelixir") or item:HasTag("ghostflower")
+end
+
+--------------------------------------------------------------------------
 --[[ dragonflyfurnace ]]
 --------------------------------------------------------------------------
 
@@ -1626,6 +1861,37 @@ end
 
 function params.dragonflyfurnace.widget.buttoninfo.validfn(inst)
     return inst.replica.container ~= nil and not inst.replica.container:IsEmpty()
+end
+
+--------------------------------------------------------------------------
+--[[ slingshotammo_container ]]
+--------------------------------------------------------------------------
+
+params.slingshotammo_container =
+{
+    widget =
+    {
+        slotpos = {},
+        slotbg  = {},
+        animbank  = "ui_slingshotammo_container_3x2",
+        animbuild = "ui_slingshotammo_container_3x2",
+        pos = Vector3(0, 200, 0),
+        side_align_tip = 160,
+    },
+    type = "chest",
+}
+
+local slingshotammo_container_bg = { image = "slingshot_ammo_slot.tex" }
+
+for y = 1, 0, -1 do
+    for x = 0, 2 do
+        table.insert(params.slingshotammo_container.widget.slotpos, Vector3(90 * x - 90, 80 * y - 42.5, 0))
+        table.insert(params.slingshotammo_container.widget.slotbg, slingshotammo_container_bg)
+    end
+end
+
+function params.slingshotammo_container.itemtestfn(container, item, slot)
+    return item:HasTag("slingshotammo")
 end
 
 --------------------------------------------------------------------------
