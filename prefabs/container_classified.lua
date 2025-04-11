@@ -514,6 +514,8 @@ local function TakeActiveItemFromCountOfSlot(inst, slot, count)
             if item ~= nil then
                 local takeitem = SlotItem(item, slot)
                 local stackable = item.replica.stackable
+                local fullstacksize = stackable and (stackable:IsOverStacked() and stackable:OriginalMaxSize() or stackable:StackSize()) or 1
+                count = math.clamp(count, 1, fullstacksize)
                 if stackable and stackable:StackSize() > count then
                     inventory:PushNewActiveItem(takeitem, inst, slot)
                     local stacksize = stackable:StackSize()
@@ -720,6 +722,9 @@ local function MoveItemFromCountOfSlot(inst, slot, container, count)
         if container_classified ~= nil and not container_classified:IsBusy() then
             local item = inst:GetItemInSlot(slot)
             if item ~= nil then
+                local stackable = item.replica.stackable
+                local fullstacksize = stackable and (stackable:IsOverStacked() and stackable:OriginalMaxSize() or stackable:StackSize()) or 1
+                count = math.clamp(count, 1, fullstacksize)
                 if container_classified.ignoreoverflow ~= nil and container_classified:GetOverflowContainer() == (inst._parent and inst._parent.replica.container) then
                     container_classified.ignoreoverflow = true
                 end

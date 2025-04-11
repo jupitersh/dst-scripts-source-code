@@ -611,6 +611,7 @@ STRINGS =
             CALM = "Calm",
             GATHER_MERM = "Gather Merm",
             FAKE_PICKUP = "Pick up",
+            PLAY_WITH = "Play with",
         },
 
 		OPEN_CRAFTING =
@@ -1098,6 +1099,10 @@ STRINGS =
         },
 
 		WHISTLE = "Call Woby", --can expand to table if other characters want to use whistle action
+
+        DRAW_FROM_DECK = "Draw",
+        FLIP_DECK = "Flip",
+        ADD_CARD_TO_DECK = "Add",
     },
 
 	WOBY_COMMANDS =
@@ -4222,7 +4227,7 @@ STRINGS =
         YOTS_SNAKESHRINE = "Depths Worm Shrine",
         YOTS_WORM = "Gilded Depths Worm",
         YOTS_LANTERN_POST = "Jubilantern Post",
-        YOTS_LANTERN_POST_ITEM = "Jubilantern Post Kit",        
+        YOTS_LANTERN_POST_ITEM = "Jubilantern Post Kit",
 
         -- Meta 5
 
@@ -4262,6 +4267,12 @@ STRINGS =
 
         SHALLOW_GRAVE = "Shallow Grave",
         SHALLOW_GRAVE_PLAYER = "Shallow Grave",
+
+        -- Deck Of Cards
+        DECK_OF_CARDS = "Deck Of Cards",
+        PLAYING_CARD = "Playing Card",
+
+        BALATRO_MACHINE = "JIMBO",
 	},
 
     NAME_DETAIL_EXTENTION =
@@ -4698,6 +4709,7 @@ STRINGS =
         CHESSPIECE_YOTD_BUILDER = "A tribute to getting things off to a fiery start.",
         CHESSPIECE_SHARKBOI_BUILDER = "An homage to a cold-blooded bully.",
         CHESSPIECE_WORMBOSS_BUILDER = "Brings back memories of being digested.",
+        CHESSPIECE_YOTS_BUILDER = "A reminder of a lucky worm encounter.",
 
         CHESSPIECE_BUTTERFLY_SKETCH = "A sculpture sketch of a Moon Moth.",
         CHESSPIECE_ANCHOR_SKETCH = "A sculpture sketch of an anchor.",
@@ -4710,6 +4722,7 @@ STRINGS =
         CHESSPIECE_CRABKING_SKETCH = "A sculpture sketch of the Crab King.",
         CHESSPIECE_MANRABBIT_SKETCH = "A sculpture sketch of a playful Bunnyman.",
         CHESSPIECE_YOTD_SKETCH = "A sculpture sketch of a Dragonfly boat race Start Tower.",
+        CHESSPIECE_YOTS_SKETCH = "A sculpture sketch of a Gilded Depths Worm.",
 
         CRITTER_GLOMLING_BUILDER = "Befriend a bouncy Glomglom.",
         CRITTER_DRAGONLING_BUILDER = "Befriend a noble Broodling.",
@@ -7350,6 +7363,67 @@ STRINGS =
         NEW      = "W.A.R.B.I.S. HAS NEW TARGET!",
         SYNCHING = "W.A.R.B.I.S. IS SYNCHING...",
         SYNCHED  = "W.A.R.B.I.S. HAS SYNCHED.",
+    },
+
+    PLAYING_CARD_NAMES =
+    {
+        CARD0 = "Playing Card",
+
+        CARD101 = "Ace of Spades",
+        CARD102 = "Two of Spades",
+        CARD103 = "Three of Spades",
+        CARD104 = "Four of Spades",
+        CARD105 = "Five of Spades",
+        CARD106 = "Six of Spades",
+        CARD107 = "Seven of Spades",
+        CARD108 = "Eight of Spades",
+        CARD109 = "Nine of Spades",
+        CARD110 = "Ten of Spades",
+        CARD111 = "Jack of Spades",
+        CARD112 = "Queen of Spades",
+        CARD113 = "King of Spades",
+
+        CARD201 = "Ace of Diamonds",
+        CARD202 = "Two of Diamonds",
+        CARD203 = "Three of Diamonds",
+        CARD204 = "Four of Diamonds",
+        CARD205 = "Five of Diamonds",
+        CARD206 = "Six of Diamonds",
+        CARD207 = "Seven of Diamonds",
+        CARD208 = "Eight of Diamonds",
+        CARD209 = "Nine of Diamonds",
+        CARD210 = "Ten of Diamonds",
+        CARD211 = "Jack of Diamonds",
+        CARD212 = "Queen of Diamonds",
+        CARD213 = "King of Diamonds",
+
+        CARD301 = "Ace of Clubs",
+        CARD302 = "Two of Clubs",
+        CARD303 = "Three of Clubs",
+        CARD304 = "Four of Clubs",
+        CARD305 = "Five of Clubs",
+        CARD306 = "Six of Clubs",
+        CARD307 = "Seven of Clubs",
+        CARD308 = "Eight of Clubs",
+        CARD309 = "Nine of Clubs",
+        CARD310 = "Ten of Clubs",
+        CARD311 = "Jack of Clubs",
+        CARD312 = "Queen of Clubs",
+        CARD313 = "King of Clubs",
+
+        CARD401 = "Ace of Hearts",
+        CARD402 = "Two of Hearts",
+        CARD403 = "Three of Hearts",
+        CARD404 = "Four of Hearts",
+        CARD405 = "Five of Hearts",
+        CARD406 = "Six of Hearts",
+        CARD407 = "Seven of Hearts",
+        CARD408 = "Eight of Hearts",
+        CARD409 = "Nine of Hearts",
+        CARD410 = "Ten of Hearts",
+        CARD411 = "Jack of Hearts",
+        CARD412 = "Queen of Hearts",
+        CARD413 = "King of Hearts",
     },
 }
 
@@ -13751,6 +13825,13 @@ STRINGS.UI =
         },
     },
 
+    -- Used in quotes directed to players that would say mortal.
+    MORTALITYSTRINGS =
+    {
+        DEFAULT = "mortal",
+        WORTOX  = "imp",
+    },
+
     SANDBOXMENU =
     {
         TITLE = "World Customization",
@@ -14118,7 +14199,7 @@ STRINGS.SHADOW_BATTLEAXE_TALK =
         "What are you waiting for, wielder?",
         "We haven't murdered something in forever.",
         "We shall commit unspeakable acts of savagery!",
-        "Mortal, do you realize what we are capable of together?",
+        "Do you realize what we are capable of together, {mortal}?",
     },
     overtime_l4 =
     {
@@ -14215,7 +14296,7 @@ STRINGS.SHADOW_BATTLEAXE_TALK =
     },
     hungry_l4 =
     {
-        "You dare neglect me, mortal?",
+        "You dare neglect me, {mortal}?",
         "Death gives me life.",
         "Wielder, you've changed.",
     },
@@ -14230,8 +14311,8 @@ STRINGS.SHADOW_BATTLEAXE_TALK =
     starving_l3 =  -- And level 4 too!
     {
         "Feed me, NOW.",
-        "Why do you starve me, cruel mortal?",
-        "Are you trying to kill me, wretched mortal?",
+        "Why do you starve me, cruel {mortal}?",
+        "Are you trying to kill me, wretched {mortal}?",
         "Feed me before it's too late!",
         "We need to murder something, now!",
         "Getting... weaker.",
@@ -14240,7 +14321,7 @@ STRINGS.SHADOW_BATTLEAXE_TALK =
     },
     starving_l4 =
     {
-        "Cursed mortal.",
+        "Cursed {mortal}.",
         "Is this the end?",
         "It can't end like this.",
         "Come too far... tasted too much...",
@@ -14332,13 +14413,13 @@ STRINGS.VOIDCLOTH_SCYTHE_TALK =
     {
         "You want to cut and ssssslice, yes you do!",
         "The ssssseeds were planted long ago, now reap the rewards.",
-        "Your palms are sssssweating, mortal, you're losing your grip.",
+        "Your palms are sssssweating, {mortal}, you're losing your grip.",
         "You need a sssssharp wit for this job.",
-        "What'sssss wrong, mortal? Not cut out for this?",
+        "What'sssss wrong, {mortal}? Not cut out for this?",
         "You and I are going to do sssssuch great things together.",
         "I think I was a farmer once, before I ssssshed my skin.",
-        "You can hear me, can't you, mortal? You're ssssstarting to understand.",
-        "I can sssssee all the dark corners of your mind, mortal.",
+        "You can hear me, can't you, {mortal}? You're ssssstarting to understand.",
+        "I can sssssee all the dark corners of your mind, {mortal}.",
         "I've been accused of having a rather sssssharp tongue.",
         "We make a good team, no matter how you ssssslice it.",
         "I hunger for the sssssilent screams of vegetation...",
@@ -14359,7 +14440,7 @@ STRINGS.VOIDCLOTH_SCYTHE_TALK =
         "It's time for the harvessssst.",
         "Everything will fall before usssss!",
         "Let nothing be ssssspared!",
-        "Enjoying yourssssself, mortal?",
+        "Enjoying yourssssself, {mortal}?",
     },
 
     lucy =
@@ -15238,6 +15319,104 @@ STRINGS.GHOSTCOMMANDS = {
     SCARE = "Scare",
 }
 
+STRINGS.BALATRO = {
+    CHIPS = "CHIPS",
+    MULT = "MULT",
+    JIMBO_CHOOSE_JOKER = "HI, CHOOSE YOUR JOKER.",
+    JIMBO_START = "CHOOSE CARDS TO DISCARD.",
+    JIMBO_DISCARD1 = "ANY FINAL DISCARDS?",
+    JIMBO_DISCARD2 = "LETS SEE HOW YOU DID",
+    JIMBO_CHIPCOUNT = "{chips} CHIPS",
+    JIMBO_HANDMULT = "{hand} IS {mult} MULT",
+    JIMBO_FINALSCORE = "FOR A FINAL SCORE OF..",
+    JIMBO_SCORE = "{score}!",
+
+    JIMBO_BECKON = {"YOU'D BE A FOOL TO MISS THIS GAME!",
+                    "YOU KNOW WHAT THEY SAY, THE HOUSE ALWAYS WINS!",
+                    "I'M LITERALLY A FOOL, WHAT'S YOUR EXCUSE?",
+                    "PLAY A FEW HANDS, LIVE A LITTLE!",
+                    "WHAT HARM COULD A LITTLE GAME DO?",
+                    "A FEW ROUNDS NEVER HURT ANYBODY!",
+                    "YOU FEELING LUCKY?",
+                    "YOU LOOK LIKE A REAL WINNER!",
+                    "GIVE IT A TRY, IT'S EASY!",
+                    "COME ON, LIVE A LITTLE!",
+                    "WHAT COULD GO WRONG?",
+                    "IT'S JUST A GAME!",
+    },
+
+    JIMBO_REWARD_1 = "FOR THAT PERFORMANCE, YOU GET {reward}!",
+    JIMBO_REWARD_2 = "YOU DID OK. HAVE THIS {reward}.",
+    JIMBO_REWARD_3 = "PRETTY GOOD, YOU GET {reward}",
+    JIMBO_REWARD_4 = "GREAT! ENJOY {reward}",
+    JIMBO_REWARD_5 = "WOW! HERE'S SOME {reward}",
+    JIMBO_REWARD_6 = "FANTASTIC! SOME {reward} FOR YOU!",
+    JIMBO_REWARD_7 = "AMAZING! ENJOY YOUR {reward}!",
+    JIMBO_REWARD_8 = "TRUE ROYALTY! YOU REALLY EARNED THIS {reward}",
+    JIMBO_REWARD_9 = "TSK TSK, TRYING TO SNEAK AWAY?",
+
+    JIMBO_NO_REWARD = "MAYBE GO FISH IS MORE YOUR SPEED...",
+
+    JIMBO_REWARD_TYPES = {
+        BEES = "BEES",
+        RESOURCES = "SUPPLIES",
+        BANANAS = "BANANAS",
+        GOLD = "GOLD",
+        TREASURE = "TREASURE",
+        SPIDERS = "SPIDERS",
+        HOUNDS = "HOUNDS",               
+    },
+
+    JIMBO_CARDS = "ALSO, HAVE THESE..",
+    JIMBO_CLOSED = "OK, BYE.",
+
+    JOKER_MAXWELL = "Each heart discarded\n+1 mult",
+    JOKER_WILSON = "Each pair in hand\n+3 mult",
+    JOKER_WILLOW = "Each face card discarded\n+20 chips",
+    JOKER_WOLFGANG = "Each King in hand\n+25 chips",
+    JOKER_WOODIE = "Each card discarded\n+7 chips",
+    JOKER_WEBBER = "Each Heart or Diamond replaced\nby a club or spade +2 mult",
+    JOKER_WIGFRID = "Each Spade in hand\n+25 chips",
+    JOKER_WICKERBOTTOM = "Each Queen in hand\n+1 mult",
+    JOKER_WX78 = "Each heart kept once\nthen discarded +2 mult",
+    JOKER_WENDY = "Each discard that becomes\nthe same suit +5 chips +2 mult",
+    JOKER_WES = "Hand is worse after discard\n+30 chips",
+    JOKER_WINONA = "Each heart kept\n+1 mult",
+    JOKER_WARLY = "Hand contains a heart, a club\na diamond and a spade +4 mult",
+    JOKER_WORTOX = "Each heart discarded +15 chips\nEach heart in hand -11 chips +1 mult",
+    JOKER_WURT = "Each face card kept\n+10 chips per face card",
+    JOKER_WANDA = "Start with 80 chips\nEach discard -15 chips",
+    JOKER_WORMWOOD = "Each club kept\n+15 chips",
+    JOKER_WALTER = "For each different suit\nin discard +15 chips",
+
+    BUTTON_CLOSE = "BACK",
+    BUTTON_DEAL = "DEAL",
+    BUTTON_CHOOSE = "CHOOSE",
+    BUTTON_SKIP = "SKIP",
+    BUTTON_DISCARD = "DISCARD",
+    BUTTON_UNDISCARD = "UNDO DISCARD",
+    BUTTON_NOTES = "NOTES",
+
+    CHOOSE_JOKER = "CHOOSE {joker}",
+
+    NOTES_HANDS = "HANDS",
+    NOTES_MULT = "MULT",    
+    NOTES_RANKS = "RANKS",
+
+    HANDS ={
+        HIGHCARD = "High Card",
+        PAIR = "Pair",
+        TWOPAIR = "Two Pair",
+        THREEOFKIND = "Three of a Kind",
+        STRAIT = "Straight",
+        FLUSH = "Flush",
+        FULLHOUSE = "Full House",
+        FOUROFAKIND = "Four of a Kind",
+        STRAITFLUSH = "Straight Flush",
+        ROYALFLUSH = "Royal Flush",
+    }
+}
+
 STRINGS.SKILLTREE = {
     INFOPANEL = "Outfit",
     INFOPANEL_DESC = "Become a seasoned survivor!",
@@ -15394,7 +15573,7 @@ STRINGS.SKILLTREE = {
         WALTER_WOBY_SHADOW_LOCK_DESC = "Find and defeat the Ancient Fuelweaver and have no Lunar Allegiance Skills to unlock.",
 
         WALTER_WOBY_LUNAR_TITLE = "Lunar Woby",
-        WALTER_WOBY_LUNAR_DESC = "After dashing, Woby can immediately start sprinting at +1 speed. When Woby is under moonlight on the surface, or in any area of Enlightement, she has no additional hunger drain for sprinting or dashing.",
+        WALTER_WOBY_LUNAR_DESC = "After dashing, Woby can immediately start sprinting at +1 speed. When Woby is under moonlight on the surface, or in any area of Enlightenment, she has no additional hunger drain for sprinting or dashing.",
 
         WALTER_WOBY_SHADOW_TITLE = "Shadow Woby",
         WALTER_WOBY_SHADOW_DESC = "Woby's dash becomes a short distance teleport.",
@@ -16153,9 +16332,9 @@ STRINGS.SKILLTREE = {
         WORTOX_SOULJAR_3_DESC = "Held Souls and Souls inside of Soul Jars increases both the damage of the Knabsack and the damage of Souls, up to 100 total Souls collected.",
 
         WORTOX_SOULDECOY_1_TITLE = "Soul Decoy I",
-        WORTOX_SOULDECOY_1_DESC = "Soul Hopping for the first hop leaves behind a Soul Decoy to draw the attention of nearby creatures with Souls targeting you.",
+        WORTOX_SOULDECOY_1_DESC = "Soul Hopping creates a Soul Decoy to draw the attention of attacking creatures that possess Souls. It will not create one for a Soul Echo.",
         WORTOX_SOULDECOY_2_TITLE = "Soul Decoy II",
-        WORTOX_SOULDECOY_2_DESC = "Soul Decoys will stay around for a bit longer if they are unharmed.",
+        WORTOX_SOULDECOY_2_DESC = "Soul Decoys will stay around for a bit longer if they are unharmed, and damage the thing that hit the Decoy.",
         WORTOX_SOULDECOY_3_TITLE = "Soul Decoy III",
         WORTOX_SOULDECOY_3_DESC = "Soul Decoys will now explode and inflict damage on things lured by it or attacking you upon expiration.",
 
@@ -16397,7 +16576,6 @@ STRINGS.SCRAPBOOK = {
         POLLYROGERS = "Gathers loot nearby.",
         MOLE = "Ever played \"Whack-A-Mole\"? What a great game.",
         POWDERMONKEY = "Best keep a bribe handy for these freebooters.",
-        SPIDER_HEALER = "Emits powerful spider-healing flatulence when threatened.",
 
         -- Items.
         ABIGAIL_FLOWER = "Used by Wendy to call her Ghostly sister Abigail.",
@@ -16490,16 +16668,18 @@ STRINGS.SCRAPBOOK = {
         DUSTMERINGUE = "It's not food fit for a person.",
         BEEFALOTREAT = "Snacks for Beefalo.",
         BEEFALOFEED = "Snacks for Beefalo.",
-        GHOSTLYELIXERREGENERATION = "Raises Abigail's health regeneration from 1 to 3 health per second. Lasts 1 day.",
-        GHOSTLYELIXERHEALING = "Raises Abigail's health regeneration from 1 to 20 health per second. Lasts 30 seconds.",
-        GHOSTLYELIXERSHIELD = "Doubles Abigail's shield duration from 0.5 seconds to 1 second. Lasts 1 day.",
-        GHOSTLYELIXERATTACK = "Abigail will deal her nighttime damage during the day and dusk. Lasts 1 day.",
-        GHOSTLYELIXERSPEED = "Abigail has a 75% speed boost for 1 day.",
-        GHOSTLYELIXERRETALIATION = "Doubles Abigail's shield duration from 0.5 seconds to 1 second.\n\nAttacking creatures also take 20 damage.\n\nLasts 1 day.",
+        GHOSTLYELIXERREGENERATION = "Raises Abigail's health regeneration from 1 to 3 health per second. Lasts 1 day.\n\nWhen drunk by a non ghost wearing the Wraith's Wreath:\n\nHeals 1 health per second for 20 seconds.",
+        GHOSTLYELIXERHEALING = "Raises Abigail's health regeneration from 1 to 20 health per second. Lasts 30 seconds.\n\nWhen drunk by a non ghost wearing the Wraith's Wreath:\n\nHeals 5 health per second for 20 seconds.",
+        GHOSTLYELIXERSHIELD = "Doubles Abigail's shield duration from 0.5 seconds to 1 second. Lasts 1 day.\n\nWhen drunk by a non ghost wearing the Wraith's Wreath:\n\nGives the drinker a shield that will absorm a lot of damage from one hit and then goes on cool down for 10 seconds.",
+        GHOSTLYELIXERATTACK = "Abigail will deal her nighttime damage during the day and dusk. Lasts 1 day.\n\nWhen drunk by a non ghost wearing the Wraith's Wreath:\n\nThe drinker can see in the dark as if they were a ghost.",
+        GHOSTLYELIXERSPEED = "Abigail has a 75% speed boost for 1 day.\n\nWhen drunk by a non ghost wearing the Wraith's Wreath:\n\nHeavy objects won't slow the drinker down as much.",
+        GHOSTLYELIXERRETALIATION = "Doubles Abigail's shield duration from 0.5 seconds to 1 second.\n\nAttacking creatures also take 20 damage.\n\nLasts 1 day.\n\nWhen drunk by a non ghost wearing the Wraith's Wreath:\n\nGives the drinker a shield that will absorm a lot of damage from one hit and then goes on cool down for 10 seconds. It also inflicts 20 damage to enemy close by.",
+        GHOSTLYELIXERREVIVE = "Returns Abigail's level up to 3.\n\nWhen drunk by a non ghost wearing the Wraith's Wreath:\n\nHeals the drinker for a little bit of sanity, fills a small amount of hunger and removes the health penalty of revival.",
+        GHOSTLYELIXERSHADOW = "Boosts the curse Abigail inflicts on targets, so that now they recieve an extra 10 Planar Damage when attacked.",
+        GHOSTLYELIXERLUNAR = "Abigail inflicts an extra 10 planar damage when attacking and increases to 100 when Abigail is in gestalt form.",
         FEATHERPENCIL = "Draws the closest item nearby onto a Mini Sign.",
         MINIFLARE = "Creates a flash in the sky that can be seen by all survivors on the minimap.",
         MEGAFLARE = "Creates a flash in the sky that can be seen by all survivors on the minimap.\n\nThis large flash will also draw the attention of some hostile creatures.",
-        FARMPLOW = "Digs up a tile and turns it into Farm Soil.",
         SADDLE_BASIC = "Can be put onto a Beefalo if it's willing.",
         SADDLE_WAR = "Can be put onto a Beefalo if it's willing. Slower than a regular saddle.",
         SADDLE_RACE = "Can be put onto a Beefalo if it's willing. Increases speed over a regular saddle.",
@@ -16881,7 +17061,7 @@ STRINGS.SCRAPBOOK = {
         -- Meta 5
 
         BANDAGE_BUTTERFLYWINGS = "Heals 24 health.\n\nIf used by Walter and he has learned the Field Medic skill, it will heal an additional 12 health, also restoring 10 sanity.",
-        WOBY_TREAT = "Restores three times more hunger when eaten by Woby.",
+        WOBY_TREAT = "Restores three times as much hunger when eaten by Woby.",
         ELIXIR_CONTAINER = "A carryable container with 9 slots that can hold Elixirs.",
         GHOSTFLOWERHAT = "When equipped, allows Wendy to drink Elixirs herself.",
         -- GHOSTLYELIXERLUNAR = "TODO",
@@ -16898,9 +17078,9 @@ STRINGS.SCRAPBOOK = {
 		SLINGSHOT_FRAME_WAGPUNK = "Expands the ammo slot to unlimited stack size, and adds a secondary, alternate Slingshot attack, that can be charged by holding down to deal up to 200% damage.",
 		SLINGSHOT_FRAME_WAGPUNK_0 = "Adds a secondary, alternate Slingshot attack, that can be charged by holding down to deal up to 200% damage.",
 		SLINGSHOT_HANDLE_JELLY = "It greatly increases your firing rate and prevents your Slingshot from slipping out of your hands.",
-		SLINGSHOT_HANDLE_SILK = "It moderately increases your firing rate, which will ramp up if you shoot continously.",
+		SLINGSHOT_HANDLE_SILK = "It moderately increases your firing rate, which will ramp up if you shoot continuously.",
 		SLINGSHOT_HANDLE_STICKY = "It moderately increases your firing rate, and prevents your Slingshot from slipping out of your hands.",
-		SLINGSHOT_HANDLE_VOIDCLOTH = "It greatly increases your firing rate, which will ramp up if you shoot continously.",
+		SLINGSHOT_HANDLE_VOIDCLOTH = "It greatly increases your firing rate, which will ramp up if you shoot continuously.",
         SLINGSHOTAMMO_CONTAINER = "A carryable container with 6 slots that can hold Slingshot Rounds.",
 		SLINGSHOTAMMO_THULECITE = "It has a chance to spawn a Shadow Tentacle on impact, which deals damage to your target.",
 		SLINGSHOTAMMO_SLOW = "It slows down your target for 30 seconds, stacking up to 3 times.",
@@ -16908,14 +17088,18 @@ STRINGS.SCRAPBOOK = {
         SLINGSHOTAMMO_DREADSTONE = "It has a 50% chance to not break on impact.",
 		SLINGSHOTAMMO_GELBLOB = "It attaches an Icker blob to your target for 60 seconds, greatly slowing it down.",
         SLINGSHOTAMMO_GUNPOWDER = "It has an increasing chance to trigger an explosion, dealing double damage in a large area.",
-		SLINGSHOTAMMO_HONEY = "It slows down your target on the ground for 8 seconds.",
+		SLINGSHOTAMMO_HONEY = "It slows down ground targets 8 seconds.",
 		SLINGSHOTAMMO_HORRORFUEL = "It applies the Swarming Horror debuff to creatures it hits, dealing 10 planar damage periodically. Up to 4 Swarming Horrors can be stacked on each target.",
 		SLINGSHOTAMMO_LUNARPLANTHUSK = "It has a chance to spawn a Brightshade Vine on impact, which deals planar damage to your target.",
         SLINGSHOTAMMO_MOONGLASS = "It deals damage in a medium area around its target.",
 		SLINGSHOTAMMO_PUREBRILLIANCE = "It applies a Pure Brilliance mark to creatures it hits, lasting 30 seconds. This mark can be triggered by planar attacks for an additional 5 planar damage per hit.",
 		SLINGSHOTAMMO_SCRAPFEATHER = "It deals electrical damage, which does more damage to wet targets. It can also trigger hit stun more often than other projectiles.",
         SLINGSHOTAMMO_STINGER = "It deals damage in a small area around its target.",
-        SLINGSHOTMODKIT = "Allows you to customize your Slingshot, making it personal.",  
+        SLINGSHOTMODKIT = "Allows you to customize your Slingshot.",
+        BALATRO_MACHINE = "Some character named Jimbo wants you to play a card game with him.\n\nTo start, you should choose one of three Jokers. Each has a different way to give you a little edge in the game.\n\nSecond, play Poker. You can choose cards to discard and replace with new cards. You can do that twice.\n\nThen your hand will be evaluated. You will get chips based on the value of your cards. You will get a multiplyer based on the quality of your hand. Your Chips times your Multiplier is your points. Get as many points as you can. Jimbo might give you something for your time.",
+        DECK_OF_CARDS = "Play a game of cards, however you like. Hit it to shuffle, but be careful!",
+        PLAYING_CARD = "A single card for playing games! Combine these together to make a deck.",
+
     },
 
     -- Full name: "{name} Scrapbook Page"

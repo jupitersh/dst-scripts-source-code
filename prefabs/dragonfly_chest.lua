@@ -103,9 +103,9 @@ local function upgrade_onhammered(inst, worker)
 			inst:Remove()
 			return
 		end
-	else
-		--We might still have some overstacks, just not enough to "collapse"
-		inst.components.container:DropEverything()
+	elseif inst.components.container ~= nil then
+        --We might still have some overstacks, just not enough to "collapse"
+        inst.components.container:DropEverything()
 	end
 
 	--fallback to default
@@ -198,9 +198,9 @@ local function OnDecontructStructure(inst, caster)
 			inst.no_delete_on_deconstruct = true
 			return
 		end
-	else
-		--We might still have some overstacks, just not enough to "collapse"
-		inst.components.container:DropEverything()
+	elseif inst.components.container ~= nil then
+        --We might still have some overstacks, just not enough to "collapse"
+        inst.components.container:DropEverything()
 	end
 
 	--fallback to default

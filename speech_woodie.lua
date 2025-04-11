@@ -462,7 +462,12 @@ return{
             NONEWMOON = "only_used_by_wendy",
             NOFULLMOON = "only_used_by_wendy",
             NOTNIGHT = "only_used_by_wendy",
-        },        
+            CAVE = "only_used_by_wendy",
+        },
+		MODSLINGSHOT =
+		{
+--fallback to speech_wilson.lua 			NOSLINGSHOT = "only_used_by_walter",
+		},
     },
 
 	ANNOUNCE_CANNOT_BUILD =
@@ -844,6 +849,10 @@ return{
 --fallback to speech_wilson.lua 	{
 --fallback to speech_wilson.lua 		"only_used_by_walter",
 --fallback to speech_wilson.lua 	},
+--fallback to speech_wilson.lua 	ANNOUNCE_WOBY_REMEMBERCHEST_FAIL =
+--fallback to speech_wilson.lua 	{
+--fallback to speech_wilson.lua 		"only_used_by_walter",
+--fallback to speech_wilson.lua 	},
 
     -- wx specific
     ANNOUNCE_WX_SCANNER_NEW_FOUND = "only_used_by_wx78",
@@ -855,12 +864,18 @@ return{
     QUAGMIRE_ANNOUNCE_LOSE = "It's over for us, eh.",
     QUAGMIRE_ANNOUNCE_WIN = "We done did it.",
 
---fallback to speech_wilson.lua     ANNOUNCE_ROYALTY =
---fallback to speech_wilson.lua     {
---fallback to speech_wilson.lua         "Your majesty.",
---fallback to speech_wilson.lua         "Your highness.",
---fallback to speech_wilson.lua         "My liege!",
---fallback to speech_wilson.lua     },
+    ANNOUNCE_ROYALTY =
+    {
+        "Your Highness!",
+        "Your Majesty!",
+        "My Liege!",
+    },
+    ANNOUNCE_ROYALTY_JOKER =
+    {
+        "Your \"Highness\", eh?",
+        "Your \"Majesty\", eh?",
+        "My \"Liege\", eh?",
+    },
 
     ANNOUNCE_ATTACH_BUFF_ELECTRICATTACK    = "Careful you don't get zapped, eh!",
     ANNOUNCE_ATTACH_BUFF_ATTACK            = "I feel strong as a grizzly bear!",
@@ -5342,6 +5357,7 @@ return{
         RECORD_MAIN = "What a nifty number, eh Luce?", -- Unused.
         RECORD_WORKTOBEDONE = "You can really swing an axe to this.", -- Unused.
         RECORD_HALLOWEDNIGHTS = "You can really... swing an axe to this.",
+        RECORD_BALATRO = "It's a good little number.",
 
         ARCHIVE_ORCHESTRINA_MAIN = "That's one fancy floor, eh?",
 
@@ -5628,6 +5644,11 @@ return{
 
         SHALLOW_GRAVE = "Yup, they're dead.",
         THULECITEBUGNET = "Another day, another skeeter.",
+
+        -- Deck of Cards
+        DECK_OF_CARDS = "No Lucy, you may not cut the deck. I know what you mean.",
+        PLAYING_CARD = "Can't do much with that.",
+        BALATRO_MACHINE = "I know I promised, Luce. Just one more.",
     },
 
     DESCRIBE_GENERIC = "What's that, eh?",

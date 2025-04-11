@@ -15,6 +15,8 @@ local assets =
     Asset("INV_IMAGE", "abigail_flower_wilted"),	-- deprecated, left in for mods
 }
 
+local EMPTY_TABLE = {}
+
 local GHOSTCOMMAND_DEFS = require("prefabs/ghostcommand_defs")
 local GetGhostCommandsFor = GHOSTCOMMAND_DEFS.GetGhostCommandsFor
 local function updatespells(inst, owner)
@@ -22,7 +24,7 @@ local function updatespells(inst, owner)
 		if owner.HUD then owner.HUD:CloseSpellWheel() end
 		inst.components.spellbook:SetItems(GetGhostCommandsFor(owner))
 	else
-		inst.components.spellbook:SetItems(nil)
+		inst.components.spellbook:SetItems(EMPTY_TABLE)
 	end
 end
 
@@ -91,28 +93,97 @@ local function UpdateGroundAnimation(inst)
 	inst._bond_level = level
 end
 
+
+local function OnOwnerUpdated(inst, owner)
+    if owner ~= nil and owner.components.container ~= nil then
+        -- We've been moved from an equipped backpack into a different container.
+        if inst._container ~= nil and
+            owner ~= inst._container and
+            (inst._container.components.equippable ~= nil and inst._container.components.equippable:IsEquipped())
+        then
+            inst:RemoveEventCallback("unequipped", inst._onunequipped, inst._container)
+        end
+
+        inst._container = owner
+
+        local grandowner = owner.components.inventoryitem ~= nil and owner.components.inventoryitem:GetGrandOwner()
+
+        -- We've been put on an already equipped backpack.
+        if owner.components.equippable ~= nil and owner.components.equippable:IsEquipped() and grandowner ~= nil then
+            owner = grandowner
+
+            inst:ListenForEvent("unequipped", inst._onunequipped, inst._container)
+
+        -- We've been put on an unnequipped backpack.
+        elseif owner.components.equippable ~= nil then
+            inst:ListenForEvent("equipped", inst._onequipped, inst._container)
+
+        else
+            -- We're in a chest likely
+            owner = nil
+        end
+
+    -- We've been dropped or put on a regular inventory.
+    elseif inst._container ~= nil then
+        if inst._container.components.equippable ~= nil and inst._container.components.equippable:IsEquipped() then
+            inst:RemoveEventCallback("unequipped", inst._onunequipped, inst._container)
+        end
+
+        inst._container = nil
+    end
+
+    if owner ~= nil and owner ~= inst._owner then
+        if inst._owner ~= nil and not inst._owner:HasTag("backpack") then
+			inst:RemoveEventCallback("onactivateskill_server", inst._onskillrefresh_server, inst._owner)
+			inst:RemoveEventCallback("ondeactivateskill_server", inst._onskillrefresh_server, inst._owner)
+			inst:RemoveEventCallback("ghostlybond_summoncomplete", inst._onsummonstatechanged_server, inst._owner)
+			inst:RemoveEventCallback("ghostlybond_recallcomplete", inst._onsummonstatechanged_server, inst._owner)
+        end
+
+        inst._owner = owner
+
+		inst._updatespells:push()
+		updatespells(inst, inst._owner)
+
+        if not inst._owner:HasTag("backpack") then
+            inst:ListenForEvent("onactivateskill_server", inst._onskillrefresh_server, owner)
+			inst:ListenForEvent("ondeactivateskill_server", inst._onskillrefresh_server, owner)
+			inst:ListenForEvent("ghostlybond_summoncomplete", inst._onsummonstatechanged_server, owner)
+			inst:ListenForEvent("ghostlybond_recallcomplete", inst._onsummonstatechanged_server, owner)
+        end
+
+    elseif not owner and inst._owner then
+        if not inst._owner:HasTag("backpack") then
+			inst:RemoveEventCallback("onactivateskill_server", inst._onskillrefresh_server, inst._owner)
+			inst:RemoveEventCallback("ondeactivateskill_server", inst._onskillrefresh_server, inst._owner)
+			inst:RemoveEventCallback("ghostlybond_summoncomplete", inst._onsummonstatechanged_server, inst._owner)
+			inst:RemoveEventCallback("ghostlybond_recallcomplete", inst._onsummonstatechanged_server, inst._owner)
+        end
+
+        inst._owner = nil
+
+		inst._updatespells:push()
+		updatespells(inst, inst._owner)
+    end
+end
+
+local function onunequipped(inst, container)
+    inst:RemoveEventCallback("unequipped", inst._onunequipped, container)
+    inst:OnOwnerUpdated(container)
+end
+
+local function onequipped(inst, container, owner)
+    inst:RemoveEventCallback("equipped", inst._onequipped, container)
+    inst:OnOwnerUpdated(container)
+end
+
 local function topocket(inst, owner)
 	if inst._ongroundupdatetask ~= nil then
 		inst._ongroundupdatetask:Cancel()
 		inst._ongroundupdatetask = nil
 	end
 
-	if owner ~= inst._owner then
-		inst._updatespells:push()
-		updatespells(inst, owner)
-		if inst._owner then
-			inst:RemoveEventCallback("onactivateskill_server", inst._onskillrefresh_server, inst._owner)
-			inst:RemoveEventCallback("ondeactivateskill_server", inst._onskillrefresh_server, inst._owner)
-		end
-		inst._owner = owner
-		if owner then
-			inst:ListenForEvent("onactivateskill_server", inst._onskillrefresh_server, owner)
-			inst:ListenForEvent("ondeactivateskill_server", inst._onskillrefresh_server, owner)
-		end
-	end
-
-	inst:ListenForEvent("ghostlybond_summoncomplete", inst._onsummonstatechanged_server, owner)
-	inst:ListenForEvent("ghostlybond_recallcomplete", inst._onsummonstatechanged_server, owner)
+	inst:OnOwnerUpdated(owner)
 end
 
 local function toground(inst)
@@ -122,17 +193,7 @@ local function toground(inst)
 		inst._ongroundupdatetask = inst:DoPeriodicTask(0.5, UpdateGroundAnimation)
 	end
 
-	-- Update our spell set to nothing
-	if inst._owner then
-		inst:RemoveEventCallback("onactivateskill_server", inst._onskillrefresh_server, inst._owner)
-		inst:RemoveEventCallback("ondeactivateskill_server", inst._onskillrefresh_server, inst._owner)
-		inst:RemoveEventCallback("ghostlybond_summoncomplete", inst._onsummonstatechanged_server, inst._owner)
-		inst:RemoveEventCallback("ghostlybond_recallcomplete", inst._onsummonstatechanged_server, inst._owner)
-		inst._owner = nil
-
-		inst._updatespells:push()
-		updatespells(inst, nil)
-	end
+	inst:OnOwnerUpdated()
 end
 
 local function OnEntitySleep(inst)
@@ -191,13 +252,9 @@ local function drawimageoverride(inst)
 end
 
 -- CLIENT-SIDE
---local SPELLBOOK_SOUND_LOOP = "wendy_flower_open"
 local function CLIENT_OnOpenSpellBook(_)
-    --TheFocalPoint.SoundEmitter:PlaySound("meta3/willow/ember_container_open", SPELLBOOK_SOUND_LOOP)
 end
-
 local function CLIENT_OnCloseSpellBook(_)
-    --TheFocalPoint.SoundEmitter:KillSound(SPELLBOOK_SOUND_LOOP)
 end
 
 local function CLIENT_ReticuleTargetAllowWaterFn()
@@ -258,7 +315,8 @@ local function fn()
     spellbook:SetItems(GHOSTCOMMAND_DEFS.GetBaseCommands())
     spellbook:SetOnOpenFn(CLIENT_OnOpenSpellBook)
     spellbook:SetOnCloseFn(CLIENT_OnCloseSpellBook)
-    spellbook.closesound = "meta3/willow/ember_container_close"
+    spellbook.opensound = "meta5/wendy/skill_wheel_open"
+    spellbook.closesound = "meta5/wendy/skill_wheel_close"
 
     local aoetargeting = inst:AddComponent("aoetargeting")
     aoetargeting:SetAllowWater(true)
@@ -273,6 +331,7 @@ local function fn()
 	inst._updatespells = net_event(inst.GUID, "abigail_flower._updatespells")
 
 	inst.entity:SetPristine()
+
 	if not TheWorld.ismastersim then
 		inst._onskillrefresh_client = function(_) DoClientUpdateSpells(inst, true) end
 
@@ -289,6 +348,12 @@ local function fn()
 		inst._updatespells:push()
 		updatespells(inst, owner)
 	end
+
+	inst.OnOwnerUpdated = OnOwnerUpdated
+
+	-- Backpack listener callbacks.
+    inst._onequipped   = function(container, data) onequipped(inst, container, data.owner) end
+    inst._onunequipped = function(container, data) onunequipped(inst, container)           end
 
     inst:AddComponent("aoespell")
 

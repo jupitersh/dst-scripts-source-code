@@ -513,6 +513,10 @@ local prefabs =
 
     "shallow_grave",
     "shallow_grave_player",
+
+    -- Playing Cards
+    "deck_of_cards", -- playingcardsmanager
+    "balatro_machine",
 }
 
 local FISH_DATA = require("prefabs/oceanfishdef")
@@ -663,6 +667,9 @@ local function master_postinit(inst)
 
     -- Meta 5
     inst:AddComponent("decoratedgrave_ghostmanager")
+
+    -- Playing Cards
+    inst:AddComponent("playingcardsmanager")
 end
 
 return MakeWorld("forest", prefabs, assets, common_postinit, master_postinit, {"forest"}, {

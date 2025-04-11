@@ -462,7 +462,12 @@ return{
             NONEWMOON = "only_used_by_wendy",
             NOFULLMOON = "only_used_by_wendy",
             NOTNIGHT = "only_used_by_wendy",
-        },        
+            CAVE = "only_used_by_wendy",
+        },
+		MODSLINGSHOT =
+		{
+--fallback to speech_wilson.lua 			NOSLINGSHOT = "only_used_by_walter",
+		},
     },
 
 	ANNOUNCE_CANNOT_BUILD =
@@ -843,6 +848,10 @@ return{
 --fallback to speech_wilson.lua 	{
 --fallback to speech_wilson.lua 		"only_used_by_walter",
 --fallback to speech_wilson.lua 	},
+--fallback to speech_wilson.lua 	ANNOUNCE_WOBY_REMEMBERCHEST_FAIL =
+--fallback to speech_wilson.lua 	{
+--fallback to speech_wilson.lua 		"only_used_by_walter",
+--fallback to speech_wilson.lua 	},
 
     -- wx specific
     ANNOUNCE_WX_SCANNER_NEW_FOUND = "only_used_by_wx78",
@@ -859,6 +868,12 @@ return{
         "Big important!",
         "Crowny head!",
         "Any fairy stories about you, florp?",
+    },
+    ANNOUNCE_ROYALTY_JOKER =
+    {
+        "Big \"important\"!",
+        "Jokey head!",
+        "No fairy stories about you, florp!",
     },
 
     ANNOUNCE_ATTACH_BUFF_ELECTRICATTACK    = "Sparky!!",
@@ -4159,7 +4174,7 @@ return{
 --fallback to speech_wilson.lua         WORTOX_SOUL = "only_used_by_wortox", --only wortox can inspect souls
         --WORTOX_DECOY is not needed because it uses the default WORTOX inspection.
         WORTOX_NABBAG = "Looks fun, florpt!",
-        WORTOX_REVIVER = "Imp made it",
+        WORTOX_REVIVER = "Imp made it.",
         WORTOX_SOULJAR = "Imp food?",
 
         PORTABLECOOKPOT_ITEM =
@@ -5341,6 +5356,7 @@ return{
         RECORD_MAIN = "Boring. Next one.", -- Unused.
         RECORD_WORKTOBEDONE = "Don't like. Next.", -- Unused.
         RECORD_HALLOWEDNIGHTS = "Like this one.",
+        RECORD_BALATRO = "Again!",
 
         ARCHIVE_ORCHESTRINA_MAIN = "Why floor make weird sounds, florp?",
 
@@ -5627,6 +5643,11 @@ return{
 
         SHALLOW_GRAVE = "Who that?",
         THULECITEBUGNET = "Come out, bugs! Florp!",
+
+        -- Deck of Cards
+        DECK_OF_CARDS = "Go fish! Go fish! Florp!",
+        PLAYING_CARD = "Glurgh, who cheated?",
+        BALATRO_MACHINE = "So easy game!",
     },
 
     DESCRIBE_GENERIC = "What that?",

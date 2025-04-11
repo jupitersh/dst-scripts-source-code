@@ -351,7 +351,7 @@ return MakeReticule("reticuleaoe", "idle", true),
 	MakeTarget("reticuleaoesummontarget_1d2", "idle_target_1d2", false, { .3, .5, .2, 1 }),
 	MakeTarget("reticuleaoeshadowtarget_6", "idle_target_6", false, { .1, .1, .1, 1 }),
 	MakeTarget("reticuleaoefiretarget_1", "idle_summon_target", false, { 255/255, 161/255, 61/255, 1 }),
-	MakeTarget("reticuleaoeghosttarget", "idle_summon_target", false, { .1, .1, .1, 1 }),
+	MakeTarget("reticuleaoeghosttarget", "idle_summon_target", false, { 255/255, 161/255, 61/255, 1 }),
 	MakeTarget("reticuleaoehostiletarget_1d25", {
 			bank = "winona_catapult_placement",
 			build = "winona_catapult_placement",

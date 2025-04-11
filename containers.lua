@@ -1001,6 +1001,69 @@ function params.teleportato_base.widget.buttoninfo.fn(inst, doer)
 end
 
 --------------------------------------------------------------------------
+--[[ balatro machine ]]
+--------------------------------------------------------------------------
+
+params.balatro_machine =
+{
+    widget =
+    {
+        slotpos =
+        {
+           -- Vector3(0, 64 + 32 + 8 + 4 + 80, 0),
+           -- Vector3(0, 64 + 32 + 8 + 4, 0),
+           -- Vector3(0, 32 + 4, 0),
+           -- Vector3(0, -(32 + 4), 0),
+           -- Vector3(0, -(64 + 32 + 8 + 4), 0),
+
+            Vector3(0, 0, 0),
+            Vector3(68, 0, 0),
+            Vector3(68+68, 0, 0),
+            Vector3(68+68+68, 0, 0),
+            Vector3(68+68+68+68, 0, 0),
+
+        },
+        slotbg =
+        {
+            { image = "sisturn_slot_petals.tex" },
+            { image = "sisturn_slot_petals.tex" },
+            { image = "sisturn_slot_petals.tex" },
+            { image = "sisturn_slot_petals.tex" },
+            { image = "sisturn_slot_petals.tex" },            
+        },        
+        animbank = "ui_cookpot_1x4",
+        animbuild = "ui_cookpot_1x4",
+        pos = Vector3(100, 0, 0),
+        buttoninfo =
+        {
+            text = STRINGS.ACTIONS.ACTIVATE.GENERIC,
+            position = Vector3(68+68, -68, 0),
+        },        
+    },
+    acceptsstacks = false,
+    type = "cooker",
+    openlimit = 1,
+}
+
+function params.balatro_machine.itemtestfn(container, item, slot)
+    return not container.inst:HasTag("burnt") --and item.prefab == "kelp"
+end
+
+function params.balatro_machine.widget.buttoninfo.fn(inst, doer)
+    if inst.components.container ~= nil then
+        BufferedAction(doer, inst, ACTIONS.ACTIVATE_CONTAINER):Do()
+    elseif inst.replica.container ~= nil and not inst.replica.container:IsBusy() then
+        SendRPCToServer(RPC.DoWidgetButtonAction, ACTIONS.ACTIVATE_CONTAINER.code, inst, ACTIONS.ACTIVATE_CONTAINER.mod_name)
+    end
+end
+--[[
+function params.balatro_machine.widget.buttoninfo.validfn(inst)
+    return inst.replica.container ~= nil and inst.replica.container:IsFull()
+end
+]]
+
+
+--------------------------------------------------------------------------
 --[[ treasurechest ]]
 --------------------------------------------------------------------------
 

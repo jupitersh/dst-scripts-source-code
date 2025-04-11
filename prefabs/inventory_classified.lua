@@ -724,9 +724,12 @@ local function TakeActiveItemFromCountOfSlot(inst, slot, count)
         local item = inst:GetItemInSlot(slot)
         if item ~= nil then
             local takeitem = SlotItem(item, slot)
-            if item.replica.stackable and item.replica.stackable:StackSize() > count then
+            local stackable = item.replica.stackable
+            local fullstacksize = stackable and (stackable:IsOverStacked() and stackable:OriginalMaxSize() or stackable:StackSize()) or 1
+            count = math.clamp(count, 1, fullstacksize)
+            if stackable and stackable:StackSize() > count then
                 PushNewActiveItem(inst, takeitem, inst, slot)
-                local stacksize = item.replica.stackable:StackSize()
+                local stacksize = stackable:StackSize()
                 PushStackSize(inst, item, stacksize - count, true, count, false)
             else
                 PushItemLose(inst, takeitem)
@@ -1059,14 +1062,17 @@ local function MoveItemFromHalfOfSlot(inst, slot, container)
     end
 end
 
-local function MoveItemFromCountOfSlot(inst, slot, container)
+local function MoveItemFromCountOfSlot(inst, slot, container, count)
     if not IsBusy(inst) then
         local container_classified = container ~= nil and container.replica.container ~= nil and container.replica.container.classified or nil
         if container_classified ~= nil and not container_classified:IsBusy() then
             local item = inst:GetItemInSlot(slot)
             if item ~= nil then
+                local stackable = item.replica.stackable
+                local fullstacksize = stackable and (stackable:IsOverStacked() and stackable:OriginalMaxSize() or stackable:StackSize()) or 1
+                count = math.clamp(count, 1, fullstacksize)
                 local animateactivestacksize, receiveitemcount
-                if item.replica.stackable and item.replica.stackable:StackSize() > count then
+                if stackable and stackable:StackSize() > count then
                     receiveitemcount = count
                     animateactivestacksize = true
                 else

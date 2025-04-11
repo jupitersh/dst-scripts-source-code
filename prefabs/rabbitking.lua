@@ -116,6 +116,9 @@ local function fn_passive()
 
     inst:AddTag("companion")
 
+    --prototyper (from prototyper component) added to pristine state for optimization
+    inst:AddTag("prototyper")
+
     inst.AnimState:SetScale(KING_SCALE, KING_SCALE)
 
     inst.entity:SetPristine()

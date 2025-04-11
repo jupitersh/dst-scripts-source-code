@@ -66,11 +66,20 @@ end
 
 -- Dig Up
 local function OnDugUp(inst, tool, worker)
+    SpawnPrefab("attune_out_fx").Transform:SetPosition(inst.Transform:GetWorldPosition())
+
+    inst:RemoveComponent("gravediggable")
+
     inst.AnimState:PlayAnimation("grave"..inst.random_stone_choice.."_slide")
 
+    local animlength = inst.AnimState:GetCurrentAnimationLength()
+
     inst.persists = false
-    inst:RemoveComponent("gravediggable")
-    inst:DoTaskInTime(inst.AnimState:GetCurrentAnimationLength(), inst.Remove)
+    inst:DoTaskInTime(animlength, inst.Remove)
+
+    if inst.mound ~= nil then
+        ErodeAway(inst.mound, animlength)
+    end
 
     return true
 end
@@ -200,6 +209,10 @@ end
 
 local GRAVESTONE_SCRAPBOOK_HIDE = { "flower" }
 
+-- NOTES(DiogoW): This used to be TheCamera:GetDownVec()*.5, probably legacy code from DS,
+-- since TheCamera:GetDownVec() would always return the values below.
+local MOUND_POSITION_OFFSET = { 0.35355339059327, 0, 0.35355339059327 }
+
 local function fn()
     local inst = CreateEntity()
 
@@ -235,7 +248,7 @@ local function fn()
     --
     inst.mound = inst:SpawnChild("mound")
     inst.mound.ghost_of_a_chance = 0.0
-    inst.mound.Transform:SetPosition((TheCamera:GetDownVec()*.5):Get())
+    inst.mound.Transform:SetPosition(unpack(MOUND_POSITION_OFFSET))
 
     --
     local gravediggable = inst:AddComponent("gravediggable")

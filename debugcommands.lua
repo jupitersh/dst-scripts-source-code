@@ -691,6 +691,22 @@ function d_test_skins_gift(param)
 	TheFrontEnd:PushScreen( GiftItemPopUp(ThePlayer, { param or TEST_ITEM_NAME }, { 0 }) )
 end
 
+function d_test_mystery_box(params)
+    local params = params or {}
+    local ItemBoxOpenerPopup = require "screens/redux/itemboxopenerpopup"
+
+    local options = {
+        allow_cancel = params.allow_cancel,
+        box_build = params.box_build or "box_mystery_classic",
+    }
+
+    if options.allow_cancel == nil then
+        options.allow_cancel = true
+    end
+
+    TheFrontEnd:PushScreen(ItemBoxOpenerPopup(options, function(success_cb) success_cb(GetPurchasePackDisplayItems(params.skin_pack or "pack_container_items")) end))
+end
+
 function d_print_skin_info()
 
 	print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")

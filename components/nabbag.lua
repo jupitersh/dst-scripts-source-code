@@ -41,7 +41,7 @@ function Nabbag:ReplicateNetFromAct(act)
 end
 
 local NABBAG_MUSTTAGS = {"_inventoryitem"}
-local NABBAG_CANTTAGS = {"INLIMBO", "FX", "_container", "heavy"}
+local NABBAG_CANTTAGS = {"INLIMBO", "FX", "_container", "heavy", "fire"}
 function Nabbag:DoNabFromAct(act)
     local success, reason
     if act.target:HasAnyTag(NABBAG_CANTTAGS) then

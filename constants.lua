@@ -1097,7 +1097,7 @@ end
 FE_MUSIC =
     (FESTIVAL_EVENT_MUSIC[WORLD_FESTIVAL_EVENT] ~= nil and FESTIVAL_EVENT_MUSIC[WORLD_FESTIVAL_EVENT].sound) or
     (SPECIAL_EVENT_MUSIC[WORLD_SPECIAL_EVENT] ~= nil and SPECIAL_EVENT_MUSIC[WORLD_SPECIAL_EVENT].sound) or
-    "dontstarve/music/music_FE_meta5"
+    "dontstarve/music/music_FE_balatro"
     --"dontstarve/music/music_FE_hallowednights2024"
     --"dontstarve/music/music_FE_rifts4"
     --"dontstarve/music/music_FE_winonawurt"
@@ -2564,7 +2564,7 @@ BETA_INFO =
 		NAME = "ANRBETA",
 		SERVERTAG = "a_new_reign_beta",
 		VERSION_MISMATCH_STRING = "VERSION_MISMATCH_ARNBETA",
-		URL = "http://forums.kleientertainment.com/topic/69487-how-to-opt-in-to-a-new-reign-beta-for-dont-starve-together/",
+		URL = "https://forums.kleientertainment.com/topic/69487-how-to-opt-in-to-a-new-reign-beta-for-dont-starve-together/",
 	},
 
 	-- THE GENERIC PUBLIC BETA INFO MUST BE LAST --
@@ -2573,7 +2573,7 @@ BETA_INFO =
 		NAME = "PUBLIC_BETA",
 		SERVERTAG = "public_beta",
 		VERSION_MISMATCH_STRING = "VERSION_MISMATCH_PUBLIC_BETA",
-		URL = "http://forums.kleientertainment.com/forum/66-dont-starve-together-general-discussion/",
+		URL = "https://forums.kleientertainment.com/forum/66-dont-starve-together-general-discussion/",
 	},
 }
 PUBLIC_BETA = #BETA_INFO

@@ -462,7 +462,12 @@ return{
             NONEWMOON = "only_used_by_wendy",
             NOFULLMOON = "only_used_by_wendy",
             NOTNIGHT = "only_used_by_wendy",
-        },        
+            CAVE = "only_used_by_wendy",
+        },
+		MODSLINGSHOT =
+		{
+--fallback to speech_wilson.lua 			NOSLINGSHOT = "only_used_by_walter",
+		},
     },
 
 	ANNOUNCE_CANNOT_BUILD =
@@ -844,6 +849,10 @@ return{
 --fallback to speech_wilson.lua 	{
 --fallback to speech_wilson.lua 		"only_used_by_walter",
 --fallback to speech_wilson.lua 	},
+--fallback to speech_wilson.lua 	ANNOUNCE_WOBY_REMEMBERCHEST_FAIL =
+--fallback to speech_wilson.lua 	{
+--fallback to speech_wilson.lua 		"only_used_by_walter",
+--fallback to speech_wilson.lua 	},
 
     -- wx specific
     ANNOUNCE_WX_SCANNER_NEW_FOUND = "only_used_by_wx78",
@@ -855,12 +864,18 @@ return{
     QUAGMIRE_ANNOUNCE_LOSE = "Sky beast is mad!",
     QUAGMIRE_ANNOUNCE_WIN = "Is time to leave. Goodbye, good food!",
 
---fallback to speech_wilson.lua     ANNOUNCE_ROYALTY =
---fallback to speech_wilson.lua     {
---fallback to speech_wilson.lua         "Your majesty.",
---fallback to speech_wilson.lua         "Your highness.",
---fallback to speech_wilson.lua         "My liege!",
---fallback to speech_wilson.lua     },
+    ANNOUNCE_ROYALTY =
+    {
+        "Wolfgang in presence of royalty!",
+        "Your Mightiness!",
+        "Your Grace!",
+    },
+    ANNOUNCE_ROYALTY_JOKER =
+    {
+        "Wolfgang in presence of \"royalty\"!,",
+        "Your Mirthfulness!",
+        "Your \"Grace\"!",
+    },
 
     ANNOUNCE_ATTACH_BUFF_ELECTRICATTACK    = "Sparky! I like!",
     ANNOUNCE_ATTACH_BUFF_ATTACK            = "Wolfgang even mightier than was before!",
@@ -5342,6 +5357,7 @@ return{
         RECORD_MAIN = "Eh. Is okay.", -- Unused.
         RECORD_WORKTOBEDONE = "Music for make big muscles.", -- Unused.
         RECORD_HALLOWEDNIGHTS = "We listen together, yes?",
+        RECORD_BALATRO = "Song make Wolfgang shoulders bounce.",
 
         ARCHIVE_ORCHESTRINA_MAIN = "Floor is making sounds!",
 
@@ -5628,6 +5644,11 @@ return{
 
         SHALLOW_GRAVE = "Wolfgang will remember you.",
         THULECITEBUGNET = "Wolfgang wouldn't hurt fly.",
+
+        -- Deck of Cards
+        DECK_OF_CARDS = "Rip deck of cards in half is one of Wolfgang famous feat of strength!",
+        PLAYING_CARD = "Don't worry little card, Wolfgang only rip in half full deck.",
+        BALATRO_MACHINE = "Is clown real? Wolfgang not afraid, just uncomfortable.",
     },
 
     DESCRIBE_GENERIC = "What is this thing?",

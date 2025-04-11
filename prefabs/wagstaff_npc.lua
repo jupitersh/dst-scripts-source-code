@@ -243,15 +243,15 @@ local function onplayernear(inst,player)
                 doblueprintcheck(inst)
 
                 inst:PushEvent("talk")
-                inst.components.talker:Chatter("WAGSTAFF_NPC_MEETING2", 0, nil, nil, CHATPRIORITIES.LOW)
+                inst.components.talker:Chatter("WAGSTAFF_NPC_MEETING_2", 0, nil, nil, CHATPRIORITIES.LOW)
 
                 inst:DoTaskInTime(3,function()
                     inst:PushEvent("talk")
-                    inst.components.talker:Chatter("WAGSTAFF_NPC_MEETING3", 0, nil, nil, CHATPRIORITIES.LOW)
+                    inst.components.talker:Chatter("WAGSTAFF_NPC_MEETING_3", 0, nil, nil, CHATPRIORITIES.LOW)
 
                     inst:DoTaskInTime(3,function()
                         inst:PushEvent("talk")
-                        inst.components.talker:Chatter("WAGSTAFF_NPC_MEETING4", 0, nil, nil, CHATPRIORITIES.LOW)
+                        inst.components.talker:Chatter("WAGSTAFF_NPC_MEETING_4", 0, nil, nil, CHATPRIORITIES.LOW)
 
                         inst:DoTaskInTime(3, waypointadvance, "WAGSTAFF_NPC_MEETING_5")
                     end)

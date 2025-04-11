@@ -1301,6 +1301,13 @@ t = {
                 FlagForRetrofitting_Forest(savedata, "retrofit_otterdens")
             end,
         },
+        
+        {
+            version = 5.155, -- Add Balatro Machine to the world.
+            fn = function(savedata)
+                FlagForRetrofitting_Forest(savedata, "retrofit_balatro_content")
+            end,
+        },        
     },
 }
 

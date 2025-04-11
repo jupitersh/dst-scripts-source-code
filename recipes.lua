@@ -335,7 +335,7 @@ Recipe2("armor_lunarplant_husk",		{Ingredient("armor_lunarplant", 1), Ingredient
 
 -- Wortox
 Recipe2("wortox_reviver",				{Ingredient("wortox_soul", 10)},																				TECH.NONE,	{builder_skill="wortox_lifebringer_1"})
-Recipe2("wortox_souljar",				{Ingredient("messagebottleempty", 1), Ingredient("marble", 2), Ingredient("redgem", 1)},						TECH.NONE,	{builder_skill="wortox_souljar_1"})
+Recipe2("wortox_souljar",				{Ingredient("messagebottleempty", 1), Ingredient("marble", 2), Ingredient("redgem", 1)},						TECH.NONE,	{builder_skill="wortox_souljar_1", decon_ignores_finiteuses = true})
 Recipe2("wortox_nabbag",				{Ingredient("wortox_soul", 4), Ingredient("silk", 2)},															TECH.NONE,	{builder_skill="wortox_nabbag"})
 
 -- Wanda --
@@ -438,7 +438,7 @@ Recipe2("heatrock",							{Ingredient("rocks", 10),Ingredient("pickaxe", 1), Ing
 
 Recipe2("rope",								{Ingredient("cutgrass", 3)},																	TECH.SCIENCE_ONE,			{no_builder_skill="walter_camp_rope", forward_ingredients={"walter_rope"}})
 Recipe2("walter_rope",						{Ingredient("cutgrass", 2)},																	TECH.NONE,					{builder_skill="walter_camp_rope", sg_state="domediumaction", product="rope", description="rope", no_deconstruction=true})
-Recipe2("boards",							{Ingredient("log", 4)}, 																		TECH.SCIENCE_ONE)
+Recipe2("boards",							{Ingredient("log", 4)}, 																		TECH.SCIENCE_ONE,           {no_builder_tag="cancarveboards", forward_ingredients={"woodie_boards"}})
 Recipe2("cutstone",							{Ingredient("rocks", 3)}, 																		TECH.SCIENCE_ONE)
 Recipe2("papyrus",							{Ingredient("cutreeds", 4)}, 																	TECH.SCIENCE_ONE)
 Recipe2("transistor",						{Ingredient("goldnugget", 2), Ingredient("cutstone", 1)},										TECH.SCIENCE_ONE)

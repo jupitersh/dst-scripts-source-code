@@ -107,6 +107,7 @@ function Hauntable:DoHaunt(doer)
 			end
         end
     end
+	self.inst:PushEvent("haunted")
 end
 
 function Hauntable:StartShaderFx()

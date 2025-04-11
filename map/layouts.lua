@@ -434,6 +434,15 @@ local ExampleLayout =
 		["Charlie1"] = StaticLayout.Get("map/static_layouts/charlie_1"),
 		["Charlie2"] = StaticLayout.Get("map/static_layouts/charlie_2"),
 		
+----------------------------------------------------------------------------------
+-- Balatro
+----------------------------------------------------------------------------------
+		["Balatro"] = StaticLayout.Get("map/static_layouts/balatro", {
+	        areas = {
+	            balatro_card_area = function(area) return PickSomeWithDups(math.random(2,4), {"playing_card"}) end,
+	        },
+		}),		
+
 --------------------------------------------------------------------------------
 -- Blockers
 --------------------------------------------------------------------------------

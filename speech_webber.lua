@@ -462,7 +462,12 @@ return{
             NONEWMOON = "only_used_by_wendy",
             NOFULLMOON = "only_used_by_wendy",
             NOTNIGHT = "only_used_by_wendy",
-        },        
+            CAVE = "only_used_by_wendy",
+        },
+		MODSLINGSHOT =
+		{
+--fallback to speech_wilson.lua 			NOSLINGSHOT = "only_used_by_walter",
+		},
     },
 
 	ANNOUNCE_CANNOT_BUILD =
@@ -843,6 +848,10 @@ return{
 --fallback to speech_wilson.lua 	{
 --fallback to speech_wilson.lua 		"only_used_by_walter",
 --fallback to speech_wilson.lua 	},
+--fallback to speech_wilson.lua 	ANNOUNCE_WOBY_REMEMBERCHEST_FAIL =
+--fallback to speech_wilson.lua 	{
+--fallback to speech_wilson.lua 		"only_used_by_walter",
+--fallback to speech_wilson.lua 	},
 
     -- wx specific
     ANNOUNCE_WX_SCANNER_NEW_FOUND = "only_used_by_wx78",
@@ -854,12 +863,18 @@ return{
     QUAGMIRE_ANNOUNCE_LOSE = "Don't eat us!",
     QUAGMIRE_ANNOUNCE_WIN = "I'm ready to go home now!",
 
---fallback to speech_wilson.lua     ANNOUNCE_ROYALTY =
---fallback to speech_wilson.lua     {
---fallback to speech_wilson.lua         "Your majesty.",
---fallback to speech_wilson.lua         "Your highness.",
---fallback to speech_wilson.lua         "My liege!",
---fallback to speech_wilson.lua     },
+    ANNOUNCE_ROYALTY =
+    {
+        "Our Liege!",
+        "Nice crown!",
+        "Your wish is our command!",
+    },
+    ANNOUNCE_ROYALTY_JOKER =
+    {
+        "Our \"Liege\"!",
+        "Nice \"crown\"!",
+        "Tell us a joke!",
+    },
 
     ANNOUNCE_ATTACH_BUFF_ELECTRICATTACK    = "With great lightning powers comes great responsibility!",
     ANNOUNCE_ATTACH_BUFF_ATTACK            = "We feel so strong!",
@@ -4139,13 +4154,13 @@ return{
         SPIDER_HEALER_ITEM = "It's good for fixing spider booboos.",
 
 		-- Wendy
-		GHOSTLYELIXIR_SLOWREGEN = "Hey, you didn't tell me you were making crafts!",
-		GHOSTLYELIXIR_FASTREGEN = "Hey, you didn't tell me you were making crafts!",
-		GHOSTLYELIXIR_SHIELD = "Hey, you didn't tell me you were making crafts!",
-		GHOSTLYELIXIR_ATTACK = "Hey, you didn't tell me you were making crafts!",
-		GHOSTLYELIXIR_SPEED = "Hey, you didn't tell me you were making crafts!",
-		GHOSTLYELIXIR_RETALIATION = "Hey, you didn't tell me you were making crafts!",
-        GHOSTLYELIXIR_REVIVE = "Hey, you didn't tell me you were making crafts!",
+		GHOSTLYELIXIR_SLOWREGEN = "Hey, you didn't tell us you were making crafts!",
+		GHOSTLYELIXIR_FASTREGEN = "Hey, you didn't tell us you were making crafts!",
+		GHOSTLYELIXIR_SHIELD = "Hey, you didn't tell us you were making crafts!",
+		GHOSTLYELIXIR_ATTACK = "Hey, you didn't tell us you were making crafts!",
+		GHOSTLYELIXIR_SPEED = "Hey, you didn't tell us you were making crafts!",
+		GHOSTLYELIXIR_RETALIATION = "Hey, you didn't tell us you were making crafts!",
+        GHOSTLYELIXIR_REVIVE = "Hey, you didn't tell us you were making crafts!",
 		SISTURN =
 		{
 			GENERIC = "It's a little Abigail house!",
@@ -5341,6 +5356,7 @@ return{
         RECORD_MAIN = "It makes us want to do a little dance!", -- Unused.
         RECORD_WORKTOBEDONE = "It makes us want to do a little dance!", -- Unused.
         RECORD_HALLOWEDNIGHTS = "We want candy.",
+        RECORD_BALATRO = "It makes us happy!",
 
         ARCHIVE_ORCHESTRINA_MAIN = "We love puzzles!",
 
@@ -5627,6 +5643,11 @@ return{
 
         SHALLOW_GRAVE = "Aww. Did we know them?",
         THULECITEBUGNET = "We can make that with our beard!",
+
+        -- Deck of Cards
+        DECK_OF_CARDS = "We know many games!",
+        PLAYING_CARD = "Is this the one we lost?",
+        BALATRO_MACHINE = "Prizes!",
     },
 
     DESCRIBE_GENERIC = "Can we play with it?",

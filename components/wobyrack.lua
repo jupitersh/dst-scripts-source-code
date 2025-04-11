@@ -103,7 +103,7 @@ local function OnRiderChanged(inst, data)
 end
 
 local function DryingPerishRateFn(inst, item)
-	return item.components.dryable and 0 or nil
+	return item and item.components.dryable and 0 or nil
 end
 
 function WobyRack:EnableDrying()

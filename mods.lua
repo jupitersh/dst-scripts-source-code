@@ -54,7 +54,7 @@ MOD_CRAFTING_AVATAR_LOCATIONS = { Default = "images/crafting_menu_avatars/" }
 --Add your avatar atlas locations for each prefab if you don't want to use the default mod avatar location
 
 local function VisitModForums()
-    VisitURL("http://forums.kleientertainment.com/forum/79-dont-starve-together-beta-mods-and-tools/")
+    VisitURL("https://forums.kleientertainment.com/forum/79-dont-starve-together-beta-mods-and-tools/")
 end
 
 function AreServerModsEnabled()
@@ -937,16 +937,16 @@ function ModWrangler:GetLinkForMod(mod_name)
 		local thread = is_known and KnownModIndex:GetModInfo(mod_name).forumthread or nil
 
 		if thread and thread ~= "" then
-			url = "http://forums.kleientertainment.com/index.php?%s"
+			url = "https://forums.kleientertainment.com/index.php?%s"
 			url = string.format(url, thread)
 		elseif IsWorkshopMod(mod_name) then
-			url = "http://steamcommunity.com/sharedfiles/filedetails/?id="..GetWorkshopIdNumber(mod_name)
+			url = "https://steamcommunity.com/sharedfiles/filedetails/?id="..GetWorkshopIdNumber(mod_name)
 		else
 			-- Presumably if known and not workshop, it was downloaded from the forum?
 			if is_known then
-				url = "http://forums.kleientertainment.com/forum/79-dont-starve-together-beta-mods-and-tools/"
+				url = "https://forums.kleientertainment.com/forum/79-dont-starve-together-beta-mods-and-tools/"
 			else
-				url = "http://steamcommunity.com/app/322330/workshop/"
+				url = "https://steamcommunity.com/app/322330/workshop/"
 			end
 			is_generic_url = true
 		end
@@ -957,9 +957,9 @@ end
 
 function ModWrangler:ShowMoreMods()
     if PLATFORM == "WIN32_STEAM" or PLATFORM == "LINUX_STEAM" or PLATFORM == "OSX_STEAM" then
-        VisitURL("http://steamcommunity.com/app/322330/workshop/")
+        VisitURL("https://steamcommunity.com/app/322330/workshop/")
     else
-        VisitURL("http://forums.kleientertainment.com/files/")
+        VisitURL("https://forums.kleientertainment.com/files/")
     end
 end
 

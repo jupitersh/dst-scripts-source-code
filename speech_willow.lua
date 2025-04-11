@@ -462,7 +462,12 @@ return{
             NONEWMOON = "only_used_by_wendy",
             NOFULLMOON = "only_used_by_wendy",
             NOTNIGHT = "only_used_by_wendy",
-        },        
+            CAVE = "only_used_by_wendy",
+        },
+		MODSLINGSHOT =
+		{
+--fallback to speech_wilson.lua 			NOSLINGSHOT = "only_used_by_walter",
+		},
     },
 
 	ANNOUNCE_CANNOT_BUILD =
@@ -850,6 +855,10 @@ return{
 --fallback to speech_wilson.lua 	{
 --fallback to speech_wilson.lua 		"only_used_by_walter",
 --fallback to speech_wilson.lua 	},
+--fallback to speech_wilson.lua 	ANNOUNCE_WOBY_REMEMBERCHEST_FAIL =
+--fallback to speech_wilson.lua 	{
+--fallback to speech_wilson.lua 		"only_used_by_walter",
+--fallback to speech_wilson.lua 	},
 
     -- wx specific
     ANNOUNCE_WX_SCANNER_NEW_FOUND = "only_used_by_wx78",
@@ -861,12 +870,18 @@ return{
     QUAGMIRE_ANNOUNCE_LOSE = "I think it's angry!!",
     QUAGMIRE_ANNOUNCE_WIN = "Let's get out of here!",
 
---fallback to speech_wilson.lua     ANNOUNCE_ROYALTY =
---fallback to speech_wilson.lua     {
---fallback to speech_wilson.lua         "Your majesty.",
---fallback to speech_wilson.lua         "Your highness.",
---fallback to speech_wilson.lua         "My liege!",
---fallback to speech_wilson.lua     },
+    ANNOUNCE_ROYALTY =
+    {
+        "Nice hat.",
+        "You're not the boss of me.",
+        "You expecting me to bow or something?",
+    },
+    ANNOUNCE_ROYALTY_JOKER =
+    {
+        "Great hat!",
+        "It really brings out your eyes!",
+        "It makes so much sense.",
+    },
 
     ANNOUNCE_ATTACH_BUFF_ELECTRICATTACK    = "I've never tried using electricity to start fires!",
     ANNOUNCE_ATTACH_BUFF_ATTACK            = "You wanna fight?!",
@@ -5348,6 +5363,7 @@ return{
         RECORD_MAIN = "There's something so nostalgic about the way it pops and crackles.", -- Unused.
         RECORD_WORKTOBEDONE = "It's always nice to have some music while you're busy burning stuff.", -- Unused.
         RECORD_HALLOWEDNIGHTS = "This track makes me feel... mischievous.",
+        RECORD_BALATRO = "This song is kind of mesmerizing.",
 
         ARCHIVE_ORCHESTRINA_MAIN = "It won't burn? Well, I'm out of ideas.",
 
@@ -5634,6 +5650,11 @@ return{
 
         SHALLOW_GRAVE = "Should have cremated them.",
         THULECITEBUGNET = "I should try this one on Webber.",
+
+        -- Deck of Cards
+        DECK_OF_CARDS = "If it's not a full deck, at least we have kindling.",
+        PLAYING_CARD = "Must be the burn card.",
+        BALATRO_MACHINE = "Let me win or I'll set you on fire.",
     },
 
     DESCRIBE_GENERIC = "I have no idea what that is!",

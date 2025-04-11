@@ -977,11 +977,12 @@ function Container:TakeActiveItemFromCountOfSlot(slot, count, opener)
     if item ~= nil and
         active_item == nil and
         inventory ~= nil then
-
         self.currentuser = opener
-
-        if item.components.stackable and item.components.stackable:StackSize() > count then
-            local countedstack = item.components.stackable:Get(count)
+        local stackable = item.components.stackable
+        local fullstacksize = stackable and (stackable:IsOverStacked() and stackable.originalmaxsize or stackable:StackSize()) or 1
+        count = math.clamp(count, 1, fullstacksize)
+        if stackable and stackable:StackSize() > count then
+            local countedstack = stackable:Get(count)
             countedstack.prevslot = slot
             countedstack.prevcontainer = self
             inventory:GiveActiveItem(countedstack)
@@ -1237,9 +1238,12 @@ function Container:MoveItemFromCountOfSlot(slot, container, count, opener)
                 nil
 
             if container:CanTakeItemInSlot(item, targetslot) then
+                local stackable = item.components.stackable
+                local fullstacksize = stackable and (stackable:IsOverStacked() and stackable.originalmaxsize or stackable:StackSize()) or 1
+                count = math.clamp(count, 1, fullstacksize)
                 local countedstack
-                if item.components.stackable and item.components.stackable:StackSize() > count then
-                    countedstack = item.components.stackable:Get(count)
+                if stackable and stackable:StackSize() > count then
+                    countedstack = stackable:Get(count)
                 else
                     countedstack = self:RemoveItemBySlot(slot)
                 end

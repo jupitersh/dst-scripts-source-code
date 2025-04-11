@@ -462,7 +462,12 @@ return{
             NONEWMOON = "only_used_by_wendy",
             NOFULLMOON = "only_used_by_wendy",
             NOTNIGHT = "only_used_by_wendy",
-        },        
+            CAVE = "only_used_by_wendy",
+        },
+		MODSLINGSHOT =
+		{
+--fallback to speech_wilson.lua 			NOSLINGSHOT = "only_used_by_walter",
+		},
     },
 
 	ANNOUNCE_CANNOT_BUILD =
@@ -843,6 +848,10 @@ return{
 --fallback to speech_wilson.lua 	{
 --fallback to speech_wilson.lua 		"only_used_by_walter",
 --fallback to speech_wilson.lua 	},
+--fallback to speech_wilson.lua 	ANNOUNCE_WOBY_REMEMBERCHEST_FAIL =
+--fallback to speech_wilson.lua 	{
+--fallback to speech_wilson.lua 		"only_used_by_walter",
+--fallback to speech_wilson.lua 	},
 
     -- wx specific
     ANNOUNCE_WX_SCANNER_NEW_FOUND = "only_used_by_wx78",
@@ -854,12 +863,18 @@ return{
     QUAGMIRE_ANNOUNCE_LOSE = "This may be the end.",
     QUAGMIRE_ANNOUNCE_WIN = "The Gateway is ready!",
 
---fallback to speech_wilson.lua     ANNOUNCE_ROYALTY =
---fallback to speech_wilson.lua     {
---fallback to speech_wilson.lua         "Your majesty.",
---fallback to speech_wilson.lua         "Your highness.",
---fallback to speech_wilson.lua         "My liege!",
---fallback to speech_wilson.lua     },
+    ANNOUNCE_ROYALTY =
+    {
+        "Someone thinks highly of themselves.",
+        "Your \"Majesty\".",
+        "Your \"Royal Highness\"",
+    },
+    ANNOUNCE_ROYALTY_JOKER =
+    {
+        "It's a perfect fit.",
+        "Your \"Majesty\".",
+        "Your \"Royal Highness\"",
+    },
 
     ANNOUNCE_ATTACH_BUFF_ELECTRICATTACK    = "Unlimited power!",
     ANNOUNCE_ATTACH_BUFF_ATTACK            = "I'm not afraid of some fisticuffs!",
@@ -5341,6 +5356,7 @@ return{
         RECORD_MAIN = "Silence would be preferable.", -- Unused.
         RECORD_WORKTOBEDONE = "Forgive me if I've lost my taste for music.", -- Unused.
         RECORD_HALLOWEDNIGHTS = "Ugh, no more.",
+        RECORD_BALATRO = "The jovial sound invades my mind. Keep it off.",
 
         ARCHIVE_ORCHESTRINA_MAIN = "Rather devious.",
 
@@ -5627,6 +5643,11 @@ return{
 
         SHALLOW_GRAVE = "Fancy...",
         THULECITEBUGNET = "I'm glad I'm not an insect.",
+
+        -- Deck of Cards
+        DECK_OF_CARDS = "If only I stuck with these.",
+        PLAYING_CARD = "It is none other than the four of clubs!",
+        BALATRO_MACHINE = "The game is rigged! But I'll play again to be sure.",
     },
 
     DESCRIBE_GENERIC = "You tell me.",

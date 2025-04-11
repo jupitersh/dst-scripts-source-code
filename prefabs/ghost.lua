@@ -202,6 +202,11 @@ local function link_to_gravestone(inst, gravestone)
     inst.components.knownlocations:RememberLocation("home", gravestone:GetPosition(), true)
 end
 
+local GRAVEGUARD_SCRAPBOOK_OVERRIDEDARA =
+{
+    { "ghost_eyes", "ghost_build", "ghost_eyes_happy" },
+}
+
 local function graveguard_fn()
     local inst = CreateEntity()
 
@@ -241,6 +246,8 @@ local function graveguard_fn()
     if not TheWorld.ismastersim then
         return inst
     end
+
+    inst.scrapbook_overridedata = GRAVEGUARD_SCRAPBOOK_OVERRIDEDARA
 
     inst._target_test = target_test
 

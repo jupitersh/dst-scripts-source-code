@@ -462,7 +462,12 @@ return{
             NONEWMOON = "only_used_by_wendy",
             NOFULLMOON = "only_used_by_wendy",
             NOTNIGHT = "only_used_by_wendy",
-        },        
+            CAVE = "only_used_by_wendy",
+        },
+		MODSLINGSHOT =
+		{
+--fallback to speech_wilson.lua 			NOSLINGSHOT = "only_used_by_walter",
+		},
     },
 
 	ANNOUNCE_CANNOT_BUILD =
@@ -843,6 +848,10 @@ return{
 --fallback to speech_wilson.lua 	{
 --fallback to speech_wilson.lua 		"only_used_by_walter",
 --fallback to speech_wilson.lua 	},
+--fallback to speech_wilson.lua 	ANNOUNCE_WOBY_REMEMBERCHEST_FAIL =
+--fallback to speech_wilson.lua 	{
+--fallback to speech_wilson.lua 		"only_used_by_walter",
+--fallback to speech_wilson.lua 	},
 
     -- wx specific
     ANNOUNCE_WX_SCANNER_NEW_FOUND = "only_used_by_wx78",
@@ -854,12 +863,18 @@ return{
     QUAGMIRE_ANNOUNCE_LOSE = "I have a bad feeling about this.",
     QUAGMIRE_ANNOUNCE_WIN = "Time to go!",
 
---fallback to speech_wilson.lua     ANNOUNCE_ROYALTY =
---fallback to speech_wilson.lua     {
---fallback to speech_wilson.lua         "Your majesty.",
---fallback to speech_wilson.lua         "Your highness.",
---fallback to speech_wilson.lua         "My liege!",
---fallback to speech_wilson.lua     },
+    ANNOUNCE_ROYALTY =
+    {
+        "There's a regal air about you.",
+        "The crown suits you.",
+        "I'm in the presence of royalty.",
+    },
+    ANNOUNCE_ROYALTY_JOKER =
+    {
+        "There's a \"regal\" air about you.",
+        "The \"crown\" suits you.",
+        "I'm in the presence of \"royalty\".",
+    },
 
     ANNOUNCE_ATTACH_BUFF_ELECTRICATTACK    = "I've never felt so full of energy!",
     ANNOUNCE_ATTACH_BUFF_ATTACK            = "I want to punch something!!",
@@ -5341,6 +5356,7 @@ return{
         RECORD_MAIN = "I prefer their earlier work.", -- Unused.
         RECORD_WORKTOBEDONE = "I prefer their later work.", -- Unused.
         RECORD_HALLOWEDNIGHTS = "This takes me back.",
+        RECORD_BALATRO = "I've heard it before and I'll hear it again.",
 
         ARCHIVE_ORCHESTRINA_MAIN = "What an intricate design.",
 
@@ -5627,6 +5643,11 @@ return{
 
         SHALLOW_GRAVE = "Must have been in a hurry.",
         THULECITEBUGNET = "I've seen this before.",
+
+        -- Deck of Cards
+        DECK_OF_CARDS = "Certainly a way to kill time.",
+        PLAYING_CARD = "What does one do with a single card?",
+        BALATRO_MACHINE = "Perhaps I have time for a round or two.",
     },
 
     DESCRIBE_GENERIC = "A very particular something or other.",

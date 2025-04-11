@@ -25,6 +25,7 @@ EMOTE_ITEMS =
 			sounddelay = 0.8,
 			soundlooped = true,
 			soundoverride = "carol",
+			tags = { "nodangle", },
 		},
 		release_group = 36,
 	},

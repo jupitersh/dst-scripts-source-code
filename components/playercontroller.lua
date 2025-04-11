@@ -93,7 +93,7 @@ local PlayerController = Class(function(self, inst)
 	self.remote_authority = IsConsole()
 	if not self.remote_authority then
 		local client = TheNet:GetClientTableForUser(self.inst.userid)
-		self.remote_authority = client.admin or client.moderator or client.friend
+		self.remote_authority = client and (client.admin or client.moderator or client.friend)
 	end
 
 	--locomotor buffered action instant cancelling prevention
@@ -148,14 +148,25 @@ local PlayerController = Class(function(self, inst)
     --self.actionrepeatfunction = nil
     self.heldactioncooldown = 0
 
+	self.remoteinteractionaction = nil
+	self.remoteinteractiontarget = nil
+
     if self.ismastersim then
         self.is_map_enabled = true
         self.can_use_map = true
         self.classified = inst.player_classified
         inst:StartUpdatingComponent(self)
         inst:StartWallUpdatingComponent(self)
-    elseif self.classified == nil and inst.player_classified ~= nil then
-        self:AttachClassified(inst.player_classified)
+	else
+		self._clearinteractiontarget = function()
+			--V2C: This is used by action Success/Fail callback, which doesn't know if player got removed.
+			if self == inst.components.playercontroller and inst:IsValid() then
+				self:RemoteInteractionTarget(nil, nil)
+			end
+		end
+		if self.classified == nil and inst.player_classified then
+			self:AttachClassified(inst.player_classified)
+		end
     end
 
     inst:ListenForEvent("playeractivated", OnPlayerActivated)
@@ -3100,8 +3111,8 @@ local function UpdateControllerInteractionTarget(self, dt, x, y, z, dirx, dirz, 
 				and (self.inst.sg == nil or self.inst.sg:HasStateTag("moving") or self.inst.sg:HasStateTag("idle") or self.inst.sg:HasStateTag("channeling"))
 				and (self.inst:HasTag("moving") or self.inst:HasTag("idle") or self.inst:HasTag("channeling"))
 
-    local onboat = self.inst:GetCurrentPlatform() ~= nil
-    local anglemax = onboat and TUNING.CONTROLLER_BOATINTERACT_ANGLE or TUNING.CONTROLLER_INTERACT_ANGLE
+    local currentboat = self.inst:GetCurrentPlatform()
+    local anglemax = currentboat and TUNING.CONTROLLER_BOATINTERACT_ANGLE or TUNING.CONTROLLER_INTERACT_ANGLE
     for i, v in ipairs(nearby_ents) do
 		v = v.client_forward_target or v
 
@@ -3187,7 +3198,10 @@ local function UpdateControllerInteractionTarget(self, dt, x, y, z, dirx, dirz, 
                             target_score = score
                         else
                             --this is kind of expensive, so ideally we don't get here for many objects
-                            local lmb, rmb = self:GetSceneItemControllerAction(v)
+                            local lmb, rmb
+                            if currentboat ~= v or score * 0.75 < target_score then -- Lower priority for scene items on the same boat.
+                                lmb, rmb = self:GetSceneItemControllerAction(v)
+                            end
                             if lmb ~= nil or rmb ~= nil then
                                 target = v
                                 target_score = score
@@ -5099,12 +5113,62 @@ function PlayerController:OnRemoteBufferedAction()
     end
 end
 
+--This is just for friendly interactions where some brains may have logic to stop and wait for you.
+local CREATURE_INTERACTIONS =
+{
+	[ACTIONS.GIVE] = true,
+	[ACTIONS.FEED] = true,
+	[ACTIONS.HEAL] = true,
+	[ACTIONS.STORE] = true,
+	[ACTIONS.RUMMAGE] = true,
+	[ACTIONS.MOUNT] = true,
+
+	--Webber
+	[ACTIONS.MUTATE_SPIDER] = true,
+}
+
+function PlayerController:OnRemoteInteractionTarget(actioncode, target)
+	self.remoteinteractionaction = ACTIONS_BY_ACTION_CODE[actioncode]
+	self.remoteinteractiontarget = target
+	--print(string.format("[%s] <remote interact>: %s -> [%s]", tostring(self.inst), tostring(self.remoteinteractionaction and self.remoteinteractionaction.id or nil), tostring(target)))
+end
+
+function PlayerController:RemoteInteractionTarget(actioncode, target)
+	if self.remoteinteractionaction ~= actioncode or self.remoteinteractiontarget ~= target then
+		self.remoteinteractionaction = actioncode
+		self.remoteinteractiontarget = target
+		SendRPCToServer(RPC.InteractionTarget, actioncode, target)
+	end
+end
+
+function PlayerController:GetRemoteInteraction()
+	return self.remoteinteractionaction, self.remoteinteractiontarget
+end
+
 function PlayerController:OnLocomotorBufferedAction(act)
 	local dir
 	if self.handler == nil then
 		dir = self:GetRemoteDirectVector()
+
+		--Clear any remote interactions if server takes over
+		self.remoteinteractionaction = nil
+		self.remoteinteractiontarget = nil
 	else
 		dir = GetWorldControllerVector()
+
+		local actioncode, target
+		if not self.ismastersim and
+			CREATURE_INTERACTIONS[act.action] and
+			act.target and
+			act.target:IsValid() and
+			act.target:HasTag("locomotor")
+		then
+			actioncode = act.action.code
+			target = act.target
+			act:AddSuccessAction(self._clearinteractiontarget)
+			act:AddFailAction(self._clearinteractiontarget)
+		end
+		self:RemoteInteractionTarget(actioncode, target)
 	end
 	if dir ~= nil then
 		self.recent_bufferedaction.act = act

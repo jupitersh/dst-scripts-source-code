@@ -1669,6 +1669,34 @@ local function IsWeregoose(inst)
     return inst.weremode:value() == WEREMODES.GOOSE
 end
 
+local function OnInventoryStateChanged(inst, data)
+    inst:AddOrRemoveTag("cancarveboards", inst.components.inventory:Has("lucy", 1, true))
+end
+
+local function OnSkillSelectionChange(inst, data)
+    local has_skill = inst.components.skilltreeupdater:IsActivated("woodie_human_lucy_1")
+
+    if has_skill then
+        if inst._oninventorystatechanged == nil then
+            inst._oninventorystatechanged = OnInventoryStateChanged
+
+            inst:ListenForEvent("itemget",  inst._oninventorystatechanged)
+            inst:ListenForEvent("itemlose", inst._oninventorystatechanged)
+        end
+
+        OnInventoryStateChanged(inst)
+    else
+        if inst._oninventorystatechanged ~= nil then
+            inst:RemoveEventCallback("itemget",  inst._oninventorystatechanged)
+            inst:RemoveEventCallback("itemlose", inst._oninventorystatechanged)
+
+            inst._oninventorystatechanged = nil
+        end
+
+        inst:RemoveTag("cancarveboards")
+    end
+end
+
 --------------------------------------------------------------------------
 
 local function common_postinit(inst)
@@ -1792,6 +1820,10 @@ local function master_postinit(inst)
 
         inst:ListenForEvent("ms_respawnedfromghost", onrespawnedfromghost)
         inst:ListenForEvent("ms_becameghost", onbecameghost)
+
+		inst:ListenForEvent("onactivateskill_server", OnSkillSelectionChange)
+		inst:ListenForEvent("ondeactivateskill_server", OnSkillSelectionChange)
+		inst:ListenForEvent("ms_skilltreeinitialized", OnSkillSelectionChange)
 
         onrespawnedfromghost(inst, nil, true)
 

@@ -460,6 +460,15 @@ local function OnUpdateChargingFuel(inst)
 	end
 end
 
+local function NotifyCircuitChanged(inst, node)
+	node:PushEvent("engineeringcircuitchanged")
+end
+
+local function OnCircuitChanged(inst)
+	--Notify other connected batteries
+	inst.components.circuitnode:ForEachNode(NotifyCircuitChanged)
+end
+
 local function SetCharging(inst, powered, duration)
 	if not powered then
 		if inst._powertask then
@@ -470,6 +479,7 @@ local function SetCharging(inst, powered, duration)
 			inst.components.fueled:SetUpdateFn(nil)
 			inst.components.powerload:SetLoad(0)
 			SetLedEnabled(inst, false)
+			OnCircuitChanged(inst)
 		end
 	else
 		local waspowered = inst._powertask ~= nil
@@ -485,6 +495,7 @@ local function SetCharging(inst, powered, duration)
 				inst.components.fueled:StartConsuming()
 				inst.components.powerload:SetLoad(TUNING.WINONA_REMOTE_POWER_LOAD_CHARGING)
 				SetLedEnabled(inst, true)
+				OnCircuitChanged(inst)
 			end
 		end
 	end
@@ -611,15 +622,6 @@ local function DoWireSparks(inst)
 		inst._flash = 1
 		OnUpdateSparks(inst)
 	end
-end
-
-local function NotifyCircuitChanged(inst, node)
-	node:PushEvent("engineeringcircuitchanged")
-end
-
-local function OnCircuitChanged(inst)
-	--Notify other connected batteries
-	inst.components.circuitnode:ForEachNode(NotifyCircuitChanged)
 end
 
 local function OnConnectCircuit(inst)--, node)

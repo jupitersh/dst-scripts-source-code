@@ -298,38 +298,33 @@ end
 
 ---------------------------------------------------------------------------------------------------------------------------------------------
 
--- For searching these:
--- ACTIONS.FEED
--- ACTIONS.PET
--- ACTIONS.RUMMAGE
--- ACTIONS.STORE
-
-local INTERACT_ACTIONS_IDS =
+local INTERACT_ACTIONS =
 {
-    FEED    = true,
-    PET     = true,
-    RUMMAGE = true,
-    STORE   = true,
+	[ACTIONS.FEED]		= true,
+	[ACTIONS.PET]		= true,
+	[ACTIONS.RUMMAGE]	= true,
+	[ACTIONS.STORE]		= true,
 }
 
-local function IsTryingToPerformAction(inst, performer, action)
-    local act = performer.bufferedaction -- No locomotor action, server wouldn't know it.
+local function GetPerformerActionOnMe(inst, performer)
+	local target
+	local act = performer:GetBufferedAction()
+	if act then
+		target = act.target
+		act = act.action
+	elseif performer.components.playercontroller then
+		act, target = performer.components.playercontroller:GetRemoteInteraction()
+	end
+	return target == inst and act or nil
+end
 
-    return act ~= nil and act.target == inst and act.action == action
+local function IsTryingToPerformAction(inst, performer, action)
+	return GetPerformerActionOnMe(inst, performer) == action
 end
 
 local function TryingToInteractWithWoby(inst, performer)
-    for actionid, _ in pairs(INTERACT_ACTIONS_IDS) do
-        if IsTryingToPerformAction(inst, performer, ACTIONS[actionid]) then
-            return true
-        end
-    end
-
-    if inst.components.container:IsOpenedBy(performer) then
-        return true
-    end
-
-    return false
+	return INTERACT_ACTIONS[GetPerformerActionOnMe(inst, performer)]
+		or inst.components.container:IsOpenedBy(performer)
 end
 
 local function GetWalterInteractionFn(inst)

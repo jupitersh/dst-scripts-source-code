@@ -828,6 +828,7 @@ CRAFTING_FILTERS.REFINE.recipes =
 	"rope",
 	"walter_rope",
 	"boards",
+	"woodie_boards",
 	"cutstone",
 	"papyrus",
 	"transistor",

@@ -135,6 +135,7 @@ Recipe = Class(function(self, name, ingredients, tab, level, placer_or_more_data
     self.build_distance= build_distance or 1
 
     self.no_deconstruction = more_data.no_deconstruction -- function or bool
+    self.decon_ignores_finiteuses = more_data.decon_ignores_finiteuses -- function or bool
     self.require_special_event = more_data.require_special_event
 
 	self.dropitem      = more_data.dropitem

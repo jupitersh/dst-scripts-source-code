@@ -975,6 +975,9 @@ local function OnSetOwner(inst)
     inst.userid = inst.Network:GetUserID()
     if inst.userid and inst.userid ~= "" then
         inst:AddTag("player_" .. inst.userid)
+        if TheWorld.ismastersim then
+            print("User ID", inst.userid, "assigned ownership to entity", inst) -- NOTES(JBK): This is not just a debug print leave it here.
+        end
     end
     inst.playercolour = inst.Network:GetPlayerColour()
     if TheWorld.ismastersim then
@@ -2269,6 +2272,7 @@ end
         end
         inst.AnimState:PlayAnimation("idle")
 
+        -- NOTES(JBK): Keep these in sync with wortox_decoy. [WSDCSC]
         inst.AnimState:Hide("ARM_carry")
         inst.AnimState:Hide("HAT")
         inst.AnimState:Hide("HAIR_HAT")

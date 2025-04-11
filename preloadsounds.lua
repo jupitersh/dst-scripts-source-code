@@ -234,6 +234,9 @@ local MainSounds =
 
     "meta5.fev",
     "meta5.fsb", 
+
+    "balatro.fev",
+    "balatro.fsb",     
 }
 
 function PreloadSoundList(list)

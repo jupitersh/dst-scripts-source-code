@@ -472,6 +472,7 @@ return {
             NONEWMOON = "only_used_by_wendy",
             NOFULLMOON = "only_used_by_wendy",
             NOTNIGHT = "only_used_by_wendy",
+            CAVE = "only_used_by_wendy",
         },
 		MODSLINGSHOT =
 		{
@@ -874,9 +875,15 @@ return {
 
     ANNOUNCE_ROYALTY =
     {
-        "Your majesty.",
-        "Your highness.",
-        "My liege!",
+        "Your Majesty.",
+        "Your Highness.",
+        "My Liege!",
+    },
+    ANNOUNCE_ROYALTY_JOKER =
+    {
+        "Your \"Majesty\".",
+        "Your \"Highness\".",
+        "My \"Liege\"!",
     },
 
     ANNOUNCE_ATTACH_BUFF_ELECTRICATTACK    = "I feel positively electric!",
@@ -1841,7 +1848,7 @@ return {
 		},
         BEEQUEENHIVEGROWN = "How in science did it get so big?!",
         BEEGUARD = "It's guarding the queen.",
-        HIVEHAT = "The world seems less a little crazy when I wear it.",
+        HIVEHAT = "The world seems a little less crazy when I wear it.",
         MINISIGN =
         {
             GENERIC = "I could draw better than that!",
@@ -5359,6 +5366,7 @@ return {
         RECORD_MAIN = "Needs more trumpet.", -- Unused.
         RECORD_WORKTOBEDONE = "One of their more experimental tracks.", -- Unused.
         RECORD_HALLOWEDNIGHTS = "Spooktacular!",
+        RECORD_BALATRO = "Irresistible! It's like it touches my mind!",
 
         ARCHIVE_ORCHESTRINA_MAIN = "It's like they made it puzzling on purpose.",
 
@@ -5645,6 +5653,11 @@ return {
 
         SHALLOW_GRAVE = "Better you than me.",
         THULECITEBUGNET = "Anyone catch the latest buzz?",
+
+        -- Deck of Cards
+        DECK_OF_CARDS = "Are we playing with a full deck?",
+        PLAYING_CARD = "It's fifty-one short of a deck.",
+        BALATRO_MACHINE = "I'm game for a game.",
     },
 
     DESCRIBE_GENERIC = "It's a... thing.",

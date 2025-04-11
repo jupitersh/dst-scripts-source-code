@@ -18,12 +18,13 @@ local function SetImageFromItem(im, item)
 		if layers and #layers > 0 then
 			local row = layers[1]
 			im:SetTexture(row.atlas or GetInventoryItemAtlas(row.image), row.image)
+
+            local j = 1
+
 			if #layers > 1 then
-				if im.layers == nil then
-					im.layers = {}
-				end
+				im.layers = im.layers or {}
+
 				local usecc = GetGameModeProperty("icons_use_cc")
-				local j = 1
 				for i = 2, #layers do
 					row = layers[i]
 					local w = im.layers[j]
@@ -35,13 +36,20 @@ local function SetImageFromItem(im, item)
 							im.layers[j]:SetEffect("shaders/ui_cc.ksh")
 						end
 					end
+					if row.offset then
+						im.layers[j]:SetPosition(row.offset)
+					end
 					j = j + 1
 				end
+            end
+
+            if im.layers ~= nil then
 				for i = j, #im.layers do
 					im.layers[i]:Kill()
 					im.layers[i] = nil
 				end
 			end
+
 			return im
 		end
 	end
@@ -436,8 +444,8 @@ function ItemTile:GetDescriptionString()
                 end
             end
 
-            local actions = actionpicker:GetInventoryActions(self.item)
-            if #actions > 0 then
+            local actions = actionpicker and actionpicker:GetInventoryActions(self.item) or nil
+            if actions and actions[1] ~= nil then
                 str = str.."\n"..TheInput:GetLocalizedControl(TheInput:GetControllerID(), CONTROL_SECONDARY)..": "..actions[1]:GetActionString()
             end
         elseif active_item:IsValid() then
@@ -452,8 +460,8 @@ function ItemTile:GetDescriptionString()
             --no RMB hint for quickdrop while holding an item, as that might be confusing since players would think its the item they are holding.
             --the mod never had the hint, and people discovered it just fine, so this should also be fine -Zachary
 
-            local actions = actionpicker:GetUseItemActions(self.item, active_item, true)
-            if #actions > 0 then
+            local actions = actionpicker and actionpicker:GetUseItemActions(self.item, active_item, true) or nil
+            if actions and actions[1] ~= nil then
                 str = str.."\n"..TheInput:GetLocalizedControl(TheInput:GetControllerID(), CONTROL_SECONDARY)..": "..actions[1]:GetActionString()
             end
         end

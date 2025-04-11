@@ -537,7 +537,7 @@ local function destroystructure(staff, target)
     end
 
     local ingredient_percent =
-        (   (target.components.finiteuses ~= nil and target.components.finiteuses:GetPercent()) or
+        (   (target.components.finiteuses ~= nil and not FunctionOrValue(recipe.decon_ignores_finiteuses, target) and target.components.finiteuses:GetPercent()) or
             (target.components.fueled ~= nil and target.components.inventoryitem ~= nil and target.components.fueled:GetPercent()) or
             (target.components.armor ~= nil and target.components.inventoryitem ~= nil and target.components.armor:GetPercent()) or
             1

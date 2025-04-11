@@ -565,18 +565,15 @@ local actionhandlers =
     ActionHandler(ACTIONS.ATTACK,
         function(inst, action)
             if not (inst.sg:HasStateTag("attack") and action.target == inst.sg.statemem.attacktarget or IsEntityDead(inst)) then
-                local equip = inst.replica.inventory:GetEquippedItem(EQUIPSLOTS.HANDS)
-                if equip == nil then
-                    return "attack"
-                end
-                local inventoryitem = equip.replica.inventoryitem
-                return (not (inventoryitem ~= nil and inventoryitem:IsWeapon()) and "attack")
-					or (equip:HasTag("slingshot") and "slingshot_shoot")
-                    or (equip:HasOneOfTags({"blowdart", "blowpipe"}) and "blowdart")
-                    or (equip:HasTag("thrown") and "throw")
-                    or (equip:HasTag("pillow") and "attack_pillow_pre")
-                    or (equip:HasTag("propweapon") and "attack_prop_pre")
-                    or "attack"
+				local combat = inst.replica.combat
+				local weapon = combat and combat:GetWeapon() or nil
+				return weapon and (
+					(weapon:HasTag("slingshot") and "slingshot_shoot") or
+					(weapon:HasOneOfTags({"blowdart", "blowpipe"}) and "blowdart") or
+					(weapon:HasTag("thrown") and "throw") or
+					(weapon:HasTag("pillow") and "attack_pillow_pre") or
+					(weapon:HasTag("propweapon") and "attack_prop_pre")
+				) or "attack"
             end
         end),
 	ActionHandler(ACTIONS.TOSS,
@@ -836,12 +833,17 @@ local actionhandlers =
             or "applyelixir"
     end),
 
+    ActionHandler(ACTIONS.MUTATE, "dolongaction"),
     ActionHandler(ACTIONS.GRAVEDIG, "graveurn_in"),
 
 	ActionHandler(ACTIONS.DASH, "dash_woby_pre"),
 
 	ActionHandler(ACTIONS.WHISTLE, "fingerwhistle"),
 	ActionHandler(ACTIONS.MODSLINGSHOT, "openslingshotmods"),
+
+    ActionHandler(ACTIONS.DRAW_FROM_DECK, "doshortaction"),
+    ActionHandler(ACTIONS.FLIP_DECK, "doshortaction"),
+    ActionHandler(ACTIONS.ADD_CARD_TO_DECK, "dostandingaction"),
 }
 
 local events =
@@ -2779,9 +2781,6 @@ local states =
 
         onenter = function(inst)
             inst.components.locomotor:Stop()
-            --V2C: always use "dontstarve/wilson/make_trap" for preview
-            --     (even for things like makeballoon or shave)
-            --     switch to server sound when action actually executes on server
             inst.AnimState:PlayAnimation("useitem_pre")
             inst.AnimState:PushAnimation("useitem_lag", false)
 
@@ -2797,20 +2796,20 @@ local states =
         },
 
         onupdate = function(inst)
-            if inst.sg:ServerStateMatches() then
+			if inst.sg:ServerStateMatches() then
                 if inst.entity:FlattenMovementPrediction() then
                     inst.sg:GoToState("idle", "noanim")
                 end
             elseif inst.bufferedaction == nil then
-                inst.AnimState:PlayAnimation("build_pst")
-                inst.sg:GoToState("idle", true)
+				inst.AnimState:PlayAnimation("useitem_pst")
+				inst.sg:GoToState("idle", true)
             end
         end,
 
         ontimeout = function(inst)
             inst:ClearBufferedAction()
-            inst.AnimState:PlayAnimation("build_pst")
-            inst.sg:GoToState("idle", true)
+			inst.AnimState:PlayAnimation("useitem_pst")
+			inst.sg:GoToState("idle", true)
         end,
     },
 
@@ -2821,9 +2820,6 @@ local states =
 
         onenter = function(inst)
             inst.components.locomotor:Stop()
-            --V2C: always use "dontstarve/wilson/make_trap" for preview
-            --     (even for things like makeballoon or shave)
-            --     switch to server sound when action actually executes on server
             inst.AnimState:PlayAnimation("useitem_pre")
             inst.AnimState:PushAnimation("useitem_lag", false)
 
@@ -2839,22 +2835,22 @@ local states =
         },
 
         onupdate = function(inst)
-            if inst.sg:ServerStateMatches() then
+			if inst.sg:ServerStateMatches() then
                 if inst.entity:FlattenMovementPrediction() then
                     inst.sg:GoToState("idle", "noanim")
                 end
             elseif inst.bufferedaction == nil then
-                inst.AnimState:PlayAnimation("build_pst")
-                inst.sg:GoToState("idle", true)
+				inst.AnimState:PlayAnimation("useitem_pst")
+				inst.sg:GoToState("idle", true)
             end
         end,
 
         ontimeout = function(inst)
             inst:ClearBufferedAction()
-            inst.AnimState:PlayAnimation("build_pst")
-            inst.sg:GoToState("idle", true)
+			inst.AnimState:PlayAnimation("useitem_pst")
+			inst.sg:GoToState("idle", true)
         end,
-    },         
+    },
 
 	State{ name = "carvewood_boards", onenter = function(inst) inst.sg:GoToState("carvewood") end },
     State{
@@ -4323,7 +4319,13 @@ local states =
             local equip = inst.replica.inventory:GetEquippedItem(EQUIPSLOTS.HANDS)
             local rider = inst.replica.rider
             if rider ~= nil and rider:IsRiding() then
-                if equip ~= nil and (equip:HasTag("rangedweapon") or equip:HasTag("projectile")) then
+				if equip and
+					(	--We just want projectiles, but not complexprojectile
+						--Unfortunately due to legacy coding, complexprojectile component also adds projectile tag
+						(equip:HasTag("projectile") and not equip:HasTag("complexprojectile")) or
+						equip:HasTag("rangedweapon")
+					)
+				then
                     inst.AnimState:PlayAnimation("player_atk_pre")
                     inst.AnimState:PushAnimation("player_atk", false)
                     if (equip.projectiledelay or 0) > 0 then

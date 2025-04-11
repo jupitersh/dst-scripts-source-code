@@ -2200,6 +2200,16 @@ table.insert(prefs, CreatePrefabSkin("cane_victorian",
 	granted_items = { "orangestaff_victorian", },
 }))
 
+table.insert(prefs, CreatePrefabSkin("catcoonhat_clown",
+{
+	base_prefab = "catcoonhat",
+	type = "item",
+	rarity = "Loyal",
+	init_fn = function(inst) catcoonhat_init_fn(inst, "catcoonhat_clown") end,
+	skin_tags = { "CATCOONHAT", "FOOLS", "CRAFTABLE", },
+	release_group = 165,
+}))
+
 table.insert(prefs, CreatePrefabSkin("catcoonhat_trapper_rooster",
 {
 	base_prefab = "catcoonhat",
@@ -4976,6 +4986,17 @@ table.insert(prefs, CreatePrefabSkin("hivehat_cawnival",
 	release_group = 132,
 }))
 
+table.insert(prefs, CreatePrefabSkin("hivehat_joker",
+{
+	base_prefab = "hivehat",
+	type = "item",
+	rarity = "Elegant",
+	rarity_modifier = "Woven",
+	init_fn = function(inst) hivehat_init_fn(inst, "hivehat_joker") end,
+	skin_tags = { "HIVEHAT", "B_UPDATE", "CRAFTABLE", },
+	release_group = 166,
+}))
+
 table.insert(prefs, CreatePrefabSkin("hutch_fantasy",
 {
 	base_prefab = "hutch",
@@ -5899,6 +5920,16 @@ table.insert(prefs, CreatePrefabSkin("meatrack_victorian",
 	init_fn = function(inst) meatrack_init_fn(inst, "meatrack_victorian") end,
 	skin_tags = { "VICTORIAN", "MEATRACK", "CRAFTABLE", },
 	release_group = 113,
+}))
+
+table.insert(prefs, CreatePrefabSkin("mermhat_clown",
+{
+	base_prefab = "mermhat",
+	type = "item",
+	rarity = "Loyal",
+	init_fn = function(inst) mermhat_init_fn(inst, "mermhat_clown") end,
+	skin_tags = { "MERMHAT", "FOOLS", "CRAFTABLE", },
+	release_group = 165,
 }))
 
 table.insert(prefs, CreatePrefabSkin("mermhouse_crafted_fantasy",
@@ -10279,7 +10310,7 @@ table.insert(prefs, CreatePrefabSkin("wall_dreadstone_relic",
 	rarity = "Elegant",
 	rarity_modifier = "Woven",
 	init_fn = function(inst) wall_dreadstone_init_fn(inst, "wall_dreadstone_relic") end,
-	skin_tags = { "WALL_STONE", "RELIC", "CRAFTABLE", },
+	skin_tags = { "WALL_DREADSTONE", "RELIC", "CRAFTABLE", },
 	release_group = 164,
 }))
 

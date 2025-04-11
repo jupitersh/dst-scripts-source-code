@@ -617,3 +617,7 @@ end
 function do_search_subwords(...)
     return string_search_subwords(...)
 end
+
+function GetMortalityStringFor(target)
+    return target ~= nil and STRINGS.UI.MORTALITYSTRINGS[string.upper(target.prefab)] or STRINGS.UI.MORTALITYSTRINGS.DEFAULT
+end

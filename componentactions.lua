@@ -338,6 +338,12 @@ local COMPONENT_ACTIONS =
             end
         end,
 
+        deckcontainer = function(inst, doer, actions, right)
+            if right then
+                table.insert(actions, ACTIONS.DRAW_FROM_DECK)
+            end
+        end,
+
         dryer = function(inst, doer, actions)
             if inst:HasTag("dried") and not inst:HasTag("burnt") then
                 table.insert(actions, ACTIONS.HARVEST)
@@ -695,11 +701,17 @@ local COMPONENT_ACTIONS =
 
         rideable = function(inst, doer, actions, right)
             if right and inst:HasTag("rideable") and
-
-               not inst:HasTag("hitched") and
-               (not inst:HasTag("dogrider_only") or
-               (inst:HasTag("dogrider_only") and doer:HasTag("dogrider"))) then
-
+				not inst:HasTag("hitched") and
+				(not inst:HasTag("dogrider_only") or doer:HasTag("dogrider"))
+			then
+				if inst:HasTag("woby") then
+					local inventory = doer.replica.inventory
+					if not (inventory and inventory:IsHeavyLifting()) then
+						--No MOUNT action for woby since this is done through command wheel now.
+						--Except when heavylifting, during which command wheel is disabled.
+						return
+					end
+				end
                 local rider = doer.replica.rider
                 if rider ~= nil and not rider:IsRiding() then
                     table.insert(actions, ACTIONS.MOUNT)
@@ -1050,6 +1062,12 @@ local COMPONENT_ACTIONS =
                     (inventoryitem == nil or inventoryitem:IsHeld() or inventoryitem:CanBePickedUp(doer)) then
                     table.insert(actions, ACTIONS.COOK)
                 end
+            end
+        end,
+
+        deckcontainer = function(inst, doer, target, actions)
+            if target:HasAnyTag("playingcard", "deckcontainer") then
+                table.insert(actions, ACTIONS.ADD_CARD_TO_DECK)
             end
         end,
 
@@ -1455,6 +1473,12 @@ local COMPONENT_ACTIONS =
         playbill = function(inst, doer, target, actions)
             if target:HasTag("playbill_lecturn") then
                 table.insert(actions, ACTIONS.GIVE)
+            end
+        end,
+
+        playingcard = function(inst, doer, target, actions)
+            if target:HasAnyTag("playingcard", "deckcontainer") then
+                table.insert(actions, ACTIONS.ADD_CARD_TO_DECK)
             end
         end,
 
@@ -2175,7 +2199,7 @@ local COMPONENT_ACTIONS =
         end,
 
         nabbag = function(inst, doer, target, actions, right)
-            if right and target.replica.inventoryitem and target.replica.inventoryitem:CanBePickedUp(doer) and not target:HasAnyTag("_container", "heavy") then
+            if right and target.replica.inventoryitem and target.replica.inventoryitem:CanBePickedUp(doer) and not target:HasAnyTag("_container", "heavy", "fire") then
                 table.insert(actions, ACTIONS.NABBAG)
             end
         end,
@@ -2380,6 +2404,10 @@ local COMPONENT_ACTIONS =
 			end
 		end,
 
+        deckcontainer = function(inst, doer, actions)
+            table.insert(actions, ACTIONS.FLIP_DECK)
+        end,
+
         deployable = function(inst, doer, actions)
             if doer.components.playercontroller ~= nil and not doer.components.playercontroller.deploy_mode then
                 local inventoryitem = inst.replica.inventoryitem
@@ -2571,6 +2599,10 @@ local COMPONENT_ACTIONS =
 
         plantresearchable = function(inst, doer, actions, right)
             PlantRegistryResearch(inst, doer, actions)
+        end,
+
+        playingcard = function(inst, doer, actions)
+            table.insert(actions, ACTIONS.FLIP_DECK)
         end,
 
         pocketwatch = function(inst, doer, actions)

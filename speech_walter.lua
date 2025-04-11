@@ -462,6 +462,7 @@ return{
             NONEWMOON = "only_used_by_wendy",
             NOFULLMOON = "only_used_by_wendy",
             NOTNIGHT = "only_used_by_wendy",
+            CAVE = "only_used_by_wendy",
         },
 		MODSLINGSHOT =
 		{
@@ -887,12 +888,12 @@ return{
 		"On your way now, girl!",
 		"Woby, follow your nose! It knows! Heh.",
 	},
-	ANNOUNCE_WOBY_REMEMBERCHEST_FAIL = 
-    {
-        "Let's find a better spot, Woby.",
-        "Not here, silly girl!",
-        "We should try somewhere else.",
-    },
+	ANNOUNCE_WOBY_REMEMBERCHEST_FAIL =
+	{
+		"Let's find a better spot, Woby.",
+		"Not here, silly girl!",
+		"We should try somewhere else.",
+	},
 
     -- wx specific
     ANNOUNCE_WX_SCANNER_NEW_FOUND = "only_used_by_wx78",
@@ -907,8 +908,14 @@ return{
     ANNOUNCE_ROYALTY =
     {
         "Hey! Nice crown!",
-        "Your royal crowned-ness.",
-        "Your majesty.",
+        "How bee-fitting!",
+        "Your Majesty.",
+    },
+    ANNOUNCE_ROYALTY_JOKER =
+    {
+        "Wow! Nice \"crown\".",
+        "It's jest perfect!",
+        "Your \"Majesty\".",
     },
 
     ANNOUNCE_ATTACH_BUFF_ELECTRICATTACK    = "This reminds me of a radio program I heard where a guy was hit by lightning and turned into pure electricity and-",
@@ -2347,7 +2354,7 @@ return{
 			EMBERS = "We need more fuel for the fire!",
 			GENERIC = "Anyone want to hear a scary story?",
 			HIGH = "Woah! I don't think that's safe...",
-			LOW = "I might need to feed the fire a bit",
+			LOW = "I might need to feed the fire a bit.",
 			NORMAL = "It's the perfect temperature for... cold marshmallows?",
 			OUT = "The fire pit's already built, all we need is more wood!",
 		},
@@ -5391,6 +5398,7 @@ return{
         RECORD_MAIN = "Woby likes to howl along, don't you girl?", -- Unused.
         RECORD_WORKTOBEDONE = "It's no Midnight Broadcast, but it's still pretty good.", -- Unused.
         RECORD_HALLOWEDNIGHTS = "Instant classic!",
+        RECORD_BALATRO = "That's right, Woby! It's a real doozy!",
 
         ARCHIVE_ORCHESTRINA_MAIN = "Wanna solve a puzzle, Woby?",
 
@@ -5677,6 +5685,11 @@ return{
 
         SHALLOW_GRAVE = "Don't sniff around there, Woby.",
         THULECITEBUGNET = "Just minding my own buzzness, Woby. Heh.",
+
+        -- Deck of Cards
+        DECK_OF_CARDS = "Woby! Pick a card, any card!",
+        PLAYING_CARD = "Is THIS your card, Wobes?",
+        BALATRO_MACHINE = "Woby, let's take paws and play a few hands. Oh, Walter!",
     },
 
     DESCRIBE_GENERIC = "That sure is a mystery!",

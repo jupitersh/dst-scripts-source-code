@@ -462,7 +462,12 @@ return{
             NONEWMOON = "only_used_by_wendy",
             NOFULLMOON = "only_used_by_wendy",
             NOTNIGHT = "only_used_by_wendy",
-        },        
+            CAVE = "only_used_by_wendy",
+        },
+		MODSLINGSHOT =
+		{
+--fallback to speech_wilson.lua 			NOSLINGSHOT = "only_used_by_walter",
+		},
     },
 
 	ANNOUNCE_CANNOT_BUILD =
@@ -843,6 +848,10 @@ return{
 --fallback to speech_wilson.lua 	{
 --fallback to speech_wilson.lua 		"only_used_by_walter",
 --fallback to speech_wilson.lua 	},
+--fallback to speech_wilson.lua 	ANNOUNCE_WOBY_REMEMBERCHEST_FAIL =
+--fallback to speech_wilson.lua 	{
+--fallback to speech_wilson.lua 		"only_used_by_walter",
+--fallback to speech_wilson.lua 	},
 
     -- wx specific
     ANNOUNCE_WX_SCANNER_NEW_FOUND = "only_used_by_wx78",
@@ -854,12 +863,18 @@ return{
     QUAGMIRE_ANNOUNCE_LOSE = "The god of the sky has been angered!",
     QUAGMIRE_ANNOUNCE_WIN = "We shall live to fight another day!",
 
---fallback to speech_wilson.lua     ANNOUNCE_ROYALTY =
---fallback to speech_wilson.lua     {
---fallback to speech_wilson.lua         "Your majesty.",
---fallback to speech_wilson.lua         "Your highness.",
---fallback to speech_wilson.lua         "My liege!",
---fallback to speech_wilson.lua     },
+    ANNOUNCE_ROYALTY =
+    {
+        "Heavy is the head that weareth the crown.",
+        "Fate hath set the crown upon thy head.",
+        "Mine Liege!",
+    },
+    ANNOUNCE_ROYALTY_JOKER =
+    {
+        "Empty is the head that weareth the \"crown\".",
+        "Fate hath set the \"crown\" upon thy head.",
+        "Mine \"Liege\"!",
+    },
 
     ANNOUNCE_ATTACH_BUFF_ELECTRICATTACK    = "I've been granted the power of Thor!",
     ANNOUNCE_ATTACH_BUFF_ATTACK            = "My warrior's spirit is invigorated!",
@@ -5341,6 +5356,7 @@ return{
         RECORD_MAIN = "Music is nourishment for thy soul!", -- Unused.
         RECORD_WORKTOBEDONE = "Music is nourishment for thy soul!", -- Unused.
         RECORD_HALLOWEDNIGHTS = "A serenade for the ghosts and ghouls.",
+        RECORD_BALATRO = "'Tis a ballad of good hap!",
 
         ARCHIVE_ORCHESTRINA_MAIN = "What if I just stab it?",
 
@@ -5627,6 +5643,11 @@ return{
 
         SHALLOW_GRAVE = "They deserved better.",
         THULECITEBUGNET = "Not even the smallest of prey shall escape.",
+
+        -- Deck of Cards
+        DECK_OF_CARDS = "Dost these cards bear a fell curse?",
+        PLAYING_CARD = "A wayward card.",
+        BALATRO_MACHINE = "So be it! Yet one more round, thou knavish deceiver!",
     },
 
     DESCRIBE_GENERIC = "It is an artifact of this realm.",

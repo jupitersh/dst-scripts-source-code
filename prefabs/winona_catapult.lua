@@ -720,6 +720,38 @@ local function OnCatapultSpeedBoost(inst)
 	end
 end
 
+local ELEMENTS = { "shadow", "lunar", "hybrid" }
+local ELEMENT_ID = table.invert(ELEMENTS)
+
+local function HasPowerAlignment(inst, element)
+	local poweredelement = inst._poweralignment:value()
+	if element then
+		return poweredelement == ELEMENT_ID[element]
+			or poweredelement == ELEMENT_ID.hybrid
+	end
+	return poweredelement ~= 0
+end
+
+local function OnCircuitChanged(inst)
+	local hasshadow, haslunar
+	--Update our available element
+	--Notify other connected batteries
+	inst.components.circuitnode:ForEachNode(function(inst, node)
+		node:PushEvent("engineeringcircuitchanged")
+
+		if node.components.fueled and not node.components.fueled:IsEmpty() and not (node.IsOverloaded and node:IsOverloaded()) then
+			local elem = node:CheckElementalBattery()
+			if elem == "horror" then
+				hasshadow = true
+			elseif elem == "brilliance" then
+				haslunar = true
+			end
+		end
+	end)
+
+	inst._poweralignment:set(hasshadow and (haslunar and ELEMENT_ID.hybrid or ELEMENT_ID.shadow) or (haslunar and ELEMENT_ID.lunar) or 0)
+end
+
 local function SetActiveMode(inst, active)
 	if inst._autoactivetask then
 		inst._autoactivetask:Cancel()
@@ -745,6 +777,7 @@ local function SetActiveMode(inst, active)
 		if not loading then
 			inst:PushEvent("togglepower", { ison = false })
 		end
+		OnCircuitChanged(inst)
 	elseif loading or not inst.components.timer:TimerExists("active_time") then
 		if loading then
 			--no target on load, but could've saved while we had target
@@ -760,10 +793,12 @@ local function SetActiveMode(inst, active)
 		if not inst:IsAsleep() then
 			inst:RestartBrain()
 		end
+		inst.components.powerload:SetLoad(TUNING.WINONA_CATAPULT_POWER_LOAD_IDLE, true)
 		SetLedStatusOn(inst)
 		if not loading then
 			inst:PushEvent("togglepower", { ison = true })
 		end
+		OnCircuitChanged(inst)
 	end
 end
 
@@ -884,38 +919,6 @@ local function DoWireSparks(inst)
         inst._flash = 1
         OnUpdateSparks(inst)
     end
-end
-
-local ELEMENTS = { "shadow", "lunar", "hybrid" }
-local ELEMENT_ID = table.invert(ELEMENTS)
-
-local function HasPowerAlignment(inst, element)
-	local poweredelement = inst._poweralignment:value()
-	if element then
-		return poweredelement == ELEMENT_ID[element]
-			or poweredelement == ELEMENT_ID.hybrid
-	end
-	return poweredelement ~= 0
-end
-
-local function OnCircuitChanged(inst)
-	local hasshadow, haslunar
-	--Update our available element
-    --Notify other connected batteries
-	inst.components.circuitnode:ForEachNode(function(inst, node)
-		node:PushEvent("engineeringcircuitchanged")
-
-		if node.components.fueled and not node.components.fueled:IsEmpty() and not (node.IsOverloaded and node:IsOverloaded()) then
-			local elem = node:CheckElementalBattery()
-			if elem == "horror" then
-				hasshadow = true
-			elseif elem == "brilliance" then
-				haslunar = true
-			end
-		end
-	end)
-
-	inst._poweralignment:set(hasshadow and (haslunar and ELEMENT_ID.hybrid or ELEMENT_ID.shadow) or (haslunar and ELEMENT_ID.lunar) or 0)
 end
 
 local function OnConnectCircuit(inst)--, node)

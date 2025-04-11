@@ -37,6 +37,8 @@ end
 
 prefabs = FlattenTree({ prefabs, start_inv }, true)
 
+local EMPTY_TABLE = {}
+
 --------------------------------------------------------------------------
 --Mounted command wheel
 
@@ -233,7 +235,7 @@ local function EnableMountedCommands(inst, enable)
 		if inst.HUD and inst.HUD:GetCurrentOpenSpellBook() == inst then
 			inst.HUD:CloseSpellWheel()
 		end
-		inst.components.spellbook:SetItems(nil)
+		inst.components.spellbook:SetItems(EMPTY_TABLE)
 	end
 end
 
@@ -273,6 +275,7 @@ local function SetupMountedCommandWheel(inst)
 	inst.components.spellbook:SetRadius(SPELLBOOK_RADIUS)
 	inst.components.spellbook:SetFocusRadius(SPELLBOOK_FOCUS_RADIUS)
 	inst.components.spellbook:SetShouldOpenFn(ShouldOpenWobyCommands)
+	inst.components.spellbook:SetItems(EMPTY_TABLE)
 	inst.components.spellbook:SetBgData(SPELLBOOK_BG)
 	inst.components.spellbook.opensound = "meta5/woby/bigwoby_actionwheel_UI"
 	--inst.components.spellbook.closesound = "meta5/woby/bigwoby_actionwheel_UI"
@@ -305,7 +308,6 @@ end
 --dir: WASD/analog dir; nil if neutral (NOTE: this may be in a different direction than pos!)
 --target: double click mouseover target; nil when tapping direction instead of mouse
 --remote: only pos2 is sent to server, similar to actions that are aimed toward reticule pos
-local EMPTY_TABLE = {}
 local function GetDoubleClickActions(inst, pos, dir, target)
 	--Assumes we can only ride our own woby!
 	if not inst.components.skilltreeupdater:IsActivated("walter_woby_dash") then

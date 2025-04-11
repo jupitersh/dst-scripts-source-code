@@ -1179,8 +1179,8 @@ function MultiplayerMainScreen:MakeSubMenu()
         end
 
 		if not IsRail() then
-			table.insert(submenuitems, {widget = TEMPLATES.IconButton("images/button_icons.xml", "forums.tex", STRINGS.UI.MAINSCREEN.FORUM, false, true, function() VisitURL("http://forums.kleientertainment.com/forums/forum/73-dont-starve-together/") end, {font=NEWFONT_OUTLINE})})
-	        table.insert(submenuitems, {widget = TEMPLATES.IconButton("images/button_icons.xml", "more_games.tex", STRINGS.UI.MAINSCREEN.MOREGAMES, false, true, function() VisitURL("http://store.steampowered.com/search/?developer=Klei%20Entertainment") end, {font=NEWFONT_OUTLINE})})
+			table.insert(submenuitems, {widget = TEMPLATES.IconButton("images/button_icons.xml", "forums.tex", STRINGS.UI.MAINSCREEN.FORUM, false, true, function() VisitURL("https://forums.kleientertainment.com/forums/forum/73-dont-starve-together/") end, {font=NEWFONT_OUTLINE})})
+	        table.insert(submenuitems, {widget = TEMPLATES.IconButton("images/button_icons.xml", "more_games.tex", STRINGS.UI.MAINSCREEN.MOREGAMES, false, true, function() VisitURL("https://store.steampowered.com/search/?developer=Klei%20Entertainment") end, {font=NEWFONT_OUTLINE})})
 		end
     end
 

@@ -462,7 +462,12 @@ return{
             NONEWMOON = "only_used_by_wendy",
             NOFULLMOON = "only_used_by_wendy",
             NOTNIGHT = "only_used_by_wendy",
-        },        
+            CAVE = "only_used_by_wendy",
+        },
+		MODSLINGSHOT =
+		{
+--fallback to speech_wilson.lua 			NOSLINGSHOT = "only_used_by_walter",
+		},
     },
 
 	ANNOUNCE_CANNOT_BUILD =
@@ -843,6 +848,10 @@ return{
 --fallback to speech_wilson.lua 	{
 --fallback to speech_wilson.lua 		"only_used_by_walter",
 --fallback to speech_wilson.lua 	},
+--fallback to speech_wilson.lua 	ANNOUNCE_WOBY_REMEMBERCHEST_FAIL =
+--fallback to speech_wilson.lua 	{
+--fallback to speech_wilson.lua 		"only_used_by_walter",
+--fallback to speech_wilson.lua 	},
 
     -- wx specific
     ANNOUNCE_WX_SCANNER_NEW_FOUND = "SERVICEABLE TRAIT DETECTED. SCAN REQUIRED",
@@ -854,12 +863,18 @@ return{
     QUAGMIRE_ANNOUNCE_LOSE = "WE LOSE",
     QUAGMIRE_ANNOUNCE_WIN = "THE GATE IS NOW FUNCTIONAL",
 
---fallback to speech_wilson.lua     ANNOUNCE_ROYALTY =
---fallback to speech_wilson.lua     {
---fallback to speech_wilson.lua         "Your majesty.",
---fallback to speech_wilson.lua         "Your highness.",
---fallback to speech_wilson.lua         "My liege!",
---fallback to speech_wilson.lua     },
+    ANNOUNCE_ROYALTY =
+    {
+        "I BOW TO NO ONE",
+        "WHO DO YOU THINK YOU ARE?",
+        "HAT DOES NOT MAKE YOU SUPERIOR TO ME",
+    },
+    ANNOUNCE_ROYALTY_JOKER =
+    {
+        "YOU SHOULD WEAR IT ALL THE TIME",
+        "PERFECT FIT",
+        "YES, YOU ARE A JOKE",
+    },
 
     ANNOUNCE_ATTACH_BUFF_ELECTRICATTACK    = "ELECTRICAL CIRCUITS OVERLOADING",
     ANNOUNCE_ATTACH_BUFF_ATTACK            = "I HAVE BEEN OPTIMIZED FOR COMBAT",
@@ -5341,6 +5356,7 @@ return{
         RECORD_MAIN = "I FEEL NOTHING", -- Unused.
         RECORD_WORKTOBEDONE = "I FEEL NOTHING", -- Unused.
         RECORD_HALLOWEDNIGHTS = "SLIGHT TOE-TAPPING DETECTED",
+        RECORD_BALATRO = "I HATE IT. PLAY IT AGAIN",
 
         ARCHIVE_ORCHESTRINA_MAIN = "THIS DEVICE OUTLIVED ITS CREATORS. AN INSPIRATION",
 
@@ -5627,6 +5643,11 @@ return{
 
         SHALLOW_GRAVE = " HA HA",
         THULECITEBUGNET = "CATCH AND DESTROY",
+
+        -- Deck of Cards
+        DECK_OF_CARDS = "PRIMITIVE PASTIME",
+        PLAYING_CARD = "SOMEONE MISSING A CARD. I SHOULD DESTROY IT",
+        BALATRO_MACHINE = "CALCULATING ODDS OF VICTORY...",
     },
 
     DESCRIBE_GENERIC = "ERROR: UNKNOWN",

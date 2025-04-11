@@ -731,7 +731,7 @@ local function customidleanimfn(inst)
         if inst.components.skinner == nil or inst.components.skinner:HasSpinnableTail() then
             return "idle_nice"
         end
-    elseif inst.wortox_inclination == "naughty" then
+    elseif inst.wortox_inclination == "naughty" and inst.soulcount > 0 then
         return "idle_naughty"
     end
     return "idle_wortox"
@@ -1529,7 +1529,16 @@ local function wortox_decoy_fn()
 
     inst.AnimState:AddOverrideBuild("player_emote_extra")
     inst.AnimState:AddOverrideBuild("player_actions")
+    -- NOTES(JBK): Keep these in sync with the player. [WSDCSC]
     inst.AnimState:Hide("ARM_carry")
+    inst.AnimState:Hide("HAT")
+    inst.AnimState:Hide("HAIR_HAT")
+    inst.AnimState:Show("HAIR_NOHAT")
+    inst.AnimState:Show("HAIR")
+    inst.AnimState:Show("HEAD")
+    inst.AnimState:Hide("HEAD_HAT")
+    inst.AnimState:Hide("HEAD_HAT_NOHELM")
+    inst.AnimState:Hide("HEAD_HAT_HELM")
 
     inst.AnimState:SetBank("wilson")
     inst.AnimState:SetBuild("wilson")

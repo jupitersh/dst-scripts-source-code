@@ -1214,11 +1214,11 @@ function ModsScreen:ModLinkCurrent()
 end
 
 function ModsScreen:MoreMods()
-	VisitURL("http://forums.kleientertainment.com/files/")
+	VisitURL("https://forums.kleientertainment.com/files/")
 end
 
 function ModsScreen:MoreWorkshopMods()
-	VisitURL("http://steamcommunity.com/app/322330/workshop/")
+	VisitURL("https://steamcommunity.com/app/322330/workshop/")
 end
 
 function ModsScreen:MakeDirty()

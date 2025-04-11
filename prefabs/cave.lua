@@ -230,9 +230,10 @@ local wormspawn =
         wave_pre_upgraded = nil
 
         local chance = wave_override_chance * (_wave_override_settings["worm_boss"] or 1)
+
         if _wave_override_settings["worm_boss"] ~= 0 and (math.random() < chance or _wave_override_settings["worm_boss"] == 9999) then
             wave_pre_upgraded = "available"
-        end
+        end        
 
         if wave_pre_upgraded == "available" then
             wave_override_chance = 0
@@ -243,33 +244,33 @@ local wormspawn =
         return wave_pre_upgraded, wave_override_chance
     end,
 
-    warning_speech = function(wave_pre_upgraded)
+    warning_speech = function(wave_pre_upgraded)    
         if wave_pre_upgraded then
-            return "ANNOUNCE_WORMS_BOSS", wave_pre_upgraded
+            return "ANNOUNCE_WORMS_BOSS"
         else
-            return "ANNOUNCE_WORMS", wave_pre_upgraded
+            return "ANNOUNCE_WORMS"
         end
     end,
 
-    warning_sound_thresholds = function(wave_pre_upgraded, wave_override_chance)
+    warning_sound_thresholds = function(wave_pre_upgraded, wave_override_chance)    
         if wave_pre_upgraded then
             return {
                 { time = 90, sound = "WORM_BOSS", quake = true },
                 { time = 90, sound = "WORM_BOSS", quake = true },
                 { time = 90, sound = "WORM_BOSS", quake = true },
                 { time = 500, sound = "WORM_BOSS", quake = true },
-            }, wave_pre_upgraded
+            }
         else
             return {
                 { time = 30, sound = "LVL4_WORM" },
                 { time = 60, sound = "LVL3_WORM" },
                 { time = 90, sound = "LVL2_WORM" },
                 { time = 500, sound = "LVL1_WORM" },
-            }, wave_pre_upgraded
+            }
         end
     end,
 
-    ShouldUpgrade= function(amount, wave_pre_upgraded)
+    ShouldUpgrade= function(amount, wave_pre_upgraded)    
         if wave_pre_upgraded == "available" then
             wave_pre_upgraded = "used"   -- We've got one for the wave now, clear this so there aren't more.
             return true, amount, wave_pre_upgraded

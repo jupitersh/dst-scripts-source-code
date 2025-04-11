@@ -162,6 +162,18 @@ function table.reverse(tab)
     return newTable
 end
 
+-- only for indexed tables
+-- Does a half-table-length iteration, swapping elements from the front half
+-- with elements from the back half, in order.
+-- The comma-separated double assignment lets us do this as one operation.
+function table.reverse_inplace(t)
+    local size = #t
+    for i = 1, math.floor(size / 2), 1 do
+        t[i], t[size - i + 1] = t[size - i + 1], t[i]
+    end
+    return t
+end
+
 function table.invert(t)
     local invt = {}
     for k, v in pairs(t) do
@@ -1605,14 +1617,13 @@ function DistPointToSegmentXYSq(p, v1, v2)
 	return Dist2dSq(p, {x = v1.x + t * (v2.x - v1.x), y =v1.y + t * (v2.y - v1.y)});
 end
 
-
 -- helpers for orderedPairs
 function __genOrderedIndex( t )
     local orderedIndex = {}
     for key in pairs(t) do
         table.insert( orderedIndex, key )
     end
-    table.sort( orderedIndex )
+	table.sort(orderedIndex, stringidsorter) --this should not be affected by locale
     return orderedIndex
 end
 

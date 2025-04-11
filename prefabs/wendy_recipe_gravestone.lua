@@ -1,7 +1,12 @@
+local assets =
+{
+    Asset("ANIM", "anim/gravestones.zip"),
+}
+
 local prefabs =
 {
     "gravestone",
-    "wendy_recipe_gravestone_placer",
+    "attune_out_fx",
 }
 
 --
@@ -114,6 +119,33 @@ local function wendy_placer_override_testfn(inst)
     return inst._accept_placement, mouse_blocked
 end
 
+-- NOTES(DiogoW): This used to be TheCamera:GetDownVec()*.5, probably legacy code from DS,
+-- since TheCamera:GetDownVec() would always return the values below.
+local MOUND_POSITION_OFFSET = { 0.35355339059327, 0, 0.35355339059327 }
+
+local function CreateMoundPlacer()
+    local mound = CreateEntity()
+
+    --[[Non-networked entity]]
+    mound.entity:SetCanSleep(false)
+    mound.persists = false
+
+    mound.entity:AddTransform()
+    mound.entity:AddAnimState()
+
+    mound:AddTag("CLASSIFIED")
+    mound:AddTag("NOCLICK")
+    mound:AddTag("placer")
+
+    mound.AnimState:SetBank("gravestone")
+    mound.AnimState:SetBuild("gravestones")
+    mound.AnimState:PlayAnimation("gravedirt")
+
+    mound.Transform:SetPosition(unpack(MOUND_POSITION_OFFSET))
+
+    return mound
+end
+
 local function wendy_placer_postinit_fn(inst)
     local placer = inst.components.placer
     placer.onupdatetransform = wendy_placer_onupdatetransform
@@ -123,9 +155,14 @@ local function wendy_placer_postinit_fn(inst)
     inst._accept_placement = false
 
     inst.AnimState:Hide("flower")
+
+    inst._mound = CreateMoundPlacer()
+    inst._mound.entity:SetParent(inst.entity)
+
+    inst.components.placer:LinkEntity(inst._mound)
 end
 
-return Prefab("wendy_recipe_gravestone", wendy_recipe_gravestone_fn, nil, prefabs),
+return Prefab("wendy_recipe_gravestone", wendy_recipe_gravestone_fn, assets, prefabs),
     MakePlacer(
         "wendy_recipe_gravestone_placer", "gravestone", "gravestones", "grave1",
         nil, nil, nil, nil, nil, nil, wendy_placer_postinit_fn

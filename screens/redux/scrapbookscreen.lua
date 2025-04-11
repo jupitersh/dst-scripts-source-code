@@ -41,9 +41,10 @@ local dataset = require("screens/redux/scrapbookdata")
 
 --DO SOME FILTERING FOR PREFABS NOT PRESENT IN ALL VERSIONS
 --if rawget(_G, "TheSim") and not TheSim:HasPlayerSkeletons() then
-if TheSim and not TheSim:HasPlayerSkeletons() then
+--if TheSim and not TheSim:HasPlayerSkeletons() then
+if rawget(_G, "TheSim") and not TheSim:HasPlayerSkeletons() then
 	dataset["skeleton"] = nil
-else	
+else
 	dataset["shallow_grave"] = nil
 end
 

@@ -13,6 +13,37 @@ local FLOWERS_CANT_TAGS = {"INLIMBO"}
 local WORTOX_SHADOW_MULT = 0.6
 local WORTOX_LUNAR_OFFSET = 0.1
 
+local function GetRoyaltyTarget(inst)
+    local royalty
+    local mindistsq = 25
+    for i, v in ipairs(AllPlayers) do
+        if v ~= inst and
+            not v:HasTag("playerghost") and
+            v.entity:IsVisible() and
+            v.components.inventory:EquipHasTag("regal") then
+            local isregaljoker = v.components.inventory:EquipHasTag("regaljoker")
+            if not inst.regaljokertask or inst.regaljokertask and not isregaljoker then
+                if not inst.refusestobowtoroyaltytask or inst.refusestobowtoroyaltytask and isregaljoker then
+                    local distsq = v:GetDistanceSqToInst(inst)
+                    if distsq < mindistsq then
+                        mindistsq = distsq
+                        royalty = v
+                    end
+                end
+            end
+        end
+    end
+    return royalty
+end
+local NO_REGALJOKER_RESPONSE_TIME = 6.0
+local function ClearRegalJokerTask(inst)
+    inst.regaljokertask = nil
+end
+local NO_REFUSEBOW_RESPONSE_TIME = 6.0
+local function ClearRefuseBowTask(inst)
+    inst.refusestobowtoroyaltytask = nil
+end
+
 local function DoEquipmentFoleySounds(inst)
     for k, v in pairs(inst.components.inventory.equipslots) do
         if v.foleysound ~= nil then
@@ -1307,6 +1338,10 @@ local actionhandlers =
 	ActionHandler(ACTIONS.DASH, "dash_woby_pre"),
 	ActionHandler(ACTIONS.WHISTLE, "fingerwhistle"),
 	ActionHandler(ACTIONS.MODSLINGSHOT, "openslingshotmods"),
+
+    ActionHandler(ACTIONS.DRAW_FROM_DECK, "doshortaction"),
+    ActionHandler(ACTIONS.FLIP_DECK, "doshortaction"),
+    ActionHandler(ACTIONS.ADD_CARD_TO_DECK, "dostandingaction"),
 }
 
 local events =
@@ -3155,7 +3190,7 @@ local states =
                         inst.sg:GoToState("corpse")
                     elseif inst.ghostenabled then
                         inst.components.cursable:Died()
-                        if inst:HasTag("wonkey") then
+                        if inst:HasTag("wonkey") and inst.userid and inst.userid ~= "" then -- NOTES(JBK): The userid check is here for c_spawn("wonkey") that would be bad if it died.
                             inst:ChangeFromMonkey()
                         else
                             inst:PushEvent("makeplayerghost", { skeleton = skeleton }) -- if we are not on valid ground then don't drop a skeleton
@@ -3613,20 +3648,7 @@ local states =
         },
 
         ontimeout = function(inst)
-            local royalty = nil
-            local mindistsq = 25
-            for i, v in ipairs(AllPlayers) do
-                if v ~= inst and
-                    not v:HasTag("playerghost") and
-                    v.entity:IsVisible() and
-                    v.components.inventory:EquipHasTag("regal") then
-                    local distsq = v:GetDistanceSqToInst(inst)
-                    if distsq < mindistsq then
-                        mindistsq = distsq
-                        royalty = v
-                    end
-                end
-            end
+            local royalty = GetRoyaltyTarget(inst)
             if royalty ~= nil then
                 inst.sg:GoToState("bow", royalty)
             else
@@ -3781,23 +3803,80 @@ local states =
             if target ~= nil then
                 inst.sg.statemem.target = target
                 inst:ForceFacePoint(target.Transform:GetWorldPosition())
+                
+                inst.sg.statemem.isjoker = inst.sg.statemem.target:IsValid() and inst.sg.statemem.target.components.inventory:EquipHasTag("regaljoker")
+                inst.sg.statemem.nobow = inst.refusestobowtoroyalty and not inst.sg.statemem.isjoker
             end
-            inst.AnimState:PlayAnimation("bow_pre")
+            inst.AnimState:PlayAnimation(inst.sg.statemem.isjoker and "emote_laugh" or inst.sg.statemem.nobow and "emote_annoyed_palmdown" or "bow_pre")
         end,
 
         timeline =
         {
+            TimeEvent(6 * FRAMES, function(inst)
+                if not inst.sg.statemem.nobow then
+                    return
+                end
+                if inst.sg.statemem.target ~= nil and
+                    inst.sg.statemem.target:IsValid() and
+                    inst.sg.statemem.target:IsNear(inst, 6) and
+                    inst.sg.statemem.target.components.inventory:EquipHasTag("regal") and
+                    not inst.sg.statemem.target.components.inventory:EquipHasTag("regaljoker") and
+                    inst.components.talker ~= nil then
+                    inst.components.talker:Say(GetString(inst, "ANNOUNCE_ROYALTY"))
+                    if inst.refusestobowtoroyaltytask then
+                        inst.refusestobowtoroyaltytask:Cancel()
+                        inst.refusestobowtoroyaltytask = nil
+                    end
+                    inst.refusestobowtoroyaltytask = inst:DoTaskInTime(NO_REFUSEBOW_RESPONSE_TIME, ClearRefuseBowTask)
+                else
+                    inst.sg.statemem.notalk = true
+                end
+            end),
+            TimeEvent(7 * FRAMES, function(inst)
+                if inst.sg.statemem.nobow then
+                    return
+                end
+                if not inst.sg.statemem.isjoker then
+                    return
+                end
+                if inst.sg.statemem.target ~= nil and
+                    inst.sg.statemem.target:IsValid() and
+                    inst.sg.statemem.target:IsNear(inst, 6) and
+                    inst.sg.statemem.target.components.inventory:EquipHasTag("regal") and
+                    inst.sg.statemem.target.components.inventory:EquipHasTag("regaljoker") and
+                    inst.components.talker ~= nil then
+                    inst.components.talker:Say(GetString(inst, "ANNOUNCE_ROYALTY_JOKER"))
+                    if inst.regaljokertask then
+                        inst.regaljokertask:Cancel()
+                        inst.regaljokertask = nil
+                    end
+                    inst.regaljokertask = inst:DoTaskInTime(NO_REGALJOKER_RESPONSE_TIME, ClearRegalJokerTask)
+                else
+                    inst.sg.statemem.notalk = true
+                end
+            end),
             TimeEvent(20 * FRAMES, function(inst)
+                -- Permit nobow.
+                if inst.sg.statemem.isjoker then
+                    return
+                end
                 local mount = inst.components.rider:GetMount()
                 if mount ~= nil and mount.sounds ~= nil and mount.sounds.grunt ~= nil then
                     inst.SoundEmitter:PlaySound(mount.sounds.grunt)
                 end
             end),
             TimeEvent(24 * FRAMES, function(inst)
+                if inst.sg.statemem.nobow then
+                    return
+                end
+                if inst.sg.statemem.isjoker then
+                    return
+                end
                 if inst.sg.statemem.target ~= nil and
                     inst.sg.statemem.target:IsValid() and
                     inst.sg.statemem.target:IsNear(inst, 6) and
                     inst.sg.statemem.target.components.inventory:EquipHasTag("regal") and
+                    not inst.sg.statemem.target.components.inventory:EquipHasTag("regaljoker") and
                     inst.components.talker ~= nil then
                     inst.components.talker:Say(GetString(inst, "ANNOUNCE_ROYALTY"))
                 else
@@ -3811,12 +3890,15 @@ local states =
 			EventHandler("ontalk", OnTalk_Override),
 			EventHandler("donetalking", OnDoneTalking_Override),
             EventHandler("animover", function(inst)
-                if inst.AnimState:AnimDone() then
+                if inst.sg.statemem.isjoker or inst.sg.statemem.nobow then
+                    inst.sg:GoToState("idle")
+                elseif inst.AnimState:AnimDone() then
                     if inst.sg.statemem.target == nil or
                         (   not inst.sg.statemem.notalk and
                             inst.sg.statemem.target:IsValid() and
                             inst.sg.statemem.target:IsNear(inst, 6) and
-                            inst.sg.statemem.target.components.inventory:EquipHasTag("regal")
+                            inst.sg.statemem.target.components.inventory:EquipHasTag("regal") and
+                            not inst.sg.statemem.target.components.inventory:EquipHasTag("regaljoker")
                         ) then
                         inst.sg.statemem.bowing = true
                         inst.sg:GoToState("bow_loop", { target = inst.sg.statemem.target, talktask = inst.sg.statemem.talktask })
@@ -3850,7 +3932,8 @@ local states =
             if inst.sg.statemem.target ~= nil and
                 not (   inst.sg.statemem.target:IsValid() and
                         inst.sg.statemem.target:IsNear(inst, 6) and
-                        inst.sg.statemem.target.components.inventory:EquipHasTag("regal")
+                        inst.sg.statemem.target.components.inventory:EquipHasTag("regal") and
+                        not inst.sg.statemem.target.components.inventory:EquipHasTag("regaljoker")
                     ) then
                 inst.sg:GoToState("bow_pst")
             end
@@ -3960,20 +4043,7 @@ local states =
                 return
             end
 
-            local royalty = nil
-            local mindistsq = 25
-            for i, v in ipairs(AllPlayers) do
-                if v ~= inst and
-                    not v:HasTag("playerghost") and
-                    v.entity:IsVisible() and
-                    v.components.inventory:EquipHasTag("regal") then
-                    local distsq = v:GetDistanceSqToInst(inst)
-                    if distsq < mindistsq then
-                        mindistsq = distsq
-                        royalty = v
-                    end
-                end
-            end
+            local royalty = GetRoyaltyTarget(inst)
             if royalty ~= nil then
                 inst.sg:GoToState("bow", royalty)
             elseif mount.components.hunger == nil then
@@ -6417,6 +6487,81 @@ local states =
 		end,
 	},
 
+    State{
+		name = "playingbalatro",
+		tags = { "playingbalatro", "busy", "nodangle", "pausepredict" },
+
+		onenter = function(inst, data)
+			inst.components.locomotor:Stop()
+			inst.components.locomotor:Clear()
+			inst:ClearBufferedAction()
+
+			inst.sg.statemem.target = data ~= nil and data.target ~= nil and data.target:IsValid() and data.target or nil
+
+            if inst.sg.statemem.target == nil then
+				inst.sg:GoToState("idle", true)
+
+				return
+            end
+
+			inst.AnimState:PushAnimation("idle_wardrobe1_pre") -- Intentionally a push.
+			inst.AnimState:PushAnimation("idle_wardrobe1_loop", true)
+
+			if inst.components.playercontroller ~= nil then
+				inst.components.playercontroller:RemotePausePrediction()
+				inst.components.playercontroller:EnableMapControls(false)
+				inst.components.playercontroller:Enable(false)
+			end
+
+            local popup_data = inst.sg.statemem.target:GetInitialPopupData(inst)
+
+			inst.components.inventory:Hide()
+			inst:PushEvent("ms_closepopups")
+			inst:ShowActions(false)
+
+			inst:ShowPopUp(POPUPS.BALATRO, true, inst.sg.statemem.target, unpack(popup_data))
+		end,
+
+        onupdate = function(inst)
+			if not (CanEntitySeeTarget(inst, inst.sg.statemem.target) and inst:IsNear(inst.sg.statemem.target, 3)) then
+                inst.AnimState:PlayAnimation("idle_wardrobe1_pst")
+				inst.sg:GoToState("idle", true)
+			end
+		end,
+
+		events =
+		{
+			EventHandler("firedamage", function(inst)
+				inst.sg:GoToState("idle")
+			end),
+
+			EventHandler("ms_endplayingbalatro", function(inst)
+				if not inst.sg.statemem.isclosingbalatro then
+					inst.sg.statemem.isclosingbalatro = true
+					inst.AnimState:PlayAnimation("idle_wardrobe1_pst")
+					inst.sg:GoToState("idle", true)
+				end
+			end),
+		},
+
+		onexit = function(inst)
+			inst:ShowPopUp(POPUPS.BALATRO, false)
+
+			if inst.components.playercontroller then
+				inst.components.playercontroller:EnableMapControls(true)
+				inst.components.playercontroller:Enable(true)
+			end
+
+			inst.components.inventory:Show()
+			inst:ShowActions(true)
+
+			if not inst.sg.statemem.isclosingbalatro then
+				inst.sg.statemem.isclosingbalatro = true
+				POPUPS.BALATRO:Close(inst)
+			end
+		end,
+	},
+
 	State{
 		name = "openslingshotmods",
 		tags = { "doing", "busy", "nodangle" },
@@ -7405,12 +7550,12 @@ local states =
             inst.components.locomotor:Stop()
 
             inst.AnimState:PlayAnimation("useitem_pre")
-            inst.AnimState:PushAnimation("graveurn_in",false)        
+            inst.AnimState:PushAnimation("graveurn_in", false)
+            inst.AnimState:PushAnimation("useitem_pst", false)
         end,
 
         timeline =
-        {        
-
+        {
             TimeEvent(4 * FRAMES, function(inst)
                 inst.sg:RemoveStateTag("busy")
             end),
@@ -7424,7 +7569,6 @@ local states =
             end),
 
             TimeEvent(58 * FRAMES, function(inst)
-                inst.sg.statemem.done = true
                 inst:PerformBufferedAction()
                 inst.SoundEmitter:PlaySound("meta5/wendy/urn_close")
             end),
@@ -7458,11 +7602,12 @@ local states =
             inst.components.locomotor:Stop()
 
             inst.AnimState:PlayAnimation("useitem_pre")
-            inst.AnimState:PushAnimation("graveurn_out",false)        
+            inst.AnimState:PushAnimation("graveurn_out", false)
+            inst.AnimState:PushAnimation("useitem_pst", false)
         end,
 
         timeline =
-        {        
+        {
             TimeEvent(4 * FRAMES, function(inst)
                 inst.sg:RemoveStateTag("busy")
             end),
@@ -7476,7 +7621,6 @@ local states =
             end),
 
             TimeEvent(33 * FRAMES, function(inst)
-                inst.sg.statemem.done = true
                 inst:PerformBufferedAction()
                 inst.SoundEmitter:PlaySound("meta5/wendy/urn_close")
             end),

@@ -279,9 +279,9 @@ local function regular_Upgrade_OnHammered(inst, worker)
 			inst:Remove()
 			return
 		end
-	else
-		--We might still have some overstacks, just not enough to "collapse"
-		inst.components.container:DropEverything()
+	elseif inst.components.container ~= nil then
+        --If not burnt, we might still have some overstacks, just not enough to "collapse"
+        inst.components.container:DropEverything()
 	end
 
 	--fallback to default
@@ -353,9 +353,9 @@ local function regular_OnBurnt(inst)
 			regular_ConvertToCollapsed(inst, true, true)
 			return
 		end
-	else
-		--We might still have some overstacks, just not enough to "collapse"
-		inst.components.container:DropEverything()
+	elseif inst.components.container ~= nil then
+        --We might still have some overstacks, just not enough to "collapse"
+        inst.components.container:DropEverything()
 	end
 
 	--fallback to default
@@ -383,9 +383,9 @@ local function regular_OnDecontructStructure(inst, caster)
 			inst.no_delete_on_deconstruct = true
 			return
 		end
-	else
-		--We might still have some overstacks, just not enough to "collapse"
-		inst.components.container:DropEverything()
+	elseif inst.components.container ~= nil then
+        --If not burnt, we might still have some overstacks, just not enough to "collapse"
+        inst.components.container:DropEverything()
 	end
 
 	--fallback to default

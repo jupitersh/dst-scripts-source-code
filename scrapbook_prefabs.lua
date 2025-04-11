@@ -1868,6 +1868,10 @@ local PREFABS =
     ["wortox_reviver"] = true,
     ["wortox_souljar"] = true,
 
+    -- Balatro
+    ["deck_of_cards"] = true,
+    ["playing_card"] = true,
+
     --[[POI]]
     ["charlie_stage_post"] = true,
     ["beequeenhivegrown"] = true,
@@ -1885,6 +1889,7 @@ local PREFABS =
     ["atrium_gate"] = true,
     ["archive_orchestrina_main"] = true,
     ["multiplayer_portal"] = true,
+    ["balatro_machine"] = true,
 
     -----------------------------------------------
 

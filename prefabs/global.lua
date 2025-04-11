@@ -148,10 +148,13 @@ local assets =
     Asset("FILE", "sound/rifts4.fsb"),
 
     Asset("SOUNDPACKAGE", "sound/hallowednights2024.fev"),
-    Asset("FILE", "sound/hallowednights2024.fsb"),     
+    Asset("FILE", "sound/hallowednights2024.fsb"),
 
     Asset("SOUNDPACKAGE", "sound/meta5.fev"),
-    Asset("FILE", "sound/meta5.fsb"),     
+    Asset("FILE", "sound/meta5.fsb"),    
+
+    Asset("SOUNDPACKAGE", "sound/balatro.fev"),
+    Asset("FILE", "sound/balatro.fsb"),
 
     Asset("FILE", "sound/wilton.fsb"),         -- Legacy sound that can be used in mods
     Asset("FILE", "sound/winnie.fsb"),         -- Legacy sound that can be used in mods
@@ -490,6 +493,9 @@ local assets =
 
     Asset("ATLAS", "images/npcchatflairs.xml"),
     Asset("IMAGE", "images/npcchatflairs.tex"),
+
+    Asset("ATLAS", "images/balatro.xml"),
+    Asset("IMAGE", "images/balatro.tex"),
 
     -- Loading screen
     Asset("ATLAS", "images/loading_screen.xml"),

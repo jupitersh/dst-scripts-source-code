@@ -462,7 +462,12 @@ return{
             NONEWMOON = "only_used_by_wendy",
             NOFULLMOON = "only_used_by_wendy",
             NOTNIGHT = "only_used_by_wendy",
-        },        
+            CAVE = "only_used_by_wendy",
+        },
+		MODSLINGSHOT =
+		{
+--fallback to speech_wilson.lua 			NOSLINGSHOT = "only_used_by_walter",
+		},
     },
 
 	ANNOUNCE_CANNOT_BUILD =
@@ -862,6 +867,10 @@ return{
 --fallback to speech_wilson.lua 	{
 --fallback to speech_wilson.lua 		"only_used_by_walter",
 --fallback to speech_wilson.lua 	},
+--fallback to speech_wilson.lua 	ANNOUNCE_WOBY_REMEMBERCHEST_FAIL =
+--fallback to speech_wilson.lua 	{
+--fallback to speech_wilson.lua 		"only_used_by_walter",
+--fallback to speech_wilson.lua 	},
 
     -- wx specific
     ANNOUNCE_WX_SCANNER_NEW_FOUND = "only_used_by_wx78",
@@ -873,12 +882,18 @@ return{
     QUAGMIRE_ANNOUNCE_LOSE = "Oh dear.",
     QUAGMIRE_ANNOUNCE_WIN = "Must be off now!",
 
---fallback to speech_wilson.lua     ANNOUNCE_ROYALTY =
---fallback to speech_wilson.lua     {
---fallback to speech_wilson.lua         "Your majesty.",
---fallback to speech_wilson.lua         "Your highness.",
---fallback to speech_wilson.lua         "My liege!",
---fallback to speech_wilson.lua     },
+    ANNOUNCE_ROYALTY =
+    {
+        "You humble me, royal bumble bee!",
+        "Pardon my shyness, your Highness!",
+        "A crown of great renown!",
+    },
+    ANNOUNCE_ROYALTY_JOKER =
+    {
+        "A hat for a prat! Hyuyu!",
+        "The joke's on you! Hyuyu!",
+        "A clown of great renown!",
+    },
 
     ANNOUNCE_ATTACH_BUFF_ELECTRICATTACK    = "I'm an electric imp!",
     ANNOUNCE_ATTACH_BUFF_ATTACK            = "Hyuyu, I'm ready to play!",
@@ -5361,6 +5376,7 @@ return{
         RECORD_MAIN = "What a cheeky little tune.", -- Unused.
         RECORD_WORKTOBEDONE = "Oh dear, what have we here?", -- Unused.
         RECORD_HALLOWEDNIGHTS = "Thrilling and chilling!",
+        RECORD_BALATRO = "A game is always good for the soul!",
 
         ARCHIVE_ORCHESTRINA_MAIN = "This floor is soundly built, hyuyu!",
 
@@ -5647,6 +5663,11 @@ return{
 
         SHALLOW_GRAVE = "Poor soul.",
         THULECITEBUGNET = "Fly away? Not today!",
+
+        -- Deck of Cards
+        DECK_OF_CARDS = "One sec, who shuffled this deck?",
+        PLAYING_CARD = "Is it so hard to not lose a card?",
+        BALATRO_MACHINE = "Hey joker, let's play some poker!",
     },
 
     DESCRIBE_GENERIC = "Ooo, a mystery!",

@@ -40,6 +40,7 @@ function PlayerLightningTarget:DoStrike()
     if self.onstrikefn ~= nil then
         self.onstrikefn(self.inst)
     end
+	self.inst:PushEvent("playerlightningtargeted")
 end
 
 return PlayerLightningTarget

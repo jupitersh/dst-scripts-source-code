@@ -462,7 +462,12 @@ return{
             NONEWMOON = "only_used_by_wendy",
             NOFULLMOON = "only_used_by_wendy",
             NOTNIGHT = "only_used_by_wendy",
-        },        
+            CAVE = "only_used_by_wendy",
+        },
+		MODSLINGSHOT =
+		{
+--fallback to speech_wilson.lua 			NOSLINGSHOT = "only_used_by_walter",
+		},
     },
 
 	ANNOUNCE_CANNOT_BUILD =
@@ -847,6 +852,10 @@ return{
 --fallback to speech_wilson.lua 	{
 --fallback to speech_wilson.lua 		"only_used_by_walter",
 --fallback to speech_wilson.lua 	},
+--fallback to speech_wilson.lua 	ANNOUNCE_WOBY_REMEMBERCHEST_FAIL =
+--fallback to speech_wilson.lua 	{
+--fallback to speech_wilson.lua 		"only_used_by_walter",
+--fallback to speech_wilson.lua 	},
 
     -- wx specific
     ANNOUNCE_WX_SCANNER_NEW_FOUND = "only_used_by_wx78",
@@ -858,12 +867,18 @@ return{
     QUAGMIRE_ANNOUNCE_LOSE = "Didn't win. Oh",
     QUAGMIRE_ANNOUNCE_WIN = "Yay! Did it!",
 
---fallback to speech_wilson.lua     ANNOUNCE_ROYALTY =
---fallback to speech_wilson.lua     {
---fallback to speech_wilson.lua         "Your majesty.",
---fallback to speech_wilson.lua         "Your highness.",
---fallback to speech_wilson.lua         "My liege!",
---fallback to speech_wilson.lua     },
+    ANNOUNCE_ROYALTY =
+    {
+        "Big Mommy Buzz hat",
+        "Your Buzz-Buzz",
+        "Where Big Mommy Buzz?",
+    },
+    ANNOUNCE_ROYALTY_JOKER =
+    {
+        "Funny hat",
+        "Make laugh",
+        "Silly friend!",
+    },
 
     ANNOUNCE_ATTACH_BUFF_ELECTRICATTACK    = "Zap! Zap, Zap!",
     ANNOUNCE_ATTACH_BUFF_ATTACK            = "Feel stronger!",
@@ -5345,6 +5360,7 @@ return{
         RECORD_MAIN = "Happy sad", -- Unused.
         RECORD_WORKTOBEDONE = "Busy busy", -- Unused.
         RECORD_HALLOWEDNIGHTS = "Spooky spooky",
+        RECORD_BALATRO = "Happy game song",
 
         ARCHIVE_ORCHESTRINA_MAIN = "Singing floor",
 
@@ -5631,6 +5647,11 @@ return{
 
         SHALLOW_GRAVE = "Quiet friend",
         THULECITEBUGNET = "Bug friends, don't be scared!",
+
+        -- Deck of Cards
+        DECK_OF_CARDS = "For play with friends",
+        PLAYING_CARD = "Lost",
+        BALATRO_MACHINE = "Hello clown face",
     },
 
     DESCRIBE_GENERIC = "Friend?",

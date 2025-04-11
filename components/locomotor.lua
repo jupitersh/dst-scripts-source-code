@@ -703,7 +703,7 @@ function LocoMotor:Clear()
     self.atdestfn = nil
     self.wantstomoveforward = nil
     self.wantstorun = nil
-    self.bufferedaction = nil
+	self:SetBufferedAction(nil)
     --self:ResetPath()
 end
 
@@ -1417,10 +1417,12 @@ function LocoMotor:OnUpdate(dt, arrive_check_only)
 						self:FaceMovePoint(act_pos:Get())
                     end
                 end
+				local bufferedaction = self.bufferedaction
+				self.bufferedaction = nil --so it doesn't get Failed at Clear()
                 if self.ismastersim then
-                    self.inst:PushBufferedAction(self.bufferedaction)
+					self.inst:PushBufferedAction(bufferedaction)
                 else
-                    self.inst:PreviewBufferedAction(self.bufferedaction)
+					self.inst:PreviewBufferedAction(bufferedaction)
                 end
             end
             self:Stop()

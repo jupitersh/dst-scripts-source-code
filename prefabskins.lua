@@ -340,6 +340,7 @@ PREFAB_SKINS = {
 	},
 	catcoonhat =
 	{
+		"catcoonhat_clown",
 		"catcoonhat_trapper_rooster",
 		"catcoonhat_trapperup_rooster",
 		"hat_puppy_cap",
@@ -812,6 +813,7 @@ PREFAB_SKINS = {
 	{
 		"hivehat_an",
 		"hivehat_cawnival",
+		"hivehat_joker",
 	},
 	hutch =
 	{
@@ -955,6 +957,10 @@ PREFAB_SKINS = {
 		"meatrack_butcher",
 		"meatrack_circus",
 		"meatrack_victorian",
+	},
+	mermhat =
+	{
+		"mermhat_clown",
 	},
 	mermhouse_crafted =
 	{

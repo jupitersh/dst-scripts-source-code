@@ -114,22 +114,30 @@ local function OnLoad(inst, data)
 end
 
 local function domutatefn(inst,doer)
-    if not TheWorld.state.isnight then
-        return false, "NOTNIGHT"
-    elseif not doer.components.ghostlybond or not doer.components.ghostlybond.ghost then
+    if TheWorld:HasTag("cave") then
+        return false, "CAVE"
+    end
+
+    local ghostlybond = doer.components.ghostlybond
+
+    if ghostlybond == nil or ghostlybond.ghost == nil or not ghostlybond.summoned then
         return false, "NOGHOST"
-    elseif doer.components.ghostlybond.ghost:HasTag("gestalt") then
-        if  TheWorld.state.isnewmoon or (not TheWorld.state.isfullmoon and not TheWorld.state.iswaxingmoon) then
-            doer.components.ghostlybond.ghost:ChangeToGestalt(false)
+
+    elseif not TheWorld.state.isnight then
+        return false, "NOTNIGHT"
+
+    elseif ghostlybond.ghost:HasTag("gestalt") then
+        if TheWorld.state.isnewmoon or (not TheWorld.state.isfullmoon and not TheWorld.state.iswaxingmoon) then
+            ghostlybond.ghost:ChangeToGestalt(false)
         else
            return false, "NONEWMOON"
         end
-    else    
+    else
         if TheWorld.state.isfullmoon or (not TheWorld.state.isnewmoon and TheWorld.state.iswaxingmoon) then
-            doer.components.ghostlybond.ghost:ChangeToGestalt(true)            
+            ghostlybond.ghost:ChangeToGestalt(true)
         else
             return false, "NOFULLMOON"
-        end        
+        end
     end
 
     return true

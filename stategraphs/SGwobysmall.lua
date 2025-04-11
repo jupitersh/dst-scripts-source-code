@@ -202,7 +202,7 @@ local states =
             inst.components.locomotor:EnableGroundSpeedMultiplier(true)
             inst.Physics:ClearMotorVelOverride()
             inst.Physics:Stop()
-			if inst.sg.statemem.buffaction == inst.bufferedaction then
+			if inst.sg.statemem.buffaction and inst.sg.statemem.buffaction == inst.bufferedaction then
 				inst:ClearBufferedAction()
 			end
         end,
@@ -297,7 +297,7 @@ local states =
         },
 
 		onexit = function(inst)
-			if inst.sg.statemem.buffaction == inst.bufferedaction then
+			if inst.sg.statemem.buffaction and inst.sg.statemem.buffaction == inst.bufferedaction then
 				inst:ClearBufferedAction()
 			end
 		end,
@@ -350,7 +350,7 @@ local states =
             end),
 
             EventHandler("playernewstate", function(inst)
-                if inst.sg.statemem.buffaction == inst.bufferedaction then
+                if inst.sg.statemem.buffaction and inst.sg.statemem.buffaction == inst.bufferedaction then
                     local pickable = inst.bufferedaction.target ~= nil and inst.bufferedaction.target.components.pickable or nil
 
                     if pickable ~= nil and pickable:CanBePicked() then -- If we can be picked, Walter didn't finish it!
@@ -370,7 +370,7 @@ local states =
             if inst.sg.statemem.openedchest and inst.sg.statemem.openedchest:IsValid() and inst.sg.statemem.openedchest.components.container then
                 inst.sg.statemem.openedchest.components.container:Close(inst)
             end
-			if inst.sg.statemem.buffaction == inst.bufferedaction then
+			if inst.sg.statemem.buffaction and inst.sg.statemem.buffaction == inst.bufferedaction then
 				inst:ClearBufferedAction()
 			end
         end,

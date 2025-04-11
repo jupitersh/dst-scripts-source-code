@@ -37,10 +37,9 @@ end
 
 
 local function ApplySkillModifiers(inst)
-	if inst._petal_preserve then 
-		inst.components.preserver:SetPerishRateMultiplier(TUNING.WENDY_SISTURN_PETAL_PRESRVE) 
-	end
-	if inst.components.sanityaura then
+	inst.components.preserver:SetPerishRateMultiplier(inst._petal_preserve and TUNING.WENDY_SISTURN_PETAL_PRESRVE or 1) 
+
+	if inst.components.sanityaura ~= nil then
 		inst.components.sanityaura.aura = inst._sanityaura_size or TUNING.SANITYAURA_SMALL
 	end
 end

@@ -125,7 +125,7 @@ local function DoGhostSpell(doer, event, state, ...)
 	local spellbookcooldowns = doer.components.spellbookcooldowns
 	local ghostlybond = doer.components.ghostlybond
 
-	if spellbookcooldowns ~= nil and spellbookcooldowns:IsInCooldown("ghostcommand") then
+	if spellbookcooldowns ~= nil and (spellbookcooldowns:IsInCooldown("ghostcommand") or spellbookcooldowns:IsInCooldown(event or state)) then
         return false
 	end
 
@@ -246,10 +246,13 @@ local SKILLTREE_COMMAND_DEFS =
         widget_scale = ICON_SCALE,
 		checkcooldown = function(doer)
 			--client safe
-			return (doer ~= nil
-				and doer.components.spellbookcooldowns
-				and doer.components.spellbookcooldowns:GetSpellCooldownPercent("ghostcommand"))
-				or nil
+			if doer == nil or doer.components.spellbookcooldowns == nil then
+				return
+			end
+
+			local cooldown = math.max(doer.components.spellbookcooldowns:GetSpellCooldownPercent("do_ghost_attackat") or 0, doer.components.spellbookcooldowns:GetSpellCooldownPercent("ghostcommand") or 0)
+
+			return cooldown > 0 and cooldown or nil
 		end,
 		cooldowncolor = { 0.65, 0.65, 0.65, 0.75 },
     },

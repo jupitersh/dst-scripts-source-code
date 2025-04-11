@@ -44,6 +44,7 @@ local PlantRegistryPopupScreen = require "screens/plantregistrypopupscreen"
 local PlayerInfoPopupScreen = require "screens/playerinfopopupscreen"
 local ScrapbookScreen = require "screens/redux/scrapbookscreen"
 local InspectaclesScreen = require("screens/redux/inspectaclesscreen")
+local BalatroScreen = require("screens/redux/balatroscreen")
 local PumpkinCarvingScreen = require("screens/redux/pumpkincarvingscreen")
 local SnowmanDecoratingScreen = require("screens/redux/snowmandecoratingscreen")
 
@@ -56,6 +57,8 @@ local GridGroomerPopupScreen = require "screens/redux/groomerpopupgridloadout"
 local GridScarecrowClothingPopupScreen = require "screens/redux/scarecrowpopupgridloadout"
 local PlayerAvatarPopup = require "widgets/playeravatarpopup"
 local DressupAvatarPopup = require "widgets/dressupavatarpopup"
+
+
 
 local PlayerHud = Class(Screen, function(self)
     Screen._ctor(self, "HUD")
@@ -682,6 +685,24 @@ function PlayerHud:CloseInspectaclesScreen()
         self.inspectaclesscreen = nil
     end
 end
+
+-- BALATRO WIDGET
+function PlayerHud:OpenBalatroScreen(target, jokers, cards)
+    self:CloseBalatroScreen()
+    self.balatroscreen = BalatroScreen(self.owner, target, jokers, cards)
+    self:OpenScreenUnderPause(self.balatroscreen)
+    return true
+end
+
+function PlayerHud:CloseBalatroScreen()
+    if self.balatroscreen ~= nil then
+        if self.balatroscreen.inst:IsValid() then
+            TheFrontEnd:PopScreen(self.balatroscreen)
+        end
+        self.balatroscreen = nil
+    end
+end
+----------------
 
 function PlayerHud:OpenPumpkinCarvingScreen(target)
 	self:ClosePumpkinCarvingScreen()

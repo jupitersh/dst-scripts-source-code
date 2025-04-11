@@ -191,6 +191,9 @@ local CUSTOM_FUNCTIONS;CUSTOM_FUNCTIONS = {
             inst:ListenForEvent("timerdone", OnTimerDone)
             inst:ListenForEvent("death", OnDeath)
             inst:ListenForEvent("ms_respawnedfromghost", OnRespawnedFromGhost)
+        else
+            inst.components.timer:StopTimer("wortox_panflute_playing")
+            inst:RemoveDebuff("wortox_panflute_buff")
         end
     end,
 }

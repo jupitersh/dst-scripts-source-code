@@ -1328,6 +1328,16 @@ MISC_ITEMS =
 		rarity_modifier = "Woven",
 		release_group = 133,
 	},
+	mysterybox_balatro =
+	{
+		type = "mysterybox",
+		skin_tags = { "MYSTERYBOX", },
+		build_name_override = "mysterybox_classic_4",
+		box_build = "box_mystery_classic",
+		rarity = "Common",
+		rarity_modifier = "Woven",
+		release_group = 166,
+	},
 	mysterybox_beards =
 	{
 		type = "mysterybox",

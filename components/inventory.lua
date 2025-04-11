@@ -1920,9 +1920,11 @@ function Inventory:TakeActiveItemFromCountOfSlot(slot, count)
     local item = self:GetItemInSlot(slot)
     if item ~= nil and
         self:GetActiveItem() == nil then
-
-        if item.components.stackable and item.components.stackable:StackSize() > count then
-            local countedstack = item.components.stackable:Get(count)
+        local stackable = item.components.stackable
+        local fullstacksize = stackable and (stackable:IsOverStacked() and stackable.originalmaxsize or stackable:StackSize()) or 1
+        count = math.clamp(count, 1, fullstacksize)
+        if stackable and stackable:StackSize() > count then
+            local countedstack = stackable:Get(count)
             countedstack.prevslot = slot
             countedstack.prevcontainer = nil
             self:GiveActiveItem(countedstack)
@@ -2294,9 +2296,7 @@ function Inventory:MoveItemFromCountOfSlot(slot, container, count)
     if item ~= nil and container ~= nil then
         container = container.components.container
         if container ~= nil and
-            container:IsOpenedBy(self.inst) and
-            item.components.stackable ~= nil and
-            item.components.stackable:IsStack() then
+            container:IsOpenedBy(self.inst) then
 
             container.currentuser = self.inst
 
@@ -2307,8 +2307,11 @@ function Inventory:MoveItemFromCountOfSlot(slot, container, count)
                 nil
 
             if container:CanTakeItemInSlot(item, targetslot) then
-                if item.components.stackable and item.components.stackable:StackSize() > count then
-                    local countedstack = item.components.stackable:Get(count)
+                local stackable = item.components.stackable
+                local fullstacksize = stackable and (stackable:IsOverStacked() and stackable.originalmaxsize or stackable:StackSize()) or 1
+                count = math.clamp(count, 1, fullstacksize)
+                if stackable and stackable:StackSize() > count then
+                    local countedstack = stackable:Get(count)
                     countedstack.prevcontainer = nil
                     countedstack.prevslot = nil
                     if not container:GiveItem(countedstack, targetslot) then

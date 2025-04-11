@@ -329,6 +329,10 @@ function SpawnPrefabFromSim(name)
     local prefab = Prefabs[name]
     if prefab == nil then
         print( "Can't find prefab " .. tostring(name) )
+        if not AreAnyModsEnabled() and not TheNet:GetServerModsEnabled() then
+            print("This is bug reportable if found please send the following stack trace.")
+            print(_TRACEBACK())
+        end
         return -1
     end
 
@@ -1582,7 +1586,7 @@ function DisplayError(error)
                                                                 SimReset()
                                                             end)
                                                         end},
-                {text=STRINGS.UI.MAINSCREEN.MODFORUMS, nopop=true, cb = function() VisitURL("http://forums.kleientertainment.com/forum/79-dont-starve-together-beta-mods-and-tools/") end }
+                {text=STRINGS.UI.MAINSCREEN.MODFORUMS, nopop=true, cb = function() VisitURL("https://forums.kleientertainment.com/forum/79-dont-starve-together-beta-mods-and-tools/") end }
             }
 
             -- Add reload save button if we're on dev
@@ -1631,7 +1635,7 @@ function DisplayError(error)
             end
 
             if known_error_key == nil or ERRORS[known_error_key] == nil then
-                table.insert(buttons, {text=STRINGS.UI.MAINSCREEN.ISSUE, nopop=true, cb = function() VisitURL("http://forums.kleientertainment.com/klei-bug-tracker/dont-starve-together/") end })
+                table.insert(buttons, {text=STRINGS.UI.MAINSCREEN.ISSUE, nopop=true, cb = function() VisitURL("https://forums.kleientertainment.com/klei-bug-tracker/dont-starve-together/") end })
             elseif known_error.url ~= nil then
                 table.insert(buttons, {text=STRINGS.UI.MAINSCREEN.GETHELP, nopop=true, cb = function() VisitURL(known_error.url) end })
             end

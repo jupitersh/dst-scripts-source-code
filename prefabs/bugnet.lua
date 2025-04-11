@@ -127,7 +127,7 @@ local function fn_thulecite()
     --weapon (from weapon component) added to pristine state for optimization
     inst:AddTag("weapon")
 
-    local swap_data = {sym_build = "thulecitebugnet"}
+	local swap_data = { sym_build = "thulecitebugnet", sym_name = "swap_object" }
     MakeInventoryFloatable(inst, "med", 0.09, {0.9, 0.4, 0.9}, true, -14.5, swap_data)
 
     inst.entity:SetPristine()
