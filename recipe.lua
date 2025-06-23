@@ -147,6 +147,13 @@ Recipe = Class(function(self, name, ingredients, tab, level, placer_or_more_data
 	self.manufactured = more_data.manufactured -- if true, then it is up to the crafting station to handle creating the item, not the builder component
     self.station_tag  = more_data.station_tag -- If set to a tag this will only show up in CRAFTING_FILTERS.CRAFTING_STATION when the prototyper machine has this tag.
 
+    self.limitedamount = more_data.limitedamount
+    if self.limitedamount then
+        if TheSim then -- updateprefabs guard
+            DeclareLimitedCraftingRecipe(self.name)
+        end
+    end
+
 	self.is_deconstruction_recipe = tab == nil
 
     self.source_recipename = more_data.source_recipename -- NOTES(JBK): What the basis recipename is used to create this object useful for things like Winona scanner.

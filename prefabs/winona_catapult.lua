@@ -148,10 +148,7 @@ end
 
 local function ShouldKeepTarget(inst, target)
 	return inst:IsActiveMode()
-		and target
-        and target:IsValid()
-        and target.components.health ~= nil
-        and not target.components.health:IsDead()
+		and inst.components.combat:CanTarget(target)
 		and inst:IsNear(target, TUNING.WINONA_CATAPULT_MAX_RANGE + TUNING.WINONA_CATAPULT_KEEP_TARGET_BUFFER + target:GetPhysicsRadius(0))
 end
 

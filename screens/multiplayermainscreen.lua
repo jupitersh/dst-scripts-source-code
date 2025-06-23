@@ -333,6 +333,24 @@ function MultiplayerMainScreen:DoInit()
     self:Hide()
 end
 
+
+function MultiplayerMainScreen:HandleNewControlSchemePopup()
+    -- Do we need to show the new control scheme popup?
+    -- If we have a joystick and the setting isn't set, show the popup and handle it
+    if not self.popped then
+        self.popped = true
+        TheFrontEnd:PushScreen(
+            PopupDialogScreen("This is my test", --STRINGS.UI.MAINSCREEN.ASKQUIT, 
+                STRINGS.UI.MAINSCREEN.ASKQUITDESC, 
+                { 
+                    {text=STRINGS.UI.MAINSCREEN.YES, cb = function() print("clicked yes") end },
+                    {text=STRINGS.UI.MAINSCREEN.NO, cb = function() print("no") end}  
+                }
+            )
+        )
+    end
+end
+
 function MultiplayerMainScreen:UpdatePuppets()
     PlayerHistory:SortBackwards("sort_date")
     self.player_history = PlayerHistory:GetRows()
@@ -971,6 +989,8 @@ local anims =
 }
 
 function MultiplayerMainScreen:OnUpdate(dt)
+    self:HandleNewControlSchemePopup()
+
 	if self.bg.anim_root.portal:GetAnimState():AnimDone() and not self.leaving then
     	if math.random() < .33 then
 			self.bg.anim_root.portal:GetAnimState():PlayAnimation("portal_idle_eyescratch", false)

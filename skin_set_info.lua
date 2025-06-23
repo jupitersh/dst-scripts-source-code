@@ -332,6 +332,27 @@ return
 			"bedroll_furry_quilt_grey",
 		},
 	},
+	emote_tiphat =
+	{
+		{
+			"wanda_western",
+			"body_wanda_western",
+			"hand_wanda_western",
+			"legs_wanda_western",
+		},
+		{
+			"wathgrithr_western",
+			"body_wathgrithr_western",
+			"legs_wathgrithr_western",
+		},
+		{
+			"wes_western",
+			"body_wes_western",
+			"hand_wes_western",
+			"legs_wes_western",
+			"feet_wes_western",
+		},
+	},
 	emote_yawn =
 	{
 		{

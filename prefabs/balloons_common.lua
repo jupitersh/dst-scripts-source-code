@@ -171,12 +171,13 @@ local function MakeFloatingBallonPhysics(inst)
     phys:SetRestitution(1)
     phys:SetCollisionGroup(COLLISION.CHARACTERS)
 
-    phys:ClearCollisionMask()
-    phys:CollidesWith((TheWorld:CanFlyingCrossBarriers() and COLLISION.GROUND) or COLLISION.WORLD)
-    phys:CollidesWith(COLLISION.OBSTACLES)
-    phys:CollidesWith(COLLISION.SMALLOBSTACLES)
-    phys:CollidesWith(COLLISION.CHARACTERS)
-    phys:CollidesWith(COLLISION.GIANTS)
+	phys:SetCollisionMask(
+		TheWorld:CanFlyingCrossBarriers() and COLLISION.GROUND or COLLISION.WORLD,
+		COLLISION.OBSTACLES,
+		COLLISION.SMALLOBSTACLES,
+		COLLISION.CHARACTERS,
+		COLLISION.GIANTS
+	)
 
     phys:SetCapsule(.25, 2)
 

@@ -27,6 +27,7 @@ function ContainerWidget:Open(container, doer)
 
     local widget = container.replica.container:GetWidget()
     local isinfinitestacksize = container.replica.container:IsInfiniteStackSize()
+    local isreadonlycontainer = container.replica.container:IsReadOnlyContainer()
 
     if widget.bgatlas ~= nil and widget.bgimage ~= nil then
         self.bgimage:SetTexture(widget.bgatlas, widget.bgimage)
@@ -87,12 +88,13 @@ function ContainerWidget:Open(container, doer)
             end
         end
 
-        if TheInput:ControllerAttached() then
+        if TheInput:ControllerAttached() or isreadonlycontainer then
             self.button:Hide()
         end
 
         self.button.inst:ListenForEvent("continuefrompause", function()
-            if TheInput:ControllerAttached() then
+            local isreadonlycontainer = container and container:IsValid() and container.replica.container and container.replica.container:IsReadOnlyContainer() or false
+            if TheInput:ControllerAttached() or isreadonlycontainer then
                 self.button:Hide()
             else
                 self.button:Show()
@@ -168,17 +170,36 @@ function ContainerWidget:Open(container, doer)
     self:Refresh()
 end
 
+local READONLYCONTAINER_BRIGHTNESS_SCALE = 0.6
+
 function ContainerWidget:Refresh()
     local items = self.container.replica.container:GetItems()
+    local isreadonlycontainer = self.container.replica.container:IsReadOnlyContainer()
+    if self.button then
+        if TheInput:ControllerAttached() or isreadonlycontainer then
+            self.button:Hide()
+        else
+            self.button:Show()
+        end
+    end
+    if isreadonlycontainer then
+        self.bganim:GetAnimState():SetMultColour(READONLYCONTAINER_BRIGHTNESS_SCALE, READONLYCONTAINER_BRIGHTNESS_SCALE, READONLYCONTAINER_BRIGHTNESS_SCALE, 1)
+    else
+        self.bganim:GetAnimState():SetMultColour(1, 1, 1, 1)
+    end
     for k, v in pairs(self.inv) do
+        v:SetReadOnlyVisuals(isreadonlycontainer)
         local item = items[k]
         if item == nil then
             if v.tile ~= nil then
                 v:SetTile(nil)
             end
         elseif v.tile == nil or v.tile.item ~= item then
-            v:SetTile(ItemTile(item))
+            local tile = ItemTile(item)
+            tile.readonlycontainer = isreadonlycontainer
+            v:SetTile(tile)
         else
+            v.tile.readonlycontainer = isreadonlycontainer
             v.tile:Refresh()
         end
     end
@@ -200,6 +221,8 @@ end
 function ContainerWidget:OnItemGet(data)
     if data.slot and self.inv[data.slot] then
         local tile = ItemTile(data.item)
+        local isreadonlycontainer = self.container.replica.container:IsReadOnlyContainer()
+        tile.readonlycontainer = isreadonlycontainer
         self.inv[data.slot]:SetTile(tile)
         tile:Hide()
         tile.ignore_stacksize_anim = data.ignore_stacksize_anim

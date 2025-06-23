@@ -46,6 +46,7 @@ AddModReleaseID( "R33_QOL_SPRINGCLEANING" )
 AddModReleaseID( "R34_OCEANQOL_WINONAWURT" )
 AddModReleaseID( "R35_SANITYTROUBLES" )
 AddModReleaseID( "R36_ST_WENDWALTWORT" )
+AddModReleaseID( "R37_LUNAR_CAGE" )
 
 -----------------------------------------------------------------------------------------------
 
@@ -521,15 +522,37 @@ function ModWrangler:LoadMods(worldgen)
 	KnownModIndex:ApplyConfigOptionOverrides(mod_overrides)
 
 	-- Sort the mods by priority, so that "library" mods can load first
-	local function modPrioritySort(a,b)
-		local apriority = (a.modinfo and a.modinfo.priority) or 0
-		local bpriority = (b.modinfo and b.modinfo.priority) or 0
-		if apriority == bpriority then
-			return tostring(a.modinfo and a.modinfo.name) > tostring(b.modinfo and b.modinfo.name)
-		else
-			return apriority  > bpriority
-		end
-	end
+    local function sanitizepriority(priority)
+        local prioritytype = type(priority)
+        if prioritytype == "string" then
+            return tonumber(priority)
+        elseif prioritytype == "number" then
+            return priority
+        end
+        return 0
+    end
+    local function modPrioritySort(a, b)
+        -- NOTES(JBK): Mac OS changed locale sorting so we have to do this using stringidsorter to avoid locale issues.
+        -- I am also changing how it is sorted if the modinfo is not present to use the mod's modname instead.
+        -- All priority fields are going to be converted to a number.
+        if a.modinfo and b.modinfo then
+            local apriority = sanitizepriority(a.modinfo.priority)
+            local bpriority = sanitizepriority(b.modinfo.priority)
+            if apriority == bpriority then
+                local aname = a.modinfo.name
+                if type(aname) ~= "string" then
+                    aname = a.modname
+                end
+                local bname = b.modinfo.name or b.modname
+                if type(bname) ~= "string" then
+                    bname = b.modname
+                end
+                return stringidsorter(aname, bname)
+            end
+            return apriority > bpriority
+        end
+        return stringidsorter(a.modname, b.modname)
+    end
 	table.sort(self.mods, modPrioritySort)
 
 	for i,mod in ipairs(self.mods) do

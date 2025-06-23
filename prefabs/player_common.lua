@@ -587,6 +587,13 @@ fns.OnRiftMoonTile = function(inst, on_rift_moon)
 	inst.components.sanity:EnableLunacy(on_rift_moon, "rift_moon")
 end
 
+fns.OnFullMoonEnlightenment = function(inst, isfullmoon)
+    local is_post_rift_lunacy = isfullmoon
+        and TheWorld.components.riftspawner ~= nil
+        and TheWorld.components.riftspawner:GetLunarRiftsEnabled()
+    inst.components.sanity:EnableLunacy(is_post_rift_lunacy, "rifts_opened")
+end
+
 --------------------------------------------------------------------------
 --Equipment Breaking Events
 --------------------------------------------------------------------------
@@ -683,6 +690,7 @@ local function RegisterMasterEventListeners(inst)
 	inst:ListenForEvent("on_LUNAR_MARSH_tile", fns.OnRiftMoonTile)
 	inst:WatchWorldState("isnight", fns.OnAlterNight)
 	inst:WatchWorldState("isalterawake", fns.OnAlterNight)
+    inst:WatchWorldState("isfullmoon", fns.OnFullMoonEnlightenment)
 
     -- Merm murder event
     inst:ListenForEvent("murdered", ex_fns.OnMurderCheckForFishRepel)
@@ -1962,9 +1970,11 @@ local function MakePlayerCharacter(name, customprefabs, customassets, common_pos
         Asset("ANIM", "anim/player_emotes.zip"), -- item emotes
         Asset("ANIM", "anim/player_emote_extra.zip"), -- item emotes
         Asset("ANIM", "anim/player_emotes_dance2.zip"), -- item emotes
+        Asset("ANIM", "anim/player_emotes_hat_tip.zip"), -- item emotes
         Asset("ANIM", "anim/player_mount_emotes_extra.zip"), -- item emotes
 
         Asset("ANIM", "anim/player_mount_emotes_dance2.zip"), -- item emotes
+        Asset("ANIM", "anim/player_mount_emotes_hat_tip.zip"), -- item emotes
         Asset("ANIM", "anim/player_mount_pet.zip"),
         Asset("ANIM", "anim/player_hatdance.zip"),
         Asset("ANIM", "anim/player_bow.zip"),
@@ -2028,13 +2038,11 @@ local function MakePlayerCharacter(name, customprefabs, customassets, common_pos
 
         Asset("ANIM", "anim/player_acting.zip"),
 		Asset("ANIM", "anim/player_closeinspect.zip"),
-
         Asset("ANIM", "anim/player_attack_pillows.zip"),
-
         Asset("ANIM", "anim/player_shadow_thrall_parasite.zip"),
+		Asset("ANIM", "anim/player_pouncecapture.zip"),
 
         Asset("ANIM", "anim/wortox_teleport_reviver.zip"),
-
         Asset("ANIM", "anim/player_grave_spawn.zip"),
 
         Asset("INV_IMAGE", "skull_"..name),
@@ -2135,6 +2143,7 @@ local function MakePlayerCharacter(name, customprefabs, customassets, common_pos
 		inst.IsChannelCastingItem = fns.IsChannelCastingItem -- Didn't want to make channelcaster a networked component
         inst.EnableMovementPrediction = EnableMovementPrediction
         inst.EnableBoatCamera = fns.EnableBoatCamera
+		inst.EnableTargetLocking = ex_fns.EnableTargetLocking
         inst.ShakeCamera = fns.ShakeCamera
         inst.SetGhostMode = SetGhostMode
         inst.IsActionsVisible = IsActionsVisible
@@ -2142,6 +2151,7 @@ local function MakePlayerCharacter(name, customprefabs, customassets, common_pos
         inst.CanSeePointOnMiniMap = ex_fns.CanSeePointOnMiniMap
         inst.GetSeeableTilePercent = ex_fns.GetSeeableTilePercent
         inst.MakeGenericCommander = ex_fns.MakeGenericCommander
+		inst.CommandWheelAllowsGameplay = ex_fns.CommandWheelAllowsGameplay
 	end
 
     local max_range = TUNING.MAX_INDICATOR_RANGE * 1.5
@@ -2805,6 +2815,7 @@ end
         inst.IsActing = ex_fns.IsActing
 
 		fns.OnAlterNight(inst)
+        fns.OnFullMoonEnlightenment(inst)
 
         --V2C: used by multiplayer_portal_moon
         inst.SaveForReroll = SaveForReroll

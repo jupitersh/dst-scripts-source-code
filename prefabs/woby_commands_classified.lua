@@ -762,19 +762,18 @@ local function DoAction_Client(inst, action, cmd)
 	if inst._parent and inst._parent.components.playercontroller and inst.woby:value() then
 		local buffaction = BufferedAction(inst._parent, inst.woby:value(), action)
 		if inst._parent.components.locomotor == nil then
-			-- NOTES(JBK): Does not call locomotor component functions needed for pre_action_cb, manual call here.
-			if buffaction.action.pre_action_cb then
-				buffaction.action.pre_action_cb(buffaction)
+			buffaction.non_preview_cb = function()
+				SendRPCToServer(RPC.WobyCommand, cmd)
 			end
-			SendRPCToServer(RPC.WobyCommand, cmd)
-			return true
 		elseif inst._parent.components.playercontroller:CanLocomote() then
 			buffaction.preview_cb = function()
 				SendRPCToServer(RPC.WobyCommand, cmd)
 			end
-			inst._parent.components.playercontroller:DoAction(buffaction)
-			return true
+		else
+			return false
 		end
+		inst._parent.components.playercontroller:DoAction(buffaction)
+		return true
 	end
 	return false
 end

@@ -405,7 +405,7 @@ function params.bundle_container.widget.buttoninfo.fn(inst, doer)
 end
 
 function params.bundle_container.widget.buttoninfo.validfn(inst)
-    return inst.replica.container ~= nil and not inst.replica.container:IsEmpty()
+    return inst.replica.container ~= nil and not inst.replica.container:IsEmpty() and not inst.replica.container:IsReadOnlyContainer()
 end
 
 --------------------------------------------------------------------------
@@ -1653,8 +1653,9 @@ for i = 0, 4 do
     table.insert(params.alterguardianhat.widget.slotbg, SLOT_BG)
 end
 
+local ALTERGUARDIANHAT_ITEMS = {"spore", "lunarseed"}
 function params.alterguardianhat.itemtestfn(container, item, slot)
-    return item:HasTag("spore")
+    return item:HasAnyTag(ALTERGUARDIANHAT_ITEMS)
 end
 
 --------------------------------------------------------------------------

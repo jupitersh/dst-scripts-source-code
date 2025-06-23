@@ -226,6 +226,12 @@ local function CopyTechTrees(src, dest)
 	end
 end
 
+local function SortByRecName(a, b)
+    if a.recname == b.recname then
+        return a.amount < b.amount
+    end
+    return a.recname < b.recname -- NOTES(JBK): This is not important to be the same on client and server but stable for server for netvar ordering.
+end
 local PROTOTYPER_TAGS = { "prototyper" }
 function Builder:EvaluateTechTrees()
     local pos = self.inst:GetPosition()
@@ -271,7 +277,7 @@ function Builder:EvaluateTechTrees()
 						local recipe = GetValidRecipe(recname)
                         if recipe ~= nil and recipe.nounlock then
                             --only nounlock recipes can be unlocked via crafting station
-                            self.station_recipes[recname] = true
+                            self.station_recipes[recname] = v.components.craftingstation:GetRecipeCraftingLimit(recipe.name) or true
 						end
                     end
 				end
@@ -322,20 +328,50 @@ function Builder:EvaluateTechTrees()
 
     local trees_changed = false
 
-    for recname, _ in pairs(self.station_recipes) do
+    local craftinglimitdata
+    local lostcraftinglimitdata
+    for recname, amount in pairs(self.station_recipes) do
         if old_station_recipes[recname] then
+            if old_station_recipes[recname] ~= amount then
+                trees_changed = true
+            end
             old_station_recipes[recname] = nil
         else
             self.inst.replica.builder:AddRecipe(recname)
             trees_changed = true
         end
+        if amount ~= true then -- We have a max number allowed, add it.
+            if craftinglimitdata == nil then
+                craftinglimitdata = {}
+            end
+            table.insert(craftinglimitdata, {recname = recname, amount = amount,})
+        end
     end
 
     if next(old_station_recipes) ~= nil then
-        for recname, _ in pairs(old_station_recipes) do
+        for recname, amount in pairs(old_station_recipes) do
             self.inst.replica.builder:RemoveRecipe(recname)
+            if amount ~= true then
+                lostcraftinglimitdata = true
+            end
         end
 		trees_changed = true
+    end
+
+    if craftinglimitdata then
+        table.sort(craftinglimitdata, SortByRecName)
+        for i = 1, CRAFTINGSTATION_LIMITED_RECIPES_COUNT do
+            local data = craftinglimitdata[i]
+            if data then
+                self.inst.replica.builder:SetRecipeCraftingLimit(i, data.recname, data.amount)
+            else
+                self.inst.replica.builder:SetRecipeCraftingLimit(i, nil, nil)
+            end
+        end
+    elseif lostcraftinglimitdata then
+        for i = 1, CRAFTINGSTATION_LIMITED_RECIPES_COUNT do
+            self.inst.replica.builder:SetRecipeCraftingLimit(i, nil, nil)
+        end
     end
 
     if not trees_changed then

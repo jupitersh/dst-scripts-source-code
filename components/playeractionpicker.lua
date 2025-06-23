@@ -365,7 +365,8 @@ function PlayerActionPicker:GetRightClickActions(position, target, spellbook)
 
     if target ~= nil and self.containers[target] then
         --check if we have container widget actions
-        actions = self:GetSceneActions(target, true)
+        local isreadonlycontainer = target.replica.container and target.replica.container:IsReadOnlyContainer()
+        actions = isreadonlycontainer and {} or self:GetSceneActions(target, true)
     elseif useitem ~= nil then
         --if we're specifically using an item, see if we can use it on the target entity
         if useitem:IsValid() then
@@ -459,9 +460,14 @@ function PlayerActionPicker:DoGetMouseActions(position, target, spellbook)
 		if isaoetargeting then
 			position = self.inst.components.playercontroller:GetAOETargetingPos()
 			spellbook = spellbook or self.inst.components.playercontroller:GetActiveSpellBook()
-		else
-			position = TheInput:GetWorldPosition()
-			target = target or TheInput:GetWorldEntityUnderMouse()
+        else
+            if self.inst.components.playercontroller:IsAxisAlignedPlacement() then
+                position = self.inst.components.playercontroller:GetPlacerPosition()
+            end
+            if position == nil then
+                position = TheInput:GetWorldPosition()
+            end
+            target = target or TheInput:GetWorldEntityUnderMouse()
 		end
 
         local cansee

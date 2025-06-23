@@ -24,7 +24,7 @@ local onattacked_shield = function(inst, data)
 
 		if debuff.potion_tunings.playerreatliate then
 			local hitrange = 5
-			local damage = 20
+			local damage = TUNING.GHOSTLYELIXIR_RETALIATION_DAMAGE
 
 				--local retaliation = SpawnPrefab("abigail_retaliation")
 				--retaliation:SetRetaliationTarget(data.attacker)

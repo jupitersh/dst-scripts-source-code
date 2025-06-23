@@ -1307,7 +1307,13 @@ t = {
             fn = function(savedata)
                 FlagForRetrofitting_Forest(savedata, "retrofit_balatro_content")
             end,
-        },        
+        },
+        {
+            version = 5.156, -- Remove ice off of the world's edge.
+            fn = function(savedata)
+                FlagForRetrofitting_Forest(savedata, "sharkboi_ice_hazard_fix")
+            end,
+        },
     },
 }
 

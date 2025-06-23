@@ -491,16 +491,20 @@ end
 
 --------------------------------------------------------------------------
 
-local function CanBlinkTo(pt)
-    return TheWorld.Map:IsPassableAtPoint(pt:Get()) and not TheWorld.Map:IsGroundTargetBlocked(pt) -- NOTES(JBK): Keep in sync with blinkstaff. [BATELE]
+local function IsNotBlocked(pt)
+    return TheWorld.Map:IsPassableAtPoint(pt:Get()) and not TheWorld.Map:IsGroundTargetBlocked(pt)
+end
+local function CanBlinkTo(inst, pt)
+    return IsNotBlocked(pt) and (TheWorld.Map:IsPointInWagPunkArenaAndBarrierIsUp(pt:Get()) == TheWorld.Map:IsPointInWagPunkArenaAndBarrierIsUp(inst.Transform:GetWorldPosition())) -- NOTES(JBK): Keep in sync with blinkstaff. [BATELE]
 end
 
-local function CanBlinkFromWithMap(pt)
-    return true -- NOTES(JBK): Change this if there is a reason to anchor Wortox when trying to use the map to teleport.
+local function CanBlinkFromWithMap(inst, pt)
+    local x, y, z = inst.Transform:GetWorldPosition()
+    return TheWorld.Map:IsPointInWagPunkArenaAndBarrierIsUp(x, y, z) == TheWorld.Map:IsPointInWagPunkArenaAndBarrierIsUp(pt.x, pt.y, pt.z)
 end
 
 local function ReticuleTargetFn(inst)
-    return ControllerReticle_Blink_GetPosition(inst, inst.CanBlinkTo)
+    return ControllerReticle_Blink_GetPosition(inst, IsNotBlocked)
 end
 
 local function CanSoulhop(inst, souls)
@@ -517,9 +521,12 @@ local function GetPointSpecialActions(inst, pos, useitem, right)
     if right and useitem == nil then
         local canblink
         if inst.checkingmapactions then
-            canblink = inst.CanBlinkFromWithMap(inst:GetPosition())
+            canblink = inst:CanBlinkFromWithMap(inst.checkingmapactions_pos or inst:GetPosition())
         else
-            canblink = inst.CanBlinkTo(pos)
+            local x, y, z = inst.Transform:GetWorldPosition()
+            if TheWorld.Map:IsPointInWagPunkArenaAndBarrierIsUp(x, y, z) == TheWorld.Map:IsPointInWagPunkArenaAndBarrierIsUp(pos.x, pos.y, pos.z) then
+                canblink = inst:CanBlinkTo(pos)
+            end
         end
         if canblink and inst.CanSoulhop and inst:CanSoulhop() then
             return { ACTIONS.BLINK }
@@ -702,6 +709,9 @@ local function common_postinit(inst)
     inst:AddComponent("reticule")
     inst.components.reticule.targetfn = ReticuleTargetFn
     inst.components.reticule.ease = true
+	inst.components.reticule.twinstickcheckscheme = true
+	inst.components.reticule.twinstickmode = 1
+	inst.components.reticule.twinstickrange = 15
 
     inst.HostileTest = CLIENT_Wortox_HostileTest
     if not TheWorld.ismastersim then

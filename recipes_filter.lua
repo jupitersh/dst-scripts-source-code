@@ -217,6 +217,7 @@ CRAFTING_FILTERS.CHARACTER.recipes =
 	"portablefirepit_item",
 	"bandage_butterflywings",
 	"walterhat",
+    "walter_rope",
 
 	-- Wolfgang
 	"mighty_gym",
@@ -468,11 +469,31 @@ CRAFTING_FILTERS.CRAFTING_STATION.recipes =
 	"hermitshop_supertacklecontainer",
 	"hermitshop_winter_ornament_boss_hermithouse",
 	"hermitshop_winter_ornament_boss_pearl",
+    "hermitshop_hermitcrab_relocation_kit",
 
     -- Rabbit King
     "rabbitkingshop_armor_carrotlure",
     "rabbitkingshop_rabbitkinghorn",
     "rabbitkingshop_hat_rabbit",
+
+    -- Wandering Trader
+    "wanderingtradershop_gears",
+    "wanderingtradershop_cutgrass",
+    "wanderingtradershop_twigs",
+    "wanderingtradershop_flint",
+    "wanderingtradershop_cutreeds",
+    --  Uncommon
+    "wanderingtradershop_pigskin",
+    "wanderingtradershop_livinglog",
+    --  Rare
+    "wanderingtradershop_redgem",
+    "wanderingtradershop_bluegem",
+    --  Special
+    "wanderingtradershop_moonglass",
+
+    -- wagpunk_workstation
+    "wagpunk_floor_kit",
+    "gestalt_cage",
 
 	-- waxwelljournal
 	"shadowlumber_builder",
@@ -735,6 +756,7 @@ CRAFTING_FILTERS.TOOLS.recipes =
 	"birdtrap",
 	"bugnet",
     "thulecitebugnet",
+    "gestalt_cage",
 	"razor",
 	"compass",
 	"walking_stick",
@@ -1104,8 +1126,12 @@ CRAFTING_FILTERS.SEAFARING.recipes =
 	"boat_magnet_kit",
 	"boat_magnet_beacon",
 
+	"flotationcushion",
+
     "dock_kit",
     "dock_woodposts_item",
+
+    "wagpunk_floor_kit",
 
 	"chesspiece_anchor_sketch",
 }
@@ -1213,6 +1239,7 @@ CRAFTING_FILTERS.STRUCTURES.recipes =
 	"townportal",
 
     "dock_kit",
+    "wagpunk_floor_kit",
 
 	"telebase",
 	"endtable",
@@ -1413,6 +1440,7 @@ CRAFTING_FILTERS.DECOR.recipes =
 	"pirate_flag_pole",
     "dock_kit",
 	"dock_woodposts_item",
+    "wagpunk_floor_kit",
 
     "sewing_mannequin",
 

@@ -33,6 +33,10 @@ local function ontakingfiredamagelow(self, takingfiredamagelow)
     self.inst.replica.health:SetIsTakingFireDamageLow(takingfiredamagelow == true)
 end
 
+local function onlunarburnflags(self, lunarburnflags)
+	self.inst.replica.health:SetLunarBurnFlags(lunarburnflags or 0)
+end
+
 local function onpenalty(self, penalty)
     self.inst.replica.health:SetPenalty(penalty)
 end
@@ -70,6 +74,9 @@ local Health = Class(function(self, inst)
     self.takingfiredamage = false
     self.takingfiredamagetime = 0
     --self.takingfiredamagelow = nil
+	--self.lunarburns = nil
+	--self.lunarburnflags = nil
+	--self.lastlunarburnpulsetick = nil
     self.fire_damage_scale = 1
     self.externalfiredamagemultipliers = SourceModifierList(inst)
     self.fire_timestart = 1
@@ -99,6 +106,7 @@ nil,
     currenthealth = oncurrenthealth,
     takingfiredamage = ontakingfiredamage,
     takingfiredamagelow = ontakingfiredamagelow,
+	lunarburnflags = onlunarburnflags,
     penalty = onpenalty,
     canmurder = oncanmurder,
     canheal = oncanheal,
@@ -113,6 +121,19 @@ function Health:OnRemoveFromEntity()
             self:RemoveRegenSource(source)
         end
     end
+
+	if self.lunarburns then
+		for source in pairs(self.lunarburns) do
+			if EntityScript.is_instance(source) then
+				self.inst:RemoveEventCallback("onremove", self._onremovelunarburn, source)
+			end
+		end
+		self.lunarburns = nil
+		self.lunarburnflags = nil
+		self.lastlunarburnpulsetick = nil
+		self._onremovelunarburn = nil
+		self.inst:PushEvent("stoplunarburn")
+	end
 
     onpercent(self)
 end
@@ -229,6 +250,69 @@ function Health:OnUpdate(dt)
         self.inst:PushEvent("stopfiredamage")
         ProfileStatsAdd("fireout")
     end
+end
+
+function Health:GetLunarBurnFlags()
+	return self.lunarburnflags or 0
+end
+
+function Health:CalcLunarBurnFlags()
+	local flags = 0
+	for k, v in pairs(self.lunarburns) do
+		flags = bit.bor(flags, v)
+	end
+	return flags
+end
+
+function Health:RegisterLunarBurnSource(source, flags)
+	if self.lunarburns == nil then
+		self._onremovelunarburn = function(src) self:UnregisterLunarBurnSource(src) end
+		self.lunarburns = { [source] = flags }
+		self.lunarburnflags = flags
+		if EntityScript.is_instance(source) then
+			self.inst:ListenForEvent("onremove", self._onremovelunarburn, source)
+		end
+		if flags ~= 0 then
+			self.inst:PushEvent("startlunarburn", flags)
+		end
+	elseif self.lunarburns[source] ~= flags then
+		if self.lunarburns[source] == nil and EntityScript.is_instance(source) then
+			self.inst:ListenForEvent("onremove", self._onremovelunarburn, source)
+		end
+		self.lunarburns[source] = flags
+		flags = self:CalcLunarBurnFlags()
+		if flags ~= self.lunarburnflags then
+			--assert(flags ~= 0)
+			self.lunarburnflags = flags
+			self.inst:PushEvent("startlunarburn", flags)
+		end
+	end
+end
+
+function Health:UnregisterLunarBurnSource(source)
+	if self.lunarburns and self.lunarburns[source] then
+		if EntityScript.is_instance(source) then
+			self.inst:RemoveEventCallback("onremove", self._onremovelunarburn, source)
+		end
+		self.lunarburns[source] = nil
+		if next(self.lunarburns) == nil then
+			self.lunarburns = nil
+			self.lunarburnflags = nil
+			self.lastlunarburnpulsetick = nil
+			self._onremovelunarburn = nil
+			self.inst:PushEvent("stoplunarburn")
+		else
+			local flags = self:CalcLunarBurnFlags()
+			if flags ~= self.lunarburnflags then
+				self.lunarburnflags = flags
+				if flags ~= 0 then
+					self.inst:PushEvent("startlunarburn", flags)
+				else
+					self.inst:PushEvent("stoplunarburn")
+				end
+			end
+		end
+	end
 end
 
 local function DoRegen(inst, self)

@@ -103,10 +103,10 @@ local loot_passive = {
 }
 
 local function OnTurnOn_passive(inst)
-    inst.rabbitking_trading = true
+    inst.sg.mem.trading = true
 end
 local function OnTurnOff_passive(inst)
-    inst.rabbitking_trading = nil
+    inst.sg.mem.trading = nil
 end
 local function OnActivate_passive(inst)
     inst:PushEvent("dotrade")

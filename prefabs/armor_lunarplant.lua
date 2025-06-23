@@ -78,6 +78,7 @@ local function onequip(inst, owner)
 		inst.fx:Remove()
 	end
 	inst.fx = SpawnPrefab(inst.prefab.."_glow_fx")
+    inst.fx.owningitem = inst
 	inst.fx:AttachToOwner(owner)
 	owner.AnimState:SetSymbolLightOverride("swap_body", .1)
 end
@@ -309,6 +310,8 @@ local function CreateFxFollowFrame(i, build)
 
 	inst:AddTag("FX")
 
+    inst.build = build
+
 	inst.AnimState:SetBank("armor_lunarplant")
 	inst.AnimState:SetBuild(build)
 	inst.AnimState:PlayAnimation("idle"..tostring(i), true)
@@ -363,10 +366,31 @@ local function glow_AttachToOwner(inst, owner)
 	if owner.components.colouradder ~= nil then
 		owner.components.colouradder:AttachChild(inst)
 	end
+    if inst.owningitem and inst.skinbuildhash then
+        local skinbuild = inst.owningitem.AnimState:GetSkinBuild()
+        if skinbuild then
+            inst.skinbuildhash:set(skinbuild)
+        end
+    end
 	--Dedicated server does not need to spawn the local fx
 	if not TheNet:IsDedicated() then
 		glow_SpawnFxForOwner(inst, owner)
 	end
+end
+
+local function glow_skinhashdirty(inst)
+    if inst.fx ~= nil then
+        local skinbuildhash = inst.skinbuildhash:value()
+        if skinbuildhash ~= 0 then
+            for _, fx in ipairs(inst.fx) do
+                fx.AnimState:SetSkin(skinbuildhash, fx.build)
+            end
+        else
+            for _, fx in ipairs(inst.fx) do
+                fx.AnimState:SetBuild(fx.build)
+            end
+        end
+    end
 end
 
 local function MakeGlow(name, build, assets)
@@ -381,9 +405,13 @@ local function MakeGlow(name, build, assets)
 		inst:AddComponent("colouraddersync")
 
 		inst.build = build
+        inst.skinbuildhash = net_hash(inst.GUID, name .. ".skinbuildhash", "skinhashdirty")
 
 		inst.entity:SetPristine()
 
+        if not TheNet:IsDedicated() then
+            inst:ListenForEvent("skinhashdirty", glow_skinhashdirty)
+        end
 		if not TheWorld.ismastersim then
 			inst.OnEntityReplicated = glow_OnEntityReplicated
 

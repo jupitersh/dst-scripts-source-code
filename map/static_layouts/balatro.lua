@@ -133,6 +133,50 @@ return {
             ["data.pickable.picked"] = "true",
             ["data.pickable.time"] = "4800"
           }
+        },
+        {
+          name = "",
+          type = "flower",
+          shape = "rectangle",
+          x = 58,
+          y = 38,
+          width = 8,
+          height = 8,
+          visible = true,
+          properties = {}
+        },
+        {
+          name = "",
+          type = "flower",
+          shape = "rectangle",
+          x = 156,
+          y = 123,
+          width = 8,
+          height = 8,
+          visible = true,
+          properties = {}
+        },
+        {
+          name = "",
+          type = "flower",
+          shape = "rectangle",
+          x = 19,
+          y = 169,
+          width = 8,
+          height = 8,
+          visible = true,
+          properties = {}
+        },
+        {
+          name = "",
+          type = "flower",
+          shape = "rectangle",
+          x = 141,
+          y = 13,
+          width = 8,
+          height = 8,
+          visible = true,
+          properties = {}
         }
       }
     }

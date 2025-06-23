@@ -454,6 +454,13 @@ local function MakeMeta5Banner(self, banner_root, anim)
     end
 end
 
+local function MakeRift5Banner(self, banner_root, anim)
+	anim:GetAnimState():SetBuild("dst_menu_rift5")
+	anim:GetAnimState():SetBank("dst_menu_rift5")
+	anim:GetAnimState():PlayAnimation("loop", true)
+	anim:SetScale(.667)
+end
+
 local function MakeDefaultBanner(self, banner_root, anim)
 	local banner_height = 350
 	banner_root:SetPosition(0, RESOLUTION_Y / 2 - banner_height / 2 + 1 ) -- positioning for when we had the top banner art
@@ -509,7 +516,7 @@ function MakeBanner(self)
 		--
 		--REMINDER: Check MakeBannerFront as well!
 		--
-        MakeMeta5Banner(self, banner_root, anim)
+		MakeRift5Banner(self, banner_root, anim)
         
     elseif IsSpecialEventActive(SPECIAL_EVENTS.YOTS) then
         MakeYOTSBanner(self, banner_root, anim)        
@@ -531,7 +538,7 @@ function MakeBanner(self)
 		--*** !!! ***
 		--REMINDER: Check MakeBannerFront as well!
 		--
-        MakeMeta5Banner(self, banner_root, anim)
+		MakeRift5Banner(self, banner_root, anim)
         --MakeWurtWinonaQOLBanner(self, banner_root, anim)
         --MakeRiftsMetaQoLBanner(self, banner_root, anim)
 		--MakeMeta2Banner(self, banner_root, anim)
@@ -1359,8 +1366,39 @@ function MultiplayerMainScreen:FinishedFadeIn()
 	end
 end
 
+function MultiplayerMainScreen:HandleNewControlSchemePopup()
+    if TheInput:ControllerAttached() and not self.profile:SawControlSchemePopup() then
+        local function PopupClose()
+            self.profile:ShowedControlSchemePopup()
+            self.profile:Save()
+            TheFrontEnd:PopScreen()
+        end
+        TheFrontEnd:PushScreen(
+            PopupDialogScreen(
+                STRINGS.UI.NEW_CONTROLSCHEME_POPUP.TITLE,
+                STRINGS.UI.NEW_CONTROLSCHEME_POPUP.BODY,
+                { 
+                    {
+                        text=STRINGS.UI.NEW_CONTROLSCHEME_POPUP.YES, 
+                        cb = function() 
+                                 self:Settings("CONTROLSCHEME")
+                                 PopupClose()
+                             end 
+                    },
+                    {
+                        text=STRINGS.UI.NEW_CONTROLSCHEME_POPUP.NO, 
+                        cb = function() 
+                                 PopupClose()
+                             end
+                    }  
+                }
+           )
+        )
+    end
+end
 
 function MultiplayerMainScreen:OnUpdate(dt)
+    self:HandleNewControlSchemePopup()
 end
 
 function MultiplayerMainScreen:CheckNewUser(onnofn, no_button_text)

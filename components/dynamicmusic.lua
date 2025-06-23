@@ -148,6 +148,13 @@ local TRIGGERED_DANGER_MUSIC =
         "dontstarve/music/music_epicfight_worm",
     },
 
+	wagboss =
+	{
+		"dontstarve/music/music_epicfight_wagboss_1",
+		"", --silence
+		"dontstarve/music/music_epicfight_wagboss_2",
+	},
+
     default =
     {
         "dontstarve/music/music_epicfight_ruins",
@@ -633,18 +640,15 @@ local function CheckAction(player)
     end
 end
 
+local NON_DANGER_TAGS = {"noepicmusic", "shadow", "shadowchesspiece", "smolder", "thorny"}
 local function OnAttacked(player, data)
     if data ~= nil and
-        --For a valid client side check, shadowattacker must be
-        --false and not nil, pushed from player_classified
-        (data.isattackedbydanger == true or
-        --For a valid server side check, attacker must be non-nil
-        (data.attacker ~= nil and
-        not (data.attacker:HasTag("shadow") or
-            data.attacker:HasTag("shadowchesspiece") or
-            data.attacker:HasTag("noepicmusic") or
-            data.attacker:HasTag("thorny") or
-            data.attacker:HasTag("smolder")))) then
+            --For a valid client side check, shadowattacker must be
+            --false and not nil, pushed from player_classified
+            (data.isattackedbydanger == true or
+            --For a valid server side check, attacker must be non-nil
+            (data.attacker ~= nil and
+            not data.attacker:HasAnyTag(NON_DANGER_TAGS))) then
 
         StartDanger(player)
     end

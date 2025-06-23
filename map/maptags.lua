@@ -124,7 +124,7 @@ local function MakeTags()
 										end
 
 										return "STATIC", "junk_yard"
-									end,	
+									end,
 
 			["Balatro_Spawner"] = function(tagdata, level)
 										if tagdata["Balatro_Spawner"] == false then
@@ -137,7 +137,7 @@ local function MakeTags()
 										end
 
 										return "STATIC", "Balatro"
-									end,																		
+									end,
 
 			["StatueHarp_HedgeSpawner"] = function(tagdata, level)
 										if tagdata["StatueHarp_HedgeSpawner"] == false then

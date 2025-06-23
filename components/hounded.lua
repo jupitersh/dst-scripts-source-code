@@ -146,7 +146,7 @@ local function CalcPlayerAttackSize(player)
 		or _spawndata.attack_levels.crazy.numspawns()
 end
 
-local function ClearWaterImunity()
+local function ClearLocationImmunity()
 	for GUID, data in pairs(_targetableplayers) do
 		local player = Ents[GUID]
 		
@@ -158,8 +158,7 @@ local function ClearWaterImunity()
 end
 
 local function PlanNextAttack()
-
-	ClearWaterImunity()
+	ClearLocationImmunity()
 	if _timetoattack > 0 then
 		-- we came in through a savegame that already had an attack scheduled
 		return
@@ -512,7 +511,7 @@ end
 local function LoadSaveDataFromMissingSpawnInfo(player, missingspawninfo)
 
 	if _warning and missingspawninfo._spawninfo == nil then
-		return -- Currently in warning phase and player record had no spawns set, let this player be included in the current have by CheckForWaterImunityAllPlayers.
+		return -- Currently in warning phase and player record had no spawns set, let this player be included in the current wave by CheckForLocationImmunityAllPlayers.
 	end
 
 	_delayedplayerspawninfo[player] =
@@ -599,11 +598,13 @@ local function OnUnpauseHounded(src, data)
 	end
 end
 
-local function CheckForWaterImunity(player)
+local function CheckForLocationImmunity(player)
 	if not _targetableplayers[player.GUID] then
 		-- block hound wave targeting when target is on water.. for now.
 		local x,y,z = player.Transform:GetWorldPosition()
-		if TheWorld.Map:IsVisualGroundAtPoint(x,y,z) then
+		if TheWorld.Map:IsPointInWagPunkArenaAndBarrierIsUp(x,y,z) then
+			_targetableplayers[player.GUID] = "arena"
+		elseif TheWorld.Map:IsVisualGroundAtPoint(x,y,z) then
 			_targetableplayers[player.GUID] = "land"
 		else
 			_targetableplayers[player.GUID] = "water"
@@ -611,11 +612,11 @@ local function CheckForWaterImunity(player)
 	end
 end
 
-local function CheckForWaterImunityAllPlayers()
+local function CheckForLocationImmunityAllPlayers()
 	for i, v in ipairs(_activeplayers) do
 		-- Players in _delayedplayerspawninfo are handled separately, don't check it for them.
 		if not _delayedplayerspawninfo[v] then
-			CheckForWaterImunity(v)
+			CheckForLocationImmunity(v)
 		end
 	end
 end
@@ -944,7 +945,7 @@ function self:OnUpdate(dt)
 			end
 
 			local groupsdone = {}
-			CheckForWaterImunity(player)
+			CheckForLocationImmunity(player)
 			for i, spawninforec in ipairs(data._spawninfo) do
 				HandleSpawnInfoRec(dt, i, spawninforec, groupsdone)
 			end
@@ -955,7 +956,7 @@ function self:OnUpdate(dt)
 
 			if #data._spawninfo <= 0 then
 				_delayedplayerspawninfo[player] = nil
-				_targetableplayers[player] = nil
+				_targetableplayers[player.GUID] = nil
 			end
 		elseif not data._warning and data._timetoattack < data._warnduration then
 			data._warning = true
@@ -966,7 +967,7 @@ function self:OnUpdate(dt)
 			data._timetonextwarningsound = data._timetonextwarningsound - dt
 
 			if data._timetonextwarningsound <= 0 then
-				CheckForWaterImunity(player)
+				CheckForLocationImmunity(player)
 				data._announcewarningsoundinterval = data._announcewarningsoundinterval - 1
 				if data._announcewarningsoundinterval <= 0 then
 					data._announcewarningsoundinterval = 10 + math.random(5)
@@ -1008,7 +1009,7 @@ function self:OnUpdate(dt)
 		end
 
 		local groupsdone = {}
-		CheckForWaterImunityAllPlayers()
+		CheckForLocationImmunityAllPlayers()
 		for i, spawninforec in ipairs(_spawninfo) do
 			HandleSpawnInfoRec(dt, i, spawninforec, groupsdone)
 		end
@@ -1031,7 +1032,7 @@ function self:OnUpdate(dt)
 		_timetonextwarningsound	= _timetonextwarningsound - dt
 
 		if _timetonextwarningsound <= 0 then
-			CheckForWaterImunityAllPlayers()
+			CheckForLocationImmunityAllPlayers()
 			_announcewarningsoundinterval = _announcewarningsoundinterval - 1
 			if _announcewarningsoundinterval <= 0 then
 				_announcewarningsoundinterval = 10 + math.random(5)

@@ -73,6 +73,21 @@ CommonHandlers.OnFossilize = function()
 end
 
 --------------------------------------------------------------------------
+local function onelectrocute(inst)
+	if not ((inst.components.inventory and inst.components.inventory:IsInsulated()) or
+			(inst.components.health and inst.components.health:IsDead()) or
+			inst.sg:HasStateTag("dead") or
+			inst.sg:HasStateTag("nointerrupt"))
+	then
+		inst.sg:GoToState("electrocute")
+	end
+end
+
+CommonHandlers.OnElectrocute = function()
+	return EventHandler("electrocute", onelectrocute)
+end
+
+--------------------------------------------------------------------------
 -- delay: how long before we can play another hit reaction animation, 
 -- max_hitreacts: the number of hit reacts before we enter the react cooldown. The creature's AI may still early out of this.
 -- skip_cooldown_fn: return true if you want to allow hit reacts while the hit react is in cooldown (allowing stun locking)
@@ -638,6 +653,10 @@ CommonStates.AddHopStates = function(states, wait_for_pre, anims, timelines, lan
                         inst.sg:GoToState("hop_loop", {queued_post_land_state = inst.sg.statemem.queued_post_land_state, collisionmask = inst.sg.statemem.collisionmask})
                     end
                 end),
+            EventHandler("cancelhop", function(inst)
+                inst.sg.statemem.not_interrupted = false
+                inst.sg:GoToState("hop_cancelhop")
+            end),
         },
 
 		onexit = function(inst)
@@ -677,6 +696,10 @@ CommonStates.AddHopStates = function(states, wait_for_pre, anims, timelines, lan
                 local px, _, pz = inst.Transform:GetWorldPosition()
 				inst.sg.statemem.not_interrupted = true
                 inst.sg:GoToState("hop_pst", {landed_in_water = not TheWorld.Map:IsPassableAtPoint(px, 0, pz), queued_post_land_state = inst.sg.statemem.queued_post_land_state} )
+            end),
+            EventHandler("cancelhop", function(inst)
+				inst.sg.statemem.not_interrupted = false
+                inst.sg:GoToState("hop_cancelhop")
             end),
         },
 
@@ -760,6 +783,22 @@ CommonStates.AddHopStates = function(states, wait_for_pre, anims, timelines, lan
                 inst.sg:GoToState("idle")
             end
         end,
+    })
+
+    table.insert(states, State{
+        name = "hop_cancelhop",
+        tags = {"nopredict", "nomorph", "nosleep", "busy"},
+
+        onenter = function(inst)
+            inst.components.locomotor:Stop()
+            inst.AnimState:PlayAnimation(FunctionOrValue(anims.pst, inst) or "jump_pst", false)
+        end,
+
+        events = {
+            EventHandler("animover", function(inst)
+                inst.sg:GoToState("idle")
+            end),
+        },
     })
 end
 

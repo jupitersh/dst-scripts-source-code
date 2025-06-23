@@ -9,9 +9,9 @@ local DefaultOnStrike = function(inst)
             -- end
 
             inst.components.health:DoDelta(-damage, false, "lightning")
-            if not inst.sg:HasStateTag("dead") then
-                inst.sg:GoToState("electrocute")
-            end
+			--V2C: -switched to stategraph event instead of GoToState
+			--     -use HandleEvent to preserve legacy timing
+			inst.sg:HandleEvent("electrocute")
         else
             inst:PushEvent("lightningdamageavoided")
         end

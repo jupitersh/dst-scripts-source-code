@@ -5,15 +5,15 @@ require 'util'
 require 'vecutil'
 require ("components/embarker")
 
-local function DefaultRangeCheck(doer, target)
-    if target == nil then
-        return
-    end
-    local target_x, target_y, target_z = target.Transform:GetWorldPosition()
-    local doer_x, doer_y, doer_z = doer.Transform:GetWorldPosition()
-    local dst = distsq(target_x, target_z, doer_x, doer_z)
-    return dst <= 16
+local function MakeRangeCheckFn(range)
+	return function(doer, target)
+		if target then
+			return doer:IsNear(target, range)
+		end
+	end
 end
+
+local DefaultRangeCheck = MakeRangeCheckFn(4)
 
 local function PhysicsPaddedRangeCheck(doer, target)
     if target == nil then
@@ -364,7 +364,7 @@ ACTIONS =
     TURNON = Action({ priority=2, invalid_hold_action = true, }),
     TURNOFF = Action({ priority=2, invalid_hold_action = true, }),
     SEW = Action({ mount_valid=true }),
-    STEAL = Action(),
+    STEAL = Action(), -- NOTES(JBK): If range check changes here do the appropriate checks in the action.fn.
     USEITEM = Action({ priority=1, instant=true }),
 	USEITEMON = Action({ distance=2, priority=1, mount_valid=true }),
     STOPUSINGITEM = Action({ priority=1 }),
@@ -395,6 +395,7 @@ ACTIONS =
     BUNDLESTORE = Action({ instant=true }),
     WRAPBUNDLE = Action({ instant=true }),
     UNWRAP = Action({ rmb=true, priority=2 }),
+    PEEKBUNDLE = Action({rmb=true, priority=2}),
 	BREAK = Action({ rmb=true, priority=2 }),
 	CONSTRUCT = Action({ priority=1, distance=2.5 }),
 	STOPCONSTRUCTION = Action({ priority=1, instant=true, distance=2 }),
@@ -613,6 +614,9 @@ ACTIONS =
     DRAW_FROM_DECK = Action({priority=2, distance=1.8, mount_valid=true}),
     FLIP_DECK = Action({mount_valid=true}),
     ADD_CARD_TO_DECK = Action({ mount_valid=true, canforce=true, rangecheckfn=DefaultRangeCheck }),
+
+	-- Rifts 5
+	POUNCECAPTURE = Action({ priority = 3, distance = 5, canforce = true, rangecheckfn = MakeRangeCheckFn(7) }),
 }
 
 ACTIONS_BY_ACTION_CODE = {}
@@ -629,6 +633,14 @@ end
 MOD_ACTIONS_BY_ACTION_CODE = {}
 
 ACTION_MOD_IDS = {} --This will be filled in when mods add actions via AddAction in modutil.lua
+
+local function IsItemInReadOnlyContainer(item)
+    return item ~= nil and
+        item.components.inventoryitem ~= nil and
+        item.components.inventoryitem.owner ~= nil and
+        item.components.inventoryitem.owner.components.container ~= nil and
+        item.components.inventoryitem.owner.components.container.readonlycontainer
+end
 
 ----set up the action functions!
 
@@ -661,6 +673,12 @@ end
 ACTIONS.STEAL.fn = function(act)
     local owner = act.target.components.inventory ~= nil and act.target or act.target.components.inventoryitem ~= nil and act.target.components.inventoryitem.owner or nil
     local target = act.target.components.inventory == nil and act.target or nil
+
+    -- NOTES(JBK): Recheck the range in here because buffered actions will go through a stategraph and the target may have moved out of range before we get here from actions.
+    local inrange = act.doer and act.target and (act.doer:GetDistanceSqToInst(act.target) < 16) -- 4*4 is default range above.
+    if not inrange then
+        return nil
+    end
 
     if owner ~= nil then
         if act.doer.components.thief ~= nil then
@@ -939,7 +957,7 @@ end
 ACTIONS.RUMMAGE.strfn = function(act)
     local targ = act.target or act.invobject
     if targ == nil then
-        return
+        return nil
     elseif targ.components.container_proxy ~= nil then --exists on clients too
         if targ.components.container_proxy:IsOpenedBy(act.doer) then
             return "CLOSE"
@@ -955,11 +973,19 @@ ACTIONS.RUMMAGE.strfn = function(act)
 			return "CLOSE"
 		end
     end
-    return act.target ~= nil and act.target:HasTag("decoratable") and "DECORATE" or nil
+    if act.target then
+        if act.target:HasTag("decoratable") then
+            return "DECORATE"
+        elseif act.target:HasTag("unwrappable") then
+            return "PEEK"
+        end
+    end
+    return nil
 end
 
 ACTIONS.DROP.fn = function(act)
-    if act.invobject ~= nil and act.invobject.components.equippable ~= nil and
+    if act.invobject ~= nil and
+        act.invobject.components.equippable ~= nil and
         act.invobject.components.equippable:IsEquipped() and
         act.invobject.components.equippable:ShouldPreventUnequipping() then
         return nil
@@ -1387,7 +1413,11 @@ end
 
 ACTIONS.DEPLOY.fn = function(act)
 	local act_pos = act:GetActionPoint()
-    if act.invobject ~= nil and act.invobject.components.deployable ~= nil and act.invobject.components.deployable:CanDeploy(act_pos, nil, act.doer, act.rotation) then
+    if act.invobject ~= nil and act.invobject.components.deployable ~= nil then
+        local candeploy, reason = act.invobject.components.deployable:CanDeploy(act_pos, nil, act.doer, act.rotation)
+        if not candeploy then
+            return false, reason
+        end
 		if act.invobject.components.complexprojectile then
 			if act.doer.components.inventory then
 				local projectile = act.doer.components.inventory:DropItem(act.invobject, false)
@@ -1402,10 +1432,12 @@ ACTIONS.DEPLOY.fn = function(act)
             local container = act.doer.components.inventory or act.doer.components.container
             local obj = container ~= nil and container:RemoveItem(act.invobject) or nil
             if obj ~= nil then
-                if obj.components.deployable:Deploy(act_pos, act.doer, act.rotation) then
+                local success, reason = obj.components.deployable:Deploy(act_pos, act.doer, act.rotation)
+                if success then
                     return true
                 else
                     container:GiveItem(obj)
+                    return false, reason
                 end
             end
         end
@@ -4070,6 +4102,17 @@ ACTIONS.UNWRAP.fn = function(act)
     end
 end
 
+ACTIONS.PEEKBUNDLE.fn = function(act)
+    local target = act.target
+    if target ~= nil and target.components.unwrappable ~= nil and target.components.unwrappable.canbeunwrapped and target:HasTag("canpeek") and not target:HasAnyTag("smolder", "fire") and
+        act.doer and act.doer.components.bundler and act.doer.components.bundler:CanStartBundling() then
+        if act.invobject and act.doer.components.inventory then
+            act.doer.components.inventory:ReturnActiveActionItem(act.invobject)
+        end
+        return target.components.unwrappable:PeekInContainer(act.doer)
+    end
+end
+
 ACTIONS.BREAK.strfn = function(act)
     local target = act.target or act.invobject
     return target ~= nil and target:HasTag("pickapart") and "PICKAPART" or nil
@@ -5272,10 +5315,20 @@ ACTIONS.YOTB_SEW.fn = function(act)
 end
 
 ACTIONS.YOTB_STARTCONTEST.fn = function(act)
-    if not TheWorld.components.yotb_stagemanager then
+    local yotb_stagemanager = TheWorld.components.yotb_stagemanager
+    if not yotb_stagemanager then
         return false, "DOESNTWORK"
-    elseif TheWorld.components.yotb_stagemanager:IsContestActive() then
+    elseif yotb_stagemanager:IsContestActive() then
         return false, "ALREADYACTIVE"
+    else
+        local host_visible = yotb_stagemanager:GetHostVisible()
+        if host_visible then
+            if host_visible == act.target then
+                return false, "RIGHTTHERE"
+            else
+                return false, "NORESPONSE"
+            end
+        end
     end
 
     act.target.components.yotb_stager:StartContest(act.doer)
@@ -5572,14 +5625,21 @@ ACTIONS.USESPELLBOOK.pre_action_cb = function(act)
 			if inventory and inventory:GetActiveItem() ~= target then
 				inventory:ReturnActiveItem()
 			end
-			if isvalid and act.doer.components.playercontroller and act.doer.components.playercontroller:IsEnabled() then
-				--V2C: ShouldOpen is useful for silently blocking it
-				--     eg. when classified commands are in a busy preview state
-				if target.components.spellbook:ShouldOpen(act.doer) then
-					target.components.spellbook:OpenSpellBook(act.doer)
+			if isvalid and act.doer.components.playercontroller then
+				local isenabled, ishudblocking = act.doer.components.playercontroller:IsEnabled()
+				if ishudblocking then
+					act.doer.HUD:CloseCrafting()
+					isenabled, ishudblocking = act.doer.components.playercontroller:IsEnabled()
 				end
-				if act.doer.sg and act.doer.sg:HasStateTag("overridelocomote") then
-					act.doer.sg.currentstate:HandleEvent(act.doer.sg, "locomote")
+				if isenabled then
+					--V2C: ShouldOpen is useful for silently blocking it
+					--     eg. when classified commands are in a busy preview state
+					if target.components.spellbook:ShouldOpen(act.doer) then
+						target.components.spellbook:OpenSpellBook(act.doer)
+					end
+					if act.doer.sg and act.doer.sg:HasStateTag("overridelocomote") then
+						act.doer.sg.currentstate:HandleEvent(act.doer.sg, "locomote")
+					end
 				end
 			end
 		end
@@ -6087,15 +6147,24 @@ ACTIONS.DRAW_FROM_DECK.fn = function(act)
 
         local target_position = act.target:GetPosition()
 
-        local card = TheWorld.components.playingcardsmanager:MakePlayingCard(top_card_id)
+        local card
+        if TheWorld.components.playingcardsmanager then
+            card = TheWorld.components.playingcardsmanager:MakePlayingCard(top_card_id)
+        else
+            -- NOTES(JBK): This is a workaround if the component does not exist to do what the component is doing move into a component util?
+            card = SpawnPrefab("playing_card")
+            card.components.playingcard:SetID(top_card_id)
+        end
         card.Transform:SetPosition(target_position:Get())
 
         if not act.doer.components.inventory:GiveItem(card, nil, target_position) then
             local current_active_item = act.doer.components.inventory:GetActiveItem()
-            act.doer.components.inventory:RemoveItem(current_active_item, true)
-            current_active_item.Transform:SetPosition(target_position:Get())
-            Launch(current_active_item, act.target, 1.5)
-            act.doer.components.inventory:GiveActiveItem(card)
+			if current_active_item then
+				act.doer.components.inventory:DropItem(current_active_item, true, true, target_position)
+				act.doer.components.inventory:GiveActiveItem(card)
+			else
+				card.components.inventoryitem:DoDropPhysics(target_position.x, target_position.y, target_position.z, true)
+			end
         end
 
         act.doer.SoundEmitter:PlaySound("balatro/cards/pickup_UI")
@@ -6175,4 +6244,12 @@ ACTIONS.ADD_CARD_TO_DECK.fn = function(act)
             end
         end
     end
+end
+
+ACTIONS.POUNCECAPTURE.fn = function(act)
+	local cage = act.invobject
+	if cage and cage.components.gestaltcage then
+		return cage.components.gestaltcage:Capture(act.target, act.doer)
+	end
+	return false
 end

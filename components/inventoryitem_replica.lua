@@ -261,6 +261,15 @@ function InventoryItem:SetDeployMode(deploymode)
     self.classified.deploymode:set(deploymode)
 end
 
+function InventoryItem:GetDeployMode()
+    if self.inst.components.deployable then
+        return self.inst.components.deployable:GetDeployMode()
+    elseif self.classified then
+        return self.classified.deploymode:value()
+    end
+    return DEPLOYMODE.NONE
+end
+
 function InventoryItem:IsDeployable(deployer)
     if self.inst.components.deployable ~= nil then
         return self.inst.components.deployable:IsDeployable(deployer)

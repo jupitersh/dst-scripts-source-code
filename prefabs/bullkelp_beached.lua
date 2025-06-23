@@ -24,8 +24,10 @@ local function ReplaceOnPickup(inst, container, src_pos)
 		kelp.components.inventoryitem:InheritMoisture(moisture, wet)
 		root.components.inventoryitem:InheritMoisture(moisture, wet)
 
-		kelp.Transform:SetPosition(src_pos:Get())
-		root.Transform:SetPosition(src_pos:Get())
+		if src_pos then
+			kelp.Transform:SetPosition(src_pos:Get())
+			root.Transform:SetPosition(src_pos:Get())
+		end
 
 		container:GiveItem(kelp, nil, src_pos)
 		container:GiveItem(root, nil, src_pos)

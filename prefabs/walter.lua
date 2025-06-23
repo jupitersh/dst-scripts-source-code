@@ -302,6 +302,11 @@ local function SetupMountedCommandWheel(inst)
 	end
 end
 
+local function GetLinkedSpellBook(inst)
+	local woby = inst.woby_commands_classified and inst.woby_commands_classified:GetWoby() or nil
+	return woby and not woby:HasTag("INLIMBO") and woby or nil
+end
+
 --------------------------------------------------------------------------
 
 --pos: double click coords; nil when double tapping direction instead of mouse
@@ -1137,7 +1142,6 @@ local function common_postinit(inst)
     inst:AddTag("pinetreepioneer")
     inst:AddTag("allergictobees")
     inst:AddTag("slingshot_sharpshooter")
-    inst:AddTag("efficient_sleeper")
     inst:AddTag("dogrider")
     inst:AddTag("nowormholesanityloss")
 	inst:AddTag("storyteller") -- for storyteller component
@@ -1151,6 +1155,8 @@ local function common_postinit(inst)
     end
 
 	inst.has_sprint_trail = net_bool(inst.GUID, "walter.has_sprint_trail", "has_sprint_trail_dirty")
+
+	inst.getlinkedspellbookfn = GetLinkedSpellBook
 
 	SetupMountedCommandWheel(inst)
 

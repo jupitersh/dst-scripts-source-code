@@ -295,18 +295,23 @@ end
 
 local function ToggleOffPhysics(inst)
     inst.sg.statemem.isphysicstoggle = true
-    inst.Physics:ClearCollisionMask()
-    inst.Physics:CollidesWith(COLLISION.GROUND)
+	inst.Physics:SetCollisionMask(COLLISION.GROUND)
+end
+
+local function ToggleOffPhysicsExceptWorld(inst)
+	inst.sg.statemem.isphysicstoggle = true
+	inst.Physics:SetCollisionMask(COLLISION.WORLD)
 end
 
 local function ToggleOnPhysics(inst)
     inst.sg.statemem.isphysicstoggle = nil
-    inst.Physics:ClearCollisionMask()
-    inst.Physics:CollidesWith(COLLISION.WORLD)
-    inst.Physics:CollidesWith(COLLISION.OBSTACLES)
-    inst.Physics:CollidesWith(COLLISION.SMALLOBSTACLES)
-    inst.Physics:CollidesWith(COLLISION.CHARACTERS)
-    inst.Physics:CollidesWith(COLLISION.GIANTS)
+	inst.Physics:SetCollisionMask(
+		COLLISION.WORLD,
+		COLLISION.OBSTACLES,
+		COLLISION.SMALLOBSTACLES,
+		COLLISION.CHARACTERS,
+		COLLISION.GIANTS
+	)
 end
 
 local function StartTeleporting(inst)
@@ -612,6 +617,28 @@ end
 local function find_lucy(item)
     return item.prefab == "lucy"
 end
+
+--------------------------------------------------------------------------
+
+local function _ispassable(x, y, z, allow_water, exclude_boats)
+	return TheWorld.Map:IsPassableAtPoint(x, y, z, allow_water, exclude_boats)
+end
+
+local function _ispassable_inarena(x, y, z)--, allow_water, exclude_boats)
+	return TheWorld.Map:IsPointInWagPunkArena(x, y, z)
+end
+
+local function GetPassableTestFnAt(x, y, z)
+	return TheWorld.Map:IsPointInWagPunkArenaAndBarrierIsUp(x, y, z)
+		and _ispassable_inarena
+		or _ispassable
+end
+
+local function GetPassableTestFn(inst)
+	return GetPassableTestFnAt(inst.Transform:GetWorldPosition())
+end
+
+--------------------------------------------------------------------------
 
 local actionhandlers =
 {
@@ -1080,6 +1107,7 @@ local actionhandlers =
     ActionHandler(ACTIONS.PET, "dolongaction"),
     ActionHandler(ACTIONS.DRAW, "dolongaction"),
     ActionHandler(ACTIONS.BUNDLE, "bundle"),
+    ActionHandler(ACTIONS.PEEKBUNDLE, "bundle"),
     ActionHandler(ACTIONS.RAISE_SAIL, "dostandingaction" ),
     ActionHandler(ACTIONS.LOWER_SAIL_BOOST,
         function(inst, action)
@@ -1342,6 +1370,9 @@ local actionhandlers =
     ActionHandler(ACTIONS.DRAW_FROM_DECK, "doshortaction"),
     ActionHandler(ACTIONS.FLIP_DECK, "doshortaction"),
     ActionHandler(ACTIONS.ADD_CARD_TO_DECK, "dostandingaction"),
+
+	-- Rifts 5
+	ActionHandler(ACTIONS.POUNCECAPTURE, "pouncecapture_pre"),
 }
 
 local events =
@@ -2034,6 +2065,7 @@ local events =
 	end),
 
     CommonHandlers.OnHop(),
+	CommonHandlers.OnElectrocute(),
 }
 
 local statue_symbols =
@@ -2794,6 +2826,9 @@ local states =
 
         onenter = function(inst)
             ClearStatusAilments(inst)
+			if inst.components.grogginess then
+				inst.components.grogginess:ResetGrogginess()
+			end
             ForceStopHeavyLifting(inst)
 
             inst.components.locomotor:Stop()
@@ -12921,7 +12956,7 @@ local states =
 
     State{
         name = "knockback",
-		tags = { "busy", "nopredict", "nomorph", "nodangle", "nointerrupt", "jumping" },
+		tags = { "knockback", "busy", "nopredict", "nomorph", "nodangle", "nointerrupt", "jumping" },
 
         onenter = function(inst, data)
             ClearStatusAilments(inst)
@@ -12934,8 +12969,7 @@ local states =
 
             if data ~= nil then
                 if data.disablecollision then
-                    ToggleOffPhysics(inst)
-                    inst.Physics:CollidesWith(COLLISION.WORLD)
+					ToggleOffPhysicsExceptWorld(inst)
                 end
                 if data.propsmashed then
                     local item = inst.components.inventory:GetEquippedItem(EQUIPSLOTS.HANDS)
@@ -12984,19 +13018,20 @@ local states =
                 end
             end
 			if not inst.sg.statemem.isphysicstoggle then
-				if inst:IsOnPassablePoint(true) then
-					inst.sg.statemem.safepos = inst:GetPosition()
+				local x, y, z = inst.Transform:GetWorldPosition()
+				inst.sg.statemem.ispassableatpt = GetPassableTestFnAt(x, y, z)
+				if inst.sg.statemem.ispassableatpt(x, y, z, true) then
+					inst.sg.statemem.safepos = Vector3(x, y, z)
 				elseif data ~= nil and data.knocker ~= nil and data.knocker:IsValid() and data.knocker:IsOnPassablePoint(true) then
 					local x1, y1, z1 = data.knocker.Transform:GetWorldPosition()
 					local radius = data.knocker:GetPhysicsRadius(0) - inst:GetPhysicsRadius(0)
 					if radius > 0 then
-						local x, y, z = inst.Transform:GetWorldPosition()
 						local dx = x - x1
 						local dz = z - z1
 						local dist = radius / math.sqrt(dx * dx + dz * dz)
 						x = x1 + dx * dist
 						z = z1 + dz * dist
-						if TheWorld.Map:IsPassableAtPoint(x, 0, z, true) then
+						if inst.sg.statemem.ispassableatpt(x, 0, z, true) then
 							x1, z1 = x, z
 						end
 					end
@@ -13019,8 +13054,9 @@ local states =
             end
 			local safepos = inst.sg.statemem.safepos
 			if safepos ~= nil then
-				if inst:IsOnPassablePoint(true) then
-					safepos.x, safepos.y, safepos.z = inst.Transform:GetWorldPosition()
+				local x, y, z = inst.Transform:GetWorldPosition()
+				if inst.sg.statemem.ispassableatpt(x, y, z, true) then
+					safepos.x, safepos.y, safepos.z = x, y, z
 				elseif inst.sg.statemem.landed then
 					local mass = inst.Physics:GetMass()
 					if mass > 0 then
@@ -13157,19 +13193,20 @@ local states =
                 end
             end
 
-			if inst:IsOnPassablePoint(true) then
-				inst.sg.statemem.safepos = inst:GetPosition()
+			local x, y, z = inst.Transform:GetWorldPosition()
+			inst.sg.statemem.ispassableatpt = GetPassableTestFnAt(x, y, z)
+			if inst.sg.statemem.ispassableatpt(x, y, z, true) then
+				inst.sg.statemem.safepos = Vector3(x, y, z)
 			elseif data ~= nil and data.knocker ~= nil and data.knocker:IsValid() and data.knocker:IsOnPassablePoint(true) then
 				local x1, y1, z1 = data.knocker.Transform:GetWorldPosition()
 				local radius = data.knocker:GetPhysicsRadius(0) - inst:GetPhysicsRadius(0)
 				if radius > 0 then
-					local x, y, z = inst.Transform:GetWorldPosition()
 					local dx = x - x1
 					local dz = z - z1
 					local dist = radius / math.sqrt(dx * dx + dz * dz)
 					x = x1 + dx * dist
 					z = z1 + dz * dist
-					if TheWorld.Map:IsPassableAtPoint(x, 0, z, true) then
+					if inst.sg.statemem.ispassableatpt(x, y, z, true) then
 						x1, z1 = x, z
 					end
 				end
@@ -13193,8 +13230,9 @@ local states =
             end
 			local safepos = inst.sg.statemem.safepos
 			if safepos ~= nil then
-				if inst:IsOnPassablePoint(true) then
-					safepos.x, safepos.y, safepos.z = inst.Transform:GetWorldPosition()
+				local x, y, z = inst.Transform:GetWorldPosition()
+				if inst.sg.statemem.ispassableatpt(x, y, z, true) then
+					safepos.x, safepos.y, safepos.z = x, y, z
 				elseif inst.sg.statemem.landed then
 					local mass = inst.Physics:GetMass()
 					if mass > 0 then
@@ -14085,12 +14123,13 @@ local states =
             end),
             TimeEvent(86 * FRAMES, function(inst)
                 inst.sg.statemem.physicsrestored = true
-                inst.Physics:ClearCollisionMask()
-                inst.Physics:CollidesWith(COLLISION.WORLD)
-                inst.Physics:CollidesWith(COLLISION.OBSTACLES)
-                inst.Physics:CollidesWith(COLLISION.SMALLOBSTACLES)
-                inst.Physics:CollidesWith(COLLISION.CHARACTERS)
-                inst.Physics:CollidesWith(COLLISION.GIANTS)
+				inst.Physics:SetCollisionMask(
+					COLLISION.WORLD,
+					COLLISION.OBSTACLES,
+					COLLISION.SMALLOBSTACLES,
+					COLLISION.CHARACTERS,
+					COLLISION.GIANTS
+				)
 
                 inst.AnimState:PlayAnimation("corpse_revive")
                 if inst.sg.statemem.fade ~= nil then
@@ -14143,12 +14182,13 @@ local states =
             inst.components.colouradder:PopColour("corpse_rebirth")
 
             if not inst.sg.statemem.physicsrestored then
-                inst.Physics:ClearCollisionMask()
-                inst.Physics:CollidesWith(COLLISION.WORLD)
-                inst.Physics:CollidesWith(COLLISION.OBSTACLES)
-                inst.Physics:CollidesWith(COLLISION.SMALLOBSTACLES)
-                inst.Physics:CollidesWith(COLLISION.CHARACTERS)
-                inst.Physics:CollidesWith(COLLISION.GIANTS)
+				inst.Physics:SetCollisionMask(
+					COLLISION.WORLD,
+					COLLISION.OBSTACLES,
+					COLLISION.SMALLOBSTACLES,
+					COLLISION.CHARACTERS,
+					COLLISION.GIANTS
+				)
             end
 
             SerializeUserSession(inst)
@@ -15626,30 +15666,42 @@ local states =
 						local cos_theta = math.cos(theta)
 						local sin_theta = math.sin(theta)
 						local x1, z1
-						local map = TheWorld.Map
-						if not map:IsPassableAtPoint(x, 0, z) then
+						local _ispassableatpoint = GetPassableTestFnAt(pos:Get())
+						if not _ispassableatpoint(x, 0, z) then
 							--scan for nearby land in case we were slightly off
 							--adjust position slightly toward valid ground
-							if map:IsPassableAtPoint(x + 0.1 * cos_theta, 0, z - 0.1 * sin_theta) then
+							if _ispassableatpoint(x + 0.1 * cos_theta, 0, z - 0.1 * sin_theta) then
 								x1 = x + 0.5 * cos_theta
 								z1 = z - 0.5 * sin_theta
-							elseif map:IsPassableAtPoint(x - 0.1 * cos_theta, 0, z + 0.1 * sin_theta) then
+							elseif _ispassableatpoint(x - 0.1 * cos_theta, 0, z + 0.1 * sin_theta) then
 								x1 = x - 0.5 * cos_theta
 								z1 = z + 0.5 * sin_theta
+							elseif _ispassableatpoint == _ispassable_inarena then
+								--for arena, we need to be more aggressive in placing us back inside the barrier
+								x1, z1 = pos.x, pos.z
+								local dist = math.sqrt(distsq(pos.x, pos.z, x, z))
+								while dist > 0.5 do
+									dist = dist - 0.5
+									if _ispassableatpoint(pos.x + (dist + 0.1) * cos_theta, 0, pos.z - (dist + 0.1) * sin_theta) then
+										x1 = pos.x + dist * cos_theta
+										z1 = pos.z - dist * sin_theta
+										break
+									end
+								end
 							end
 						else
 							--scan to make sure we're not just on the edge of land, could result in popping to the wrong side
 							--adjust position slightly away from invalid ground
-							if not map:IsPassableAtPoint(x + 0.1 * cos_theta, 0, z - 0.1 * sin_theta) then
+							if not _ispassableatpoint(x + 0.1 * cos_theta, 0, z - 0.1 * sin_theta) then
 								x1 = x - 0.4 * cos_theta
 								z1 = z + 0.4 * sin_theta
-							elseif not map:IsPassableAtPoint(x - 0.1 * cos_theta, 0, z + 0.1 * sin_theta) then
+							elseif not _ispassableatpoint(x - 0.1 * cos_theta, 0, z + 0.1 * sin_theta) then
 								x1 = x + 0.4 * cos_theta
 								z1 = z - 0.4 * sin_theta
 							end
 						end
 
-						if x1 and map:IsPassableAtPoint(x1, 0, z1) then
+						if x1 and _ispassableatpoint(x1, 0, z1) then
 							x, z = x1, z1
 						end
 					end
@@ -17983,7 +18035,21 @@ local states =
         end,
 
         onupdate = function(inst)
-            if not CanEntitySeeTarget(inst, inst) then
+            local shouldstop = not CanEntitySeeTarget(inst, inst)
+            if not shouldstop and inst.sg.statemem.peeksourceinst then
+                local peeksourceinst = inst.sg.statemem.peeksourceinst
+                if not peeksourceinst:IsValid() then
+                    shouldstop = true
+                else
+                    local peeksourceinst_owner = peeksourceinst.components.inventoryitem and peeksourceinst.components.inventoryitem:GetGrandOwner() or nil
+                    if (peeksourceinst_owner and peeksourceinst_owner ~= inst) or
+                        inst.sg.statemem.peeksourceinst:HasAnyTag("smolder", "fire") or
+                        not inst:IsNear(inst.sg.statemem.peeksourceinst, inst:GetPhysicsRadius(0) + 1.5) then
+                        shouldstop = true
+                    end
+                end
+            end
+            if shouldstop then
                 inst.AnimState:PlayAnimation("wrap_pst")
                 inst.sg:GoToState("idle", true)
             end
@@ -17993,6 +18059,10 @@ local states =
             if not inst.sg.statemem.bundling then
                 inst.SoundEmitter:KillSound("make")
                 inst.components.bundler:StopBundling()
+            end
+            if inst.sg.statemem.peekcontainer and inst.sg.statemem.peekcontainer:IsValid() then
+                inst.sg.statemem.peekcontainer:Remove()
+                inst.sg.statemem.peekcontainer = nil
             end
         end,
     },
@@ -19730,11 +19800,7 @@ local states =
             inst.components.locomotor:Stop()
             inst.AnimState:PlayAnimation("charge_pre")
             inst.Physics:SetMotorVel(12, 0, 0)
-            inst.Physics:ClearCollisionMask()
-            inst.Physics:CollidesWith(COLLISION.WORLD)
-            inst.Physics:CollidesWith(COLLISION.OBSTACLES)
-            inst.Physics:CollidesWith(COLLISION.SMALLOBSTACLES)
-            inst.Physics:CollidesWith(COLLISION.GIANTS)
+			inst.Physics:ClearCollidesWith(COLLISION.CHARACTERS)
             inst.sg.statemem.targets = {}
             inst.sg.statemem.edgecount = 0
             inst.sg.statemem.trailtask = inst:DoPeriodicTask(0, function(inst, data)
@@ -21622,10 +21688,11 @@ local states =
 						local x, y, z = inst.Transform:GetWorldPosition()
 						local x1, y1, z1 = chair.Transform:GetWorldPosition()
 						if x == x1 and z == z1 then
+							local _ispassableatpoint = GetPassableTestFnAt(x, y, z)
 							local rot = inst.Transform:GetRotation() * DEGREES
 							x = x1 + radius * math.cos(rot)
 							z = z1 - radius * math.sin(rot)
-							if TheWorld.Map:IsPassableAtPoint(x, 0, z, true) then
+							if _ispassableatpoint(x, 0, z, true) then
 								inst.Physics:Teleport(x, 0, z)
 							end
 						end
@@ -21723,10 +21790,11 @@ local states =
 						local x, y, z = inst.Transform:GetWorldPosition()
 						local x1, y1, z1 = chair.Transform:GetWorldPosition()
 						if x == x1 and z == z1 then
+							local _ispassableatpoint = GetPassableTestFnAt(x, y, z)
 							local rot = inst.Transform:GetRotation() * DEGREES
 							x = x1 + radius * math.cos(rot)
 							z = z1 - radius * math.sin(rot)
-							if TheWorld.Map:IsPassableAtPoint(x, 0, z, true) then
+							if _ispassableatpoint(x, 0, z, true) then
 								inst.Physics:Teleport(x, 0, z)
 							end
 						end
@@ -21762,16 +21830,21 @@ local states =
 			local radius = inst:GetPhysicsRadius(0) + chair:GetPhysicsRadius(0)
 			if radius > 0 then
 				inst.Physics:SetMotorVel(radius * 30 / inst.AnimState:GetCurrentAnimationNumFrames(), 0, 0)
-				if inst:IsOnPassablePoint() then
-					inst.sg.statemem.safepos = inst:GetPosition()
+				local x, y, z = inst.Transform:GetWorldPosition()
+				inst.sg.statemem.ispassableatpt = GetPassableTestFnAt(x, y, z)
+				if inst.sg.statemem.ispassableatpt(x, y, z) then
+					inst.sg.statemem.safepos = Vector3(x, y, z)
 				end
 			end
 		end,
 
 		onupdate = function(inst)
 			local safepos = inst.sg.statemem.safepos
-			if safepos ~= nil and inst:IsOnPassablePoint() then
-				safepos.x, safepos.y, safepos.z = inst.Transform:GetWorldPosition()
+			if safepos then
+				local x, y, z = inst.Transform:GetWorldPosition()
+				if inst.sg.statemem.ispassableatpt(x, y, z) then
+					safepos.x, safepos.y, safepos.z = x, y, z
+				end
 			end
 		end,
 
@@ -21784,7 +21857,7 @@ local states =
 		{
 			EventHandler("animover", function(inst)
 				if inst.AnimState:AnimDone() then
-					if inst.sg.statemem.safepos ~= nil and not inst:IsOnPassablePoint() then
+					if inst.sg.statemem.safepos and not inst.sg.statemem.ispassableatpt(inst.Transform:GetWorldPosition()) then
 						inst.Physics:Teleport(inst.sg.statemem.safepos.x, 0, inst.sg.statemem.safepos.z)
 					end
 					inst.sg.statemem.stop = true
@@ -22918,9 +22991,7 @@ local states =
 			inst.AnimState:SetMultColour(0, 0, 0, 0)
 			inst:AddTag("woby_dash_fade")
 			inst.DynamicShadow:Enable(false)
-			--ToggleOffPhysics(inst)
-			inst.sg.statemem.isphysicstoggle = true
-			inst.Physics:SetCollisionMask(COLLISION.WORLD)
+			ToggleOffPhysicsExceptWorld(inst)
 
 			--player hidden via 0 alpha instead of Hide(), so that we can still see silhoutte child
 			inst.sg.statemem.silhoutte = SpawnPrefab("woby_dash_silhouette_fx")
@@ -22953,13 +23024,14 @@ local states =
 				local map = TheWorld.Map
 				local pt = Vector3(0, 0, 0)
 				local success = false
+				local _ispassableatpoint = GetPassableTestFnAt(x, y, z)
 				for i = 7, 12.5, 0.5 do
 					pt.x = x + cos_theta * (i - 0.5)
 					pt.z = z - sin_theta * (i - 0.5)
-					if map:IsPassableAtPoint(pt:Get()) then
+					if _ispassableatpoint(pt:Get()) then
 						pt.x = x + cos_theta * (i + 0.5)
 						pt.z = z - sin_theta * (i + 0.5)
-						if map:IsPassableAtPoint(pt:Get()) then
+						if _ispassableatpoint(pt:Get()) then
 							pt.x = x + cos_theta * i
 							pt.z = z - sin_theta * i
 							if not map:IsPointNearHole(pt) then
@@ -22973,10 +23045,10 @@ local states =
 					for i = 6.5, 0.5, -0.5 do
 						pt.x = x + cos_theta * (i - 0.5)
 						pt.z = z - sin_theta * (i - 0.5)
-						if map:IsPassableAtPoint(pt:Get()) then
+						if _ispassableatpoint(pt:Get()) then
 							pt.x = x + cos_theta * (i + 0.5)
 							pt.z = z - sin_theta * (i + 0.5)
-							if map:IsPassableAtPoint(pt:Get()) then
+							if _ispassableatpoint(pt:Get()) then
 								pt.x = x + cos_theta * i
 								pt.z = z - sin_theta * i
 								if not map:IsPointNearHole(pt) then
@@ -23170,6 +23242,204 @@ local states =
 				inst.sg:GoToState("idle", true)
 			end),
 		},
+	},
+
+	-- Rifts 5
+
+	State{
+		name = "pouncecapture_pre",
+		tags = { "busy" },
+
+		onenter = function(inst)
+			inst.components.locomotor:Stop()
+			inst.AnimState:PlayAnimation("pouncecapture_pre")
+			inst.AnimState:PushAnimation("pouncecapture", false)
+			local buffaction = inst:GetBufferedAction()
+			if buffaction then
+				local target = buffaction.target
+				if target and target:IsValid() then
+					inst.sg.statemem.target = target
+					inst:ForceFacePoint(target:GetPosition())
+
+					local tool = buffaction.invobject
+					if tool and tool.components.gestaltcage then
+						inst.sg.statemem.tool = tool
+						tool.components.gestaltcage:OnTarget(target)
+					end
+				end
+			end
+		end,
+
+		onupdate = function(inst)
+			local target = inst.sg.statemem.target
+			if target then
+				if target:IsValid() then
+					inst:ForceFacePoint(target:GetPosition())
+				else
+					inst.sg.statemem.target = nil
+				end
+			end
+		end,
+
+		timeline =
+		{
+			FrameEvent(3, function(inst)
+				--@V2C:
+				--Start physics early; normally done in "capture" state with "nopredict".
+				--Prevents client from seeing slight snapback before jumping forward.
+				--Must manually update client's position (using Teleport) if interrupted.
+				local target = inst.sg.statemem.target
+				if target and target:IsValid() then
+					local x, y, z = inst.Transform:GetWorldPosition()
+					local x1, y1, z1 = target.Transform:GetWorldPosition()
+					local dx = x1 - x
+					local dz = z1 - z
+					local dist
+					if dx ~= 0 or dz ~= 0 then
+						inst.Transform:SetRotation(math.atan2(-dz, dx) * RADIANS)
+						dist = math.min(6, math.sqrt(dx * dx + dz * dz))
+					else
+						dist = 0
+					end
+					--12 + 1/4 frames of jumping to reach target
+					inst.sg.statemem.speed = dist * 30 / (12 + 1/4)
+				else
+					inst.sg.statemem.speed = 4
+				end
+				inst.sg.statemem.target = nil
+				inst.Physics:SetMotorVel(inst.sg.statemem.speed, 0, 0)
+			end),
+			FrameEvent(4, function(inst)
+				inst.sg.statemem.capturing = true
+				inst.sg:GoToState("pouncecapture",
+				{
+					speed = inst.sg.statemem.speed,
+					tool = inst.sg.statemem.tool,
+				})
+			end),
+		},
+
+		onexit = function(inst)
+			if not inst.sg.statemem.capturing then
+				local x, y, z = inst.Transform:GetWorldPosition()
+				inst.Physics:Stop()
+				inst.Physics:Teleport(x, 0, z)
+
+				local tool = inst.sg.statemem.tool
+				if tool and tool.components.gestaltcage and tool:IsValid() then
+					tool.components.gestaltcage:OnUntarget()
+				end
+			end
+		end,
+	},
+
+	State{
+		name = "pouncecapture",
+		tags = { "busy", "nopredict", "jumping" },
+
+		onenter = function(inst, data)
+			--should have reached here on frame 1 (0-based!) of "pouncecapture"
+			--V2C: force sync anims again for nopredict on clients
+			inst.AnimState:PlayAnimation("pouncecapture")
+			inst.AnimState:SetFrame(1)
+			if data then
+				if data.speed then
+					inst.sg.statemem.speed = data.speed
+					inst.Physics:SetMotorVel(data.speed, 0, 0)
+					ToggleOffPhysicsExceptWorld(inst)
+				end
+				if data.tool then
+					inst.sg.statemem.tool = data.tool
+				end
+			end
+		end,
+
+		timeline =
+		{
+			FrameEvent(10, function(inst)
+				local target = inst.bufferedaction and inst.bufferedaction.target or nil
+				if target and target:IsValid() and target.sg and inst:IsNear(target, 1 + inst.sg.statemem.speed * (1 + 1/4) * FRAMES) then
+					target.sg:HandleEvent("captured")
+				end
+			end),
+			FrameEvent(11, function(inst)
+				if inst.sg.statemem.speed then
+					inst.Physics:SetMotorVel(inst.sg.statemem.speed / 4, 0, 0)
+				end
+			end),
+			FrameEvent(12, function(inst)
+				inst.Physics:Stop()
+			end),
+			FrameEvent(13, function(inst)
+				ToggleOnPhysics(inst)
+				if not inst:PerformBufferedAction() then
+					inst.sg.statemem.missed = true
+				else
+					inst.Physics:SetMotorVel(-2, 0, 0)
+				end
+				local tool = inst.sg.statemem.tool
+				inst.sg.statemem.tool = nil
+				if tool and tool:IsValid() and tool.components.gestaltcage then
+					tool.components.gestaltcage:OnUntarget()
+				end
+			end),
+			FrameEvent(14, function(inst)
+				inst.sg.statemem.capturing = true
+				inst.sg:GoToState("pouncecapture_pst", inst.sg.statemem.missed)
+			end),
+		},
+
+		onexit = function(inst)
+			local tool = inst.sg.statemem.tool
+			if tool and tool.components.getstaltcage and tool:IsValid() then
+				tool.components.gestaltcage:OnUntarget()
+			end
+			if not inst.sg.statemem.capturing then
+				inst.Physics:Stop()
+			end
+			if inst.sg.statemem.isphysicstoggle then
+				ToggleOnPhysics(inst)
+			end
+		end,
+	},
+
+	State{
+		name = "pouncecapture_pst",
+		tags = { "busy", "nopredict", "jumping" },
+
+		onenter = function(inst, missed)
+			inst.AnimState:PlayAnimation("pouncecapture_pst")
+			if missed then
+				inst.sg.statemem.missed = true
+			else
+				inst.Physics:SetMotorVel(-4, 0, 0)
+			end
+		end,
+
+		timeline =
+		{
+			FrameEvent(10, function(inst)
+				PlayFootstep(inst)
+				if not inst.sg.statemem.missed then
+					inst.Physics:SetMotorVel(-1, 0, 0)
+				end
+			end),
+			FrameEvent(11, function(inst)
+				if not inst.sg.statemem.missed then
+					inst.Physics:Stop()
+				end
+				inst.sg:RemoveStateTag("jumping")
+			end),
+			FrameEvent(14, function(inst)
+				inst.sg:GoToState("idle", true)
+			end),
+		},
+
+		onexit = function(inst)
+			if not inst.sg.statemem.missed then
+				inst.Physics:Stop()
+			end
+		end,
 	},
 }
 

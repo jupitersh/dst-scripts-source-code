@@ -498,7 +498,7 @@ local function fn()
     inst.Physics:SetDamping(0)
 	inst.Physics:SetRestitution(0)
     inst.Physics:SetCollisionGroup(COLLISION.ITEMS)
-    inst.Physics:CollidesWith(COLLISION.GROUND)
+	inst.Physics:SetCollisionMask(COLLISION.GROUND)
     inst.Physics:SetSphere(.4)
 
     inst:AddTag("NOCLICK")

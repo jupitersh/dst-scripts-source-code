@@ -7,17 +7,17 @@ local function InitializeSlots()
     assert(EQUIPSLOT_NAMES == nil and EQUIPSLOT_IDS == nil, "Equip slots already initialized")
 
     EQUIPSLOT_NAMES = {}
-    for k, v in pairs(EQUIPSLOTS) do
+    for k, v in orderedPairs(EQUIPSLOTS) do
         table.insert(EQUIPSLOT_NAMES, v)
     end
 
     EQUIPSLOT_COUNT = #EQUIPSLOT_NAMES
     assert(EQUIPSLOT_COUNT <= 63, "Too many equip slots!")
 
-    -- NOTES(JBK): The pairs iterator above forces this sort so it is deterministic for all platforms.
+    -- NOTES(JBK): The orderedPairs iterator above forces this sort so it is deterministic for all platforms.
     -- I am reversing the sort so that coincidentally the names will be good for priorities when using deterministic checks.
-    -- head, hands, body, beard
-    table.sort(EQUIPSLOT_NAMES, function(a, b) return a > b end)
+    -- {"head", "hands", "body", "beard"} is the expected output.
+    table.reverse_inplace(EQUIPSLOT_NAMES)
     EQUIPSLOT_IDS = table.invert(EQUIPSLOT_NAMES)
 end
 

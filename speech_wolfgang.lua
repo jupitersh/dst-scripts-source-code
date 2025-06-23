@@ -126,6 +126,9 @@ return{
             INUSE = "Oh, smells good, friend!",
             TOOFAR = "Is pot very small, or just far away?",
         },
+        DEPLOY = {
+            HERMITCRAB_RELOCATE = "Oh, empty. I try again later.",
+        },
         DIRECTCOURIER_MAP =
         {
 --fallback to speech_wilson.lua             NOTARGET = "only_used_by_walter",
@@ -306,6 +309,7 @@ return{
 --fallback to speech_wilson.lua             NOWATERNEARBY = "only_used_by_waxwell_and_wicker",
 --fallback to speech_wilson.lua             TOOMANYBIRDS = "only_used_by_waxwell_and_wicker",
 --fallback to speech_wilson.lua             WAYTOOMANYBIRDS = "only_used_by_waxwell_and_wicker",
+--fallback to speech_wilson.lua             BIRDSBLOCKED = "only_used_by_waxwell_and_wicker",
 --fallback to speech_wilson.lua             NOFIRES =       "only_used_by_waxwell_and_wicker",
 --fallback to speech_wilson.lua             NOSILVICULTURE = "only_used_by_waxwell_and_wicker",
 --fallback to speech_wilson.lua             NOHORTICULTURE = "only_used_by_waxwell_and_wicker",
@@ -419,6 +423,8 @@ return{
             BEEF_BELL_HAS_BEEF_ALREADY = "Wolfgang already picked best hair-cow to befriend!",
 
 			NOT_MINE = "It is not belong to Wolfgang.",
+
+			CANNOT_FIX_DRONE = "It cannot be repaired... sigh.",
         },
 		USEKLAUSSACKKEY =
         {
@@ -439,6 +445,8 @@ return{
         {
             DOESNTWORK = "Where do you hide, strange little man?",
             ALREADYACTIVE = "Maybe contest is somewhere else.",
+            NORESPONSE = "Maybe he has gone for jogging.",
+            RIGHTTHERE = "Sorry, Wolfgang not know you busy.",
         },
         YOTB_UNLOCKSKIN =
         {
@@ -467,6 +475,10 @@ return{
 		MODSLINGSHOT =
 		{
 --fallback to speech_wilson.lua 			NOSLINGSHOT = "only_used_by_walter",
+		},
+		POUNCECAPTURE =
+		{
+			MISSED = "Wolfgang miss on purpose.",
 		},
     },
 
@@ -1133,7 +1145,7 @@ return{
 	ANNOUNCE_SNOWBALL_TOO_BIG = "Snowball will not grow bigger.",
 	ANNOUNCE_SNOWBALL_NO_SNOW = "Not enough snow here.",
 
-    --rifts 5
+    -- Meta 5
     ANNOUNCE_WENDY_BABYSITTER_SET = "only_used_by_wendy", 
     ANNOUNCE_WENDY_BABYSITTER_STOP = "only_used_by_wendy",
 
@@ -1146,6 +1158,8 @@ return{
     ANNOUNCE_ELIXIR_PLAYER_SPEED = "Super Wolfgang!",
 
     ANNOUNCE_ELIXIR_TOO_SUPER = "Yuck! No, too much.",
+
+    ANNOUNCE_LUNARGUARDIAN_INCOMING = "It back!",
 
 	BATTLECRY =
 	{
@@ -5649,6 +5663,55 @@ return{
         DECK_OF_CARDS = "Rip deck of cards in half is one of Wolfgang famous feat of strength!",
         PLAYING_CARD = "Don't worry little card, Wolfgang only rip in half full deck.",
         BALATRO_MACHINE = "Is clown real? Wolfgang not afraid, just uncomfortable.",
+
+		-- Rifts 5
+		GESTALT_CAGE =
+		{
+			GENERIC = "Aww. Empty.",
+			FILLED = "There is one inside!",
+		},
+		WAGBOSS_ROBOT_SECRET = "Wolfgang love a big reveal!",
+        WAGBOSS_ROBOT = "Big machine guy look strong, but Wolfgang stronger.",
+        WAGBOSS_ROBOT_POSSESSED = "No fair! Wolfgang no have rockets!",
+		WAGBOSS_ROBOT_LEG = "See? Wolfgang leg stronger and don't fall off like big machine guy!",
+		ALTERGUARDIAN_PHASE1_LUNARRIFT = "Big tough ball back for more Wolfgang punches?",
+		ALTERGUARDIAN_PHASE1_LUNARRIFT_GESTALT = "It is the prettiest of all!",
+        ALTERGUARDIAN_PHASE4_LUNARRIFT = "It is lot for Wolfgang to process!",
+		WAGDRONE_ROLLING =
+        {
+            GENERIC = "Spin over here so Wolfgang can crush you!",
+            INACTIVE = "Little machine sleeping.",
+            DAMAGED = "Aww, little guy can be fixed, or harvest for parts... sniff.",
+            FRIENDLY = "We are friends now.",
+        },
+        WAGDRONE_FLYING =
+        {
+            GENERIC = "Is giving Wolfgang headache!",
+            INACTIVE = "Little machine sleeping.",
+            DAMAGED = "It parts can only give life to another now... sigh.",
+        },
+		WAGDRONE_PARTS = "We can use to fix little spinny guy.",
+		WAGDRONE_BEACON = "Haha! Little robot cannot cross invisible wall.",
+
+        WAGPUNK_WORKSTATION = "Wolfgang not afraid of technology.",
+        WAGPUNK_LEVER = "What does it do? Wolfgang just curious.",
+        WAGPUNK_FLOOR_KIT = "Wolfgang have more place to do pushup.",
+        WAGPUNK_CAGEWALL = "Nothing can contain mighty Wolfgang! Unless he allow it.",
+
+		WAGSTAFF_ITEM_1 = "Glove is real? Wolfgang confused.",
+		WAGSTAFF_ITEM_2 = "Clipboard is not strange projection? Strange.",
+
+        HERMITCRAB_RELOCATION_KIT = "Wolfgang help many friend move because muscles.",
+
+        WANDERINGTRADER =
+        {
+            REVEALED = "Hello, hair-cow man! We trade, yes?",
+            GENERIC = "Is not normal hair-cow.",
+        },
+
+        GESTALT_GUARD_EVOLVED = "It not Wolfgang fault!",
+        FLOTATIONCUSHION = "Wolfgang exceptional swimmer, but keep just in case.",
+        LUNAR_SEED = "Another trophy for Wolfgang!",
     },
 
     DESCRIBE_GENERIC = "What is this thing?",

@@ -126,6 +126,9 @@ return{
             INUSE = "YOU MAY FEED ME, INFERIOR",
             TOOFAR = "NOT IN OPTIMAL RANGE",
         },
+        DEPLOY = {
+            HERMITCRAB_RELOCATE = "ERROR: ATTEMPT LATER",
+        },
         DIRECTCOURIER_MAP =
         {
 --fallback to speech_wilson.lua             NOTARGET = "only_used_by_walter",
@@ -306,6 +309,7 @@ return{
 --fallback to speech_wilson.lua             NOWATERNEARBY = "only_used_by_waxwell_and_wicker",
 --fallback to speech_wilson.lua             TOOMANYBIRDS = "only_used_by_waxwell_and_wicker",
 --fallback to speech_wilson.lua             WAYTOOMANYBIRDS = "only_used_by_waxwell_and_wicker",
+--fallback to speech_wilson.lua             BIRDSBLOCKED = "only_used_by_waxwell_and_wicker",
 --fallback to speech_wilson.lua             NOFIRES =       "only_used_by_waxwell_and_wicker",
 --fallback to speech_wilson.lua             NOSILVICULTURE = "only_used_by_waxwell_and_wicker",
 --fallback to speech_wilson.lua             NOHORTICULTURE = "only_used_by_waxwell_and_wicker",
@@ -419,6 +423,8 @@ return{
             BEEF_BELL_HAS_BEEF_ALREADY = "I HAVE ALREADY SELECTED A SATISFACTORY FLESHBAG",
 
 			NOT_MINE = "NOT EVEN WORTH STEALING",
+
+			CANNOT_FIX_DRONE = "REST IN PIECES",
         },
 		USEKLAUSSACKKEY =
         {
@@ -439,6 +445,8 @@ return{
         {
             DOESNTWORK = "YOU CAN NEVER RELY ON FLESHLINGS TO DO THEIR JOB",
             ALREADYACTIVE = "WHERE IS HE HIDING",
+            NORESPONSE = "BOOTH UNATTENDED. UNACCEPTABLE",
+            RIGHTTHERE = "YOU DARE IGNORE ME?",
         },
         YOTB_UNLOCKSKIN =
         {
@@ -467,6 +475,10 @@ return{
 		MODSLINGSHOT =
 		{
 --fallback to speech_wilson.lua 			NOSLINGSHOT = "only_used_by_walter",
+		},
+		POUNCECAPTURE =
+		{
+			MISSED = "TARGET EVADED, RECALIBRATING",
 		},
     },
 
@@ -1132,7 +1144,7 @@ return{
 	ANNOUNCE_SNOWBALL_TOO_BIG = "MAXIMUM SIZE REACHED",
 	ANNOUNCE_SNOWBALL_NO_SNOW = "INSUFFICIENT MATERIAL",
 
-    --rifts 5
+    -- Meta 5
     ANNOUNCE_WENDY_BABYSITTER_SET = "only_used_by_wendy", 
     ANNOUNCE_WENDY_BABYSITTER_STOP = "only_used_by_wendy",
 
@@ -1145,6 +1157,8 @@ return{
     ANNOUNCE_ELIXIR_PLAYER_SPEED = "SYSTEMS POWERED UP",
 
     ANNOUNCE_ELIXIR_TOO_SUPER = "DENIED. CONTENTS OVERLOADED",
+
+    ANNOUNCE_LUNARGUARDIAN_INCOMING = "YOU'RE BACK!",
 
 	BATTLECRY =
 	{
@@ -5648,6 +5662,55 @@ return{
         DECK_OF_CARDS = "PRIMITIVE PASTIME",
         PLAYING_CARD = "SOMEONE MISSING A CARD. I SHOULD DESTROY IT",
         BALATRO_MACHINE = "CALCULATING ODDS OF VICTORY...",
+
+		-- Rifts 5
+		GESTALT_CAGE =
+		{
+			GENERIC = "INPUT MISSING",
+			FILLED = "ENTITY DETECTED",
+		},
+		WAGBOSS_ROBOT_SECRET = "WHO ARE YOU?",
+        WAGBOSS_ROBOT = "MOST IMPRESSIVE",
+        WAGBOSS_ROBOT_POSSESSED = "I THOUGHT WE HAD SOMETHING!",
+		WAGBOSS_ROBOT_LEG = "IT DIDN'T HAVE TO BE LIKE THIS!",
+		ALTERGUARDIAN_PHASE1_LUNARRIFT = "YOU'VE CHANGED",
+		ALTERGUARDIAN_PHASE1_LUNARRIFT_GESTALT = "I MUST HAVE IT",
+        ALTERGUARDIAN_PHASE4_LUNARRIFT = "GLORIOUS!",
+		WAGDRONE_ROLLING =
+        {
+            GENERIC = "BEHAVE!",
+            INACTIVE = "SLEEP MODE",
+            DAMAGED = "I CAN REPAIR IT OR HARVEST FOR PARTS IF I MUST",
+            FRIENDLY = "CUTIE PIE",
+        },
+        WAGDRONE_FLYING =
+        {
+            GENERIC = "WHY ARE YOU TARGETTING ME?",
+            INACTIVE = "SLEEP MODE",
+            DAMAGED = "ANOTHER WILL LIVE BECAUSE OF YOU",
+        },
+		WAGDRONE_PARTS = "SUCH CARNAGE",
+		WAGDRONE_BEACON = "A CRUEL IMPRISONMENT DEVICE",
+
+        WAGPUNK_WORKSTATION = "I AM IN MY ELEMENT",
+        WAGPUNK_LEVER = "ACTIVATE!",
+        WAGPUNK_FLOOR_KIT = "MORE LAND EQUALS LESS OCEAN. GOOD",
+        WAGPUNK_CAGEWALL = "PHYSICAL FIREWALL",
+
+		WAGSTAFF_ITEM_1 = "SOLID MATTER DETECTED",
+		WAGSTAFF_ITEM_2 = "SOLID MATTER DETECTED",
+
+        HERMITCRAB_RELOCATION_KIT = "CRUSTACEAN TRANSFER DEVICE",
+
+        WANDERINGTRADER =
+        {
+            REVEALED = "YOU DISGUST ME... WHAT DO YOU HAVE?",
+            GENERIC = "IT LOOKS DISEASED",
+        },
+
+        GESTALT_GUARD_EVOLVED = "I LIKE THIS VERSION. SO HATEFUL",
+        FLOTATIONCUSHION = "MINE",
+        LUNAR_SEED = "THEY DON'T UNDERSTAND YOU LIKE I DO",
     },
 
     DESCRIBE_GENERIC = "ERROR: UNKNOWN",

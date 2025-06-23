@@ -2085,8 +2085,7 @@ local function chipfn(type)
     phys:SetFriction(0)
     phys:SetDamping(5)
     phys:SetCollisionGroup(COLLISION.FLYERS)
-    phys:ClearCollisionMask()
-    phys:CollidesWith((TheWorld.has_ocean and COLLISION.GROUND) or COLLISION.WORLD)
+	phys:SetCollisionMask(TheWorld.has_ocean and COLLISION.GROUND or COLLISION.WORLD)
     phys:SetCapsule(0.5, 1)
 
     local s  = 0.7

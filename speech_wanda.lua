@@ -126,6 +126,9 @@ return{
             INUSE = "I should've gotten here sooner.",
             TOOFAR = "It's out of my reach.",
         },
+        DEPLOY = {
+            HERMITCRAB_RELOCATE = "That's right, it's dry. I'll try again later.",
+        },
         DIRECTCOURIER_MAP =
         {
 --fallback to speech_wilson.lua             NOTARGET = "only_used_by_walter",
@@ -306,6 +309,7 @@ return{
 --fallback to speech_wilson.lua             NOWATERNEARBY = "only_used_by_waxwell_and_wicker",
 --fallback to speech_wilson.lua             TOOMANYBIRDS = "only_used_by_waxwell_and_wicker",
 --fallback to speech_wilson.lua             WAYTOOMANYBIRDS = "only_used_by_waxwell_and_wicker",
+--fallback to speech_wilson.lua             BIRDSBLOCKED = "only_used_by_waxwell_and_wicker",
 --fallback to speech_wilson.lua             NOFIRES =       "only_used_by_waxwell_and_wicker",
 --fallback to speech_wilson.lua             NOSILVICULTURE = "only_used_by_waxwell_and_wicker",
 --fallback to speech_wilson.lua             NOHORTICULTURE = "only_used_by_waxwell_and_wicker",
@@ -419,6 +423,8 @@ return{
             BEEF_BELL_HAS_BEEF_ALREADY = "I don't have time to take care of all these beefalo!",
 
 			NOT_MINE = "None of my business.",
+
+			CANNOT_FIX_DRONE = "It's beyond repair now.",
         },
 		USEKLAUSSACKKEY =
         {
@@ -439,6 +445,8 @@ return{
         {
             DOESNTWORK = "Well, if he's not going to start the contest I'm not waiting around.",
             ALREADYACTIVE = "It doesn't look like anyone's here.",
+            NORESPONSE = "There's no one here.",
+            RIGHTTHERE = "He's busy.",
         },
         YOTB_UNLOCKSKIN =
         {
@@ -467,6 +475,10 @@ return{
 		MODSLINGSHOT =
 		{
 --fallback to speech_wilson.lua 			NOSLINGSHOT = "only_used_by_walter",
+		},
+		POUNCECAPTURE =
+		{
+			MISSED = "Missed! Bad timing...",
 		},
     },
 
@@ -1132,7 +1144,7 @@ return{
 	ANNOUNCE_SNOWBALL_TOO_BIG = "Let's not waste time. It's as big as it'll get.",
 	ANNOUNCE_SNOWBALL_NO_SNOW = "There's no snow.",
 
-    --rifts 5
+    -- Meta 5
     ANNOUNCE_WENDY_BABYSITTER_SET = "only_used_by_wendy", 
     ANNOUNCE_WENDY_BABYSITTER_STOP = "only_used_by_wendy",
 
@@ -1145,6 +1157,8 @@ return{
     ANNOUNCE_ELIXIR_PLAYER_SPEED = "Strength is efficiency!",
 
     ANNOUNCE_ELIXIR_TOO_SUPER = "Ooph. That is far too strong.",
+
+    ANNOUNCE_LUNARGUARDIAN_INCOMING = "Right on cue.",
 
 	BATTLECRY =
 	{
@@ -5648,6 +5662,55 @@ return{
         DECK_OF_CARDS = "Certainly a way to kill time.",
         PLAYING_CARD = "What does one do with a single card?",
         BALATRO_MACHINE = "Perhaps I have time for a round or two.",
+
+		-- Rifts 5
+		GESTALT_CAGE =
+		{
+			GENERIC = "Empty.",
+			FILLED = "Hello there.",
+		},
+		WAGBOSS_ROBOT_SECRET = "I've seen what's under there.",
+        WAGBOSS_ROBOT = "This never ends well.",
+        WAGBOSS_ROBOT_POSSESSED = "We never learn!",
+		WAGBOSS_ROBOT_LEG = "I remember these being useful somehow.",
+		ALTERGUARDIAN_PHASE1_LUNARRIFT = "There's something different about you.",
+		ALTERGUARDIAN_PHASE1_LUNARRIFT_GESTALT = "He's waiting for it.",
+        ALTERGUARDIAN_PHASE4_LUNARRIFT = "I'll never get used to that!",
+		WAGDRONE_ROLLING =
+        {
+            GENERIC = "Always in the way!",
+            INACTIVE = "I remember you.",
+            DAMAGED = "It can have a second chance or its parts can give one.",
+            FRIENDLY = "I wonder if it remembers.",
+        },
+        WAGDRONE_FLYING =
+        {
+            GENERIC = "They're driving me mad!",
+            INACTIVE = "I remember you.",
+            DAMAGED = "It's beyond repair but the parts are still good.",
+        },
+		WAGDRONE_PARTS = "These can be recycled.",
+		WAGDRONE_BEACON = "Some lines should not be crossed.",
+
+        WAGPUNK_WORKSTATION = "Ahead of his time.",
+        WAGPUNK_LEVER = "I know what this does...",
+        WAGPUNK_FLOOR_KIT = "Hmm, a shortcut to terraformation?",
+        WAGPUNK_CAGEWALL = "I don't like being stuck.",
+
+		WAGSTAFF_ITEM_1 = "How did this glove come to be?",
+		WAGSTAFF_ITEM_2 = "It's no longer a projection.",
+
+        HERMITCRAB_RELOCATION_KIT = "Where did I move her to again?",
+
+        WANDERINGTRADER =
+        {
+            REVEALED = "I knew it was you.",
+            GENERIC = "He looks familiar.",
+        },
+
+        GESTALT_GUARD_EVOLVED = "They know what we've done.",
+        FLOTATIONCUSHION = "How convenient!",
+        LUNAR_SEED = "I forget if this is the end or the beginning.",
     },
 
     DESCRIBE_GENERIC = "A very particular something or other.",

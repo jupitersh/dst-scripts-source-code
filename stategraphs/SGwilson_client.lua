@@ -617,6 +617,7 @@ local actionhandlers =
     ActionHandler(ACTIONS.PET, "dolongaction"),
     ActionHandler(ACTIONS.DRAW, "dolongaction"),
     ActionHandler(ACTIONS.BUNDLE, "bundle"),
+    ActionHandler(ACTIONS.PEEKBUNDLE, "bundle"),
     ActionHandler(ACTIONS.RAISE_SAIL, "dostandingaction"),
 	ActionHandler(ACTIONS.LOWER_SAIL_BOOST, "furl_boost"),
     ActionHandler(ACTIONS.LOWER_SAIL_FAIL, "furl_fail"),
@@ -844,6 +845,9 @@ local actionhandlers =
     ActionHandler(ACTIONS.DRAW_FROM_DECK, "doshortaction"),
     ActionHandler(ACTIONS.FLIP_DECK, "doshortaction"),
     ActionHandler(ACTIONS.ADD_CARD_TO_DECK, "dostandingaction"),
+
+	-- Rifts 5
+	ActionHandler(ACTIONS.POUNCECAPTURE, "pouncecapture_pre"),
 }
 
 local events =
@@ -6833,6 +6837,38 @@ local states =
 				inst.sg:RemoveStateTag("busy")
 			end),
 		},
+
+		onupdate = function(inst)
+			if inst.sg:ServerStateMatches() then
+				if inst.entity:FlattenMovementPrediction() then
+					inst.sg:GoToState("idle", "noanim")
+				end
+			elseif inst.bufferedaction == nil then
+				inst.sg:GoToState("idle")
+			end
+		end,
+
+		ontimeout = function(inst)
+			inst:ClearBufferedAction()
+			inst.sg:GoToState("idle")
+		end,
+	},
+
+	-- Rifts 5
+
+	State{
+		name = "pouncecapture_pre",
+		tags = { "busy" },
+		server_states = { "pouncecapture_pre", "pouncecapture", "pouncecapture_pst" },
+
+		onenter = function(inst)
+			inst.components.locomotor:Stop()
+			inst.AnimState:PlayAnimation("pouncecapture_pre")
+			inst.AnimState:PushAnimation("pouncecapture_lag", false)
+
+			inst:PerformPreviewBufferedAction()
+			inst.sg:SetTimeout(TIMEOUT)
+		end,
 
 		onupdate = function(inst)
 			if inst.sg:ServerStateMatches() then

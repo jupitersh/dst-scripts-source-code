@@ -599,7 +599,7 @@ function LoadoutSelect:OnControl(control, down)
             self:_LoadItemSkinsScreen()
             TheFrontEnd:GetSound():PlaySound("dontstarve/HUD/click_move")
             return true
-        elseif control == CONTROL_MENU_MISC_2 and self.can_show_skilltree and not ThePlayer then
+        elseif control == CONTROL_MENU_R2 and self.can_show_skilltree and not ThePlayer then
             self:SwitchContext()
             TheFrontEnd:GetSound():PlaySound("dontstarve/HUD/click_move")
             return true            
@@ -629,7 +629,7 @@ function LoadoutSelect:GetHelpText()
         end
         if self.can_show_skilltree and not ThePlayer then
             local text = self.switch_context_button:GetText()
-            table.insert(t, TheInput:GetLocalizedControl(controller_id, CONTROL_MENU_MISC_2) .. " " .. text)
+            table.insert(t, TheInput:GetLocalizedControl(controller_id, CONTROL_MENU_R2) .. " " .. text)
         end
 
 		return table.concat(t, "  ")

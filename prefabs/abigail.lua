@@ -105,12 +105,15 @@ local function IsWithinDefensiveRange(inst)
 end
 
 local function SetTransparentPhysics(inst, on)
-    inst.Physics:ClearCollisionMask()
-    inst.Physics:CollidesWith((TheWorld:CanFlyingCrossBarriers() and COLLISION.GROUND) or COLLISION.WORLD)
-    if not on then
-        inst.Physics:CollidesWith(COLLISION.CHARACTERS)
-        inst.Physics:CollidesWith(COLLISION.GIANTS)
-    end
+	if on then
+		inst.Physics:SetCollisionMask(TheWorld:CanFlyingCrossBarriers() and COLLISION.GROUND or COLLISION.WORLD)
+	else
+		inst.Physics:SetCollisionMask(
+			TheWorld:CanFlyingCrossBarriers() and COLLISION.GROUND or COLLISION.WORLD,
+			COLLISION.CHARACTERS,
+			COLLISION.GIANTS
+		)
+	end
 end
 
 local COMBAT_MUSHAVE_TAGS = { "_combat", "_health" }

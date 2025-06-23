@@ -1164,6 +1164,26 @@ TileManager.AddTile(
 )
 
 TileManager.AddTile(
+    "WAGSTAFF_FLOOR",
+    TileRanges.LAND,
+    {ground_name = "Wagstaff Floor"},
+    {
+        name="blocky",
+        noise_texture="ground_noise_wagstaff_floor",
+        runsound="dontstarve/movement/run_wagdock",
+        walksound="dontstarve/movement/walk_wagdock",
+        snowsound="dontstarve/movement/walk_wagdock",
+        mudsound="dontstarve/movement/walk_wagdock",
+        cannotbedug = true,
+        hard = true,
+    },
+    {
+        name="map_edge",
+        noise_texture="mini_woodfloor_noise",
+    }
+)
+
+TileManager.AddTile(
     "SCALE",
     TileRanges.LAND,
     {ground_name = "Scale", old_static_id = GROUND.SCALE},

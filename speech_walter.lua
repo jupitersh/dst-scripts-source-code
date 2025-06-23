@@ -126,6 +126,9 @@ return{
             INUSE = "Hey while you're here, wanna hear a scary story I heard on the radio?",
             TOOFAR = "My arms aren't that long.",
         },
+        DEPLOY = {
+            HERMITCRAB_RELOCATE = "Aww, it's dry. Let's try again later!",
+        },
         DIRECTCOURIER_MAP =
         {
             NOTARGET = "Guess we should pick another spot, Woby.",
@@ -306,6 +309,7 @@ return{
 --fallback to speech_wilson.lua             NOWATERNEARBY = "only_used_by_waxwell_and_wicker",
 --fallback to speech_wilson.lua             TOOMANYBIRDS = "only_used_by_waxwell_and_wicker",
 --fallback to speech_wilson.lua             WAYTOOMANYBIRDS = "only_used_by_waxwell_and_wicker",
+--fallback to speech_wilson.lua             BIRDSBLOCKED = "only_used_by_waxwell_and_wicker",
 --fallback to speech_wilson.lua             NOFIRES =       "only_used_by_waxwell_and_wicker",
 --fallback to speech_wilson.lua             NOSILVICULTURE = "only_used_by_waxwell_and_wicker",
 --fallback to speech_wilson.lua             NOHORTICULTURE = "only_used_by_waxwell_and_wicker",
@@ -419,6 +423,8 @@ return{
             BEEF_BELL_HAS_BEEF_ALREADY = "I've already got as many big fuzzy friends as I can manage.",
 
 			NOT_MINE = "That's not ours, Woby.",
+
+			CANNOT_FIX_DRONE = "Aww, it can't be fixed.",
         },
 		USEKLAUSSACKKEY =
         {
@@ -439,6 +445,8 @@ return{
         {
             DOESNTWORK = "Maybe he took the day off?",
             ALREADYACTIVE = "There must be another contest going on somewhere else.",
+            NORESPONSE = "He must be wandering around somewhere.",
+            RIGHTTHERE = "Busy as a bee—f!",
         },
         YOTB_UNLOCKSKIN =
         {
@@ -467,6 +475,10 @@ return{
 		MODSLINGSHOT =
 		{
 			NOSLINGSHOT = "I don't have a slingshot to mod!",
+		},
+		POUNCECAPTURE =
+		{
+			MISSED = "Don't give up, Walter!",
 		},
     },
 
@@ -1174,7 +1186,7 @@ return{
 	ANNOUNCE_SNOWBALL_TOO_BIG = "It won't get any bigger!",
 	ANNOUNCE_SNOWBALL_NO_SNOW = "We've run out of snow, Woby!",
 
-    --rifts 5
+    -- Meta 5
     ANNOUNCE_WENDY_BABYSITTER_SET = "only_used_by_wendy", 
     ANNOUNCE_WENDY_BABYSITTER_STOP = "only_used_by_wendy",
 
@@ -1187,6 +1199,8 @@ return{
     ANNOUNCE_ELIXIR_PLAYER_SPEED = "I bet I could carry you, Woby!",
 
     ANNOUNCE_ELIXIR_TOO_SUPER = "I don't think my tummy can handle that.",
+
+    ANNOUNCE_LUNARGUARDIAN_INCOMING = "Incoming... again?",
 
 	BATTLECRY =
 	{
@@ -5690,6 +5704,55 @@ return{
         DECK_OF_CARDS = "Woby! Pick a card, any card!",
         PLAYING_CARD = "Is THIS your card, Wobes?",
         BALATRO_MACHINE = "Woby, let's take paws and play a few hands. Oh, Walter!",
+
+		-- Rifts 5
+		GESTALT_CAGE =
+		{
+			GENERIC = "It's empty, Wobes.",
+			FILLED = "Yup, we got one, Woby!",
+		},
+		WAGBOSS_ROBOT_SECRET = "He's keeping it under wraps!",
+        WAGBOSS_ROBOT = "Oooh, neat robot!",
+        WAGBOSS_ROBOT_POSSESSED = "It's a bot unstable! Get it, Woby?",
+		WAGBOSS_ROBOT_LEG = "How does it still have a leg to stand on? Right, Wobes?",
+		ALTERGUARDIAN_PHASE1_LUNARRIFT = "It's extra glowy isn't it, Woby?",
+		ALTERGUARDIAN_PHASE1_LUNARRIFT_GESTALT = "That must be it, Wobes!",
+        ALTERGUARDIAN_PHASE4_LUNARRIFT = "Has anyone asked why it's so upset?",
+		WAGDRONE_ROLLING =
+        {
+            GENERIC = "Hard to put a positive spin on it!",
+            INACTIVE = "No treats inside, Woby.",
+            DAMAGED = "Looks like we can repair it or use the spare parts, Woby!",
+            FRIENDLY = "Looks safe enough.",
+        },
+        WAGDRONE_FLYING =
+        {
+            GENERIC = "Whoa! Death from above! Watch out, Woby!",
+            INACTIVE = "No treats inside, Woby.",
+            DAMAGED = "Aww, it can't be fixed, but at least the parts won't be wasted.",
+        },
+		WAGDRONE_PARTS = "Looks useful.",
+		WAGDRONE_BEACON = "This'll keep the lil spinning robot from going out of bounds!",
+
+        WAGPUNK_WORKSTATION = "Check it out, Woby! What can we make here?",
+        WAGPUNK_LEVER = "Maybe we'll skip the instructions just this once.",
+        WAGPUNK_FLOOR_KIT = "I bet we'll be floored by this!",
+        WAGPUNK_CAGEWALL = "This will keep things contained. Yup, and us too, Woby!",
+
+		WAGSTAFF_ITEM_1 = "This glove is real, Woby! Can you believe it?",
+		WAGSTAFF_ITEM_2 = "Just because it's not a projection doesn't mean you have permission to chew on it, Wobes!",
+
+        HERMITCRAB_RELOCATION_KIT = "I think there's a badge for helping the elderly move. But we'll do it just 'cuz, right Wobers?",
+
+        WANDERINGTRADER =
+        {
+            REVEALED = "He was hiding in plain sight!",
+            GENERIC = "You're right, Woby. That's an odd one.",
+        },
+
+        GESTALT_GUARD_EVOLVED = "Wobes! I think we're the unfinished business for these ghosts!",
+        FLOTATIONCUSHION = "We love water safety! Don't we, Wobes?",
+        LUNAR_SEED = "I wonder if there's a badge for defeating a moon god?",
     },
 
     DESCRIBE_GENERIC = "That sure is a mystery!",

@@ -722,6 +722,58 @@ spear_wathgrithr_lightning_charged_clear_fn = function(inst)
     inst:SetFxOwner(inst._fxowner)
 end
 
+berrybush_init_fn = function(inst, build_name)
+    basic_init_fn( inst, build_name, "berrybush" )
+
+    inst.linked_skinname = "dug_"..build_name
+
+    if inst.components.placer ~= nil then
+        return -- No FX for placer...
+    end
+
+    local skin_fx = SKIN_FX_PREFAB[build_name]
+    inst.vfx_fx = skin_fx and skin_fx[1] ~= nil and skin_fx[1]:len() > 0 and skin_fx[1] or nil
+    if inst.vfx_fx ~= nil then
+        if inst._vfx_fx_inst == nil then
+            inst._vfx_fx_inst = SpawnPrefab(inst.vfx_fx)
+            inst._vfx_fx_inst.entity:AddFollower()
+            inst._vfx_fx_inst.entity:SetParent(inst.entity)
+            inst._vfx_fx_inst.Follower:FollowSymbol(inst.GUID, "bush_berry_build", 0, 0, 0)
+        end
+    end
+end
+
+berrybush_clear_fn = function(inst)
+    basic_clear_fn(inst, "berrybush")
+    if inst._vfx_fx_inst ~= nil then
+        if inst._vfx_fx_inst:IsValid() then
+            inst._vfx_fx_inst:Remove()
+        end
+        inst._vfx_fx_inst = nil
+    end
+
+    inst.linked_skinname = nil
+end
+
+berrybush_waxed_clear_fn = berrybush_clear_fn
+
+dug_berrybush_init_fn = function(inst, build_name)
+    basic_init_fn( inst, build_name, "dug_berrybush" )
+    inst.linked_skinname = build_name
+end
+dug_berrybush_clear_fn = function(inst)
+    basic_clear_fn(inst, "berrybush" )
+    inst.linked_skinname = nil
+end
+
+dug_berrybush_waxed_clear_fn = function(inst)
+    dug_berrybush_clear_fn(inst)
+
+    if inst.components.inventoryitem ~= nil then
+        inst.components.inventoryitem:ChangeImageName(inst.parentprefab)
+    end
+end
+
 reskin_tool_init_fn = function(inst, build_name) basic_init_fn( inst, build_name, "reskin_tool" ) end
 reskin_tool_clear_fn = function(inst) basic_clear_fn(inst, "reskin_tool" ) end
 
@@ -1374,6 +1426,9 @@ supertacklecontainer_clear_fn = function(inst) basic_clear_fn(inst, "supertackle
 mermhouse_crafted_init_fn = function(inst, build_name) basic_init_fn( inst, build_name, "mermhouse_crafted" ) end
 mermhouse_crafted_clear_fn = function(inst) basic_clear_fn(inst, "mermhouse_crafted" ) end
 
+mermwatchtower_init_fn = function(inst, build_name) basic_init_fn( inst, build_name, "merm_guard_tower" ) end
+mermwatchtower_clear_fn = function(inst) basic_clear_fn(inst, "merm_guard_tower" ) end
+
 mermhat_init_fn = function(inst, build_name) basic_init_fn( inst, build_name, "hat_merm" ) end
 mermhat_clear_fn = function(inst) basic_clear_fn(inst, "hat_merm" ) end
 
@@ -1385,6 +1440,18 @@ sanityrock_clear_fn = function(inst) basic_clear_fn(inst, "blocker_sanity" ) end
 
 insanityrock_init_fn = function(inst, build_name) basic_init_fn( inst, build_name, "blocker_sanity" ) end
 insanityrock_clear_fn = function(inst) basic_clear_fn(inst, "blocker_sanity" ) end
+
+lunarplanthat_init_fn = function(inst, build_name) basic_init_fn(inst, build_name, "hat_lunarplant") end
+lunarplanthat_clear_fn = function(inst) basic_clear_fn(inst, "hat_lunarplant") end
+
+armor_lunarplant_init_fn = function(inst, build_name) basic_init_fn(inst, build_name, "armor_lunarplant") end
+armor_lunarplant_clear_fn = function(inst) basic_clear_fn(inst, "armor_lunarplant") end
+
+armor_lunarplant_husk_init_fn = function(inst, build_name) basic_init_fn(inst, build_name, "armor_lunarplant_husk") end
+armor_lunarplant_husk_clear_fn = function(inst) basic_clear_fn(inst, "armor_lunarplant_husk") end
+
+wagdrone_rolling_init_fn = function(inst, build_name) basic_init_fn(inst, build_name, "wagdrone_rolling") end
+wagdrone_rolling_clear_fn = function(inst) basic_clear_fn(inst, "wagdrone_rolling") end
 
 --------------------------------------------------------------------------
 --[[ rabbithouse skin functions ]]

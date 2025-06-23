@@ -116,7 +116,7 @@ local SkillTreeWidget = Class(Widget, function(self, prefabname, targetdata, fro
             self:RespecSkills()
         end, STRINGS.SKILLTREE.RESPEC, {200, 50}))
     if TheInput:ControllerAttached() then
-        self.root.infopanel.respec_button:SetText(TheInput:GetLocalizedControl(TheInput:GetControllerID(),  CONTROL_MENU_MISC_1).." "..STRINGS.SKILLTREE.RESPEC)
+        self.root.infopanel.respec_button:SetText(TheInput:GetLocalizedControl(TheInput:GetControllerID(),  CONTROL_MENU_MISC_2).." "..STRINGS.SKILLTREE.RESPEC)
     end
 
     self.root.infopanel.respec_button:SetPosition(0,-120)
@@ -243,7 +243,7 @@ end
 function SkillTreeWidget:OnControl(control, down)
     if SkillTreeWidget._base.OnControl(self, control, down) then return true end
 
-    if not down and control ==  CONTROL_MENU_MISC_1 and self.root.infopanel.respec_button:IsVisible() then
+    if not down and control ==  CONTROL_MENU_MISC_2 and self.root.infopanel.respec_button:IsVisible() then
         self:RespecSkills()
         return true
     end
@@ -275,7 +275,7 @@ function SkillTreeWidget:GetHelpText()
     local t = {}
 
     if self.root.infopanel.respec_button:IsVisible() then
-        table.insert(t, TheInput:GetLocalizedControl(controller_id,  CONTROL_MENU_MISC_1).. " " .. STRINGS.SKILLTREE.RESPEC)
+        table.insert(t, TheInput:GetLocalizedControl(controller_id,  CONTROL_MENU_MISC_2).. " " .. STRINGS.SKILLTREE.RESPEC)
     end
 
     return table.concat(t, "  ")

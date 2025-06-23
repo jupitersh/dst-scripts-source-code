@@ -126,6 +126,9 @@ return{
             INUSE = "How's the grub coming?",
             TOOFAR = "I gotta get closer. Or grow longer arms.",
         },
+        DEPLOY = {
+            HERMITCRAB_RELOCATE = "Empty. I'll try again later.",
+        },
         DIRECTCOURIER_MAP =
         {
 --fallback to speech_wilson.lua             NOTARGET = "only_used_by_walter",
@@ -306,6 +309,7 @@ return{
 --fallback to speech_wilson.lua             NOWATERNEARBY = "only_used_by_waxwell_and_wicker",
 --fallback to speech_wilson.lua             TOOMANYBIRDS = "only_used_by_waxwell_and_wicker",
 --fallback to speech_wilson.lua             WAYTOOMANYBIRDS = "only_used_by_waxwell_and_wicker",
+--fallback to speech_wilson.lua             BIRDSBLOCKED = "only_used_by_waxwell_and_wicker",
 --fallback to speech_wilson.lua             NOFIRES =       "only_used_by_waxwell_and_wicker",
 --fallback to speech_wilson.lua             NOSILVICULTURE = "only_used_by_waxwell_and_wicker",
 --fallback to speech_wilson.lua             NOHORTICULTURE = "only_used_by_waxwell_and_wicker",
@@ -419,6 +423,8 @@ return{
             BEEF_BELL_HAS_BEEF_ALREADY = "I've already got a beefalo, thanks.",
 
 			NOT_MINE = "Ain't mine.",
+
+			CANNOT_FIX_DRONE = "Ain't fixable.",
         },
 		USEKLAUSSACKKEY =
         {
@@ -439,6 +445,8 @@ return{
         {
             DOESNTWORK = "This judge is slackin' on the job!",
             ALREADYACTIVE = "There must be a contest already goin' on somewhere.",
+            NORESPONSE = "Probably wandered off.",
+            RIGHTTHERE = "He's workin'.",
         },
         YOTB_UNLOCKSKIN =
         {
@@ -467,6 +475,10 @@ return{
 		MODSLINGSHOT =
 		{
 --fallback to speech_wilson.lua 			NOSLINGSHOT = "only_used_by_walter",
+		},
+		POUNCECAPTURE =
+		{
+			MISSED = "Dang, missed!",
 		},
     },
 
@@ -1138,7 +1150,7 @@ return{
 	ANNOUNCE_SNOWBALL_TOO_BIG = "It ain't gonna get any bigger.",
 	ANNOUNCE_SNOWBALL_NO_SNOW = "Ain't no snow around.",
 
-    --rifts 5
+    -- Meta 5
     ANNOUNCE_WENDY_BABYSITTER_SET = "only_used_by_wendy", 
     ANNOUNCE_WENDY_BABYSITTER_STOP = "only_used_by_wendy",
 
@@ -1151,6 +1163,8 @@ return{
     ANNOUNCE_ELIXIR_PLAYER_SPEED = "I feel like a steam engine!",
 
     ANNOUNCE_ELIXIR_TOO_SUPER = "Yikes, that's way too strong.",
+
+    ANNOUNCE_LUNARGUARDIAN_INCOMING = "Again!?",
 
 	BATTLECRY =
 	{
@@ -5654,6 +5668,55 @@ return{
         DECK_OF_CARDS = "Remember when you'd always knock down my house of cards?",
         PLAYING_CARD = "Somebody's not playin' with a full deck.",
         BALATRO_MACHINE = "What could go wrong?",
+
+		-- Rifts 5
+		GESTALT_CAGE =
+		{
+			GENERIC = "Ain't nothin' in there.",
+			FILLED = "We got a live one!",
+		},
+		WAGBOSS_ROBOT_SECRET = "Bossman's up to somethin' alright.",
+        WAGBOSS_ROBOT = "That is one fancy forklift.",
+        WAGBOSS_ROBOT_POSSESSED = "Where's the dang OFF switch?!",
+		WAGBOSS_ROBOT_LEG = "Now that is one solidly built robo-leg.",
+		ALTERGUARDIAN_PHASE1_LUNARRIFT = "Looks like it's gonna burst.",
+		ALTERGUARDIAN_PHASE1_LUNARRIFT_GESTALT = "Whoa. I ain't seen one like that before.",
+        ALTERGUARDIAN_PHASE4_LUNARRIFT = "It don't make no sense!",
+		WAGDRONE_ROLLING =
+        {
+            GENERIC = "Hey, stay away from my kneecaps!",
+            INACTIVE = "Think it's turned off.",
+            DAMAGED = "I can definitely fix it, or salvage it for parts.",
+            FRIENDLY = "I'll never fully trust it.",
+        },
+        WAGDRONE_FLYING =
+        {
+            GENERIC = "Dang mechanical buzzards!",
+            INACTIVE = "Think it's turned off.",
+            DAMAGED = "Ain't nothin' but spare parts here.",
+        },
+		WAGDRONE_PARTS = "Love me some spare parts!",
+		WAGDRONE_BEACON = "The bossman thought of everything. Well, almost.",
+
+        WAGPUNK_WORKSTATION = "That's a fine tinkerin' table.",
+        WAGPUNK_LEVER = "What could go wrong?",
+        WAGPUNK_FLOOR_KIT = "Real estate is at a premium these days.",
+        WAGPUNK_CAGEWALL = "So, a fence post?",
+
+		WAGSTAFF_ITEM_1 = "Hm, bossman's glove... it's real.",
+		WAGSTAFF_ITEM_2 = "I can't believe those are his actual notes.",
+
+        HERMITCRAB_RELOCATION_KIT = "A whole movin' truck in a pitcher.",
+
+        WANDERINGTRADER =
+        {
+            REVEALED = "Good day for a trade.",
+            GENERIC = "That thing don't look right.",
+        },
+
+        GESTALT_GUARD_EVOLVED = "I know, I know. Y'all got a bone to pick.",
+        FLOTATIONCUSHION = "Sure beats drownin'.",
+        LUNAR_SEED = "We busted'em down to the baubles.",
     },
 
     DESCRIBE_GENERIC = "Incredible! I have no idea what that is.",

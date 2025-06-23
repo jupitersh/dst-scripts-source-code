@@ -46,8 +46,12 @@ local function GemFruit_OnUpdate(inst, dt)
     local heatindex = 0
 
     for _, ent in ipairs(ents) do
-        if ent.components.heater ~= nil and (ent.components.heater:IsExothermic() or ent.components.heater:IsEndothermic()) then -- Make sure they emit temperature.
-            heatindex = heatindex + (ent.components.heater:GetHeat(inst) or 0) -- Cold fires produce negative heat.
+		if ent.components.heater then
+			--V2C: GetHeat first. Some heaters update thermics in their heatfn.
+			local heat = ent.components.heater:GetHeat(inst)
+			if heat and (ent.components.heater:IsExothermic() or ent.components.heater:IsEndothermic()) then -- Make sure they emit temperature.
+				heatindex = heatindex + heat -- Cold fires produce negative heat.
+			end
 
             if heatindex >= TUNING.ANCIENTFRUIT_GEM_MIN_HEAT then
                 inst._temperature = math.min(inst._temperature + dt, TUNING.ANCIENTFRUIT_GEM_TEMPERATURE_THRESHOLD.MAX)

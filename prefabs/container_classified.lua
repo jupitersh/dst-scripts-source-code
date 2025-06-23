@@ -208,6 +208,23 @@ local function HasItemWithTag(inst, tag, amount)
     return count >= amount, count
 end
 
+local function FindItem(inst, fn)
+	if inst._itemspreview then
+		for k, v in pairs(inst._itemspreview) do
+			if fn(v) then
+				return v
+			end
+		end
+	else
+		for i, v in ipairs(inst._items) do
+			v = v:value()
+			if v and fn(v) then
+				return v
+			end
+		end
+	end
+end
+
 --------------------------------------------------------------------------
 --Client sync event handlers that translate and dispatch local UI messages
 --------------------------------------------------------------------------
@@ -341,6 +358,10 @@ local function RegisterNetListeners(inst)
             CancelRefresh(inst)
         end)
     end
+
+    inst:ListenForEvent("readonlycontainerdirty", function()
+        QueueRefresh(inst, 0)
+    end)
 
     inst:ListenForEvent("stackitemdirty", function(world, item)
         if IsHolding(inst, item) then
@@ -872,6 +893,7 @@ local function fn()
 
     --Network variables
 	inst.infinitestacksize = net_bool(inst.GUID, "container.infinitestacksize")
+	inst.readonlycontainer = net_bool(inst.GUID, "container.readonlycontainer", "readonlycontainerdirty")
     inst._items = {}
     inst._itemspool = {}
     inst._slottasks = nil
@@ -895,6 +917,7 @@ local function fn()
         inst.IsFull = IsFull
         inst.Has = Has
         inst.HasItemWithTag = HasItemWithTag
+		inst.FindItem = FindItem
         inst.ReturnActiveItemToSlot = ReturnActiveItemToSlot
         inst.PutOneOfActiveItemInSlot = PutOneOfActiveItemInSlot
         inst.PutAllOfActiveItemInSlot = PutAllOfActiveItemInSlot

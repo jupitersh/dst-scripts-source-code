@@ -10,6 +10,7 @@ local PlayerProfile = Class(function(self)
         render_quality = RENDER_QUALITY.DEFAULT,
         -- Controlls should be a seperate file
         controls = {},
+		controlschemes = {},
         starts = 0,
         saw_display_adjustment_popup = false,
         device_caps_a = 0,
@@ -18,6 +19,7 @@ local PlayerProfile = Class(function(self)
         collection_name = nil,
         saw_new_user_popup = false,
         saw_new_host_picker = false,
+        saw_control_scheme_popup = false,
         install_id = os.time(),
 		play_instance = 0,
 		favorite_mods = {},
@@ -42,6 +44,7 @@ local PlayerProfile = Class(function(self)
         self.persistdata.vibration = true
         self.persistdata.showpassword = false
         self.persistdata.movementprediction = true
+		self.persistdata.targetlocking = true
         self.persistdata.wathgrithrfont = true
 		self.persistdata.InvertCameraRotation = false
         self.persistdata.screenshake = true
@@ -62,6 +65,7 @@ local PlayerProfile = Class(function(self)
 		self.persistdata.usezipfilefornormalsaves = false
 		self.persistdata.defaultcloudsaves = false
 		self.persistdata.scrapbookhuddisplay = true
+		self.persistdata.command_wheel_allows_gameplay = true
     end
 
     self.dirty = true
@@ -75,6 +79,7 @@ function PlayerProfile:Reset()
     self.persistdata.customizationpresets = {}
     self.persistdata.saw_new_user_popup = false
     self.persistdata.saw_new_host_picker = false
+    self.persistdata.saw_control_scheme_popup = false
     self.persistdata.install_id = os.time()
 	self.persistdata.play_instance = 0
 	self.persistdata.favorite_mods = {}
@@ -95,6 +100,7 @@ function PlayerProfile:Reset()
         self.persistdata.vibration = true
         self.persistdata.showpassword = false
         self.persistdata.movementprediction = true
+		self.persistdata.targetlocking = true
         self.persistdata.wathgrithrfont = true
 		self.persistdata.InvertCameraRotation = false
         self.persistdata.screenshake = true
@@ -114,6 +120,7 @@ function PlayerProfile:Reset()
 		self.persistdata.usezipfilefornormalsaves = false
 		self.persistdata.defaultcloudsaves = true
 		self.persistdata.scrapbookhuddisplay = true
+		self.persistdata.command_wheel_allows_gameplay = true
     end
 
     --self.persistdata.starts = 0 -- save starts?
@@ -129,6 +136,7 @@ function PlayerProfile:SoftReset()
     self.persistdata.customizationpresets = {}
     self.persistdata.saw_new_user_popup = false
     self.persistdata.saw_new_host_picker = false
+    self.persistdata.saw_control_scheme_popup = false
     self.persistdata.install_id = os.time()
 	self.persistdata.play_instance = 0
 	self.persistdata.favorite_mods = {}
@@ -149,6 +157,7 @@ function PlayerProfile:SoftReset()
         self.persistdata.vibration = true
         self.persistdata.showpassword = false
         self.persistdata.movementprediction = true
+		self.persistdata.targetlocking = true
         self.persistdata.wathgrithrfont = true
 		self.persistdata.InvertCameraRotation = false
         self.persistdata.screenshake = true
@@ -1085,6 +1094,24 @@ function PlayerProfile:GetProfanityFilterChatEnabled()
     end
 end
 
+function PlayerProfile:SetTargetLockingEnabled(enabled)
+    if USE_SETTINGS_FILE then
+        TheSim:SetSetting("misc", "targetlocking", tostring(enabled))
+    else
+        self:SetValue("targetlocking", enabled)
+        self.dirty = true
+    end
+end
+
+function PlayerProfile:GetTargetLockingEnabled()
+    -- an undefined movementprediction is considered to be enabled
+    if USE_SETTINGS_FILE then
+        return TheSim:GetSetting("misc", "targetlocking") ~= "false"
+    else
+        return self:GetValue("targetlocking") ~= false
+    end
+end
+
 function PlayerProfile:SetAutoSubscribeModsEnabled(enabled)
  	if USE_SETTINGS_FILE then
 		TheSim:SetSetting("misc", "autosubscribemods", tostring(enabled))
@@ -1119,6 +1146,43 @@ function PlayerProfile:GetAutoLoginEnabled()
 	else
 		return GetValueOrDefault( self.persistdata.autologin, true )
 	end
+end
+
+function PlayerProfile:GetAxisAlignedPlacement()
+    if USE_SETTINGS_FILE then
+        local axisalignedplacement = TheSim:GetSetting("misc", "axisalignedplacement")
+        if axisalignedplacement == nil then
+            return false
+        end
+        return axisalignedplacement == "true"
+    else
+        return GetValueOrDefault( self.persistdata.axisalignedplacement, true )
+    end
+end
+
+function PlayerProfile:SetAxisAlignedPlacement(enabled)
+    if USE_SETTINGS_FILE then
+        TheSim:SetSetting("misc", "axisalignedplacement", tostring(enabled))
+    else
+        self:SetValue("axisalignedplacement", enabled)
+    end
+end
+
+function PlayerProfile:GetAxisAlignedPlacementIntervals()
+    if USE_SETTINGS_FILE then
+        return tonumber(TheSim:GetSetting("misc", "axisalignedplacementintervals") or 1)
+    else
+        return tonumber(self:GetValue("axisalignedplacementintervals") or 1)
+    end
+end
+
+function PlayerProfile:SetAxisAlignedPlacementIntervals(intervals)
+    if USE_SETTINGS_FILE then
+        TheSim:SetSetting("misc", "axisalignedplacementintervals", tostring(intervals))
+    else
+        self:SetValue("axisalignedplacementintervals", intervals)
+    end
+    UpdateAxisAlignmentValues(intervals)
 end
 
 function PlayerProfile:SetNPCChatLevel(level)
@@ -1416,19 +1480,37 @@ function PlayerProfile:GetSavedFilters()
 		local success, filters = RunInSandbox(filters_string)
 		if success then
 			return filters
-		else
-			return {}
 		end
-	else
-		return {}
 	end
+    return {}
 end
 
-function PlayerProfile:SaveFilters(filters)
+function PlayerProfile:SetFilters(filters)
 	local data = DataDumper(filters, nil, false)
 
 	self:SetValue("serverfilters", data)
-	self:Save()
+end
+
+function PlayerProfile:SaveFilters(filters) -- DEPRECATED for SetFilters + Save.
+    self:SetFilters(filters)
+    self:Save()
+end
+
+function PlayerProfile:GetSavedWorldProgressionFilters()
+    local filters_string = self:GetValue("worldprogressionfilters")
+
+    if filters_string ~= nil and type(filters_string) == "string" then
+        local success, filters = RunInSandbox(filters_string)
+        if success and type(filters) == "table" then
+            return filters
+        end
+    end
+    return {}
+end
+
+function PlayerProfile:SetWorldProgressionFilters(filters)
+    local data = DataDumper(filters, nil, false)
+    self:SetValue("worldprogressionfilters", data)
 end
 
 function PlayerProfile:GetVolume()
@@ -1571,6 +1653,10 @@ function PlayerProfile:Set(str, callback, minimal_load)
             self.persistdata.saw_new_host_picker = false
         end
 
+        if self.persistdata.saw_control_scheme_popup == nil then
+            self.persistdata.saw_control_scheme_popup = false
+        end
+
 		if self.persistdata.autosave == nil then
 		    self.persistdata.autosave = true
 		end
@@ -1585,6 +1671,10 @@ function PlayerProfile:Set(str, callback, minimal_load)
 
 		if self.persistdata.favorite_mods == nil then
 			self.persistdata.favorite_mods = {}
+		end
+
+		if self.persistdata.controlschemes == nil then
+			self.persistdata.controlschemes = {}
 		end
 
  	    if USE_SETTINGS_FILE then
@@ -1616,6 +1706,9 @@ function PlayerProfile:Set(str, callback, minimal_load)
                 self.persistdata.movementprediction = true
                 self.persistdata.scrapbookhuddisplay = true
 		    end
+			if self.persistdata.targetlocking == nil then
+				self.persistdata.targetlocking = true
+			end
 		end
 
         if minimal_load then
@@ -1631,7 +1724,9 @@ function PlayerProfile:Set(str, callback, minimal_load)
 		TheMixer:SetLevel("set_ambience", amb / 10)
 		TheMixer:SetLevel("set_music", music / 10)
 
-		TheInputProxy:EnableVibration(self:GetVibrationEnabled())
+		TheInputProxy:EnableVibration(self:GetVibrationEnabled())		
+		TheHaptics:EnableVibration(self:GetVibrationEnabled())
+        UpdateAxisAlignmentValues(self:GetAxisAlignedPlacementIntervals())
 
 		if TheFrontEnd then
 			local bloom_enabled = GetValueOrDefault( self.persistdata.bloom, true )
@@ -1666,7 +1761,7 @@ function PlayerProfile:Set(str, callback, minimal_load)
 		if nil == self.persistdata.controls then
 		    self.persistdata.controls = {}
 		end
-
+				
 	    for idx,entry in pairs(self.persistdata.controls) do
 	        local enabled = true
 			if entry.enabled == nil then
@@ -1676,6 +1771,7 @@ function PlayerProfile:Set(str, callback, minimal_load)
 			end
 	        TheInputProxy:LoadControls(entry.guid, entry.data, enabled)
 	    end
+		TheHaptics:UpdateDevice()
 
 		if nil == self.persistdata.device_caps_a then
             self.persistdata.device_caps_a = 0
@@ -1732,6 +1828,17 @@ function PlayerProfile:SetControls(guid, data, enabled)
     end
 
     self.dirty = true
+end
+
+function PlayerProfile:SetControlScheme(id, value)
+	if self.persistdata.controlschemes[id] ~= value then
+		self.persistdata.controlschemes[id] = value
+		self.dirty = true
+	end
+end
+
+function PlayerProfile:GetControlScheme(id)
+	return self.persistdata.controlschemes[id]
 end
 
 function PlayerProfile:SawDisplayAdjustmentPopup()
@@ -1810,6 +1917,17 @@ end
 function PlayerProfile:ShowedNewUserPopup()
     if not self.persistdata.saw_new_user_popup then
         self.persistdata.saw_new_user_popup = true
+        self.dirty = true
+    end
+end
+
+function PlayerProfile:SawControlSchemePopup()
+    return self.persistdata.saw_control_scheme_popup
+end
+
+function PlayerProfile:ShowedControlSchemePopup()
+    if not self.persistdata.saw_control_scheme_popup then
+        self.persistdata.saw_control_scheme_popup= true
         self.dirty = true
     end
 end
@@ -2045,6 +2163,26 @@ end
 function PlayerProfile:SetWobyIsLocked(locked)
 	self:SetValue("woby_unlocked", not locked or nil)
 	self:Save()
+end
+
+function PlayerProfile:GetCommandWheelAllowsGameplay()
+	if USE_SETTINGS_FILE then
+		local allow_motion = TheSim:GetSetting("misc", "command_wheel_allows_gameplay")
+		if allow_motion == nil then
+			return false
+		end
+		return allow_motion == "true"
+	else
+		return GetValueOrDefault(self.persistdata.command_wheel_allows_gameplay, true)
+	end
+end
+
+function PlayerProfile:SetCommandWheelAllowsGameplay(enabled)
+    if USE_SETTINGS_FILE then
+        TheSim:SetSetting("misc", "command_wheel_allows_gameplay", tostring(enabled))
+    else
+        self:SetValue("command_wheel_allows_gameplay", enabled)
+    end
 end
 
 return PlayerProfile

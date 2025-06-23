@@ -3718,7 +3718,66 @@ local fx =
         bank = "abigail_shield",
         build = "abigail_shield",
         anim = "player_shield",
-    },  
+    },
+    {
+        name = "flotationcushion_pop",
+        bank = "balloon_pop",
+        build = "balloon_pop",
+        anim = "pop_low",
+        sound = "dontstarve/common/balloon_pop",
+        fn = FinalOffset1,
+    },
+	{
+		name = "wagdrone_rolling_collide_small_fx",
+		bank = "hits_sparks",
+		build = "lavaarena_hit_sparks_fx",
+		anim = "hit_1",
+		sound = "rifts5/wagdrone_rolling/collide",
+		fn = function(inst)
+			inst.AnimState:Hide("glow")
+		end,
+	},
+	{
+		name = "wagdrone_rolling_collide_med_fx",
+		bank = "hits_sparks",
+		build = "lavaarena_hit_sparks_fx",
+		anim = "hit_2",
+		sound = "rifts5/wagdrone_rolling/collide",
+		fn = function(inst)
+			inst.AnimState:Hide("glow")
+		end,
+	},
+    {
+        name = "hermitcrab_fx_small",
+        bank = "hermitcrab_fx",
+        build = "hermitcrab_fx",
+        anim = "hermitcrab_fx_small",
+        sound = "rifts5/hermit_island/whirlpool_up_s",
+        fn = FinalOffset3,
+    },
+    {
+        name = "hermitcrab_fx_med",
+        bank = "hermitcrab_fx",
+        build = "hermitcrab_fx",
+        anim = "hermitcrab_fx_med",
+        sound = "rifts5/hermit_island/whirlpool_up_m",
+        fn = FinalOffset3,
+    },
+    {
+        name = "hermitcrab_fx_tall",
+        bank = "hermitcrab_fx",
+        build = "hermitcrab_fx",
+        anim = "hermitcrab_fx_tall",
+        sound = "rifts5/hermit_island/whirlpool_up_l",
+        fn = FinalOffset3,
+    },
+	{
+		name = "missile_explosion_fx",
+		bank = "missile_fx",
+		build = "missile_fx",
+		anim = "impact",
+		sound = "rifts5/wagstaff_boss/missile_explode",
+	},
 }
 
 for cratersteamindex = 1, 4 do

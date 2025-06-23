@@ -60,8 +60,7 @@ local function OnThrown(inst, data)
     inst.Physics:SetDamping(0)
     inst.Physics:SetRestitution(.5)
     inst.Physics:SetCollisionGroup(COLLISION.ITEMS)
-    inst.Physics:ClearCollisionMask()
-    inst.Physics:CollidesWith(COLLISION.GROUND)
+	inst.Physics:SetCollisionMask(COLLISION.GROUND)
     inst.Physics:SetSphere(.5)
     
     inst.components.inventoryitem.pushlandedevents = false

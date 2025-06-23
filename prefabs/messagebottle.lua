@@ -70,7 +70,13 @@ end
 local function onplayerfinishedreadingnote(player)
 	if player.AnimState:IsCurrentAnimation("build_pst") then
 		if player.components.talker ~= nil then
-			player.components.talker:Say(STRINGS.MESSAGEBOTTLE_NOTES[math.random(#STRINGS.MESSAGEBOTTLE_NOTES)])
+            local str
+            if player:HasTag("mime") then
+                str = ""
+            else
+                str = STRINGS.MESSAGEBOTTLE_NOTES[math.random(#STRINGS.MESSAGEBOTTLE_NOTES)]
+            end
+			player.components.talker:Say(str)
 		end
 	end
 
@@ -293,10 +299,11 @@ local function onthrown(inst)
     inst.Physics:SetFriction(0)
     inst.Physics:SetDamping(0)
     inst.Physics:SetCollisionGroup(COLLISION.CHARACTERS)
-    inst.Physics:ClearCollisionMask()
-    inst.Physics:CollidesWith(COLLISION.WORLD)
-    inst.Physics:CollidesWith(COLLISION.OBSTACLES)
-    inst.Physics:CollidesWith(COLLISION.ITEMS)
+	inst.Physics:SetCollisionMask(
+		COLLISION.WORLD,
+		COLLISION.OBSTACLES,
+		COLLISION.ITEMS
+	)
     inst.Physics:SetCapsule(.2, .2)
 end
 
@@ -396,10 +403,11 @@ local function GelBlobBottle_OnThrown(inst)
 	inst.Physics:SetFriction(0)
 	inst.Physics:SetDamping(0)
 	inst.Physics:SetCollisionGroup(COLLISION.CHARACTERS)
-	inst.Physics:ClearCollisionMask()
-	inst.Physics:CollidesWith(COLLISION.WORLD)
-	inst.Physics:CollidesWith(COLLISION.OBSTACLES)
-	inst.Physics:CollidesWith(COLLISION.ITEMS)
+	inst.Physics:SetCollisionMask(
+		COLLISION.WORLD,
+		COLLISION.OBSTACLES,
+		COLLISION.ITEMS
+	)
 	inst.Physics:SetCapsule(.2, .2)
 end
 

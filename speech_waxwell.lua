@@ -126,6 +126,9 @@ return{
             INUSE = "Hmph. You're adding too much salt.",
             TOOFAR = "I must get closer.",
         },
+        DEPLOY = {
+            HERMITCRAB_RELOCATE = "Ugh, empty! I'll do it later.",
+        },
         DIRECTCOURIER_MAP =
         {
 --fallback to speech_wilson.lua             NOTARGET = "only_used_by_walter",
@@ -306,6 +309,7 @@ return{
             NOWATERNEARBY = "I can't just conjure up fish without water.",
             TOOMANYBIRDS = "There are plenty of birds here already.",
             WAYTOOMANYBIRDS = "I must wait before I summon the birds again.",
+            BIRDSBLOCKED = "He even stops the birds from coming and going?",
             NOFIRES =       "For once, nothing is on fire.",
             NOSILVICULTURE = "Making invisible trees grow? Now that'd be a trick.",
             NOHORTICULTURE = "There's nothing worth growing here.",
@@ -419,6 +423,8 @@ return{
             BEEF_BELL_HAS_BEEF_ALREADY = "One smelly beast following me around is more than enough.",
 
 			NOT_MINE = "Someone's rubbish.",
+
+			CANNOT_FIX_DRONE = "There's no fixing it.",
         },
 		USEKLAUSSACKKEY =
         {
@@ -439,6 +445,8 @@ return{
         {
             DOESNTWORK = "Where is that incompetent judge?",
             ALREADYACTIVE = "There must be a competition going on elsewhere...",
+            NORESPONSE = "Where did he wander off to now?",
+            RIGHTTHERE = "How rude!",
         },
         YOTB_UNLOCKSKIN =
         {
@@ -467,6 +475,10 @@ return{
 		MODSLINGSHOT =
 		{
 --fallback to speech_wilson.lua 			NOSLINGSHOT = "only_used_by_walter",
+		},
+		POUNCECAPTURE =
+		{
+			MISSED = "Don't move, blasted specter!",
 		},
     },
 
@@ -1132,7 +1144,7 @@ return{
 	ANNOUNCE_SNOWBALL_TOO_BIG = "Useless! It won't get any bigger.",
 	ANNOUNCE_SNOWBALL_NO_SNOW = "There's no snow here.",
 
-    --rifts 5
+    -- Meta 5
     ANNOUNCE_WENDY_BABYSITTER_SET = "only_used_by_wendy", 
     ANNOUNCE_WENDY_BABYSITTER_STOP = "only_used_by_wendy",
 
@@ -1145,6 +1157,8 @@ return{
     ANNOUNCE_ELIXIR_PLAYER_SPEED = "Respect my brawn!",
 
     ANNOUNCE_ELIXIR_TOO_SUPER = "That's too stiff a drink.",
+
+    ANNOUNCE_LUNARGUARDIAN_INCOMING = "Again? What now?",
 
 	BATTLECRY =
 	{
@@ -5648,6 +5662,55 @@ return{
         DECK_OF_CARDS = "If only I stuck with these.",
         PLAYING_CARD = "It is none other than the four of clubs!",
         BALATRO_MACHINE = "The game is rigged! But I'll play again to be sure.",
+
+		-- Rifts 5
+		GESTALT_CAGE =
+		{
+			GENERIC = "Ugh. Empty.",
+			FILLED = "Not so tough now, are you?",
+		},
+		WAGBOSS_ROBOT_SECRET = "Nothing but trouble under there if you ask me.",
+        WAGBOSS_ROBOT = "I don't trust it.",
+        WAGBOSS_ROBOT_POSSESSED = "I told you so!",
+		WAGBOSS_ROBOT_LEG = "It's surprisingly intact. Still broke off though.",
+		ALTERGUARDIAN_PHASE1_LUNARRIFT = "It looks nastier than before.",
+		ALTERGUARDIAN_PHASE1_LUNARRIFT_GESTALT = "This had better be the one he wants.",
+        ALTERGUARDIAN_PHASE4_LUNARRIFT = "Such grotesquerie.",
+		WAGDRONE_ROLLING =
+        {
+            GENERIC = "Truly loathsome!",
+            INACTIVE = "More wired junk.",
+            DAMAGED = "Apparently it may be repaired, or salvaged for parts.",
+            FRIENDLY = "I don't like it.",
+        },
+        WAGDRONE_FLYING =
+        {
+            GENERIC = "Ugh, go away!",
+            INACTIVE = "More wired junk.",
+            DAMAGED = "Nothing but spare parts here.",
+        },
+		WAGDRONE_PARTS = "A trophy for besting a machine.",
+		WAGDRONE_BEACON = "An invisible wall? There must be a magical explanation for this.",
+
+        WAGPUNK_WORKSTATION = "What infernal devices are conjured here?",
+        WAGPUNK_LEVER = "No good will come of this!",
+        WAGPUNK_FLOOR_KIT = "Just how much more space does he need?",
+        WAGPUNK_CAGEWALL = "The blasted tinkerer wants to trap us like rats.",
+
+		WAGSTAFF_ITEM_1 = "So the glove is no longer an illusion.",
+		WAGSTAFF_ITEM_2 = "His clipboard is here. Odd.",
+
+        HERMITCRAB_RELOCATION_KIT = "Picky crab wants the perfect spot.",
+
+        WANDERINGTRADER =
+        {
+            REVEALED = "I thought I smelled something in the air. What are you peddling today?",
+            GENERIC = "It stinks more than usual.",
+        },
+
+        GESTALT_GUARD_EVOLVED = "Oh, bygones be bygones and such.",
+        FLOTATIONCUSHION = "Where does it say, \"women and children first\"?",
+        LUNAR_SEED = "I told you it was no match for my abilities.",
     },
 
     DESCRIBE_GENERIC = "You tell me.",

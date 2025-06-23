@@ -572,6 +572,7 @@ function MakeWorld(name, customprefabs, customassets, common_postinit, master_po
 
         inst:AddComponent("dockmanager")
         inst:AddComponent("vinebridgemanager")
+        inst:AddComponent("worldroutes")
 
         inst:AddComponent("playerspawner")
 

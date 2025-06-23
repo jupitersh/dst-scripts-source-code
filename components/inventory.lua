@@ -561,14 +561,16 @@ local function CheckItem(item, target, checkcontainer)
     return target ~= nil
         and (item == target
             or (checkcontainer and
-                target.replica.container ~= nil and
-                target.replica.container:IsHolding(item, checkcontainer)))
+				target.components.container and
+				target.components.container:IsHolding(item, checkcontainer)))
 end
 
 function Inventory:IsHolding(item, checkcontainer)
     if CheckItem(item, self.activeitem, checkcontainer) or
-        (item.replica.equippable ~= nil and
-        CheckItem(item, self:GetEquippedItem(item.replica.equippable:EquipSlot()), checkcontainer)) then
+		(	item.components.equippable and
+			CheckItem(item, self:GetEquippedItem(item.components.equippable.equipslot), checkcontainer)
+		)
+	then
         return true
     end
     for k, v in pairs(self.itemslots) do
@@ -1280,7 +1282,7 @@ function Inventory:RemoveItem(item, wholestack, checkallcontainers, keepoverstac
         local containers = self.opencontainers
         for container_inst in pairs(containers) do
             local container = container_inst.components.container or container_inst.components.inventory
-            if container and container ~= overflow and not container.excludefromcrafting then
+            if container and container ~= overflow and not container.excludefromcrafting and not container.readonlycontainer then
 				local container_item = container:RemoveItem(item, wholestack, nil, keepoverstacked)
                 if container_item then
                     return container_item
@@ -1337,7 +1339,7 @@ function Inventory:Has(item, amount, checkallcontainers)
 
         for container_inst in pairs(containers) do
             local container = container_inst.components.container or container_inst.components.inventory
-            if container and container ~= overflow and not container.excludefromcrafting then
+            if container and container ~= overflow and not container.excludefromcrafting and not container.readonlycontainer then
 				local container_enough, container_found = container:Has(item, amount, iscrafting)
                 num_found = num_found + container_found
             end
@@ -1470,7 +1472,7 @@ function Inventory:GetItemByName(item, amount, checkallcontainers) --Note(Peter)
 
         for container_inst in pairs(containers) do
             local container = container_inst.components.container or container_inst.components.inventory
-            if container and container ~= overflow and not container.excludefromcrafting then
+            if container and container ~= overflow and not container.excludefromcrafting and not container.readonlycontainer then
                 local container_items = container:GetItemByName(item, (amount - total_num_found))
                 for k,v in pairs(container_items) do
                     items[k] = v
@@ -1500,7 +1502,7 @@ function Inventory:GetCraftingIngredient(item, amount)
 
     for container_inst in pairs(self.opencontainers) do
         local container = container_inst.components.container or container_inst.components.inventory
-        if container and container ~= overflow and not container.excludefromcrafting then
+        if container and container ~= overflow and not container.excludefromcrafting and not container.readonlycontainer then
             for k, v in pairs(container:GetCraftingIngredient(item, amount - total_num_found, true)) do
                 crafting_items[k] = v
                 total_num_found = total_num_found + v
@@ -2004,7 +2006,8 @@ function Inventory:CanAccessItem(item)
     local owner = item.components.inventoryitem.owner
     return owner == self.inst or (owner ~= nil and
             owner.components.container ~= nil and
-            owner.components.container:IsOpenedBy(self.inst))
+            owner.components.container:IsOpenedBy(self.inst) and
+            not owner.components.container.readonlycontainer)
 end
 
 function Inventory:UseItemFromInvTile(item, actioncode, mod_name)

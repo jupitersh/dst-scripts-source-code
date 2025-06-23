@@ -782,7 +782,7 @@ function ScrapbookScreen:BuildItemGrid()
 	end
 
     local function ScrollWidgetsCtor(context, index)
-        local w = Widget("recipe-cell-".. index)
+        local w = Widget("scrapbook-cell-".. index)
 
 		----------------
 		w.item_root = w:AddChild(Widget("item_root"))
@@ -1681,6 +1681,7 @@ function ScrapbookScreen:PopulateInfoPanel(entry)
 		end
 
 		animstate:Hide("snow")
+		animstate:Hide("mouseover")
 
 		if data.hide then
 			for i,hide in ipairs(data.hide) do

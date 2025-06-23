@@ -805,10 +805,10 @@ function FrontEnd:Update(dt)
             self.repeat_time = self.repeat_time - dt
 
 			if self.crafting_navigation_mode then
-				if not (   TheInput:IsControlPressed(CONTROL_INVENTORY_LEFT) or (not controller and TheInput:IsControlPressed(CONTROL_FOCUS_LEFT))
-						or TheInput:IsControlPressed(CONTROL_INVENTORY_RIGHT) or (not controller and TheInput:IsControlPressed(CONTROL_FOCUS_RIGHT))
-						or TheInput:IsControlPressed(CONTROL_INVENTORY_UP) or (not controller and TheInput:IsControlPressed(CONTROL_FOCUS_UP))
-						or TheInput:IsControlPressed(CONTROL_INVENTORY_DOWN) or (not controller and TheInput:IsControlPressed(CONTROL_FOCUS_DOWN)) ) then
+				if not (   TheInput:IsControlPressed(VIRTUAL_CONTROL_INV_LEFT) or (not controller and TheInput:IsControlPressed(CONTROL_FOCUS_LEFT))
+						or TheInput:IsControlPressed(VIRTUAL_CONTROL_INV_RIGHT) or (not controller and TheInput:IsControlPressed(CONTROL_FOCUS_RIGHT))
+						or TheInput:IsControlPressed(VIRTUAL_CONTROL_INV_UP) or (not controller and TheInput:IsControlPressed(CONTROL_FOCUS_UP))
+						or TheInput:IsControlPressed(VIRTUAL_CONTROL_INV_DOWN) or (not controller and TheInput:IsControlPressed(CONTROL_FOCUS_DOWN)) ) then
 
             		self.repeat_time = 0
 					self.repeat_reps = 0
@@ -827,17 +827,17 @@ function FrontEnd:Update(dt)
             self.repeat_reps = self.repeat_reps and (self.repeat_reps + 1) or 1
 
 			if self.crafting_navigation_mode then
-				if TheInput:IsControlPressed(CONTROL_INVENTORY_LEFT) or (not controller and TheInput:IsControlPressed(CONTROL_FOCUS_LEFT)) then
-					self:_RefreshRepeatDelay(CONTROL_INVENTORY_LEFT)
+				if TheInput:IsControlPressed(VIRTUAL_CONTROL_INV_LEFT) or (not controller and TheInput:IsControlPressed(CONTROL_FOCUS_LEFT)) then
+					self:_RefreshRepeatDelay(VIRTUAL_CONTROL_INV_LEFT)
 					self:OnFocusMove(MOVE_LEFT, true)
-				elseif TheInput:IsControlPressed(CONTROL_INVENTORY_RIGHT) or (not controller and TheInput:IsControlPressed(CONTROL_FOCUS_RIGHT)) then
-					self:_RefreshRepeatDelay(CONTROL_INVENTORY_RIGHT)
+				elseif TheInput:IsControlPressed(VIRTUAL_CONTROL_INV_RIGHT) or (not controller and TheInput:IsControlPressed(CONTROL_FOCUS_RIGHT)) then
+					self:_RefreshRepeatDelay(VIRTUAL_CONTROL_INV_RIGHT)
 					self:OnFocusMove(MOVE_RIGHT, true)
-				elseif TheInput:IsControlPressed(CONTROL_INVENTORY_UP) or (not controller and TheInput:IsControlPressed(CONTROL_FOCUS_UP)) then
-					self:_RefreshRepeatDelay(CONTROL_INVENTORY_UP)
+				elseif TheInput:IsControlPressed(VIRTUAL_CONTROL_INV_UP) or (not controller and TheInput:IsControlPressed(CONTROL_FOCUS_UP)) then
+					self:_RefreshRepeatDelay(VIRTUAL_CONTROL_INV_UP)
 					self:OnFocusMove(MOVE_UP, true)
-				elseif TheInput:IsControlPressed(CONTROL_INVENTORY_DOWN) or (not controller and TheInput:IsControlPressed(CONTROL_FOCUS_DOWN)) then
-					self:_RefreshRepeatDelay(CONTROL_INVENTORY_DOWN)
+				elseif TheInput:IsControlPressed(VIRTUAL_CONTROL_INV_DOWN) or (not controller and TheInput:IsControlPressed(CONTROL_FOCUS_DOWN)) then
+					self:_RefreshRepeatDelay(VIRTUAL_CONTROL_INV_DOWN)
 					self:OnFocusMove(MOVE_DOWN, true)
 				else
 					self.repeat_time = 0

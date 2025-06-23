@@ -547,11 +547,9 @@ end
 
 function TemporarilyRemovePhysics(obj, time)
     local origmask = obj.Physics:GetCollisionMask()
-    obj.Physics:ClearCollisionMask()
-    obj.Physics:CollidesWith(COLLISION.WORLD)
+	obj.Physics:SetCollisionMask(COLLISION.WORLD)
     obj:DoTaskInTime(time, function(obj)
-        obj.Physics:ClearCollisionMask()
-        obj.Physics:SetCollisionMask(origmask)
+		obj.Physics:SetCollisionMask(origmask)
     end)
 end
 
@@ -864,6 +862,15 @@ function RegisterGlobalMapIcon(inst)
     GlobalMapIconsDB.prefabs[inst.prefab] = GlobalMapIconsDB.prefabs[inst.prefab] or {}
     GlobalMapIconsDB.prefabs[inst.prefab][inst] = true
     inst:ListenForEvent("onremove", UnregisterGlobalMapIcon)
+end
+
+----------------------------------------------------------------------------------------------
+
+function DeclareLimitedCraftingRecipe(recipename)
+    assert(CRAFTINGSTATION_LIMITED_RECIPES_LOOKUPS[recipename] == nil, "Already declared limited crafting recipe: " .. recipename)
+    CRAFTINGSTATION_LIMITED_RECIPES_COUNT = CRAFTINGSTATION_LIMITED_RECIPES_COUNT + 1
+    CRAFTINGSTATION_LIMITED_RECIPES[CRAFTINGSTATION_LIMITED_RECIPES_COUNT] = recipename -- Used for network serialization order as an enum value [1, CRAFTINGSTATION_LIMITED_RECIPES_COUNT].
+    CRAFTINGSTATION_LIMITED_RECIPES_LOOKUPS[recipename] = CRAFTINGSTATION_LIMITED_RECIPES_COUNT
 end
 
 ----------------------------------------------------------------------------------------------

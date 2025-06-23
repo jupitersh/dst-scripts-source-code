@@ -136,6 +136,9 @@ return {
             INUSE = "Looks like we had the same idea.",
             TOOFAR = "It's too far away!",
         },
+        DEPLOY = {
+            HERMITCRAB_RELOCATE = "It's empty, I shell try again later.",
+        },
         DIRECTCOURIER_MAP =
         {
             NOTARGET = "only_used_by_walter",
@@ -316,6 +319,7 @@ return {
             NOWATERNEARBY = "only_used_by_waxwell_and_wicker",
             TOOMANYBIRDS = "only_used_by_waxwell_and_wicker",
             WAYTOOMANYBIRDS = "only_used_by_waxwell_and_wicker",
+            BIRDSBLOCKED = "only_used_by_waxwell_and_wicker",
             NOFIRES =       "only_used_by_waxwell_and_wicker",
             NOSILVICULTURE = "only_used_by_waxwell_and_wicker",
             NOHORTICULTURE = "only_used_by_waxwell_and_wicker",
@@ -429,6 +433,8 @@ return {
             BEEF_BELL_HAS_BEEF_ALREADY = "I don't need a whole herd.",
 
 			NOT_MINE = "This belongs to someone else.",
+
+			CANNOT_FIX_DRONE = "It's too damaged to fix.",
         },
 		USEKLAUSSACKKEY =
         {
@@ -449,6 +455,8 @@ return {
         {
             DOESNTWORK = "I guess they don't support the arts here.",
             ALREADYACTIVE = "He must be busy with another contest somewhere.",
+            NORESPONSE = "He must have wandered off.",
+            RIGHTTHERE = "He's busy.",
         },
         YOTB_UNLOCKSKIN =
         {
@@ -477,6 +485,10 @@ return {
 		MODSLINGSHOT =
 		{
 			NOSLINGSHOT = "only_used_by_walter",
+		},
+		POUNCECAPTURE =
+		{
+			MISSED = "Drat, I missed.",
 		},
     },
 
@@ -1142,7 +1154,7 @@ return {
 	ANNOUNCE_SNOWBALL_TOO_BIG = "It won't get any bigger than that.",
 	ANNOUNCE_SNOWBALL_NO_SNOW = "There's not enough snow on the ground.",
 
-    --rifts 5
+    -- Meta 5
     ANNOUNCE_WENDY_BABYSITTER_SET = "only_used_by_wendy", 
     ANNOUNCE_WENDY_BABYSITTER_STOP = "only_used_by_wendy",
 
@@ -1155,6 +1167,8 @@ return {
     ANNOUNCE_ELIXIR_PLAYER_SPEED = "I think I could lift a horse.",
 
     ANNOUNCE_ELIXIR_TOO_SUPER = "This one seems a little strong.",
+
+    ANNOUNCE_LUNARGUARDIAN_INCOMING = "It's back!",
 
 	BATTLECRY =
 	{
@@ -5658,6 +5672,55 @@ return {
         DECK_OF_CARDS = "Are we playing with a full deck?",
         PLAYING_CARD = "It's fifty-one short of a deck.",
         BALATRO_MACHINE = "I'm game for a game.",
+
+		-- Rifts 5
+		GESTALT_CAGE =
+		{
+			GENERIC = "Drat, empty.",
+			FILLED = "It's occupied.",
+		},
+		WAGBOSS_ROBOT_SECRET = "How intriguing!",
+        WAGBOSS_ROBOT = "Fascinating!",
+        WAGBOSS_ROBOT_POSSESSED = "Has anyone tried resetting it?",
+		WAGBOSS_ROBOT_LEG = "It withstood for a while!",
+		ALTERGUARDIAN_PHASE1_LUNARRIFT = "You look the same but different.",
+		ALTERGUARDIAN_PHASE1_LUNARRIFT_GESTALT = "This must be the one he wants.",
+        ALTERGUARDIAN_PHASE4_LUNARRIFT = "Haven't you broken enough science?!",
+		WAGDRONE_ROLLING =
+        {
+            GENERIC = "They just drone on and on.",
+            INACTIVE = "We should take it for a whirl.",
+            DAMAGED = "I could repair it or harvest for parts.",
+            FRIENDLY = "Spin it to win it!",
+        },
+        WAGDRONE_FLYING =
+        {
+            GENERIC = "Like a bot out of hell.",
+            INACTIVE = "We should take it for a whirl.",
+            DAMAGED = "It's too damaged to fix but I can salvage the parts.",
+        },
+		WAGDRONE_PARTS = "Now I can put a positive spin on things.",
+		WAGDRONE_BEACON = "This will help keep things contained.",
+
+        WAGPUNK_WORKSTATION = "Let's get to work!",
+        WAGPUNK_LEVER = "It's a good time to switch things up.",
+        WAGPUNK_FLOOR_KIT = "What is this floor?",
+        WAGPUNK_CAGEWALL = "Wall or nothing!",
+
+		WAGSTAFF_ITEM_1 = "Strange, this glove is not a projection.",
+		WAGSTAFF_ITEM_2 = "This clipboard is... real.",
+
+        HERMITCRAB_RELOCATION_KIT = "The crab's new home will be pitcher perfect.",
+
+        WANDERINGTRADER =
+        {
+            REVEALED = "If we trade, will we beef friends!",
+            GENERIC = "Looks like it's about to turn.",
+        },
+
+        GESTALT_GUARD_EVOLVED = "These ones have an explosive personality.",
+        FLOTATIONCUSHION = "Oh, buoyancy!",
+        LUNAR_SEED = "This formed part of its crown.",
     },
 
     DESCRIBE_GENERIC = "It's a... thing.",

@@ -237,6 +237,10 @@ local MainSounds =
 
     "balatro.fev",
     "balatro.fsb",     
+
+    "rifts5.fev",
+    "rifts5.fsb",
+
 }
 
 function PreloadSoundList(list)

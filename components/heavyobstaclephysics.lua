@@ -47,11 +47,12 @@ local function ChangeToItem(inst)
             inst.Physics:SetMass(1)
             inst.Physics:SetDamping(0) --might have been changed when falling
             inst.Physics:SetCollisionGroup(COLLISION.ITEMS)
-            inst.Physics:ClearCollisionMask()
         end
-        inst.Physics:CollidesWith(COLLISION.WORLD)
-        inst.Physics:CollidesWith(COLLISION.OBSTACLES)
-        inst.Physics:CollidesWith(COLLISION.SMALLOBSTACLES)
+		inst.Physics:SetCollisionMask(
+			COLLISION.WORLD,
+			COLLISION.OBSTACLES,
+			COLLISION.SMALLOBSTACLES
+		)
         SetPhysicsState(self, PHYSICS_STATE.ITEM)
     end
 end
@@ -89,13 +90,15 @@ end
 
 local function OnChangeToObstacle(inst, self)
     inst.Physics:SetMass(0)
-    inst.Physics:ClearCollisionMask()
-    inst.Physics:CollidesWith(COLLISION.ITEMS)
     if self.issmall then
         inst.Physics:SetCollisionGroup(COLLISION.SMALLOBSTACLES)
+		inst.Physics:SetCollisionMask(COLLISION.ITEMS)
     else
         inst.Physics:SetCollisionGroup(COLLISION.OBSTACLES)
-        inst.Physics:CollidesWith(COLLISION.GIANTS)
+		inst.Physics:SetCollisionMask(
+			COLLISION.ITEMS,
+			COLLISION.GIANTS
+		)
     end
     SetPhysicsState(self, PHYSICS_STATE.OBSTACLE)
     if not inst:IsValid() then

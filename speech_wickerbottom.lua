@@ -126,6 +126,9 @@ return{
             INUSE = "Mmm, smells lovely, dear.",
             TOOFAR = "It is not within my reach.",
         },
+        DEPLOY = {
+            HERMITCRAB_RELOCATE = "A convenient way for the hermit crab to relocate her home.",
+        },
         DIRECTCOURIER_MAP =
         {
 --fallback to speech_wilson.lua             NOTARGET = "only_used_by_walter",
@@ -306,6 +309,7 @@ return{
             NOWATERNEARBY = "Fish may only be summoned in close proximity to a body of water.",
             TOOMANYBIRDS = "It doesn't work as well with this many birds around.",
             WAYTOOMANYBIRDS = "The sky is out of birds for now.",
+            BIRDSBLOCKED = "Of course, the force field applies to the birds too.",
             NOFIRES =       "Thankfully, there are no fires to put out.",
             NOSILVICULTURE = "There are no arboreal subjects to focus on.",
             NOHORTICULTURE = "There are no crops to cultivate.",
@@ -419,6 +423,8 @@ return{
             BEEF_BELL_HAS_BEEF_ALREADY = "I don't require any more beefalo.",
 
 			NOT_MINE = "It does not belong to me.",
+
+			CANNOT_FIX_DRONE = "It is simply irreparable.",
         },
 		USEKLAUSSACKKEY =
         {
@@ -439,6 +445,8 @@ return{
         {
             DOESNTWORK = "The contest will have to wait for the time being.",
             ALREADYACTIVE = "I imagine there must be a competition going on elsewhere.",
+            NORESPONSE = "It appears he has gone for a constitutional.",
+            RIGHTTHERE = "He is currently engaged.",
         },
         YOTB_UNLOCKSKIN =
         {
@@ -467,6 +475,10 @@ return{
 		MODSLINGSHOT =
 		{
 --fallback to speech_wilson.lua 			NOSLINGSHOT = "only_used_by_walter",
+		},
+		POUNCECAPTURE =
+		{
+			MISSED = "Oh dear, I've missed!",
 		},
     },
 
@@ -1132,7 +1144,7 @@ return{
 	ANNOUNCE_SNOWBALL_TOO_BIG = "It has reached its full size.",
 	ANNOUNCE_SNOWBALL_NO_SNOW = "There's no snow here to roll it in.",
 
-    --rifts 5
+    -- Meta 5
     ANNOUNCE_WENDY_BABYSITTER_SET = "only_used_by_wendy", 
     ANNOUNCE_WENDY_BABYSITTER_STOP = "only_used_by_wendy",
 
@@ -1145,6 +1157,8 @@ return{
     ANNOUNCE_ELIXIR_PLAYER_SPEED = "Strength is wasted on the young!",
 
     ANNOUNCE_ELIXIR_TOO_SUPER = "That is too strong.",
+
+    ANNOUNCE_LUNARGUARDIAN_INCOMING = "Not you again!",
 
 	BATTLECRY =
 	{
@@ -5648,6 +5662,55 @@ return{
         DECK_OF_CARDS = "Do we have enough players for Bridge?",
         PLAYING_CARD = "Who's missing a card?",
         BALATRO_MACHINE = "One must know when the time for games has passed. Now is not that time.",
+
+		-- Rifts 5
+		GESTALT_CAGE =
+		{
+			GENERIC = "It is quite empty.",
+			FILLED = "It contains an entity.",
+		},
+		WAGBOSS_ROBOT_SECRET = "Looks like a machine of sorts.",
+        WAGBOSS_ROBOT = "It only poses a threat if he fails to control it.",
+        WAGBOSS_ROBOT_POSSESSED = "The entity does not enjoy being trapped and enslaved.",
+		WAGBOSS_ROBOT_LEG = "The material seemed able to contain the being's power for a time.",
+		ALTERGUARDIAN_PHASE1_LUNARRIFT = "It has returned bursting with lunar energy.",
+		ALTERGUARDIAN_PHASE1_LUNARRIFT_GESTALT = "This one is most definitely unique.",
+        ALTERGUARDIAN_PHASE4_LUNARRIFT = "A curious amalgamation of machine parts and sentient lunar energy.",
+		WAGDRONE_ROLLING =
+        {
+            GENERIC = "Self-propelling automatons with coordinated attacks. An invention of no small ingenuity.",
+            INACTIVE = "It is not active.",
+            DAMAGED = "I deem it repairable, or harvestable for parts.",
+            FRIENDLY = "This version is rather useful.",
+        },
+        WAGDRONE_FLYING =
+        {
+            GENERIC = "Such devices rely on gyroscopic stabilization and propulsive lift. Fascinating and irritating.",
+            INACTIVE = "It is not active.",
+            DAMAGED = "This one is only the sum of its parts.",
+        },
+		WAGDRONE_PARTS = "Harvested parts useful for repairs.",
+		WAGDRONE_BEACON = "It forms a sort of implied wall.",
+
+        WAGPUNK_WORKSTATION = "The Researcher's workstation.",
+        WAGPUNK_LEVER = "A standard two-position activation switch.",
+        WAGPUNK_FLOOR_KIT = "It's obviously a method of coastal extension.",
+        WAGPUNK_CAGEWALL = "It projects a force field tuned to repel physical matter and absorb kinetic impact. Simple.",
+
+		WAGSTAFF_ITEM_1 = "This glove should not be real and yet it is.",
+		WAGSTAFF_ITEM_2 = "It is no longer a projection.",
+
+        HERMITCRAB_RELOCATION_KIT = "Oh dear, it's empty. I'll try again later.",
+
+        WANDERINGTRADER =
+        {
+            REVEALED = "Oh dear, the roaming vendor sure could use a bath.",
+            GENERIC = "It appears rather unhealthy.",
+        },
+
+        GESTALT_GUARD_EVOLVED = "They have evolved into a more hostile form.",
+        FLOTATIONCUSHION = "A passive deployment flotation device. I approve.",
+        LUNAR_SEED = "A piece of its crown, no doubt.",
     },
 
     DESCRIBE_GENERIC = "A rare occurrence. I don't know what that is.",

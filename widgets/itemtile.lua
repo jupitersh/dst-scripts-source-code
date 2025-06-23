@@ -416,53 +416,60 @@ function ItemTile:GetDescriptionString()
         local player = ThePlayer
         local actionpicker = player.components.playeractionpicker
         local active_item = player.replica.inventory:GetActiveItem()
-        if active_item == nil then
-            if not (self.item.replica.equippable ~= nil and self.item.replica.equippable:IsEquipped()) then
-                --self.namedisp:SetHAlign(ANCHOR_LEFT)
-                if TheInput:IsControlPressed(CONTROL_FORCE_INSPECT) then
-                    str = str.."\n"..TheInput:GetLocalizedControl(TheInput:GetControllerID(), CONTROL_PRIMARY)..": "..STRINGS.INSPECTMOD
-                elseif TheInput:IsControlPressed(CONTROL_FORCE_TRADE) then
-                    local showhint = false
-                    local containers = player.replica.inventory:GetOpenContainers()
-                    if containers then
-                        if self.item.replica.inventoryitem:CanOnlyGoInPocketOrPocketContainers() then
+        if not self.readonlycontainer then
+            if active_item == nil then
+                if not (self.item.replica.equippable ~= nil and self.item.replica.equippable:IsEquipped()) then
+                    --self.namedisp:SetHAlign(ANCHOR_LEFT)
+                    if TheInput:IsControlPressed(CONTROL_FORCE_INSPECT) then
+                        str = str.."\n"..TheInput:GetLocalizedControl(TheInput:GetControllerID(), CONTROL_PRIMARY)..": "..STRINGS.INSPECTMOD
+                    elseif TheInput:IsControlPressed(CONTROL_FORCE_TRADE) then
+                        local showhint = false
+                        local containers = player.replica.inventory:GetOpenContainers()
+                        if containers then
+                            local canonlygoinpocketorpocketcontainers = self.item.replica.inventoryitem:CanOnlyGoInPocketOrPocketContainers()
+                            local cangoinpocket = not self.item.replica.inventoryitem:CanOnlyGoInPocket()
                             for container, _ in pairs(containers) do
-                                if container.replica.inventoryitem and container.replica.inventoryitem:CanOnlyGoInPocket() then
-                                    showhint = true
-                                    break
+                                if container.replica.container == nil or not container.replica.container:IsReadOnlyContainer() then
+                                    if canonlygoinpocketorpocketcontainers then
+                                        if container.replica.inventoryitem and container.replica.inventoryitem:CanOnlyGoInPocket() then
+                                            showhint = true
+                                            break
+                                        end
+                                    elseif cangoinpocket then
+                                        showhint = true
+                                        break
+                                    end
                                 end
                             end
-                        elseif not self.item.replica.inventoryitem:CanOnlyGoInPocket() then
-                            showhint = next(containers) ~= nil
                         end
+                        if showhint then
+                            str = str.."\n"..TheInput:GetLocalizedControl(TheInput:GetControllerID(), CONTROL_PRIMARY)..": "..((TheInput:IsControlPressed(CONTROL_FORCE_STACK) and self.item.replica.stackable ~= nil) and (STRINGS.STACKMOD.." "..STRINGS.TRADEMOD) or STRINGS.TRADEMOD)
+                        end
+                    elseif TheInput:IsControlPressed(CONTROL_FORCE_STACK) and self.item.replica.stackable ~= nil then
+                        str = str.."\n"..TheInput:GetLocalizedControl(TheInput:GetControllerID(), CONTROL_PRIMARY)..": "..STRINGS.STACKMOD
                     end
-                    if showhint then
-                        str = str.."\n"..TheInput:GetLocalizedControl(TheInput:GetControllerID(), CONTROL_PRIMARY)..": "..((TheInput:IsControlPressed(CONTROL_FORCE_STACK) and self.item.replica.stackable ~= nil) and (STRINGS.STACKMOD.." "..STRINGS.TRADEMOD) or STRINGS.TRADEMOD)
+                end
+
+                local actions = actionpicker and actionpicker:GetInventoryActions(self.item) or nil
+                if actions and actions[1] ~= nil then
+                    str = str.."\n"..TheInput:GetLocalizedControl(TheInput:GetControllerID(), CONTROL_SECONDARY)..": "..actions[1]:GetActionString()
+                end
+            elseif active_item:IsValid() then
+                if not (self.item.replica.equippable ~= nil and self.item.replica.equippable:IsEquipped()) then
+                    if active_item.replica.stackable ~= nil and active_item.prefab == self.item.prefab and self.item:StackableSkinHack(active_item) then
+                        str = str.."\n"..TheInput:GetLocalizedControl(TheInput:GetControllerID(), CONTROL_PRIMARY)..": "..STRINGS.UI.HUD.PUT
+                    else
+                        str = str.."\n"..TheInput:GetLocalizedControl(TheInput:GetControllerID(), CONTROL_PRIMARY)..": "..STRINGS.UI.HUD.SWAP
                     end
-                elseif TheInput:IsControlPressed(CONTROL_FORCE_STACK) and self.item.replica.stackable ~= nil then
-                    str = str.."\n"..TheInput:GetLocalizedControl(TheInput:GetControllerID(), CONTROL_PRIMARY)..": "..STRINGS.STACKMOD
                 end
-            end
 
-            local actions = actionpicker and actionpicker:GetInventoryActions(self.item) or nil
-            if actions and actions[1] ~= nil then
-                str = str.."\n"..TheInput:GetLocalizedControl(TheInput:GetControllerID(), CONTROL_SECONDARY)..": "..actions[1]:GetActionString()
-            end
-        elseif active_item:IsValid() then
-            if not (self.item.replica.equippable ~= nil and self.item.replica.equippable:IsEquipped()) then
-                if active_item.replica.stackable ~= nil and active_item.prefab == self.item.prefab and self.item:StackableSkinHack(active_item) then
-                    str = str.."\n"..TheInput:GetLocalizedControl(TheInput:GetControllerID(), CONTROL_PRIMARY)..": "..STRINGS.UI.HUD.PUT
-                else
-                    str = str.."\n"..TheInput:GetLocalizedControl(TheInput:GetControllerID(), CONTROL_PRIMARY)..": "..STRINGS.UI.HUD.SWAP
+                --no RMB hint for quickdrop while holding an item, as that might be confusing since players would think its the item they are holding.
+                --the mod never had the hint, and people discovered it just fine, so this should also be fine -Zachary
+
+                local actions = actionpicker and actionpicker:GetUseItemActions(self.item, active_item, true) or nil
+                if actions and actions[1] ~= nil then
+                    str = str.."\n"..TheInput:GetLocalizedControl(TheInput:GetControllerID(), CONTROL_SECONDARY)..": "..actions[1]:GetActionString()
                 end
-            end
-
-            --no RMB hint for quickdrop while holding an item, as that might be confusing since players would think its the item they are holding.
-            --the mod never had the hint, and people discovered it just fine, so this should also be fine -Zachary
-
-            local actions = actionpicker and actionpicker:GetUseItemActions(self.item, active_item, true) or nil
-            if actions and actions[1] ~= nil then
-                str = str.."\n"..TheInput:GetLocalizedControl(TheInput:GetControllerID(), CONTROL_SECONDARY)..": "..actions[1]:GetActionString()
             end
         end
     end

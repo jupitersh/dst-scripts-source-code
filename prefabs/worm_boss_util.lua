@@ -61,17 +61,17 @@ local function Knockback(source, target)
 end
 
 local function ToggleOffPhysics(inst)
-    inst.Physics:ClearCollisionMask()
-    inst.Physics:CollidesWith(COLLISION.GROUND)
+	inst.Physics:SetCollisionMask(COLLISION.GROUND)
 end
 
 local function ToggleOnPhysics(inst)
-    inst.Physics:ClearCollisionMask()
-    inst.Physics:CollidesWith(COLLISION.WORLD)
-    inst.Physics:CollidesWith(COLLISION.OBSTACLES)
-    inst.Physics:CollidesWith(COLLISION.SMALLOBSTACLES)
-    inst.Physics:CollidesWith(COLLISION.CHARACTERS)
-    inst.Physics:CollidesWith(COLLISION.GIANTS)
+	inst.Physics:SetCollisionMask(
+		COLLISION.WORLD,
+		COLLISION.OBSTACLES,
+		COLLISION.SMALLOBSTACLES,
+		COLLISION.CHARACTERS,
+		COLLISION.GIANTS
+	)
 end
 
 ----------------------------------------------------------------------------------------------------------------------------------------

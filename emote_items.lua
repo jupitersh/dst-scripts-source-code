@@ -258,6 +258,24 @@ EMOTE_ITEMS =
 		},
 		release_group = 24,
 	},
+	emote_tiphat =
+	{
+		rarity = "Reward",
+		cmd_name = "tiphat",
+		type = "emote",
+		skin_tags = { "WESTERN", "EMOTE", },
+		data =
+		{
+			item_type = "emote_tiphat",
+			requires_validation = true,
+			anim = "emote_hat_tip",
+			fx = false,
+			loop = false,
+			mounted = true,
+			needshat = true,
+		},
+		release_group = 167,
+	},
 	emote_yawn =
 	{
 		rarity = "Reward",

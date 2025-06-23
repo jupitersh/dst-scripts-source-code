@@ -174,7 +174,7 @@ function BaseJoker:OnCardsDiscarded()
     -- Pass
 end
 
-function BaseJoker:OnNewCards(oldcards)
+function BaseJoker:OnNewCards(oldcards, discardeddata)
     -- Pass
 end
 
@@ -290,13 +290,15 @@ local WebberJoker = Class(BaseJoker, function(self, cards)
     self.BLACK_SUITS = { [SUITS.CLUBS]  = true, [SUITS.SPADES]   = true }
 end)
 
-function WebberJoker:OnNewCards(oldcards)
+function WebberJoker:OnNewCards(oldcards, discardeddata)
     for i=1, BALATRO_UTIL.NUM_SELECTED_CARDS do
-        local oldsuit = self:GetCardSuitByIndex(i, oldcards)
-        local newsuit = self:GetCardSuitByIndex(i)
+        if discardeddata[i] then
+            local oldsuit = self:GetCardSuitByIndex(i, oldcards)
+            local newsuit = self:GetCardSuitByIndex(i)
 
-        if self.RED_SUITS[oldsuit] and self.BLACK_SUITS[newsuit] then
-            self:AddMult(2)
+            if self.RED_SUITS[oldsuit] and self.BLACK_SUITS[newsuit] then
+                self:AddMult(2)
+            end
         end
     end
 end
@@ -307,14 +309,16 @@ local WendyJoker = Class(BaseJoker, function(self, cards)
     BaseJoker._ctor(self, cards)
 end)
 
-function WendyJoker:OnNewCards(oldcards)
+function WendyJoker:OnNewCards(oldcards, discardeddata)
     for i=1, BALATRO_UTIL.NUM_SELECTED_CARDS do
-        local oldsuit = self:GetCardSuitByIndex(i, oldcards)
-        local newsuit = self:GetCardSuitByIndex(i)
+        if discardeddata[i] then
+            local oldsuit = self:GetCardSuitByIndex(i, oldcards)
+            local newsuit = self:GetCardSuitByIndex(i)
 
-        if oldsuit == newsuit then
-            self:AddChips(5)
-            self:AddMult(2)
+            if oldsuit == newsuit then
+                self:AddChips(5)
+                self:AddMult(2)
+            end
         end
     end
 end

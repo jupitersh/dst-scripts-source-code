@@ -28,6 +28,8 @@ PROTOTYPER_DEFS =
 	shadow_forge				= {icon_atlas = CRAFTING_ICONS_ATLAS, icon_image = "station_shadow_forge.tex",		is_crafting_station = true,		action_str = "FORGE",		filter_text = STRINGS.UI.CRAFTING_STATION_FILTERS.SHADOWFORGING},
 	hermitcrab					= {icon_atlas = CRAFTING_ICONS_ATLAS, icon_image = "station_hermitcrab_shop.tex",	is_crafting_station = true,		action_str = "TRADE",		filter_text = STRINGS.UI.CRAFTING_STATION_FILTERS.HERMITCRABSHOP},
 	rabbitking_passive			= {icon_atlas = CRAFTING_ICONS_ATLAS, icon_image = "station_rabbitking.tex",		is_crafting_station = true,		action_str = "TRADE",		filter_text = STRINGS.UI.CRAFTING_STATION_FILTERS.RABBITKINGSHOP},
+	wanderingtrader				= {icon_atlas = CRAFTING_ICONS_ATLAS, icon_image = "station_wanderingtrader.tex",	is_crafting_station = true,		action_str = "TRADE",		filter_text = STRINGS.UI.CRAFTING_STATION_FILTERS.WANDERINGTRADERSHOP},
+	wagpunk_workstation			= {icon_atlas = CRAFTING_ICONS_ATLAS, icon_image = "station_wagpunk_workstation.tex",is_crafting_station = true,								filter_text = STRINGS.UI.CRAFTING_STATION_FILTERS.WAGPUNK_WORKSTATION},
 	carpentry_station			= {icon_atlas = CRAFTING_ICONS_ATLAS, icon_image = "station_carpentry.tex",			is_crafting_station = true,									filter_text = STRINGS.UI.CRAFTING_STATION_FILTERS.CARPENTRY},
 
 	waxwelljournal				= {icon_atlas = CRAFTING_ICONS_ATLAS, icon_image = "station_shadow.tex",			is_crafting_station = true,		action_str = "READ",		filter_text = STRINGS.UI.CRAFTING_STATION_FILTERS.SHADOW},
@@ -611,6 +613,7 @@ Recipe2("cannonball_rock_item",				{Ingredient("cutstone", 2),Ingredient("gunpow
 Recipe2("ocean_trawler_kit",				{Ingredient("boards", 2), Ingredient("rope", 2), Ingredient("silk", 6)}, 								TECH.SEAFARING_ONE)
 Recipe2("boat_magnet_kit",					{Ingredient("boards", 2), Ingredient("cutstone", 2), Ingredient("transistor", 1), Ingredient("trinket_6", 1)}, 		TECH.SEAFARING_ONE)
 Recipe2("boat_magnet_beacon",				{Ingredient("cutstone", 2), Ingredient("transistor", 1), Ingredient("trinket_6", 1)}, 					TECH.SEAFARING_ONE)
+Recipe2("flotationcushion",					{Ingredient("mosquitosack", 1), Ingredient("rope", 1)}, 												TECH.SEAFARING_ONE)
 
 Recipe2("dock_kit",							{Ingredient("boards", 4), Ingredient("cutstone", 1), Ingredient("stinger", 2), Ingredient("palmcone_scale", 1)},		TECH.LOST, 	{numtogive=4})
 Recipe2("dock_woodposts_item",				{Ingredient("log", 2)},																					TECH.LOST)
@@ -883,11 +886,31 @@ Recipe2("hermitshop_chum_blueprint",					{Ingredient("messagebottleempty", 5)},	
 Recipe2("hermitshop_supertacklecontainer",				{Ingredient("messagebottleempty", 6)},														TECH.LOST,					{nounlock = true, sg_state="give", product="supertacklecontainer"})
 Recipe2("hermitshop_winter_ornament_boss_hermithouse",	{Ingredient("messagebottleempty", 4)},														TECH.LOST,					{nounlock = true, sg_state="give", product="winter_ornament_boss_hermithouse"})
 Recipe2("hermitshop_winter_ornament_boss_pearl",		{Ingredient("messagebottleempty", 8)}, 														TECH.LOST,					{nounlock = true, sg_state="give", product="winter_ornament_boss_pearl"})
+Recipe2("hermitshop_hermitcrab_relocation_kit",			{Ingredient("cookiecuttershell", 4), Ingredient("moonrocknugget", 4)},TECH.LOST,				{nounlock = true, sg_state="dolongaction", product="hermitcrab_relocation_kit"})
 
 -- Rabbit King
-Recipe2("rabbitkingshop_armor_carrotlure",				{Ingredient("carrot", 8), Ingredient("rope", 3)},											TECH.RABBITKINGSHOP_TWO,	{nounlock = true, sg_state="give", product="armor_carrotlure"})
-Recipe2("rabbitkingshop_rabbitkinghorn",				{Ingredient("carrot", 4), Ingredient("cutreeds", 1)},										TECH.RABBITKINGSHOP_TWO,	{nounlock = true, sg_state="give", product="rabbitkinghorn"})
-Recipe2("rabbitkingshop_hat_rabbit",					{Ingredient("rabbit", 1), Ingredient("cutgrass", 6)},										TECH.RABBITKINGSHOP_TWO,	{nounlock = true, sg_state="give", product="rabbithat"})
+Recipe2("rabbitkingshop_armor_carrotlure",				{Ingredient("carrot", 8), Ingredient("rope", 3)},											TECH.RABBITKINGSHOP_TWO,	{nounlock = true, sg_state="give", actionstr="RABBITKINGSHOP", product="armor_carrotlure"})
+Recipe2("rabbitkingshop_rabbitkinghorn",				{Ingredient("carrot", 4), Ingredient("cutreeds", 1)},										TECH.RABBITKINGSHOP_TWO,	{nounlock = true, sg_state="give", actionstr="RABBITKINGSHOP", product="rabbitkinghorn"})
+Recipe2("rabbitkingshop_hat_rabbit",					{Ingredient("rabbit", 1), Ingredient("cutgrass", 6)},										TECH.RABBITKINGSHOP_TWO,	{nounlock = true, sg_state="give", actionstr="RABBITKINGSHOP", product="rabbithat"})
+
+-- Wandering Trader
+Recipe2("wanderingtradershop_gears",		{Ingredient("pigskin", 3)},			TECH.LOST,	{limitedamount = true, nounlock = true, actionstr="WANDERINGTRADERSHOP", sg_state="give", product="gears"})
+Recipe2("wanderingtradershop_cutgrass",		{Ingredient("ash", 2)},				TECH.LOST,	{limitedamount = true, nounlock = true, actionstr="WANDERINGTRADERSHOP", sg_state="give", product="cutgrass"})
+Recipe2("wanderingtradershop_twigs",		{Ingredient("ash", 2)},				TECH.LOST,	{limitedamount = true, nounlock = true, actionstr="WANDERINGTRADERSHOP", sg_state="give", product="twigs"})
+Recipe2("wanderingtradershop_flint",		{Ingredient("ash", 1)},				TECH.LOST,	{limitedamount = true, nounlock = true, actionstr="WANDERINGTRADERSHOP", sg_state="give", product="flint"})
+Recipe2("wanderingtradershop_cutreeds",		{Ingredient("ash", 4)},				TECH.LOST,	{limitedamount = true, nounlock = true, actionstr="WANDERINGTRADERSHOP", sg_state="give", product="cutreeds"})
+--  Uncommon
+Recipe2("wanderingtradershop_pigskin",		{Ingredient("beefalowool", 3)},		TECH.LOST,	{limitedamount = true, nounlock = true, actionstr="WANDERINGTRADERSHOP", sg_state="give", product="pigskin"})
+Recipe2("wanderingtradershop_livinglog",	{Ingredient("beefalowool", 3)},		TECH.LOST,	{limitedamount = true, nounlock = true, actionstr="WANDERINGTRADERSHOP", sg_state="give", product="livinglog"})
+--  Rare
+Recipe2("wanderingtradershop_redgem",		{Ingredient("pigskin", 3)},			TECH.LOST,	{limitedamount = true, nounlock = true, actionstr="WANDERINGTRADERSHOP", sg_state="give", product="redgem"})
+Recipe2("wanderingtradershop_bluegem",		{Ingredient("pigskin", 3)},			TECH.LOST,	{limitedamount = true, nounlock = true, actionstr="WANDERINGTRADERSHOP", sg_state="give", product="bluegem"})
+--  Special
+Recipe2("wanderingtradershop_moonglass",	{Ingredient("ash", 4)},				TECH.LOST,	{limitedamount = true, nounlock = true, actionstr="WANDERINGTRADERSHOP", sg_state="give", product="moonglass"})
+
+-- wagpunk_workstation
+Recipe2("wagpunk_floor_kit",				{Ingredient("cutstone", 1), Ingredient("wagpunk_bits", 1)},	TECH.WAGPUNK_WORKSTATION_TWO,	{numtogive = 4, nounlock = true,})
+Recipe2("gestalt_cage",						{Ingredient("thulecitebugnet", 1), Ingredient("wagpunk_bits", 2)},	TECH.WAGPUNK_WORKSTATION_TWO,	{nounlock = true,})
 
 -- Cult of the Lamb
 Recipe2("turf_cotl_gold",								{Ingredient("rocks", 1), Ingredient("goldnugget", 1)},										TECH.LOST,					{numtogive=4})

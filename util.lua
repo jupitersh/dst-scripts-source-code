@@ -1782,27 +1782,29 @@ end
 
 -- NOTES(JBK): Controller reticles AKA reticules or handbags.
 local BLINKFOCUS_MUST_TAGS = { "blinkfocus" }
-function ControllerReticle_Blink_GetPosition_Oneshot(pos, rotation, rmin, rmax, riter, validwalkablefn)
+function ControllerReticle_Blink_GetPosition_Oneshot(pos, rotation, rmin, rmax, riter, validwalkablefn, inwagpunkarena)
     -- If this function returns true the pos vector will be modified.
     for r = rmin, rmax, riter do
         local offset = FindWalkableOffset(pos, rotation, r, 1, false, true, validwalkablefn, false, true)
         if offset ~= nil then
-            pos.x = pos.x + offset.x
-            pos.z = pos.z + offset.z
-            return true
+            if inwagpunkarena == TheWorld.Map:IsPointInWagPunkArenaAndBarrierIsUp(pos.x + offset.x, pos.y, pos.z + offset.z) then
+                pos.x = pos.x + offset.x
+                pos.z = pos.z + offset.z
+                return true
+            end
         end
     end
     -- Variable pos was not edited.
     return false
 end
-function ControllerReticle_Blink_GetPosition_Direction(pos, rotation, maxrange, validwalkablefn)
+function ControllerReticle_Blink_GetPosition_Direction(pos, rotation, maxrange, validwalkablefn, inwagpunkarena)
     -- If this function returns true the pos vector will be modified.
     -- 12 to 6
-    if ControllerReticle_Blink_GetPosition_Oneshot(pos, rotation, maxrange or 12, 6, -.5, validwalkablefn) then
+    if ControllerReticle_Blink_GetPosition_Oneshot(pos, rotation, maxrange or 12, 6, -.5, validwalkablefn, inwagpunkarena) then
         return true
     end
     -- 12.5 to 20
-    if ControllerReticle_Blink_GetPosition_Oneshot(pos, rotation, 12.5, maxrange or 20, .5, validwalkablefn) then
+    if ControllerReticle_Blink_GetPosition_Oneshot(pos, rotation, 12.5, maxrange or 20, .5, validwalkablefn, inwagpunkarena) then
         return true
     end
     -- Variable pos was not edited.
@@ -1811,6 +1813,7 @@ end
 function ControllerReticle_Blink_GetPosition(player, validwalkablefn)
     local rotation = player.Transform:GetRotation()
     local pos = player:GetPosition()
+    local inwagpunkarena = TheWorld.Map:IsPointInWagPunkArenaAndBarrierIsUp(pos.x, pos.y, pos.z)
 
     -- Obtain max range.
     local ents = TheSim:FindEntities(pos.x, pos.y, pos.z, TUNING.CONTROLLER_BLINKFOCUS_DISTANCE, BLINKFOCUS_MUST_TAGS)
@@ -1819,7 +1822,10 @@ function ControllerReticle_Blink_GetPosition(player, validwalkablefn)
         local newmaxrange = v.maxrange and v.maxrange:value() or nil
         if newmaxrange ~= nil and newmaxrange ~= 0 and (maxrange == nil or newmaxrange < maxrange) then
             if player:GetDistanceSqToInst(v) < newmaxrange * newmaxrange then
-                maxrange = newmaxrange
+                local x, y, z = v.Transform:GetWorldPosition()
+                if inwagpunkarena == TheWorld.Map:IsPointInWagPunkArenaAndBarrierIsUp(x, y, z) then
+                    maxrange = newmaxrange
+                end
             end
         end
     end
@@ -1831,7 +1837,10 @@ function ControllerReticle_Blink_GetPosition(player, validwalkablefn)
             local angletoepos = player:GetAngleToPoint(epos)
             local angleto = math.abs(anglediff(rotation, angletoepos))
             if angleto < TUNING.CONTROLLER_BLINKFOCUS_ANGLE then
-                return epos
+                local x, y, z = v.Transform:GetWorldPosition()
+                if inwagpunkarena == TheWorld.Map:IsPointInWagPunkArenaAndBarrierIsUp(x, y, z) then
+                    return epos
+                end
             end
         end
     end
@@ -1841,7 +1850,7 @@ function ControllerReticle_Blink_GetPosition(player, validwalkablefn)
     -- NOTES(JBK): This is done this way to try to find a forward angle first and then go back and forth in a conical sweep away from the forward direction.
     -- This will create a more intuitive feel for spots for the reticle location instead of a circular sweep.
     -- Directly forward first.
-    if ControllerReticle_Blink_GetPosition_Direction(pos, rotation, maxrange, validwalkablefn) then
+    if ControllerReticle_Blink_GetPosition_Direction(pos, rotation, maxrange, validwalkablefn, inwagpunkarena) then
         return pos
     end
     -- Conical sweep.
@@ -1849,15 +1858,15 @@ function ControllerReticle_Blink_GetPosition(player, validwalkablefn)
     local CONE_ANGLE = TUNING.CONTROLLER_BLINKCONE_ANGLE
     for i = 1, SWEEPS do
         local deviation = (i / SWEEPS) * CONE_ANGLE * DEGREES
-        if ControllerReticle_Blink_GetPosition_Direction(pos, rotation + deviation, maxrange, validwalkablefn) then
+        if ControllerReticle_Blink_GetPosition_Direction(pos, rotation + deviation, maxrange, validwalkablefn, inwagpunkarena) then
             return pos
         end
-        if ControllerReticle_Blink_GetPosition_Direction(pos, rotation - deviation, maxrange, validwalkablefn) then
+        if ControllerReticle_Blink_GetPosition_Direction(pos, rotation - deviation, maxrange, validwalkablefn, inwagpunkarena) then
             return pos
         end
     end
     -- One last try for very close forward oneshot to get a valid position.
-    if ControllerReticle_Blink_GetPosition_Oneshot(pos, rotation, maxrange or 4, 0, -.5, validwalkablefn) then
+    if ControllerReticle_Blink_GetPosition_Oneshot(pos, rotation, maxrange or 4, 0, -.5, validwalkablefn, inwagpunkarena) then
         return pos
     end
     -- No valid point but we will return something for the reticle to use.

@@ -126,6 +126,9 @@ return{
             INUSE = "Ooo, make something tasty!",
             TOOFAR = "Let's scurry closer!",
         },
+        DEPLOY = {
+            HERMITCRAB_RELOCATE = "Oh no, it's dry! We'll try again later.",
+        },
         DIRECTCOURIER_MAP =
         {
 --fallback to speech_wilson.lua             NOTARGET = "only_used_by_walter",
@@ -306,6 +309,7 @@ return{
 --fallback to speech_wilson.lua             NOWATERNEARBY = "only_used_by_waxwell_and_wicker",
 --fallback to speech_wilson.lua             TOOMANYBIRDS = "only_used_by_waxwell_and_wicker",
 --fallback to speech_wilson.lua             WAYTOOMANYBIRDS = "only_used_by_waxwell_and_wicker",
+--fallback to speech_wilson.lua             BIRDSBLOCKED = "only_used_by_waxwell_and_wicker",
 --fallback to speech_wilson.lua             NOFIRES =       "only_used_by_waxwell_and_wicker",
 --fallback to speech_wilson.lua             NOSILVICULTURE = "only_used_by_waxwell_and_wicker",
 --fallback to speech_wilson.lua             NOHORTICULTURE = "only_used_by_waxwell_and_wicker",
@@ -419,6 +423,8 @@ return{
             BEEF_BELL_HAS_BEEF_ALREADY = "We already have a beefalo of our own!",
 
 			NOT_MINE = "We aren't allowed to play with that.",
+
+			CANNOT_FIX_DRONE = "We can't fix it.",
         },
 		USEKLAUSSACKKEY =
         {
@@ -439,6 +445,8 @@ return{
         {
             DOESNTWORK = "Anybody there? Guess not...",
             ALREADYACTIVE = "Maybe there's another contest going on somewhere else?",
+            NORESPONSE = "We can't find him.",
+            RIGHTTHERE = "He's ignoring us.",
         },
         YOTB_UNLOCKSKIN =
         {
@@ -467,6 +475,10 @@ return{
 		MODSLINGSHOT =
 		{
 --fallback to speech_wilson.lua 			NOSLINGSHOT = "only_used_by_walter",
+		},
+		POUNCECAPTURE =
+		{
+			MISSED = "Aww, we missed!",
 		},
     },
 
@@ -1132,7 +1144,7 @@ return{
 	ANNOUNCE_SNOWBALL_TOO_BIG = "We can't roll it any bigger!",
 	ANNOUNCE_SNOWBALL_NO_SNOW = "Where's more snow?",
 
-    --rifts 5
+    -- Meta 5
     ANNOUNCE_WENDY_BABYSITTER_SET = "only_used_by_wendy", 
     ANNOUNCE_WENDY_BABYSITTER_STOP = "only_used_by_wendy",
 
@@ -1145,6 +1157,8 @@ return{
     ANNOUNCE_ELIXIR_PLAYER_SPEED = "We can help carry heavy stuff!",
 
     ANNOUNCE_ELIXIR_TOO_SUPER = "That's too much for us.",
+
+    ANNOUNCE_LUNARGUARDIAN_INCOMING = "The giant ball is back.",
 
 	BATTLECRY =
 	{
@@ -5648,6 +5662,55 @@ return{
         DECK_OF_CARDS = "We know many games!",
         PLAYING_CARD = "Is this the one we lost?",
         BALATRO_MACHINE = "Prizes!",
+
+		-- Rifts 5
+		GESTALT_CAGE =
+		{
+			GENERIC = "Nobody home.",
+			FILLED = "We got one!",
+		},
+		WAGBOSS_ROBOT_SECRET = "We love surprises!",
+        WAGBOSS_ROBOT = "Does it give rides?",
+        WAGBOSS_ROBOT_POSSESSED = "We just wanted to play!",
+		WAGBOSS_ROBOT_LEG = "Luckily we have more than three legs!",
+		ALTERGUARDIAN_PHASE1_LUNARRIFT = "It seems crankier than before!",
+		ALTERGUARDIAN_PHASE1_LUNARRIFT_GESTALT = "So bright!",
+        ALTERGUARDIAN_PHASE4_LUNARRIFT = "Three-legged space spider?",
+		WAGDRONE_ROLLING =
+        {
+            GENERIC = "Nasty little robots.",
+            INACTIVE = "Can we play with it?",
+            DAMAGED = "We can fix it, or take its insides!",
+            FRIENDLY = "We love how it spins and spins and spins.",
+        },
+        WAGDRONE_FLYING =
+        {
+            GENERIC = "No fair! We can't fly!",
+            INACTIVE = "Can we play with it?",
+            DAMAGED = "We can't fix it, but we can take its insides.",
+        },
+		WAGDRONE_PARTS = "Can we use that to fix a broken one?",
+		WAGDRONE_BEACON = "It makes a make-believe wall!",
+
+        WAGPUNK_WORKSTATION = "Can we building something fun?",
+        WAGPUNK_LEVER = "It's our turn to pull it!",
+        WAGPUNK_FLOOR_KIT = "We'll have more room to play.",
+        WAGPUNK_CAGEWALL = "Now we can't cross the line?",
+
+		WAGSTAFF_ITEM_1 = "We can touch the glove!",
+		WAGSTAFF_ITEM_2 = "Why isn't it a projection anymore? We don't undertand.",
+
+        HERMITCRAB_RELOCATION_KIT = "We get to help Ms. Pearl find a new home!",
+
+        WANDERINGTRADER =
+        {
+            REVEALED = "What does he have for us?",
+            GENERIC = "It looks weird.",
+        },
+
+        GESTALT_GUARD_EVOLVED = "Why are they mad at us?",
+        FLOTATIONCUSHION = "But we're not afraid of the water!",
+        LUNAR_SEED = "So pretty! Can we keep it?",
     },
 
     DESCRIBE_GENERIC = "Can we play with it?",

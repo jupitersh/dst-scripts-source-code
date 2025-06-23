@@ -126,6 +126,9 @@ return{
             INUSE = "Someone else using it",
             TOOFAR = "Get closer. Not too close",
         },
+        DEPLOY = {
+            HERMITCRAB_RELOCATE = "Can't now, try later",
+        },
         DIRECTCOURIER_MAP =
         {
 --fallback to speech_wilson.lua             NOTARGET = "only_used_by_walter",
@@ -306,6 +309,7 @@ return{
 --fallback to speech_wilson.lua             NOWATERNEARBY = "only_used_by_waxwell_and_wicker",
 --fallback to speech_wilson.lua             TOOMANYBIRDS = "only_used_by_waxwell_and_wicker",
 --fallback to speech_wilson.lua             WAYTOOMANYBIRDS = "only_used_by_waxwell_and_wicker",
+--fallback to speech_wilson.lua             BIRDSBLOCKED = "only_used_by_waxwell_and_wicker",
 --fallback to speech_wilson.lua             NOFIRES =       "only_used_by_waxwell_and_wicker",
 --fallback to speech_wilson.lua             NOSILVICULTURE = "only_used_by_waxwell_and_wicker",
 --fallback to speech_wilson.lua             NOHORTICULTURE = "only_used_by_waxwell_and_wicker",
@@ -419,6 +423,8 @@ return{
             BEEF_BELL_HAS_BEEF_ALREADY = "Have Buddy already",
 
 			NOT_MINE = "Not mine",
+
+			CANNOT_FIX_DRONE = "Bye robot friend",
         },
 		USEKLAUSSACKKEY =
         {
@@ -439,6 +445,8 @@ return{
         {
             DOESNTWORK = "Hm...",
             ALREADYACTIVE = "Not here",
+            NORESPONSE = "Not here",
+            RIGHTTHERE = "Friend busy",
         },
         YOTB_UNLOCKSKIN =
         {
@@ -467,6 +475,10 @@ return{
 		MODSLINGSHOT =
 		{
 --fallback to speech_wilson.lua 			NOSLINGSHOT = "only_used_by_walter",
+		},
+		POUNCECAPTURE =
+		{
+			MISSED = "Stay, friend!",
 		},
     },
 
@@ -1136,7 +1148,7 @@ return{
 	ANNOUNCE_SNOWBALL_TOO_BIG = "Big no more",
 	ANNOUNCE_SNOWBALL_NO_SNOW = "No snow",
 
-    --rifts 5
+    -- Meta 5
     ANNOUNCE_WENDY_BABYSITTER_SET = "only_used_by_wendy", 
     ANNOUNCE_WENDY_BABYSITTER_STOP = "only_used_by_wendy",
 
@@ -1149,6 +1161,8 @@ return{
     ANNOUNCE_ELIXIR_PLAYER_SPEED = "Plant power!",
 
     ANNOUNCE_ELIXIR_TOO_SUPER = "Too much strong",
+
+    ANNOUNCE_LUNARGUARDIAN_INCOMING = "Night Ball ball back!",
 
 	BATTLECRY =
 	{
@@ -2079,7 +2093,7 @@ return{
         CHESSPIECE_WARG_MUTATED = "Woofer, stay",
         CHESSPIECE_BEARGER_MUTATED = "Fuzzy hungry?",
         CHESSPIECE_SHARKBOI = "Toothy Fish Friend",
-        CHESSPIECE_WORMBOSS = "Don't eat me!",
+        CHESSPIECE_WORMBOSS = "Don't eat!",
         CHESSPIECE_YOTS = "Little wiggly",
 
         CHESSJUNK1 = "Machine stuff",
@@ -5581,7 +5595,7 @@ return{
         PLAYER_HOSTED =
         {
             GENERIC = "Dead friend",
-            ME = "Dead me!",
+            ME = "Dead self!",
         },
 
         MASK_SAGEHAT = "Smarty face",
@@ -5652,6 +5666,55 @@ return{
         DECK_OF_CARDS = "For play with friends",
         PLAYING_CARD = "Lost",
         BALATRO_MACHINE = "Hello clown face",
+
+		-- Rifts 5
+		GESTALT_CAGE =
+		{
+			GENERIC = "Where friend?",
+			FILLED = "Friend inside",
+		},
+		WAGBOSS_ROBOT_SECRET = "What hiding?",
+        WAGBOSS_ROBOT = "Big-big robot friend?",
+        WAGBOSS_ROBOT_POSSESSED = "Bad friend! Bad friend!",
+		WAGBOSS_ROBOT_LEG = "Poor bad robot friend lose leg!",
+		ALTERGUARDIAN_PHASE1_LUNARRIFT = "Night Ball ball more light?",
+		ALTERGUARDIAN_PHASE1_LUNARRIFT_GESTALT = "Bright bright friend!",
+        ALTERGUARDIAN_PHASE4_LUNARRIFT = "Friend hurting because friend hurting",
+		WAGDRONE_ROLLING =
+        {
+            GENERIC = "Why, spinning friends, why?",
+            INACTIVE = "Sleeping friend",
+            DAMAGED = "Fix spinning friend, or take spinning friend parts",
+            FRIENDLY = "Nice spinning friend",
+        },
+        WAGDRONE_FLYING =
+        {
+            GENERIC = "Bad flying robot friends!",
+            INACTIVE = "Sleeping friend",
+            DAMAGED = "Bye flying robot friend, thank you for parts",
+        },
+		WAGDRONE_PARTS = "Friend parts?",
+		WAGDRONE_BEACON = "Friend can't cross",
+
+        WAGPUNK_WORKSTATION = "Building table build shiny things?",
+        WAGPUNK_LEVER = "Danger?",
+        WAGPUNK_FLOOR_KIT = "More big land",
+        WAGPUNK_CAGEWALL = "No go!",
+
+		WAGSTAFF_ITEM_1 = "Can touch hand shirt!",
+		WAGSTAFF_ITEM_2 = "Board friend real",
+
+        HERMITCRAB_RELOCATION_KIT = "Find crabby friend new home",
+
+        WANDERINGTRADER =
+        {
+            REVEALED = "Shaggy Buddy Man!",
+            GENERIC = "Shaggy Buddy Man?",
+        },
+
+        GESTALT_GUARD_EVOLVED = "Why friend mad? Why friend not friend?",
+        FLOTATIONCUSHION = "No more scared biiig water",
+        LUNAR_SEED = "Love Baby Night Ball! Love!",
     },
 
     DESCRIBE_GENERIC = "Friend?",

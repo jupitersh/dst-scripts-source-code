@@ -76,7 +76,7 @@ function ContainerInstallableItem:GetValidOpenContainer(doer)
 	local containers = inventory and inventory:GetOpenContainers() or nil
 	if containers then
 		for k in pairs(containers) do
-			if self:IsValidContainer(k) then
+			if (k.replica.container == nil or not k.replica.container:IsReadOnlyContainer()) and self:IsValidContainer(k) then
 				return k
 			end
 		end

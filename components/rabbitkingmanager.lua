@@ -441,7 +441,7 @@ self.OnPlayerKilledOther = function(player, data)
         return
     end
 
-    if victim:HasAnyTag("rabbit", "manrabbit") then
+    if victim:HasAnyTag("rabbit", "manrabbit") and not victim:HasTag("shadowthrall_parasite_hosted") and not victim.was_shadowthrall_parasited then
         local naughtiness = FunctionOrValue(NAUGHTY_VALUE[victim.prefab] or 1, player, data)
         self:AddNaughtinessFromPlayer(player, naughtiness)
     end

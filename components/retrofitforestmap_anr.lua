@@ -1686,10 +1686,30 @@ function self:OnPostInit()
         end
     end
 
+	---------------------------------------------------------------------------
+
 	if self.retrofit_otterdens then
         print("Retrofitting for Skilltree Spotlight: Winona & Wurt: Adding Otter Dens.")
 		SkilltreeSpotlightWinonaWurtRetrofitting_PopulateOtterDens()
 	end
+
+	---------------------------------------------------------------------------
+
+    if self.sharkboi_ice_hazard_fix then
+        print("Removing sharkboi_ice_hazard entities off of the world's edge.")
+        self.sharkboi_ice_hazard_fix = nil
+        -- NOTES(JBK): This fixup exists from an issue with sharkboimanager spawning ice without checking for ocean first.
+        local removedcount = 0
+        for _, v in pairs(Ents) do
+            if v.prefab == "sharkboi_ice_hazard" then
+                if not TheWorld.Map:IsOceanAtPoint(v.Transform:GetWorldPosition()) then
+                    v:Remove()
+                    removedcount = removedcount + 1
+                end
+            end
+        end
+        print("Removed", removedcount, "sharkboi_ice_hazard entities!")
+    end
 
 	---------------------------------------------------------------------------
 
@@ -1750,6 +1770,7 @@ function self:OnLoad(data)
         self.retrofit_junkyardv3_content = data.retrofit_junkyardv3_content or false
         self.remove_rift_terraformers_fix = data.remove_rift_terraformers_fix or false
 		self.retrofit_otterdens = data.retrofit_otterdens or false
+        self.sharkboi_ice_hazard_fix = data.sharkboi_ice_hazard_fix or false
     end
 end
 

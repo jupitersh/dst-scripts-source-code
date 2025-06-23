@@ -1304,7 +1304,7 @@ local COMPONENT_ACTIONS =
                 --not tradable
             elseif inventoryitem ~= nil
                 and (not inventoryitem:CanOnlyGoInPocketOrPocketContainers() or target.replica.inventoryitem ~= nil and target.replica.inventoryitem:CanOnlyGoInPocket())
-                and (   (target.replica.container ~= nil and target.replica.container:CanBeOpened()) or
+                and (   (target.replica.container ~= nil and target.replica.container:CanBeOpened() and not target.replica.container:IsReadOnlyContainer()) or
                         (target.components.container_proxy ~= nil and target.components.container_proxy:CanBeOpened())
                         --container_proxy exists on clients too
                     )
@@ -1638,6 +1638,8 @@ local COMPONENT_ACTIONS =
                 elseif not is_den then
                     table.insert(actions, ACTIONS.SHAVE)
                 end
+            elseif target:HasAllTags("unwrappable", "canpeek") and not target:HasAnyTag("smolder", "fire") then
+                table.insert(actions, ACTIONS.PEEKBUNDLE)
             end
         end,
 
@@ -1814,7 +1816,7 @@ local COMPONENT_ACTIONS =
         weapon = function(inst, doer, target, actions, right)
             local inventoryitem = inst.replica.inventoryitem
             if inventoryitem ~= nil and
-                (   (target.replica.container ~= nil and target.replica.container:CanBeOpened()) or
+                (   (target.replica.container ~= nil and target.replica.container:CanBeOpened() and not target.replica.container:IsReadOnlyContainer()) or
                     (target.components.container_proxy ~= nil and target.components.container_proxy:CanBeOpened())
                     --container_proxy exists on clients too
                 ) then
@@ -1932,7 +1934,10 @@ local COMPONENT_ACTIONS =
         blinkstaff = function(inst, doer, pos, actions, right, target)
             local x,y,z = pos:Get()
             if right and (TheWorld.Map:IsAboveGroundAtPoint(x,y,z) or TheWorld.Map:GetPlatformAtPoint(x,z) ~= nil) and not TheWorld.Map:IsGroundTargetBlocked(pos) and not doer:HasTag("steeringboat") and not doer:HasTag("rotatingboat") then
-                table.insert(actions, ACTIONS.BLINK)
+                local doerx, doery, doerz = doer.Transform:GetWorldPosition()
+                if TheWorld.Map:IsPointInWagPunkArenaAndBarrierIsUp(x, y, z) == TheWorld.Map:IsPointInWagPunkArenaAndBarrierIsUp(doerx, doery, doerz) then
+                    table.insert(actions, ACTIONS.BLINK)
+                end
             end
         end,
 
@@ -2164,6 +2169,12 @@ local COMPONENT_ACTIONS =
                 end
             end
         end,
+
+		gestaltcage = function(inst, doer, target, actions, right)
+			if target:HasTag("gestaltcapturable") then
+				table.insert(actions, ACTIONS.POUNCECAPTURE)
+			end
+		end,
 
         gravedigger = function(inst, doer, target, actions, right)
             if right and target:HasTag("gravediggable") and doer:HasTag("gravedigger_user") then
@@ -2731,7 +2742,7 @@ local COMPONENT_ACTIONS =
 			local containers = inventory and inventory:GetOpenContainers() or nil
 			if containers then
 				for k in pairs(containers) do
-					if k.prefab == "slingshotmodscontainer" then
+					if (k.replica.container == nil or not k.replica.container:IsReadOnlyContainer()) and k.prefab == "slingshotmodscontainer" then
 						table.insert(actions, ACTIONS.STOPMODSLINGSHOT)
 						return
 					end

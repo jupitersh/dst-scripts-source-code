@@ -57,6 +57,9 @@ local assets =
     Asset("ATLAS", "images/serverplaystyles.xml"),
     Asset("IMAGE", "images/serverplaystyles.tex"),
 
+    Asset("ATLAS", "images/worldprogressionfilters.xml"),
+    Asset("IMAGE", "images/worldprogressionfilters.tex"),
+
     Asset("DYNAMIC_ATLAS", "images/new_host_picker.xml"),
     Asset("PKGREF", "images/new_host_picker.tex"),
 
@@ -117,6 +120,7 @@ local assets =
     Asset("ANIM", "anim/player_emote_extra.zip"), -- item emotes
     Asset("ANIM", "anim/player_emotes_dance0.zip"),
     Asset("ANIM", "anim/player_emotes_dance2.zip"), -- item emotes
+    Asset("ANIM", "anim/player_emotes_hat_tip.zip"), -- item emotes
     Asset("ANIM", "anim/player_emotes_sit.zip"),
     Asset("ANIM", "anim/player_actions_item.zip"),
     Asset("ANIM", "anim/player_idles_warly.zip"),

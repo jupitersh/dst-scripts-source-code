@@ -126,6 +126,9 @@ return{
             INUSE = "Hey! What're you making? Can I have it?",
             TOOFAR = "It's all the way over thereeeee!",
         },
+        DEPLOY = {
+            HERMITCRAB_RELOCATE = "Oh well, empty. Guess I'll try again later.",
+        },
         DIRECTCOURIER_MAP =
         {
 --fallback to speech_wilson.lua             NOTARGET = "only_used_by_walter",
@@ -306,6 +309,7 @@ return{
 --fallback to speech_wilson.lua             NOWATERNEARBY = "only_used_by_waxwell_and_wicker",
 --fallback to speech_wilson.lua             TOOMANYBIRDS = "only_used_by_waxwell_and_wicker",
 --fallback to speech_wilson.lua             WAYTOOMANYBIRDS = "only_used_by_waxwell_and_wicker",
+--fallback to speech_wilson.lua             BIRDSBLOCKED = "only_used_by_waxwell_and_wicker",
 --fallback to speech_wilson.lua             NOFIRES =       "only_used_by_waxwell_and_wicker",
 --fallback to speech_wilson.lua             NOSILVICULTURE = "only_used_by_waxwell_and_wicker",
 --fallback to speech_wilson.lua             NOHORTICULTURE = "only_used_by_waxwell_and_wicker",
@@ -419,6 +423,8 @@ return{
             BEEF_BELL_HAS_BEEF_ALREADY = "One beefalo is enough to deal with.",
 
 			NOT_MINE = "What do I care about that?",
+
+			CANNOT_FIX_DRONE = "Can't fix trash.",
         },
 		USEKLAUSSACKKEY =
         {
@@ -439,6 +445,8 @@ return{
         {
             DOESNTWORK = "Hey weird guy! Helloooo?",
             ALREADYACTIVE = "Guess he's somewhere else.",
+            NORESPONSE = "I dunno where he is.",
+            RIGHTTHERE = "What's this guy's problem?",
         },
         YOTB_UNLOCKSKIN =
         {
@@ -467,6 +475,10 @@ return{
 		MODSLINGSHOT =
 		{
 --fallback to speech_wilson.lua 			NOSLINGSHOT = "only_used_by_walter",
+		},
+		POUNCECAPTURE =
+		{
+			MISSED = "Crap! Let me catch you!",
 		},
     },
 
@@ -1139,7 +1151,7 @@ return{
 	ANNOUNCE_SNOWBALL_TOO_BIG = "It's useless to try and roll it any bigger.",
 	ANNOUNCE_SNOWBALL_NO_SNOW = "There's no snow here.",
 
-    --rifts 5
+    -- Meta 5
     ANNOUNCE_WENDY_BABYSITTER_SET = "only_used_by_wendy", 
     ANNOUNCE_WENDY_BABYSITTER_STOP = "only_used_by_wendy",
 
@@ -1152,6 +1164,8 @@ return{
     ANNOUNCE_ELIXIR_PLAYER_SPEED = "I could lift Wolfgang!",
 
     ANNOUNCE_ELIXIR_TOO_SUPER = "Phew! That's too strong.",
+
+    ANNOUNCE_LUNARGUARDIAN_INCOMING = "Ugh, not again!",
 
 	BATTLECRY =
 	{
@@ -5655,6 +5669,55 @@ return{
         DECK_OF_CARDS = "If it's not a full deck, at least we have kindling.",
         PLAYING_CARD = "Must be the burn card.",
         BALATRO_MACHINE = "Let me win or I'll set you on fire.",
+
+		-- Rifts 5
+		GESTALT_CAGE =
+		{
+			GENERIC = "Empty!",
+			FILLED = "Ha! Gotcha!",
+		},
+		WAGBOSS_ROBOT_SECRET = "What's that pile of junk under there?",
+        WAGBOSS_ROBOT = "Looks shifty.",
+        WAGBOSS_ROBOT_POSSESSED = "I knew it was a killer robot!",
+		WAGBOSS_ROBOT_LEG = "Stupid killer robot leg.",
+		ALTERGUARDIAN_PHASE1_LUNARRIFT = "It's burning white hot!",
+		ALTERGUARDIAN_PHASE1_LUNARRIFT_GESTALT = "I bet that's the one.",
+        ALTERGUARDIAN_PHASE4_LUNARRIFT = "What do we do? There's nothing to burn!",
+		WAGDRONE_ROLLING =
+        {
+            GENERIC = "You guys are so annoying!",
+            INACTIVE = "Do something!",
+            DAMAGED = "So I could fix it or take its parts, but can I just incinerate it?",
+            FRIENDLY = "Remember when these guys tried to kill us?",
+        },
+        WAGDRONE_FLYING =
+        {
+            GENERIC = "Get outta here, flying trashcans!",
+            INACTIVE = "Do something!",
+            DAMAGED = "Blah, it's just spare parts at this point.",
+        },
+		WAGDRONE_PARTS = "Spare junk.",
+		WAGDRONE_BEACON = "Big deal, it can't stop me.",
+
+        WAGPUNK_WORKSTATION = "Electrical fires just aren't as fun.",
+        WAGPUNK_LEVER = "Let's flip it already.",
+        WAGPUNK_FLOOR_KIT = "Why didn't he just find a bigger island?",
+        WAGPUNK_CAGEWALL = "Gives me claustrophobia.",
+
+		WAGSTAFF_ITEM_1 = "Why does a glove give me the creeps? Burn it!",
+		WAGSTAFF_ITEM_2 = "It doesn't make sense! Burn it!",
+
+        HERMITCRAB_RELOCATION_KIT = "What's the big deal where she lives?",
+
+        WANDERINGTRADER =
+        {
+            REVEALED = "Heard you take ashes?",
+            GENERIC = "Weird.",
+        },
+
+        GESTALT_GUARD_EVOLVED = "What did I ever do to you?",
+        FLOTATIONCUSHION = "Oh good, because I hate drowning.",
+        LUNAR_SEED = "It's kinda nice to stare into.",
     },
 
     DESCRIBE_GENERIC = "I have no idea what that is!",

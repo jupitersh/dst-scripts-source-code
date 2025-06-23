@@ -399,12 +399,13 @@ local function DoActualRezFromCorpse(inst, source)
     end
 
     --V2C: Let stategraph do it
-    --[[inst.Physics:ClearCollisionMask()
-    inst.Physics:CollidesWith(COLLISION.WORLD)
-    inst.Physics:CollidesWith(COLLISION.OBSTACLES)
-    inst.Physics:CollidesWith(COLLISION.SMALLOBSTACLES)
-    inst.Physics:CollidesWith(COLLISION.CHARACTERS)
-    inst.Physics:CollidesWith(COLLISION.GIANTS)]]
+	--[[inst.Physics:SetCollisionMask(
+		COLLISION.WORLD,
+		COLLISION.OBSTACLES,
+		COLLISION.SMALLOBSTACLES,
+		COLLISION.CHARACTERS,
+		COLLISION.GIANTS
+	)]]
 
     CommonActualRez(inst)
 
@@ -1088,6 +1089,26 @@ local function MapRevealable_OnIconCreatedFn(inst)
     end
 end
 
+--------------------------------------------------------------------------
+
+local function EnableTargetLocking(inst, enable)
+	if inst.components.playercontroller ~= nil then
+		inst.components.playercontroller.controller_targeting_lock_available = enable
+	end
+end
+
+local function CommandWheelAllowsGameplay(inst, enable)
+	if inst.components.playercontroller ~= nil then
+		inst.components.playercontroller.command_wheel_allows_gameplay = enable
+	end
+	
+	if inst.HUD and inst.HUD.controls and inst.HUD.controls.commandwheel then
+		inst.HUD.controls.commandwheel.ignoreleftstick = enable
+	end
+end
+
+--------------------------------------------------------------------------
+
 return
 {
     ShouldKnockout              = ShouldKnockout,
@@ -1129,4 +1150,6 @@ return
     OnClosePopups               = OnClosePopups,
     UpdateScrapbook             = UpdateScrapbook,
     MapRevealable_OnIconCreatedFn = MapRevealable_OnIconCreatedFn,
+    EnableTargetLocking			= EnableTargetLocking,
+	CommandWheelAllowsGameplay	= CommandWheelAllowsGameplay,
 }

@@ -167,12 +167,12 @@ CONTROL_USE_ITEM_ON_ITEM = 59
 CONTROL_MAP_ZOOM_IN = 60
 CONTROL_MAP_ZOOM_OUT = 61
 
-CONTROL_OPEN_DEBUG_MENU = 70 --62 steam deck is 70
+CONTROL_OPEN_DEBUG_MENU = IsConsole() and 70 or -1 --62 steam deck is 70
 
 CONTROL_TOGGLE_SAY = 63
 CONTROL_TOGGLE_WHISPER = 64
 CONTROL_TOGGLE_SLASH_COMMAND = 65
-CONTROL_TOGGLE_PLAYER_STATUS = 66
+CONTROL_TOGGLE_PLAYER_STATUS = 66 -- Deprecated for CONTROL_OPEN_COMMAND_WHEEL.
 CONTROL_SHOW_PLAYER_STATUS = 67
 
 CONTROL_MENU_MISC_1 = 68  -- X
@@ -208,15 +208,61 @@ CONTROL_OPEN_COMMAND_WHEEL = 87
 CONTROL_TARGET_LOCK = 88
 CONTROL_TARGET_CYCLE = 89
 
-CONTROL_CUSTOM_START = 100
+CONTROL_CAM_AND_INV_MODIFIER = 90
+CONTROL_CHARACTER_COMMAND_WHEEL = 91
+
+--Preset directional controls (used with CameraModifier) (cannot be remapped)
+CONTROL_PRESET_RSTICK_UP = 92
+CONTROL_PRESET_RSTICK_DOWN = 93
+CONTROL_PRESET_RSTICK_LEFT = 94
+CONTROL_PRESET_RSTICK_RIGHT = 95
+CONTROL_PRESET_DPAD_UP = 96
+CONTROL_PRESET_DPAD_DOWN = 97
+CONTROL_PRESET_DPAD_LEFT = 98
+CONTROL_PRESET_DPAD_RIGHT = 99
+
+CONTROL_AXISALIGNEDPLACEMENT_TOGGLEMOD = 100
+CONTROL_AXISALIGNEDPLACEMENT_CYCLEGRID = 101
+
+CONTROL_CUSTOM_START = 102 -- NOTES(JBK): This might not be used for anything keep it above our last control in case mods are using it for something.
+
+-- virtual controls
+VIRTUAL_CONTROL_START = 10000
+
+-- Used in conjunction with CONTROL_CAM_AND_INV_MODIFIER and CONTROL_SCHEME_CAM_AND_INV
+--NOTE: these must be listed in order: up, down, left, right
+VIRTUAL_CONTROL_CAMERA_ZOOM_IN = 10001
+VIRTUAL_CONTROL_CAMERA_ZOOM_OUT = 10002
+VIRTUAL_CONTROL_CAMERA_ROTATE_LEFT = 10003
+VIRTUAL_CONTROL_CAMERA_ROTATE_RIGHT = 10004
+--
+VIRTUAL_CONTROL_AIM_UP = 10005
+VIRTUAL_CONTROL_AIM_DOWN = 10006
+VIRTUAL_CONTROL_AIM_LEFT = 10007
+VIRTUAL_CONTROL_AIM_RIGHT = 10008
+--
+VIRTUAL_CONTROL_INV_UP = 10009
+VIRTUAL_CONTROL_INV_DOWN = 10010
+VIRTUAL_CONTROL_INV_LEFT = 10011
+VIRTUAL_CONTROL_INV_RIGHT = 10012
+--
+VIRTUAL_CONTROL_INV_ACTION_UP = 10013
+VIRTUAL_CONTROL_INV_ACTION_DOWN = 10014
+VIRTUAL_CONTROL_INV_ACTION_LEFT = 10015
+VIRTUAL_CONTROL_INV_ACTION_RIGHT = 10016
+--
+VIRTUAL_CONTROL_STRAFE_UP = 10017
+VIRTUAL_CONTROL_STRAFE_DOWN = 10018
+VIRTUAL_CONTROL_STRAFE_LEFT = 100019
+VIRTUAL_CONTROL_STRAFE_RIGHT = 10020
+--
+
+-- Control Schemes:
+-- Must match STRINGS.UI.CONTROLSSCREEN.SCHEMES
+
+CONTROL_SCHEME_CAM_AND_INV = 1
 
 XBOX_CONTROLLER_ID = 17
-
--- controller targetting er... controls
-CONTROL_TARGET_MODIFIER = CONTROL_MENU_MISC_2
-CONTROL_TARGET_LOCK = CONTROL_MENU_MISC_2
-CONTROL_TARGET_CYCLE_BACK = CONTROL_ROTATE_LEFT
-CONTROL_TARGET_CYCLE_FORWARD = CONTROL_ROTATE_RIGHT
 
 -- a constant used in place of hardcoding the CONTROL_ for the skin presets popup. This is overridden to a different CONTROL_ in the console branch (currently CONTROL_MENU_L2)
 CONTROL_SKIN_PRESETS = CONTROL_MENU_MISC_1
@@ -1097,7 +1143,8 @@ end
 FE_MUSIC =
     (FESTIVAL_EVENT_MUSIC[WORLD_FESTIVAL_EVENT] ~= nil and FESTIVAL_EVENT_MUSIC[WORLD_FESTIVAL_EVENT].sound) or
     (SPECIAL_EVENT_MUSIC[WORLD_SPECIAL_EVENT] ~= nil and SPECIAL_EVENT_MUSIC[WORLD_SPECIAL_EVENT].sound) or
-    "dontstarve/music/music_FE_balatro"
+    "dontstarve/music/music_FE_wagboss"
+    --"dontstarve/music/music_FE_balatro"
     --"dontstarve/music/music_FE_hallowednights2024"
     --"dontstarve/music/music_FE_rifts4"
     --"dontstarve/music/music_FE_winonawurt"
@@ -1202,6 +1249,8 @@ TECH =
     HERMITCRABSHOP_SEVEN = { HERMITCRABSHOP = 7 },
 
     RABBITKINGSHOP_TWO = { RABBITKINGSHOP = 2 },
+
+    WAGPUNK_WORKSTATION_TWO = { WAGPUNK_WORKSTATION = 2 },
 
     TURFCRAFTING_ONE = { TURFCRAFTING = 1 },
     TURFCRAFTING_TWO = { TURFCRAFTING = 2 },
@@ -1452,6 +1501,8 @@ RECIPETABS =
 	WINTERSFEASTCOOKING =	{ str = "WINTERSFEASTCOOKING",	sort = 100, icon = "tab_feast_oven.tex",		crafting_station = true },
     HERMITCRABSHOP =		{ str = "HERMITCRABSHOP",		sort = 100, icon = "tab_hermitcrab_shop.tex",	crafting_station = true, shop = true},
     RABBITKINGSHOP =		{ str = "RABBITKINGSHOP",		sort = 100, icon = "tab_rabbitking.tex",		crafting_station = true, shop = true, icon_atlas = "images/hud2.xml"},
+    WANDERINGTRADERSHOP =	{ str = "WANDERINGTRADERSHOP",	sort = 100, icon = "tab_wanderingtrader.tex",	crafting_station = true, shop = true, icon_atlas = "images/hud2.xml"},
+    WAGPUNK_WORKSTATION =	{ str = "WAGPUNK_WORKSTATION",	sort = 100, icon = "tab_wagpunk_workstation.tex",crafting_station = true, shop = true, icon_atlas = "images/hud2.xml"},
     TURFCRAFTING =		    { str = "TURFCRAFTING", 		sort = 100, icon = "tab_turfcrafting.tex",      crafting_station = true, icon_atlas = "images/hud2.xml" },
     CARPENTRY =	    	    { str = "CARPENTRY",			sort = 100, icon = "station_carpentry.tex",     crafting_station = true, icon_atlas = "images/hud2.xml" },
 }
@@ -2004,6 +2055,14 @@ FARM_PLANT_STRESS = {
 	HIGH = 4,
 }
 
+-- NOTES(JBK): After initial game load this is a constant of some value.
+-- This is the maximum number of offerings a craftingstation:SetRecipeCraftingLimit can have.
+-- For each recipe that is designed for this it will be added to the list.
+-- This table is declared in constants used by simutil through recipes and is what is used by a player_classified.
+CRAFTINGSTATION_LIMITED_RECIPES = {}
+CRAFTINGSTATION_LIMITED_RECIPES_LOOKUPS = {}
+CRAFTINGSTATION_LIMITED_RECIPES_COUNT = 0
+
 CHARACTER_INGREDIENT =
 {
     --NOTE: Value is used as key for NAME string and inventory image
@@ -2234,6 +2293,7 @@ DST_NPCCHATTERLIST =
     "sharkboi",
     "stalker",
     "wagstaff",
+    "wanderingtrader",
 }
 
 CHATPRIORITIES =
@@ -2378,6 +2438,9 @@ INTENTIONS =
 
 PLAYSTYLE_ANY = "ANY"
 PLAYSTYLE_DEFAULT = "survival"
+
+WORLDPROGRESSIONTAG_MUST = "must"
+WORLDPROGRESSIONTAG_CANT = "cant"
 
 LEVELTYPE = {
     SURVIVAL = "SURVIVAL",

@@ -321,8 +321,9 @@ function Wheel:OnUpdate(dt)
 		ydir = ydir + TheInput:GetAnalogControlValue(CONTROL_MOVE_UP) - TheInput:GetAnalogControlValue(CONTROL_MOVE_DOWN)
 	end
 	if not self.ignorerightstick then
-		xdir = xdir + TheInput:GetAnalogControlValue(CONTROL_INVENTORY_RIGHT) - TheInput:GetAnalogControlValue(CONTROL_INVENTORY_LEFT)
-		ydir = ydir + TheInput:GetAnalogControlValue(CONTROL_INVENTORY_UP) - TheInput:GetAnalogControlValue(CONTROL_INVENTORY_DOWN)
+		--V2C: wheel ignores CONTROL_CAM_AND_INV_MODIFIER by not using the virtual controls
+		xdir = xdir + TheInput:GetAnalogControlValue(CONTROL_PRESET_RSTICK_RIGHT) - TheInput:GetAnalogControlValue(CONTROL_PRESET_RSTICK_LEFT)
+		ydir = ydir + TheInput:GetAnalogControlValue(CONTROL_PRESET_RSTICK_UP) - TheInput:GetAnalogControlValue(CONTROL_PRESET_RSTICK_DOWN)
 	end
 	local magsq = math.min(1, xdir * xdir + ydir * ydir)
     local deadzone = TUNING.CONTROLLER_DEADZONE_RADIUS

@@ -126,6 +126,9 @@ return{
             INUSE = "Pardonnez-moi! I shouldn't backseat cook.",
             TOOFAR = "I'll need to get a little closer to cook with that.",
         },
+        DEPLOY = {
+            HERMITCRAB_RELOCATE = "It is not the time. I will try again later.",
+        },
         DIRECTCOURIER_MAP =
         {
 --fallback to speech_wilson.lua             NOTARGET = "only_used_by_walter",
@@ -306,6 +309,7 @@ return{
 --fallback to speech_wilson.lua             NOWATERNEARBY = "only_used_by_waxwell_and_wicker",
 --fallback to speech_wilson.lua             TOOMANYBIRDS = "only_used_by_waxwell_and_wicker",
 --fallback to speech_wilson.lua             WAYTOOMANYBIRDS = "only_used_by_waxwell_and_wicker",
+--fallback to speech_wilson.lua             BIRDSBLOCKED = "only_used_by_waxwell_and_wicker",
 --fallback to speech_wilson.lua             NOFIRES =       "only_used_by_waxwell_and_wicker",
 --fallback to speech_wilson.lua             NOSILVICULTURE = "only_used_by_waxwell_and_wicker",
 --fallback to speech_wilson.lua             NOHORTICULTURE = "only_used_by_waxwell_and_wicker",
@@ -419,6 +423,8 @@ return{
             BEEF_BELL_HAS_BEEF_ALREADY = "I've already found my perfect cut of beef.",
 
 			NOT_MINE = "That is not mine.",
+
+			CANNOT_FIX_DRONE = "It is not salvageable.",
         },
 		USEKLAUSSACKKEY =
         {
@@ -439,6 +445,8 @@ return{
         {
             DOESNTWORK = "Nobody there? C'est la vie.",
             ALREADYACTIVE = "Perhaps there's another contest somewhere else.",
+            NORESPONSE = "He has gone for a walk, perhaps.",
+            RIGHTTHERE = "He is presently busy.",
         },
         YOTB_UNLOCKSKIN =
         {
@@ -467,6 +475,10 @@ return{
 		MODSLINGSHOT =
 		{
 --fallback to speech_wilson.lua 			NOSLINGSHOT = "only_used_by_walter",
+		},
+		POUNCECAPTURE =
+		{
+			MISSED = "Oh non! I missed.",
 		},
     },
 
@@ -1132,7 +1144,7 @@ return{
 	ANNOUNCE_SNOWBALL_TOO_BIG = "I'm afraid it won't get any bigger.",
 	ANNOUNCE_SNOWBALL_NO_SNOW = "There's not enough snow here!",
 
-    --rifts 5
+    -- Meta 5
     ANNOUNCE_WENDY_BABYSITTER_SET = "only_used_by_wendy", 
     ANNOUNCE_WENDY_BABYSITTER_STOP = "only_used_by_wendy",
 
@@ -1145,6 +1157,8 @@ return{
     ANNOUNCE_ELIXIR_PLAYER_SPEED = "I could lift a cow!",
 
     ANNOUNCE_ELIXIR_TOO_SUPER = "Trop fort!",
+
+    ANNOUNCE_LUNARGUARDIAN_INCOMING = "Déjà vu.",
 
 	BATTLECRY =
 	{
@@ -2559,7 +2573,7 @@ return{
         MONSTERMEAT = "Hmmm, nice marbling...",
         MONSTERMEAT_DRIED = "Could use... better judgment...",
         MOOSE = "I wish you were a bit less moose-y and a lot more goose-y!",
-        MOOSE_NESTING_GROUND = "Imagine how many omelets I could make with one of those eggs.",
+        MOOSE_NESTING_GROUND = "Imagine how many omelettes I could make with one of those eggs.",
         MOOSEEGG = "I think I'll leave this egg quite alone!",
         MOSSLING = "Looking for your momma? Apologies, but I hope you do not find her.",
         FEATHERFAN = "Why is it so big?",
@@ -5648,6 +5662,55 @@ return{
         DECK_OF_CARDS = "Maman loved her cards.",
         PLAYING_CARD = "A lonely little card.",
         BALATRO_MACHINE = "What have I to lose?",
+
+		-- Rifts 5
+		GESTALT_CAGE =
+		{
+			GENERIC = "It is empty.",
+			FILLED = "Something inside!",
+		},
+		WAGBOSS_ROBOT_SECRET = "Some sort of centerpiece?",
+        WAGBOSS_ROBOT = "But can it cook a soufflé?",
+        WAGBOSS_ROBOT_POSSESSED = "Sorry! I'm sure you make great soufflés!",
+		WAGBOSS_ROBOT_LEG = "The legs are very tough!",
+		ALTERGUARDIAN_PHASE1_LUNARRIFT = "New and improved! C'est terrible!",
+		ALTERGUARDIAN_PHASE1_LUNARRIFT_GESTALT = "It is the most brilliant one I have ever seen!",
+        ALTERGUARDIAN_PHASE4_LUNARRIFT = "C'est horrible!",
+		WAGDRONE_ROLLING =
+        {
+            GENERIC = "They are running amok!",
+            INACTIVE = "Maybe it can mix batter?",
+            DAMAGED = "I can repair it or use the parts to repair another.",
+            FRIENDLY = "A portable chopper.",
+        },
+        WAGDRONE_FLYING =
+        {
+            GENERIC = "This is overwhelming!",
+            INACTIVE = "Maybe it can chop veggies?",
+            DAMAGED = "These leftovers can only be used to fix another!",
+        },
+		WAGDRONE_PARTS = "It looks like part of a cake mixer.",
+		WAGDRONE_BEACON = "So the petit blender will not spin out of control.",
+
+        WAGPUNK_WORKSTATION = "But does it blend?",
+        WAGPUNK_LEVER = "What appliance is this for?",
+        WAGPUNK_FLOOR_KIT = "We are expanding this location!",
+        WAGPUNK_CAGEWALL = "This will be a private party.",
+
+		WAGSTAFF_ITEM_1 = "The glove is... solid?",
+		WAGSTAFF_ITEM_2 = "Why can I touch this?",
+
+        HERMITCRAB_RELOCATION_KIT = "I hope Madame Pearl will like her new home.",
+
+        WANDERINGTRADER =
+        {
+            REVEALED = "Bonjour, Monsieur Boeuf! What do you have?",
+            GENERIC = "Hmm. I wouldn't eat that one.",
+        },
+
+        GESTALT_GUARD_EVOLVED = "I assure you it wasn't personal.",
+        FLOTATIONCUSHION = "It will save me from the brine!",
+        LUNAR_SEED = "This is its essence.",
     },
 
     DESCRIBE_GENERIC = "It is what it is...",

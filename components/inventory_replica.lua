@@ -238,6 +238,14 @@ function Inventory:IsHolding(item, checkcontainer)
     end
 end
 
+function Inventory:FindItem(fn)
+	if self.inst.components.inventory then
+		return self.inst.components.inventory:FindItem(fn)
+	else
+		return self.classified and self.classified:FindItem(fn)
+	end
+end
+
 function Inventory:GetActiveItem()
     if self.inst.components.inventory ~= nil then
         return self.inst.components.inventory:GetActiveItem()

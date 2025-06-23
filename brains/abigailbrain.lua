@@ -14,7 +14,7 @@ local function GetLeader(inst)
 end
 
 local function GetLeaderPos(inst)
-    return inst.components.follower.leader:GetPosition()
+    return inst.components.follower.leader and inst.components.follower.leader:GetPosition() or nil
 end
 
 local function DanceParty(inst)

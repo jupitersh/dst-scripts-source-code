@@ -126,6 +126,9 @@ return{
             INUSE = "Mortals need physical food more than I do.",
             TOOFAR = "I could hop over, I suppose.",
         },
+        DEPLOY = {
+            HERMITCRAB_RELOCATE = "Oh my, it's dry! Later, I'll try.",
+        },
         DIRECTCOURIER_MAP =
         {
 --fallback to speech_wilson.lua             NOTARGET = "only_used_by_walter",
@@ -306,6 +309,7 @@ return{
 --fallback to speech_wilson.lua             NOWATERNEARBY = "only_used_by_waxwell_and_wicker",
 --fallback to speech_wilson.lua             TOOMANYBIRDS = "only_used_by_waxwell_and_wicker",
 --fallback to speech_wilson.lua             WAYTOOMANYBIRDS = "only_used_by_waxwell_and_wicker",
+--fallback to speech_wilson.lua             BIRDSBLOCKED = "only_used_by_waxwell_and_wicker",
 --fallback to speech_wilson.lua             NOFIRES =       "only_used_by_waxwell_and_wicker",
 --fallback to speech_wilson.lua             NOSILVICULTURE = "only_used_by_waxwell_and_wicker",
 --fallback to speech_wilson.lua             NOHORTICULTURE = "only_used_by_waxwell_and_wicker",
@@ -419,6 +423,8 @@ return{
             BEEF_BELL_HAS_BEEF_ALREADY = "Having more than one wouldn't be much fun.",
 
 			NOT_MINE = "I see it doesn't belong to me!",
+
+			CANNOT_FIX_DRONE = "It's had its fun, and now it's done.",
         },
 		USEKLAUSSACKKEY =
         {
@@ -439,6 +445,8 @@ return{
         {
             DOESNTWORK = "Oh ho! Something's gone awry!",
             ALREADYACTIVE = "Perhaps he too likes to travel between planes? Hyuyuyu!",
+            NORESPONSE = "I wonder where he's wandered.",
+            RIGHTTHERE = "Busy, I see.",
         },
         YOTB_UNLOCKSKIN =
         {
@@ -467,6 +475,10 @@ return{
 		MODSLINGSHOT =
 		{
 --fallback to speech_wilson.lua 			NOSLINGSHOT = "only_used_by_walter",
+		},
+		POUNCECAPTURE =
+		{
+			MISSED = "Miss! Boo and hiss!",
 		},
     },
 
@@ -1151,7 +1163,7 @@ return{
 	ANNOUNCE_SNOWBALL_TOO_BIG = "I tell no lies! It's at full size!",
 	ANNOUNCE_SNOWBALL_NO_SNOW = "It won't grow without more snow.",
 
-    --rifts 5
+    -- Meta 5
     ANNOUNCE_WENDY_BABYSITTER_SET = "only_used_by_wendy", 
     ANNOUNCE_WENDY_BABYSITTER_STOP = "only_used_by_wendy",
 
@@ -1164,6 +1176,8 @@ return{
     ANNOUNCE_ELIXIR_PLAYER_SPEED = "I have the strength of ten imps!",
 
     ANNOUNCE_ELIXIR_TOO_SUPER = "Don't think I can take that drink!",
+
+    ANNOUNCE_LUNARGUARDIAN_INCOMING = "Ack! It's back!",
 
 	BATTLECRY =
 	{
@@ -5668,6 +5682,55 @@ return{
         DECK_OF_CARDS = "One sec, who shuffled this deck?",
         PLAYING_CARD = "Is it so hard to not lose a card?",
         BALATRO_MACHINE = "Hey joker, let's play some poker!",
+
+		-- Rifts 5
+		GESTALT_CAGE =
+		{
+			GENERIC = "Nothing worth noting.",
+			FILLED = "It hides insides!",
+		},
+		WAGBOSS_ROBOT_SECRET = "If we know history, better to leave it a mystery.",
+        WAGBOSS_ROBOT = "No need for alarm, it means us no harm...",
+        WAGBOSS_ROBOT_POSSESSED = "It's got a few screws loose, I do deduce.",
+		WAGBOSS_ROBOT_LEG = "A robust robot leg!",
+		ALTERGUARDIAN_PHASE1_LUNARRIFT = "What's it growing? Why's it glowing?",
+		ALTERGUARDIAN_PHASE1_LUNARRIFT_GESTALT = "We fought it, and we got it!",
+        ALTERGUARDIAN_PHASE4_LUNARRIFT = "You atrocity of a monstrosity!",
+		WAGDRONE_ROLLING =
+        {
+            GENERIC = "Deranged dervish on the skirmish!",
+            INACTIVE = "A mean little machine!",
+            DAMAGED = "Shall I repair or take the spare... parts?",
+            FRIENDLY = "A friendly model that doesn't dawdle.",
+        },
+        WAGDRONE_FLYING =
+        {
+            GENERIC = "Buzzing blight from yonder height!",
+            INACTIVE = "A mean little machine!",
+            DAMAGED = "It's had its day, let's salvage away!",
+        },
+		WAGDRONE_PARTS = "Spares for repairs.",
+		WAGDRONE_BEACON = "I've seen it all! An invisible wall!",
+
+        WAGPUNK_WORKSTATION = "What have we here? His intentions are never clear!",
+        WAGPUNK_LEVER = "Is it polite to pull it?",
+        WAGPUNK_FLOOR_KIT = "Score! More floor!",
+        WAGPUNK_CAGEWALL = "Save the sass! None shall pass! Hyuyu!",
+
+		WAGSTAFF_ITEM_1 = "The glove is on the physical plane? I must have truly gone insane!",
+		WAGSTAFF_ITEM_2 = "The clipboard is real, I said with a squeal! Hyuyu!",
+
+        HERMITCRAB_RELOCATION_KIT = "It'll permit to move the hermit!",
+
+        WANDERINGTRADER =
+        {
+            REVEALED = "This guy's disguise! Hyuyu!",
+            GENERIC = "Whoa, uncanny beefalo!",
+        },
+
+        GESTALT_GUARD_EVOLVED = "Well whad'ya know, we reap what we sow!",
+        FLOTATIONCUSHION = "Because there's no time to think, when you're plunged in the drink!",
+        LUNAR_SEED = "You went down, and left your crown!",
     },
 
     DESCRIBE_GENERIC = "Ooo, a mystery!",

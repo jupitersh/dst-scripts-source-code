@@ -341,10 +341,9 @@ local function updatebell(inst, dt)
 				--V2C: #HACK: WARNING!!! DO NOT EVER DO THIS AGAIN PLEASE
 				if not playercontroller.ismastersim then
 					if playercontroller.locomotor == nil then
-						if act.action.pre_action_cb then
-							act.action.pre_action_cb(act)
+						act.non_preview_cb = function()
+							SendRPCToServer(RPC.LeftClick, act.action.code, x, z)
 						end
-						SendRPCToServer(RPC.LeftClick, act.action.code, x, z)
 					elseif playercontroller:CanLocomote() then
 						act.preview_cb = function()
 							local isreleased = not TheInput:IsControlPressed(CONTROL_PRIMARY)

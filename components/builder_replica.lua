@@ -170,6 +170,30 @@ function Builder:RemoveRecipe(recipename)
     end
 end
 
+function Builder:SetRecipeCraftingLimit(index, recipename, amount)
+    if self.classified ~= nil then
+        local recipe = CRAFTINGSTATION_LIMITED_RECIPES_LOOKUPS[recipename] or 0
+        if recipe == 0 then
+            amount = 0
+        end
+        self.classified.craftinglimit_recipe[index]:set(recipe)
+        self.classified.craftinglimit_amount[index]:set(amount)
+    end
+end
+function Builder:GetAllRecipeCraftingLimits()
+    local craftinglimits = {}
+    if self.classified ~= nil then
+        for i = 1, CRAFTINGSTATION_LIMITED_RECIPES_COUNT do
+            local recipename = CRAFTINGSTATION_LIMITED_RECIPES[self.classified.craftinglimit_recipe[i]:value()]
+            if recipename then
+                local amount = self.classified.craftinglimit_amount[i]:value()
+                craftinglimits[recipename] = amount
+            end
+        end
+    end
+    return craftinglimits
+end
+
 function Builder:BufferBuild(recipename)
     if self.inst.components.builder ~= nil then
         self.inst.components.builder:BufferBuild(recipename)

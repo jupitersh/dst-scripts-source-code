@@ -211,3 +211,36 @@ TheMixer:AddNewMix("flying", 2, 3,
     [sfx] = .2,
     [slurp] = 0,
 })
+
+--------------------------------------------------------------------------
+--Celestial Scion
+
+TheMixer:AddNewMix("supernova_charging", 0.6, 2,
+{
+	[amb] = 0.25,
+	[cloud] = 0,
+	[music] = 0.25,
+	[voice] = 1,
+	[movement] = 1,
+	[creature] = 1,
+	[player] = 1,
+	[HUD] = 1,
+	[sfx] = 1,
+	[slurp] = 1,
+})
+
+TheMixer:AddNewMix("supernova", 0, 3,
+{
+	[amb] = 0.1,
+	[cloud] = 0,
+	[music] = 0,
+	[voice] = 1,
+	[movement] = 1,
+	[creature] = 1,
+	[player] = 1,
+	[HUD] = 1,
+	[sfx] = 1,
+	[slurp] = 1,
+})
+
+--------------------------------------------------------------------------

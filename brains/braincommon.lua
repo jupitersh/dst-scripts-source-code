@@ -84,7 +84,7 @@ BrainCommon.AnchorToSaltlick = AnchorToSaltlick
 --------------------------------------------------------------------------
 
 local function ShouldTriggerPanic(inst)
-	return (inst.components.health ~= nil and inst.components.health.takingfiredamage)
+	return (inst.components.health and (inst.components.health.takingfiredamage or inst.components.health:GetLunarBurnFlags() ~= 0))
 		or (inst.components.hauntable ~= nil and inst.components.hauntable.panic)
 end
 

@@ -31,6 +31,7 @@ local InspectaclesOver = require("widgets/inspectaclesover")
 local RoseGlassesOver = require("widgets/roseglassesover")
 local BatOver = require "widgets/batover"
 local FlareOver = require "widgets/flareover"
+local LunarBurnOver = require("widgets/lunarburnover")
 local EndOfMatchPopup = require "widgets/redux/endofmatchpopup"
 local PopupNumber = require "widgets/popupnumber"
 local RingMeter = require "widgets/ringmeter"
@@ -81,7 +82,7 @@ local PlayerHud = Class(Screen, function(self)
     self.inst:ListenForEvent("continuefrompause", function() self:RefreshControllers() end, TheWorld)
     self.inst:ListenForEvent("endofmatch", function(world, data) self:ShowEndOfMatchPopup(data) end, TheWorld)
     self.inst:ListenForEvent("debug_rebuild_skilltreedata", function() self:OpenPlayerInfoScreen() end, TheGlobalInstance)
-
+    
     if not TheWorld.ismastersim then
         self.inst:ListenForEvent("deactivateworld", function()
             --Essential cleanup when client is notified of
@@ -192,6 +193,7 @@ function PlayerHud:CreateOverlays(owner)
     self.beefbloodover = self.overlayroot:AddChild(BeefBloodOver(owner))
     self.iceover = self.overlayroot:AddChild(IceOver(owner))
     self.fireover = self.overlayroot:AddChild(FireOver(owner))
+	self.lunarburnover = self.overlayroot:AddChild(LunarBurnOver(owner))
     self.heatover = self.overlayroot:AddChild(HeatOver(owner))
     self.fumeover = self.overlayroot:AddChild(FumeOver(owner))
     self.flareover = self.overlayroot:AddChild(FlareOver(owner))
@@ -253,6 +255,10 @@ function PlayerHud:OnLoseFocus()
 
     self:CloseCrafting()
 	self:CloseSpellWheel()
+	if self:IsCommandWheelOpen() then
+	    self:CloseCommandWheel()
+	end
+
     if self:IsControllerInventoryOpen() then
         self:CloseControllerInventory()
     end
@@ -293,6 +299,10 @@ function PlayerHud:OnGainFocus()
     end
 
     if not TheInput:ControllerAttached() then
+		if self:IsCommandWheelOpen() then
+			self:CloseCommandWheel()
+		end
+
         if self:IsControllerInventoryOpen() then
             self:CloseControllerInventory()
         end
@@ -420,7 +430,7 @@ function PlayerHud:TogglePlayerInfoPopup(player_name, data, show_net_profile, fo
         self.dressupAvatarPopUpcreen = nil
     elseif self.OpenPlayerInfoScreen ~= nil then
         POPUPS.PLAYERINFO:Close(self.owner)
-        self:OpenPlayerInfoScreen(player_name, data, show_net_profile, force)
+    self:OpenPlayerInfoScreen(player_name, data, show_net_profile, force)
     end
 end
 
@@ -640,8 +650,8 @@ function PlayerHud:OpenPlayerInfoScreen(player_name, data, show_net_profile, for
         self.dressupAvatarPopUpcreen:Start()
     else
         self.playerinfoscreen = PlayerInfoPopupScreen(self.owner, player_name, data, show_net_profile, force)
-        self:OpenScreenUnderPause(self.playerinfoscreen)
-        return true
+    self:OpenScreenUnderPause(self.playerinfoscreen)
+    return true
     end
 end
 
@@ -968,6 +978,7 @@ function PlayerHud:OpenControllerInventory()
     self:CloseCrafting()
 	self:CloseSpellWheel()
 
+    self:CloseCommandWheel()
     self.controls.inv:OpenControllerInventory()
     self.controls.item_notification:ToggleController(true)
     self.controls.yotb_notification:ToggleController(true)
@@ -995,7 +1006,7 @@ function PlayerHud:HasInputFocus()
     local active_screen = TheFrontEnd:GetActiveScreen()
     return (active_screen ~= nil and active_screen ~= self)
 		or TheFrontEnd.textProcessorWidget ~= nil
-        or (self.controls ~= nil and (self.controls.inv.open or ((self:IsCraftingOpen() or self:IsSpellWheelOpen()) and TheInput:ControllerAttached())))
+        or (self.controls ~= nil and (self.controls.inv.open or ((self:IsCraftingOpen() or self:IsSpellWheelOpen() or self:IsCommandWheelOpen()) and TheInput:ControllerAttached())))
         or self.modfocus ~= nil
 end
 
@@ -1034,6 +1045,10 @@ end
 function PlayerHud:IsCraftingBlockingGameplay()
 	-- deprecated
     return false
+end
+
+function PlayerHud:IsCommandWheelOpen()
+    return self.controls ~= nil and self.controls.commandwheel:IsOpen()
 end
 
 function PlayerHud:IsControllerVoteOpen()
@@ -1096,11 +1111,13 @@ function PlayerHud:IsPlayerInfoPopUpOpen()
 end
 
 function PlayerHud:OpenCrafting(search)
-	if not self:IsCraftingOpen() and not GetGameModeProperty("no_crafting") then
+	if not self:IsCraftingOpen() and not GetGameModeProperty("no_crafting")  then
 		self:CloseSpellWheel()
 		if self:IsControllerInventoryOpen() then
 			self:CloseControllerInventory()
 		end
+
+        self:CloseCommandWheel()
 
 		TheFrontEnd:GetSound():PlaySound("dontstarve/HUD/craft_open")
 		self.controls.craftingmenu:Open(search)
@@ -1232,6 +1249,51 @@ function PlayerHud:CloseSpellWheel(is_execute)
 	end
 end
 
+function PlayerHud:OpenCommandWheel()
+	if self.owner:HasTag("playerghost") and (self.is_split_screen --[[or ParentalControls_BlockChat()]]) then
+		self:ShowPlayerStatusScreen()
+		return
+	end
+
+	local can_invite_now = IsConsole() and TheNet:CanSendInvitation() or false
+	local is_mounted_now = self.owner.replica.rider and self.owner.replica.rider:IsRiding()	
+	if (self.controls.can_invite ~= can_invite_now) or (self.controls.is_mounted ~= is_mounted_now) then
+		-- rebuild the command wheel, something we care about has changed
+		self.controls:BuildCommandWheel(self.is_split_screen)
+	end
+
+    TheFrontEnd:GetSound():PlaySound("dontstarve/HUD/craft_open")
+    TheFrontEnd:StopTrackingMouse()
+	if self:IsControllerInventoryOpen() then
+		self:CloseControllerInventory()
+	end
+	self:CloseCrafting()
+	self:CloseSpellWheel()
+
+    self.controls.inv:Disable()
+    self.controls.craftingmenu:Disable()
+    self.controls.item_notification:ToggleController(true)
+    self.controls.commandwheel:Open()
+
+	if not Profile:GetCommandWheelAllowsGameplay() then
+		SetAutopaused(true)
+	end
+end
+
+function PlayerHud:CloseCommandWheel()
+	if self:IsCommandWheelOpen() then
+		TheFrontEnd:GetSound():PlaySound("dontstarve/HUD/craft_close")
+		
+		if not Profile:GetCommandWheelAllowsGameplay() then
+			SetAutopaused(false)
+		end
+	end
+    self.controls.commandwheel:Close()
+    self.controls.inv:Enable()
+    self.controls.craftingmenu:Enable()
+    self.controls.item_notification:ToggleController(false)
+end
+
 function PlayerHud:ShowPlayerStatusScreen(click_to_close, onclosefn)
     if self.playerstatusscreen == nil then
         self.playerstatusscreen = PlayerStatusScreen(self.owner)
@@ -1264,6 +1326,8 @@ function PlayerHud:OnControl(control, down)
 			return true
 		end
         return
+    elseif self.owner.components.playercontroller:ShouldPlayerHUDControlBeIgnored(control, down) then
+        return true
     end
 
     if down then
@@ -1348,6 +1412,13 @@ function PlayerHud:OnControl(control, down)
             end
             self.controls:ToggleMap()
             return true
+        elseif control == CONTROL_OPEN_COMMAND_WHEEL then
+			if self:IsCommandWheelOpen() then
+				self:CloseCommandWheel()
+			else
+				self:OpenCommandWheel()
+			end
+			return true
         elseif control == CONTROL_CANCEL and TheInput:ControllerAttached() then
             if self:IsCraftingOpen() then
                 self:CloseCrafting()
@@ -1363,9 +1434,9 @@ function PlayerHud:OnControl(control, down)
                 self:CloseControllerInventory()
                 return true
             end
-        elseif control == CONTROL_TOGGLE_PLAYER_STATUS then
-            self:ShowPlayerStatusScreen(true)
-            return true
+        --elseif control == CONTROL_TOGGLE_PLAYER_STATUS then DEPRECATED
+        --    self:ShowPlayerStatusScreen(true)
+        --    return true
 		elseif control == CONTROL_TOGGLE_SAY then
 			TheFrontEnd:PushScreen(ChatInputScreen(false))
 			return true

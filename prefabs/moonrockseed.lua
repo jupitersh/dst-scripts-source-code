@@ -273,6 +273,8 @@ local function fn()
         return inst
     end
 
+    WORLDSTATETAGS.SetTagEnabled("CELESTIAL_ORB_FOUND", true)
+
     inst._tasks = {}
     inst._light = 0
     inst._targetlight = 0
