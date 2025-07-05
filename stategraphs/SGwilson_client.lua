@@ -306,6 +306,7 @@ local actionhandlers =
             return action.invobject and action.invobject:HasTag("projectile") and "throw_deploy" or "doshortaction" 
         end),
     ActionHandler(ACTIONS.DEPLOY_TILEARRIVE, "doshortaction"),
+	ActionHandler(ACTIONS.DEPLOY_FLOATING, "float_action"),
     ActionHandler(ACTIONS.STORE, "doshortaction"),
     ActionHandler(ACTIONS.DROP,
         function(inst)
@@ -433,13 +434,19 @@ local actionhandlers =
             local obj = action.target or action.invobject
             if obj == nil then
                 return
-			elseif obj:HasTag("quickeat") then
-				return "quickeat"
-			elseif obj:HasTag("sloweat") then
-                return "eat"
             end
+			local state =
+				(obj:HasTag("quickeat") and "quickeat") or
+				(obj:HasTag("sloweat") and "eat") or
+				(obj:HasTag("edible_"..FOODTYPE.MEAT) and "eat") or
+				"quickeat"
 
-            return obj:HasTag("edible_"..FOODTYPE.MEAT) and "eat" or "quickeat"
+			local inventory = inst.replica.inventory
+			if inventory and inventory:IsFloaterHeld() then
+				--for searching: "float_eat", "float_quickeat"
+				return "float_"..state
+			end
+			return state
         end),
     ActionHandler(ACTIONS.GIVE,
         function(inst, action)
@@ -855,6 +862,11 @@ local events =
 	EventHandler("sg_cancelmovementprediction", function(inst)
 		inst.sg:GoToState("idle", "cancel")
 	end),
+	EventHandler("sg_startfloating", function(inst)
+		if not inst.sg:HasStateTag("floating") then
+			inst.sg:GoToState("float")
+		end
+	end),
 	EventHandler("locomote", function(inst, data)
 		--#HACK for hopping prediction: ignore busy when boathopping... (?_?)
 		if (inst.sg:HasStateTag("busy") or inst:HasTag("busy")) and
@@ -902,7 +914,18 @@ local states =
 	State{
 		name = "init",
 		onenter = function(inst)
-			inst.sg:GoToState(inst:HasTag("sitting_on_chair") and "sitting" or "idle")
+			if inst:HasTag("sitting_on_chair") then
+				inst.sg:GoToState("sitting")
+				return
+			end
+
+			local inventory = inst.replica.inventory
+			if inventory and inventory:IsFloaterHeld() then
+				inst.sg:GoToState("float")
+				return
+			end
+
+			inst.sg:GoToState("idle")
 		end,
 	},
 
@@ -6883,6 +6906,197 @@ local states =
 		ontimeout = function(inst)
 			inst:ClearBufferedAction()
 			inst.sg:GoToState("idle")
+		end,
+	},
+
+	State{
+		name = "float",
+		tags = { "overridelocomote", "canrotate", "floating" },
+		server_states = { "float_pre_splash", "float_pre", "float", "float_let_go" }, --for sg_cancelmovementprediction
+
+		onenter = function(inst)
+			inst.entity:SetIsPredictingMovement(false)
+		end,
+
+		onupdate = function(inst)
+			local inventory = inst.replica.inventory
+			if not (inventory and inventory:IsFloaterHeld()) then
+				inst.sg:GoToState("idle", "noanim")
+			end
+		end,
+
+		events =
+		{
+			EventHandler("sg_cancelmovementprediction", function(inst)
+				if inst.sg:ServerStateMatches() then
+					return true
+				end
+			end),
+			EventHandler("sg_stopfloating", function(inst)
+				inst.sg:GoToState("idle", "noanim")
+			end),
+			EventHandler("locomote", function(inst, data)
+				local x1, y1, z1, nodelay
+				if inst.components.locomotor.dest then
+					local pt = inst.components.locomotor.dest.pt
+					if pt then
+						x1, y1, z1 = pt:Get()
+					end
+					inst.components.locomotor:Stop()
+					inst.components.locomotor:Clear()
+					nodelay = true
+				end
+				if data and data.dir then
+					inst.Transform:SetRotation(data.dir)
+
+					local x, y, z = inst.Transform:GetWorldPosition()
+					local dx, dz
+					if x1 then
+						if x ~= x1 or z ~= z1 then
+							local dx = x1 - x
+							local dz = z1 - z
+							local len = math.sqrt(dx * dx + dz * dz)
+							dx = dx / len
+							dz = dz / len
+						end
+					end
+					if dx == nil then
+						local theta = data.dir * DEGREES
+						dx = math.cos(theta)
+						dz = -math.sin(theta)
+					end
+					local step_size = 0.5
+					local steps_to_platform = math.ceil(TUNING.FLOATING_HOP_DISTANCE_PLATFORM / step_size)
+					local steps_to_land = math.ceil(TUNING.FLOATING_HOP_DISTANCE_LAND / step_size)
+					local can_hop, px, pz, found_platform = inst.components.locomotor:ScanForPlatformInDirFromFloating(TheWorld.Map, x, z, dx, dz, steps_to_platform, steps_to_land, step_size, nodelay)
+					inst.components.playercontroller:RemotePredictOverrideLocomote(can_hop)
+				end
+				return true
+			end),
+		},
+
+		onexit = function(inst)
+			inst.entity:SetIsPredictingMovement(true)
+		end,
+	},
+
+	State{
+		name = "float_action",
+		tags = { "doing", "busy", "floating" },
+		server_states = { "float_action", "float" },
+
+		onenter = function(inst)
+			inst.components.locomotor:Stop()
+			inst.AnimState:PlayAnimation("float_action_pre")
+			inst.AnimState:PushAnimation("float_action_lag", false)
+
+			inst:PerformPreviewBufferedAction()
+			inst.sg:SetTimeout(TIMEOUT)
+		end,
+
+		onupdate = function(inst)
+			if inst.sg:ServerStateMatches() then
+				if inst.entity:FlattenMovementPrediction() then
+					inst.sg:GoToState("float")
+				end
+			elseif inst.bufferedaction == nil then
+				local inventory = inst.replica.inventory
+				if inventory and inventory:IsFloaterHeld() then
+					inst.sg:GoToState("float")
+				else
+					inst.sg:GoToState("idle")
+				end
+			end
+		end,
+
+		ontimeout = function(inst)
+			inst:ClearBufferedAction()
+			local inventory = inst.replica.inventory
+			if inventory and inventory:IsFloaterHeld() then
+				inst.sg:GoToState("float")
+			else
+				inst.sg:GoToState("idle")
+			end
+		end,
+	},
+
+	State{
+		name = "float_eat",
+		tags = { "busy", "floating" },
+		server_states = { "float_eat", "float" },
+
+		onenter = function(inst)
+			inst.components.locomotor:Stop()
+			inst.AnimState:PlayAnimation("float_eat_pre")
+			inst.AnimState:PushAnimation("float_eat_lag", false)
+
+			inst:PerformPreviewBufferedAction()
+			inst.sg:SetTimeout(TIMEOUT)
+		end,
+
+		onupdate = function(inst)
+			if inst.sg:ServerStateMatches() then
+				if inst.entity:FlattenMovementPrediction() then
+					inst.sg:GoToState("float")
+				end
+			elseif inst.bufferedaction == nil then
+				local inventory = inst.replica.inventory
+				if inventory and inventory:IsFloaterHeld() then
+					inst.sg:GoToState("float")
+				else
+					inst.sg:GoToState("idle")
+				end
+			end
+		end,
+
+		ontimeout = function(inst)
+			inst:ClearBufferedAction()
+			local inventory = inst.replica.inventory
+			if inventory and inventory:IsFloaterHeld() then
+				inst.sg:GoToState("float")
+			else
+				inst.sg:GoToState("idle")
+			end
+		end,
+	},
+
+	State{
+		name = "float_quickeat",
+		tags = { "busy", "floating" },
+		server_states = { "quickeat", "float" },
+
+		onenter = function(inst)
+			inst.components.locomotor:Stop()
+			inst.AnimState:PlayAnimation("float_quick_eat_pre")
+			inst.AnimState:PushAnimation("float_quick_eat_lag", false)
+
+			inst:PerformPreviewBufferedAction()
+			inst.sg:SetTimeout(TIMEOUT)
+		end,
+
+		onupdate = function(inst)
+			if inst.sg:ServerStateMatches() then
+				if inst.entity:FlattenMovementPrediction() then
+					inst.sg:GoToState("float")
+				end
+			elseif inst.bufferedaction == nil then
+				local inventory = inst.replica.inventory
+				if inventory and inventory:IsFloaterHeld() then
+					inst.sg:GoToState("float")
+				else
+					inst.sg:GoToState("idle")
+				end
+			end
+		end,
+
+		ontimeout = function(inst)
+			inst:ClearBufferedAction()
+			local inventory = inst.replica.inventory
+			if inventory and inventory:IsFloaterHeld() then
+				inst.sg:GoToState("float")
+			else
+				inst.sg:GoToState("idle")
+			end
 		end,
 	},
 }

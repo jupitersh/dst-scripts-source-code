@@ -105,18 +105,23 @@ local Controls = Class(Widget, function(self, owner)
         {pos=Vector3(315, 150, 0)},
         {pos=Vector3(415, 150, 0)},        
     }
+	self.toastitems = {}
 
     self.item_notification = self.topleft_root:AddChild(GiftItemToast(self.owner, self))
     self.item_notification:SetPosition(115, 150, 0)
+	table.insert(self.toastitems, self.item_notification)
 
     self.yotb_notification = self.topleft_root:AddChild(YotbToast(self.owner, self))
     self.yotb_notification:SetPosition(215, 150, 0)
+	table.insert(self.toastitems, self.yotb_notification)
 
     self.skilltree_notification = self.topleft_root:AddChild(SkillTreeToast(self.owner, self))
     self.skilltree_notification:SetPosition(315, 150, 0)
+	table.insert(self.toastitems, self.skilltree_notification)
 
     self.scrapbook_notification = self.topleft_root:AddChild(ScrapbookToast(self.owner, self))
     self.scrapbook_notification:SetPosition(415, 0, 0)
+	table.insert(self.toastitems, self.scrapbook_notification)
 
     --self.worldresettimer = self.bottom_root:AddChild(WorldResetTimer(self.owner))
     self.worldresettimer = self.bottom_root:AddChild(PlayerDeathNotification(self.owner))
@@ -407,6 +412,7 @@ local Controls = Class(Widget, function(self, owner)
 
     self.dismounthintdelay = 0
     self.craftingandinventoryshown = false
+	self.craftingshown = true
 
     self:SetHUDSize()
 
@@ -994,22 +1000,52 @@ function Controls:ToggleMap()
     end
 end
 
+function Controls:DoShowCrafting_Internal()
+	if not GetGameModeProperty("no_crafting") then
+		self.craftingmenu:Show()
+	end
+end
+
+function Controls:DoHideCrafting_Internal()
+	self.owner.HUD:CloseCrafting(true)
+	self.craftingmenu:Hide()
+end
+
+function Controls:ShowCrafting()
+	if not self.craftingshown then
+		self.craftingshown = true
+		if self.craftingandinventoryshown then
+			self:DoShowCrafting_Internal()
+		end
+	end
+end
+
+function Controls:HideCrafting()
+	if self.craftingshown then
+		self.craftingshown = false
+		if self.craftingandinventoryshown then
+			self:DoHideCrafting_Internal()
+		end
+		self.inv:OnCraftingHidden()
+	end
+end
+
 -- NOTES(JBK): .stay_open_on_hide containers must be hidden and shown in ShowCraftingAndInventory and HideCraftingAndInventory!
 function Controls:ShowCraftingAndInventory()
     if not self.craftingandinventoryshown then
         self.craftingandinventoryshown = true
-        if not GetGameModeProperty("no_crafting") then
-            self.craftingmenu:Show()
-        end
+		if self.craftingshown then
+			self:DoShowCrafting_Internal()
+		end
         self.inv:Show()
         self.containerroot_side:Show()
         self.containerroot_side_behind:Show()
         if self.secondary_status and self.secondary_status.side_inv then
             self.secondary_status.side_inv:Show()
         end
-        self.item_notification:ToggleCrafting(false)
-        self.yotb_notification:ToggleCrafting(false)
-        self.skilltree_notification:ToggleCrafting(false)
+		for i, v in ipairs(self.toastitems) do
+			v:ToggleCrafting(false)
+		end
         if self.status.ToggleCrafting ~= nil then
             self.status:ToggleCrafting(false)
         end
@@ -1020,17 +1056,18 @@ function Controls:HideCraftingAndInventory()
     if self.craftingandinventoryshown then
         self.inv:CloseControllerInventory()
         self.craftingandinventoryshown = false
-        self.craftingmenu:Close()
-        self.craftingmenu:Hide()
+		if self.craftingshown then
+			self:DoHideCrafting_Internal()
+		end
         self.inv:Hide()
         self.containerroot_side:Hide()
         self.containerroot_side_behind:Hide()
         if self.secondary_status and self.secondary_status.side_inv then
             self.secondary_status.side_inv:Hide()
         end
-        self.item_notification:ToggleCrafting(true)
-        self.yotb_notification:ToggleCrafting(true)
-        self.skilltree_notification:ToggleCrafting(true)
+		for i, v in ipairs(self.toastitems) do
+			v:ToggleCrafting(true)
+		end
         if self.status.ToggleCrafting ~= nil then
             self.status:ToggleCrafting(true)
         end

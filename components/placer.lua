@@ -211,7 +211,14 @@ end
 function Placer:GetDeployAction()
     if self.invobject ~= nil then
         self.selected_pos = self.inst:GetPosition()
-        local action = BufferedAction(self.builder, nil, ACTIONS.DEPLOY, self.invobject, self.selected_pos, nil, nil, nil, self.inst.Transform:GetRotation())
+		local action = ACTIONS.DEPLOY
+		if self.invobject:HasTag("boatbuilder") then
+			local inventory = ThePlayer and ThePlayer.replica.inventory
+			if inventory and inventory:IsFloaterHeld() then
+				action = ACTIONS.DEPLOY_FLOATING
+			end
+		end
+		action = BufferedAction(self.builder, nil, action, self.invobject, self.selected_pos, nil, nil, nil, self.inst.Transform:GetRotation())
         table.insert(action.onsuccess, function() self.selected_pos = nil end)
         return action
     end
@@ -296,13 +303,6 @@ function Placer:UpdateAxisAlignedHelpers(dt)
             local scale = self.axisalignedhelpers.intervals
             local dx, dy, dz = self:GetAxisAlignedPlacementTransform(px - oldx, 0, pz - oldz, true)
             self.axisalignedhelpers.parent.Transform:SetPosition(px, py, pz)
-            -- Update all rotations.
-            for _, v in ipairs(self.axisalignedhelpers.cache) do
-                local x, y, z = v.ent.Transform:GetWorldPosition()
-                local positionrandom = math.floor(math.abs(x * 1024 * PI2 + z * PI))
-                local rotationrandom = (positionrandom % 4) * 90
-                v.ent.Transform:SetRotation(rotationrandom)
-            end
             -- We moved so slide known collision tests if they are available otherwise clear their collision test.
             local grid = self.axisalignedhelpers.grid
             local r = self.axisalignedhelpers.gridradius

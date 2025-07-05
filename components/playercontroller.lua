@@ -1001,7 +1001,13 @@ function PlayerController:OnRemoteControllerActionButtonDeploy(invobject, positi
 
         if invobject.components.inventoryitem ~= nil and invobject.components.inventoryitem:GetGrandOwner() == self.inst then
             --Must match placer:GetDeployAction(), with an additional distance = 1 parameter
-            self:DoAction(BufferedAction(self.inst, nil, ACTIONS.DEPLOY, invobject, position, nil, 1, nil, rotation or 0))
+			local action =
+				self.inst.components.inventory and
+				self.inst.components.inventory:IsFloaterHeld() and
+				invobject:HasTag("boatbuilder") and
+				ACTIONS.DEPLOY_FLOATING or
+				ACTIONS.DEPLOY
+			self:DoAction(BufferedAction(self.inst, nil, action, invobject, position, nil, 1, nil, rotation or 0))
         --else
             --print("Remote controller action button deploy failed")
         end
@@ -2286,8 +2292,13 @@ function PlayerController:DoCharacterCommandWheelButton()
 		return
 	end
 
+	local inventory = self.inst.replica.inventory
+	if inventory and inventory:IsFloaterHeld() then
+		return
+	end
+
 	--First, try find a spellbook in our inventory
-	local invobject = self.inst.replica.inventory:FindItem(function(item)
+	local invobject = inventory and inventory:FindItem(function(item)
 		if item.components.spellbook and item.components.spellbook:CanBeUsedBy(self.inst) then
 			--special case for wendy, just hardcoded here for now
 			if item.prefab == "abigail_flower" and self.inst:HasTag("ghostfriend_notsummoned") then
@@ -3565,13 +3576,13 @@ function PlayerController:OnRemotePredictWalking(x, z, isdirectwalking, isstart,
     end
 end
 
-function PlayerController:OnRemotePredictOverrideLocomote(dir)
+function PlayerController:OnRemotePredictOverrideLocomote(dir, floathop)
 	if self.ismastersim and self.handler == nil and self.inst.sg:HasStateTag("overridelocomote") then
 		if self:IsEnabled() and not self:IsBusy() or self.classified.busyremoteoverridelocomote:value() then
 			if self.inst.sg:HasStateTag("canrotate") then
 				self.locomotor:SetMoveDir(dir)
 			end
-			self.inst:PushEvent("locomote", { dir = dir, remoteoverridelocomote = true })
+			self.inst:PushEvent("locomote", { dir = dir, remoteoverridelocomote = true, floathop = floathop })
 		end
 	end
 end
@@ -3678,8 +3689,8 @@ function PlayerController:RemotePredictWalking(x, z, isstart, overridemovetime, 
     end
 end
 
-function PlayerController:RemotePredictOverrideLocomote()
-	SendRPCToServer(RPC.PredictOverrideLocomote, self.inst.Transform:GetRotation())
+function PlayerController:RemotePredictOverrideLocomote(floathop)
+	SendRPCToServer(RPC.PredictOverrideLocomote, self.inst.Transform:GetRotation(), floathop)
 end
 
 function PlayerController:RemoteStopWalking()
@@ -4364,6 +4375,7 @@ function PlayerController:DoActionAutoEquip(buffaction)
         buffaction.action ~= ACTIONS.ADDFUEL and
         buffaction.action ~= ACTIONS.ADDWETFUEL and
         buffaction.action ~= ACTIONS.DEPLOY and
+		buffaction.action ~= ACTIONS.DEPLOY_FLOATING and
         buffaction.action ~= ACTIONS.CONSTRUCT and
 		buffaction.action ~= ACTIONS.ADDCOMPOSTABLE and
 		(buffaction.action ~= ACTIONS.TOSS or not equippable.inst:HasTag("keep_equip_toss")) and
@@ -4700,7 +4712,7 @@ function PlayerController:OnRightClick(down)
         if self.reticule ~= nil and self.reticule.reticule ~= nil then
 			self.reticule:PingReticuleAt(act:GetDynamicActionPoint())
         end
-        local goingtodeploy = self.deployplacer ~= nil and act.action == ACTIONS.DEPLOY
+		local goingtodeploy = self.deployplacer ~= nil and (act.action == ACTIONS.DEPLOY or act.action == ACTIONS.DEPLOY_FLOATING)
         if goingtodeploy then
             if self.deployplacer.components.placer:IsAxisAlignedPlacement() then
                 act:SetActionPoint(self.deployplacer:GetPosition())
@@ -5051,7 +5063,7 @@ function PlayerController:GetItemUseAction(active_item, target)
 		local rider = self.inst.replica.rider
 		if rider ~= nil and rider:IsRiding() then
 			--See rider_replica MountedActionFilter; match priority
-			self.inst.components.playeractionpicker:PushActionFilter(AllowMountedStoreActionFilter, 20)
+			self.inst.components.playeractionpicker:PushActionFilter(AllowMountedStoreActionFilter, ACTION_FILTER_PRIORITIES.mounted)
 		else
 			allow_mounted_store = false
 		end

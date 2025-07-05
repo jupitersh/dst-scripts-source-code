@@ -19,7 +19,7 @@ local function onrestrictedtag(self, restrictedtag)
 end
 
 local function onpreventunequipping(self, prevent)
-    self.inst.replica.equippable:SetPreventUnequipping(prevent)
+	self.inst.replica.equippable:SetPreventUnequipping(prevent == true)
 end
 
 local Equippable = Class(function(self, inst)
@@ -53,6 +53,7 @@ nil,
 })
 
 function Equippable:OnRemoveFromEntity()
+	self:SetPreventUnequipping(false)
     local inventoryitem = self.inst.replica.inventoryitem
     if inventoryitem ~= nil then
         inventoryitem:SetWalkSpeedMult(1)
@@ -160,25 +161,23 @@ function Equippable:IsRestricted_FromLoad(target)
 end
 
 function Equippable:ShouldPreventUnequipping()
-    return self.preventunequipping
+	return self.preventunequipping == true
 end
 
-local function OnRemove(inst, data)
+local function OnRemove(inst)
     inst.components.equippable:SetPreventUnequipping(false)
 end
 
 function Equippable:SetPreventUnequipping(shouldprevent)
     if shouldprevent then
-        if self._onremovelistener == nil then
-            self._onremovelistener = self.inst:ListenForEvent("onremove", OnRemove)
+		if not self.preventunequipping then
+			self.inst:ListenForEvent("onremove", OnRemove)
+			self.preventunequipping = true
         end
-    else
-        if self._onremovelistener ~= nil then
-            self.inst:RemoveEventCallback("onremove", OnRemove)
-            self._onremovelistener = nil
-        end
+	elseif self.preventunequipping then
+		self.inst:RemoveEventCallback("onremove", OnRemove)
+		self.preventunequipping = nil
     end
-    self.preventunequipping = shouldprevent
 end
 
 function Equippable:GetDapperness(owner, ignore_wetness)

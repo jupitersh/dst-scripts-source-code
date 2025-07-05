@@ -1170,16 +1170,16 @@ function LocoMotor:GetHopDistance(speed_mult)
 end
 
 local WALL_TAGS = { "wall" }
-function LocoMotor:ScanForPlatformInDir(my_platform, map, my_x, my_z, dir_x, dir_z, steps, step_size)
-    local is_at_edge = self:IsAtEdge(my_platform, map, my_x, my_z, dir_x, dir_z)
+--steps_to_land is optional: used when hopping from floating, to scan a bit further for land
+function LocoMotor:ScanForPlatformInDir_Internal(my_platform, map, my_x, my_z, dir_x, dir_z, steps, steps_to_land, step_size, nodelay, from_floating)
     local is_first_hop_point = true
-    for i = 1,steps do
+	for i = 1, steps_to_land or steps do
         local pt_x, pt_z = my_x + dir_x * i * step_size, my_z + dir_z * i * step_size
         local platform = map:GetPlatformAtPoint(pt_x, pt_z)
 
         -- prevent jumping back onto the same platform because if you click an action and land near the edge of a platform
         -- you would sometimes turn around and jump right back
-        if not (self.last_platform_visited == platform) then
+		if from_floating or not (self.last_platform_visited == platform) then
             local is_water = not map:IsVisualGroundAtPoint(pt_x, 0, pt_z)
             if not is_water then
                 --search for nearby walls and fences with active physics.
@@ -1193,16 +1193,23 @@ function LocoMotor:ScanForPlatformInDir(my_platform, map, my_x, my_z, dir_x, dir
                     end
                 end
             end
-            --print(i, is_at_edge, my_platform, platform, pt_x - my_x, pt_z - my_z, is_water, step_size)
-            if is_at_edge and platform ~= my_platform then
+			--print(i, my_platform, platform, pt_x - my_x, pt_z - my_z, is_water, step_size)
+			if from_floating or platform ~= my_platform and
+				(i <= steps or platform == nil) --extra distance when jumping to land from floating
+			then
                 if platform ~= nil or not is_water then
-					if self.hop_delay and self.dest == nil then
+					if self.hop_delay and self.dest == nil and not nodelay then
 						--keep pushing toward the same direction during the delay before the hop is actually triggered
-                        local platform_delay = math.max(
-							platform and platform.components.platformhopdelay and platform.components.platformhopdelay:GetDelayTicks() or 0,
-							my_platform and my_platform.components.platformhopdelay and my_platform.components.platformhopdelay:GetDelayTicks() or 0
-						)
-						local delay = platform_delay > 0 and platform_delay or self.inst.forced_platformhopdelay or TUNING.PLATFORM_HOP_DELAY_TICKS
+						local delay
+						if is_water then
+							delay = self.inst.forced_platformhopdelay or TUNING.PLATFORM_FLOATING_HOP_DELAY_TICKS
+						else
+							local platform_delay = math.max(
+								platform and platform.components.platformhopdelay and platform.components.platformhopdelay:GetDelayTicks() or 0,
+								my_platform and my_platform.components.platformhopdelay and my_platform.components.platformhopdelay:GetDelayTicks() or 0
+							)
+							delay = platform_delay > 0 and platform_delay or self.inst.forced_platformhopdelay or TUNING.PLATFORM_HOP_DELAY_TICKS
+						end
 						if delay > 0 then
 							--detect boat bridges (only from boat->boat)
 							local is_boat_bridge = false
@@ -1242,6 +1249,17 @@ function LocoMotor:ScanForPlatformInDir(my_platform, map, my_x, my_z, dir_x, dir
         end
     end
     return false, 0, 0, nil
+end
+
+function LocoMotor:ScanForPlatformInDir(my_platform, map, my_x, my_z, dir_x, dir_z, steps, step_size)
+	if self:IsAtEdge(my_platform, map, my_x, my_z, dir_x, dir_z) then
+		return self:ScanForPlatformInDir_Internal(my_platform, map, my_x, my_z, dir_x, dir_z, steps, nil, step_size, false, false)
+	end
+	return false, 0, 0, nil
+end
+
+function LocoMotor:ScanForPlatformInDirFromFloating(map, my_x, my_z, dir_x, dir_z, steps_to_platform, steps_to_land, step_size, nodelay)
+	return self:ScanForPlatformInDir_Internal(nil, map, my_x, my_z, dir_x, dir_z, steps_to_platform, steps_to_land, step_size, nodelay, true)
 end
 
 local PLATFORM_SCAN_STEP_SIZE = 0.5

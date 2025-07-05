@@ -279,11 +279,17 @@ function InventoryItem:IsDeployable(deployer)
     local restrictedtag = self.classified.deployrestrictedtag:value()
 	if restrictedtag and restrictedtag ~= 0 and not (deployer and deployer:HasTag(restrictedtag)) then
 		return false
-	end
-	local rider = deployer and deployer.replica.rider or nil
-	if rider and rider:IsRiding() then
-		--can only deploy tossables while mounted
-		return self.inst:HasTag("projectile")
+	elseif deployer then
+		local rider = deployer.replica.rider
+		if rider and rider:IsRiding() then
+			--can only deploy tossables while mounted
+			return self.inst:HasTag("complexprojectile")
+		end
+		local inventory = deployer.replica.inventory
+		if inventory and inventory:IsFloaterHeld() then
+			--can only deploy boats while floating
+			return self.inst:HasTag("boatbuilder")
+		end
 	end
 	return true
 end

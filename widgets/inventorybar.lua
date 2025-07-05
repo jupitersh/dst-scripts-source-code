@@ -675,7 +675,7 @@ function Inv:CursorLeft()
 
     if self:CursorNav(Vector3(-1,0,0), true) then
         TheFrontEnd:GetSound():PlaySound("dontstarve/HUD/click_move")
-	elseif not self.open and not self.pin_nav and self.owner.HUD.controls.craftingmenu.is_left_aligned and self:PinBarNav(self.owner.HUD.controls.craftingmenu:InvNavToPin(self.active_slot, -1, 0)) then
+	elseif not self.open and not self.pin_nav and self.owner.HUD.controls.craftingmenu.is_left_aligned and self.owner.HUD.controls.craftingshown and self:PinBarNav(self.owner.HUD.controls.craftingmenu:InvNavToPin(self.active_slot, -1, 0)) then
         TheFrontEnd:GetSound():PlaySound("dontstarve/HUD/click_move")
 	elseif self.reps == 1 and (self.current_list == self.inv or self.current_list == self.equip or self.pin_nav) then
 		self.current_list = self.equip[self.equipslotinfo[#self.equipslotinfo].slot] and self.equip or self.inv
@@ -708,7 +708,7 @@ function Inv:CursorUp()
     else
 		if self:CursorNav(Vector3(0,1,0)) then
 			TheFrontEnd:GetSound():PlaySound("dontstarve/HUD/click_move")
-		elseif not self.open and (self.current_list == self.inv or self.current_list == self.equip) then
+		elseif not self.open and (self.current_list == self.inv or self.current_list == self.equip) and self.owner.HUD.controls.craftingshown then
 			-- go into the pin bar if there are no other open containers above the inventory bar
 			self:PinBarNav(self.owner.HUD.controls.craftingmenu:InvNavToPin(self.active_slot, 0, 1))
 		end
@@ -803,15 +803,25 @@ function Inv:OnControl(control, down)
         if isreadonlycontainer then
             TheFocalPoint.SoundEmitter:PlaySound("dontstarve/HUD/click_negative")
             return true
-        end
-        if inv_item ~= nil and active_item == nil and
-            (   (GetGameModeProperty("non_item_equips") and inv_item.replica.equippable ~= nil) or
-                not inv_item.replica.inventoryitem:CanGoInContainer()
-            ) then
-            self.owner.replica.inventory:DropItemFromInvTile(inv_item)
-            self:CloseControllerInventory()
-            return true
-        elseif self.active_slot ~= nil then
+		elseif inv_item and active_item == nil then
+			local inv_equippable = inv_item.replica.equippable
+			if inv_equippable and inv_equippable:ShouldPreventUnequipping() then
+				local self_action = self.owner.components.playercontroller:GetItemSelfAction(inv_item)
+				if self_action and self_action.action == ACTIONS.DROP then
+					--V2C: special case handling for how to drop playerfloaters
+					self.owner.replica.inventory:DropItemFromInvTile(inv_item)
+					self:CloseControllerInventory()
+					return true
+				end
+			elseif (inv_equippable and GetGameModeProperty("non_item_equips")) or
+				not inv_item.replica.inventoryitem:CanGoInContainer()
+			then
+				self.owner.replica.inventory:DropItemFromInvTile(inv_item)
+				self:CloseControllerInventory()
+				return true
+			end
+		end
+		if self.active_slot then
             self.active_slot:Click()
             return true
         end
@@ -981,7 +991,6 @@ function Inv:UpdateCursorText()
             end
         end
 
-
         local is_equip_slot = self.active_slot and self.active_slot.equipslot
         local str = {}
 
@@ -1041,17 +1050,23 @@ function Inv:UpdateCursorText()
 							if self_action then
 								table.insert(str, TheInput:GetLocalizedControl(controller_id, self_use_ctrl).." "..self_action:GetActionString())
 							end
+							table.insert(str, TheInput:GetLocalizedControl(controller_id, drop_ctrl).." "..GetDropActionString(self.owner, inv_item))
 						else
 							local self_action = self.owner.components.playercontroller:GetItemSelfAction(inv_item)
-							if self_action and self_action.action ~= ACTIONS.UNEQUIP then
+							if self_action and self_action.action ~= ACTIONS.UNEQUIP and self_action.action ~= ACTIONS.DROP then
 								table.insert(str, TheInput:GetLocalizedControl(controller_id, scene_act_ctrl).." "..self_action:GetActionString())
 							end
-							if #self.inv > 0 and not (inv_item:HasTag("heavy") or GetGameModeProperty("non_item_equips")) then
-								table.insert(str, TheInput:GetLocalizedControl(controller_id, self_use_ctrl).." "..STRINGS.UI.HUD.UNEQUIP)
+							local equippable = inv_item.replica.equippable
+							if not (equippable and equippable:ShouldPreventUnequipping()) then
+								if #self.inv > 0 and not (inv_item:HasTag("heavy") or GetGameModeProperty("non_item_equips")) then
+									table.insert(str, TheInput:GetLocalizedControl(controller_id, self_use_ctrl).." "..STRINGS.UI.HUD.UNEQUIP)
+								end
+								table.insert(str, TheInput:GetLocalizedControl(controller_id, drop_ctrl).." "..GetDropActionString(self.owner, inv_item))
+							elseif self_action and self_action.action == ACTIONS.DROP then
+								--V2C: special case handling for how to drop playerfloaters
+								table.insert(str, TheInput:GetLocalizedControl(controller_id, drop_ctrl).." "..self_action:GetActionString())
 							end
 						end
-
-						table.insert(str, TheInput:GetLocalizedControl(controller_id, drop_ctrl).." "..GetDropActionString(self.owner, inv_item))
 					elseif show_mod_hint then
 						table.insert(str, TheInput:GetLocalizedControl(controller_id, CONTROL_CAM_AND_INV_MODIFIER))--.." "..STRINGS.UI.HUD.ITEM_ACTIONS)
 					end
@@ -1059,15 +1074,29 @@ function Inv:UpdateCursorText()
             else
                 if is_equip_slot then
                     --handle the quip slot stuff as a special case because not every item can go there
-                    if active_item ~= nil and active_item.replica.equippable ~= nil and active_item.replica.equippable:EquipSlot() == self.active_slot.equipslot and not active_item.replica.equippable:IsRestricted(self.owner) then
-                        if inv_item and active_item then
-                            table.insert(str, TheInput:GetLocalizedControl(controller_id, CONTROL_ACCEPT) .. " " .. STRINGS.UI.HUD.SWAP)
-                        elseif not inv_item and active_item then
-                            table.insert(str, TheInput:GetLocalizedControl(controller_id, CONTROL_ACCEPT) .. " " .. STRINGS.UI.HUD.EQUIP)
-                        end
-                    elseif active_item == nil and inv_item ~= nil then
-                        if not (GetGameModeProperty("non_item_equips") and inv_item.replica.equippable ~= nil) and
-                            inv_item.replica.inventoryitem:CanGoInContainer() then
+					if active_item then
+						local active_equippable = active_item.replica.equippable
+						if active_equippable and active_equippable:EquipSlot() == self.active_slot.equipslot and not active_equippable:IsRestricted(self.owner) then
+							if inv_item then
+								local inv_equippable = inv_item.replica.equippable
+								if not (inv_equippable and inv_equippable:ShouldPreventUnequipping()) then
+									table.insert(str, TheInput:GetLocalizedControl(controller_id, CONTROL_ACCEPT).." "..STRINGS.UI.HUD.SWAP)
+								end
+							else
+								table.insert(str, TheInput:GetLocalizedControl(controller_id, CONTROL_ACCEPT).." "..STRINGS.UI.HUD.EQUIP)
+							end
+						end
+					elseif inv_item then
+						local inv_equippable = inv_item.replica.equippable
+						if inv_equippable and inv_equippable:ShouldPreventUnequipping() then
+							local self_action = self.owner.components.playercontroller:GetItemSelfAction(inv_item)
+							if self_action and self_action.action == ACTIONS.DROP then
+								--V2C: special case handling for how to drop playerfloaters
+								table.insert(str, TheInput:GetLocalizedControl(controller_id, CONTROL_ACCEPT).." "..self_action:GetActionString())
+							end
+						elseif not (inv_equippable and GetGameModeProperty("non_item_equips")) and
+							inv_item.replica.inventoryitem:CanGoInContainer()
+						then
                             table.insert(str, TheInput:GetLocalizedControl(controller_id, CONTROL_ACCEPT) .. " " .. STRINGS.UI.HUD.UNEQUIP)
                         else
                             table.insert(str, TheInput:GetLocalizedControl(controller_id, CONTROL_ACCEPT) .. " " .. GetDropActionString(self.owner, inv_item))
@@ -1482,6 +1511,12 @@ function Inv:OnHide()
     if self.hovertile ~= nil then
         self.hovertile:Hide()
     end
+end
+
+function Inv:OnCraftingHidden()
+	if self.pin_nav and not self.open then
+		self:SelectDefaultSlot()
+	end
 end
 
 return Inv

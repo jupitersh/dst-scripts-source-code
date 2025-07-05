@@ -651,7 +651,7 @@ local COMPONENT_ACTIONS =
         end,
 
         prototyper = function(inst, doer, actions, right)
-            if not right then
+			if not right and (doer.player_classified == nil or doer.player_classified.iscraftingenabled:value()) then
                 table.insert(actions, ACTIONS.OPEN_CRAFTING)
             end
         end,
@@ -1952,7 +1952,13 @@ local COMPONENT_ACTIONS =
 
         deployable = function(inst, doer, pos, actions, right, target)
             if right and inst.replica.inventoryitem ~= nil then
-                if CLIENT_REQUESTED_ACTION == ACTIONS.DEPLOY_TILEARRIVE or CLIENT_REQUESTED_ACTION == ACTIONS.DEPLOY then
+                if doer.components.playercontroller and doer.components.playercontroller:IsAxisAlignedPlacement() then
+                    pos = doer.components.playercontroller:GetPlacerPosition()
+                end
+				if CLIENT_REQUESTED_ACTION == ACTIONS.DEPLOY_TILEARRIVE or
+					CLIENT_REQUESTED_ACTION == ACTIONS.DEPLOY or
+					CLIENT_REQUESTED_ACTION == ACTIONS.DEPLOY_FLOATING
+				then
                     --CanDeploy will still run before the actual deploy itself.
                     table.insert(actions, CLIENT_REQUESTED_ACTION)
                 elseif inst.replica.inventoryitem:CanDeploy(pos, nil, doer, (doer.components.playercontroller ~= nil and doer.components.playercontroller.deployplacer ~= nil) and doer.components.playercontroller.deployplacer.Transform:GetRotation() or 0) then
@@ -1960,6 +1966,10 @@ local COMPONENT_ACTIONS =
                         table.insert(actions, ACTIONS.DEPLOY_TILEARRIVE)
 					elseif not (inst.CanTossInWorld and inst:HasTag("projectile") and not inst:CanTossInWorld(doer, pos)) then
                         table.insert(actions, ACTIONS.DEPLOY)
+						if inst:HasTag("boatbuilder") then
+							--intentionally inserting a 2nd action! Action filter will pick one.
+							table.insert(actions, ACTIONS.DEPLOY_FLOATING)
+						end
                     end
                 end
             end
@@ -1990,10 +2000,17 @@ local COMPONENT_ACTIONS =
         end,
 
         inventoryitem = function(inst, doer, pos, actions, right, target)
-            if not right and inst.replica.inventoryitem:IsHeldBy(doer) then
-                if inst.replica.equippable == nil or not inst.replica.equippable:IsEquipped() or inst.replica.equippable:IsEquipped() and not inst.replica.equippable:ShouldPreventUnequipping() then
-                    table.insert(actions, ACTIONS.DROP)
-                end
+			if not right then
+				local inventoryitem = inst.replica.inventoryitem
+				if inventoryitem:IsHeldBy(doer) then
+					local equippable = inst.replica.equippable
+					if not (equippable and equippable:IsEquipped() and equippable:ShouldPreventUnequipping()) then
+						local inventory = doer.replica.inventory
+						if not (inventory and inventory:IsFloaterHeld()) then
+							table.insert(actions, ACTIONS.DROP)
+						end
+					end
+				end
             end
         end,
 
@@ -2423,7 +2440,10 @@ local COMPONENT_ACTIONS =
             if doer.components.playercontroller ~= nil and not doer.components.playercontroller.deploy_mode then
                 local inventoryitem = inst.replica.inventoryitem
 				if inventoryitem ~= nil and inventoryitem:IsGrandOwner(doer) and inventoryitem:IsDeployable(doer) then
-					table.insert(actions, ACTIONS.TOGGLE_DEPLOY_MODE)
+					local inventory = doer.replica.inventory
+					if not (inventory and inventory:IsFloaterHeld()) or inst:HasTag("boatbuilder") then
+						table.insert(actions, ACTIONS.TOGGLE_DEPLOY_MODE)
+					end
 				end
             end
         end,
@@ -2474,12 +2494,18 @@ local COMPONENT_ACTIONS =
         end,
 
         equippable = function(inst, doer, actions)
-            if inst.replica.equippable:IsEquipped() then
-                if not inst.replica.equippable:ShouldPreventUnequipping() then
+			local equippable = inst.replica.equippable
+			if equippable:IsEquipped() then
+				if not equippable:ShouldPreventUnequipping() then
                     table.insert(actions, ACTIONS.UNEQUIP)
                 end
-            elseif not inst.replica.equippable:IsRestricted(doer) then
-                table.insert(actions, ACTIONS.EQUIP)
+			elseif not equippable:IsRestricted(doer) then
+				local inventory = doer.replica.inventory
+				local old = inventory and inventory:GetEquippedItem(equippable:EquipSlot())
+				local old_equippable = old and old.replica.equippable
+				if not (old_equippable and old_equippable:ShouldPreventUnequipping()) then
+					table.insert(actions, ACTIONS.EQUIP)
+				end
             end
         end,
 
@@ -2611,6 +2637,13 @@ local COMPONENT_ACTIONS =
         plantresearchable = function(inst, doer, actions, right)
             PlantRegistryResearch(inst, doer, actions)
         end,
+
+		playerfloater = function(inst, doer, actions, right)
+			local equippable = inst.replica.equippable
+			if equippable and equippable:IsEquipped() then
+				table.insert(actions, ACTIONS.DROP)
+			end
+		end,
 
         playingcard = function(inst, doer, actions)
             table.insert(actions, ACTIONS.FLIP_DECK)

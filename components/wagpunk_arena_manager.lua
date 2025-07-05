@@ -1195,6 +1195,7 @@ function self:CheckStateForChanges_Internal()
             if collisions then
                 self.collision = collisions[1]
                 self.collision.Transform:SetRotation(0) -- Collision meshes do not get rotation.
+                self.collision:DestroyEntitiesInBarrier()
             end
             local collision_oneways = self:TryToSpawnArenaEntities("wagpunk_arena_collision_oneway")
             if collision_oneways then

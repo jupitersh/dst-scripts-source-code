@@ -1168,7 +1168,11 @@ return {
 
     ANNOUNCE_ELIXIR_TOO_SUPER = "This one seems a little strong.",
 
+    -- Rift 5
+
     ANNOUNCE_LUNARGUARDIAN_INCOMING = "It's back!",
+    ANNOUNCE_FLOATER_HELD = "I was busy drowning but something came up... me!",
+    ANNOUNCE_FLOATER_LETGO = "I hate being kept in susp-",
 
 	BATTLECRY =
 	{
@@ -5714,8 +5718,8 @@ return {
 
         WANDERINGTRADER =
         {
-            REVEALED = "If we trade, will we beef friends!",
-            GENERIC = "Looks like it's about to turn.",
+            REVEALED = "If we trade, will we beef friends?",
+            GENERIC = "What a strange looking beefalo.",
         },
 
         GESTALT_GUARD_EVOLVED = "These ones have an explosive personality.",

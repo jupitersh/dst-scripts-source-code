@@ -461,7 +461,6 @@ local states =
 				inst.AnimState:Hide("robot_back")
 				inst.AnimState:OverrideSymbol("splat_liquid", "wagboss_lunar_spawn", "splat_liquid")
 				inst.AnimState:SetFinalOffset(-2)
-				inst.SoundEmitter:KillSound("idlea")
 				inst.SoundEmitter:KillSound("idleb")
 			end
 		end,
@@ -469,7 +468,6 @@ local states =
 		timeline =
 		{
 			FrameEvent(159, function(inst)
-				inst.SoundEmitter:PlaySound("rifts5/lunar_boss/idle_a_LP", "idlea")
 				inst.SoundEmitter:PlaySound("rifts5/lunar_boss/idle_b_LP", "idleb")
 			end),
 			FrameEvent(190, function(inst)
@@ -504,9 +502,6 @@ local states =
 				inst:StartDomainExpansion()
 				inst:SetMusicLevel(3)
 				inst:EnableCameraFocus(false)
-			end
-			if not inst.SoundEmitter:PlayingSound("idlea") then
-				inst.SoundEmitter:PlaySound("rifts5/lunar_boss/idle_a_LP", "idlea")
 			end
 			if not inst.SoundEmitter:PlayingSound("idleb") then
 				inst.SoundEmitter:PlaySound("rifts5/lunar_boss/idle_b_LP", "idleb")
@@ -639,7 +634,9 @@ local states =
 				end
 				inst:SetMusicLevel(3)
 				inst:EnableCameraFocus(false)
-				TheWorld:PushEvent("ms_wagstaff_arena_oneshot", { strname = "WAGSTAFF_WAGPUNK_ARENA_SCIONREVEAL", monologue = true, focusentity = inst })
+				if TheWorld.Map:IsPointInWagPunkArenaAndBarrierIsUp(inst.Transform:GetWorldPosition()) then
+					TheWorld:PushEvent("ms_wagstaff_arena_oneshot", { strname = "WAGSTAFF_WAGPUNK_ARENA_SCIONREVEAL", monologue = true, focusentity = inst })
+				end
 			end
 		end,
 	},
@@ -1283,7 +1280,6 @@ local states =
 				DoSupernovaShake(inst)
 				inst.sg.statemem.skipshake = true
 			end
-			inst.SoundEmitter:KillSound("idlea")
 			inst.SoundEmitter:KillSound("idleb")
 			SetPreventDeath(inst, true)
 			inst:AddTag("supernova")
@@ -1342,7 +1338,6 @@ local states =
 			if not inst.sg.statemem.bursting then
 				inst:RemoveTag("supernova")
 				inst:SetMusicLevel(3, true) --force music to update supernova mix
-				inst.SoundEmitter:PlaySound("rifts5/lunar_boss/idle_a_LP", "idlea")
 				inst.SoundEmitter:PlaySound("rifts5/lunar_boss/idle_b_LP", "idleb")
 			end
 		end,

@@ -268,8 +268,9 @@ function PlayerHud:OnLoseFocus()
     end
     if self.controls ~= nil then
         self.controls.hover:Hide()
-        self.controls.item_notification:ToggleHUDFocus(false)
-        self.controls.skilltree_notification:ToggleHUDFocus(false)
+		for i, v in ipairs(self.controls.toastitems) do
+			v:ToggleHUDFocus(false)
+		end
 
         local resurrectbutton = self.controls.status:GetResurrectButton()
         if resurrectbutton ~= nil then
@@ -290,8 +291,9 @@ function PlayerHud:OnGainFocus()
         else
             self.controls.hover:Show()
         end
-        self.controls.item_notification:ToggleHUDFocus(true)
-        self.controls.skilltree_notification:ToggleHUDFocus(true)
+		for i, v in ipairs(self.controls.toastitems) do
+			v:ToggleHUDFocus(true)
+		end
         local resurrectbutton = self.controls.status:GetResurrectButton()
         if resurrectbutton ~= nil then
             resurrectbutton:ToggleHUDFocus(true)
@@ -980,9 +982,9 @@ function PlayerHud:OpenControllerInventory()
 
     self:CloseCommandWheel()
     self.controls.inv:OpenControllerInventory()
-    self.controls.item_notification:ToggleController(true)
-    self.controls.yotb_notification:ToggleController(true)
-    self.controls.skilltree_notification:ToggleController(true)
+	for i, v in ipairs(self.controls.toastitems) do
+		v:ToggleController(true)
+	end
     self.controls:ShowStatusNumbers()
 
     self.owner.components.playercontroller:OnUpdate(0)
@@ -994,9 +996,9 @@ function PlayerHud:CloseControllerInventory()
     end
     self.controls:HideStatusNumbers()
     self.controls.inv:CloseControllerInventory()
-    self.controls.item_notification:ToggleController(false)
-    self.controls.yotb_notification:ToggleController(false)
-    self.controls.skilltree_notification:ToggleController(false)
+	for i, v in ipairs(self.controls.toastitems) do
+		v:ToggleController(false)
+	end
 end
 
 function PlayerHud:HasInputFocus()
@@ -1111,7 +1113,7 @@ function PlayerHud:IsPlayerInfoPopUpOpen()
 end
 
 function PlayerHud:OpenCrafting(search)
-	if not self:IsCraftingOpen() and not GetGameModeProperty("no_crafting")  then
+	if not self:IsCraftingOpen() and self.controls.craftingshown and not GetGameModeProperty("no_crafting") then
 		self:CloseSpellWheel()
 		if self:IsControllerInventoryOpen() then
 			self:CloseControllerInventory()
@@ -1122,20 +1124,22 @@ function PlayerHud:OpenCrafting(search)
 		TheFrontEnd:GetSound():PlaySound("dontstarve/HUD/craft_open")
 		self.controls.craftingmenu:Open(search)
 
-		self.controls.item_notification:ToggleController(true)
-		self.controls.yotb_notification:ToggleController(true)
-        self.controls.skilltree_notification:ToggleController(true)
+		for i, v in ipairs(self.controls.toastitems) do
+			v:ToggleController(true)
+		end
 	end
 end
 
-function PlayerHud:CloseCrafting()
+function PlayerHud:CloseCrafting(silent)
     if self:IsCraftingOpen() then
-        TheFrontEnd:GetSound():PlaySound("dontstarve/HUD/craft_close")
+		if not silent then
+			TheFrontEnd:GetSound():PlaySound("dontstarve/HUD/craft_close")
+		end
 	    self.controls.craftingmenu:Close()
 
-		self.controls.item_notification:ToggleController(false)
-		self.controls.yotb_notification:ToggleController(false)
-        self.controls.skilltree_notification:ToggleController(false)
+		for i, v in ipairs(self.controls.toastitems) do
+			v:ToggleController(false)
+		end
     end
 end
 
@@ -1272,7 +1276,9 @@ function PlayerHud:OpenCommandWheel()
 
     self.controls.inv:Disable()
     self.controls.craftingmenu:Disable()
-    self.controls.item_notification:ToggleController(true)
+	for i, v in ipairs(self.controls.toastitems) do
+		v:ToggleController(true)
+	end
     self.controls.commandwheel:Open()
 
 	if not Profile:GetCommandWheelAllowsGameplay() then
@@ -1291,7 +1297,9 @@ function PlayerHud:CloseCommandWheel()
     self.controls.commandwheel:Close()
     self.controls.inv:Enable()
     self.controls.craftingmenu:Enable()
-    self.controls.item_notification:ToggleController(false)
+	for i, v in ipairs(self.controls.toastitems) do
+		v:ToggleController(false)
+	end
 end
 
 function PlayerHud:ShowPlayerStatusScreen(click_to_close, onclosefn)

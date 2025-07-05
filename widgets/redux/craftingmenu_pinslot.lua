@@ -457,6 +457,9 @@ function PinSlot:Refresh()
 		self.craft_button:SetHelpTextMessage(details_recipe_name ~= self.recipe_name and STRINGS.UI.HUD.SELECT
 											 or meta.build_state == "buffered" and STRINGS.UI.HUD.DEPLOY 
 											 or STRINGS.UI.HUD.BUILD)
+		self.craft_button.GetHelpText = function(craft_button)
+			return self.craftingmenu:IsVisible() and craft_button._base.GetHelpText(craft_button) or nil
+		end
 
 		self:Show()
 	else

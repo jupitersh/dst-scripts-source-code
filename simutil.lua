@@ -325,6 +325,7 @@ function FindWalkableOffset(position, start_angle, radius, attempts, check_los, 
                 local y = position.y + offset.y
                 local z = position.z + offset.z
                 return (TheWorld.Map:IsAboveGroundAtPoint(x, y, z, allow_water) or (allow_boats and TheWorld.Map:GetPlatformAtPoint(x,z) ~= nil))
+                    and (TheWorld.Map:IsPointInWagPunkArenaAndBarrierIsUp(position:Get()) == TheWorld.Map:IsPointInWagPunkArenaAndBarrierIsUp(x, y, z))
                     and (not check_los or
                         TheWorld.Pathfinder:IsClear(
                             position.x, position.y, position.z,

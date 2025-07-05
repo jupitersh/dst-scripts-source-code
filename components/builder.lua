@@ -234,11 +234,13 @@ local function SortByRecName(a, b)
 end
 local PROTOTYPER_TAGS = { "prototyper" }
 function Builder:EvaluateTechTrees()
+	local enabled = self.inst.player_classified == nil or self.inst.player_classified.iscraftingenabled:value()
     local pos = self.inst:GetPosition()
 
     local ents
 	if self.override_current_prototyper then
-		if self.override_current_prototyper:IsValid() 
+		if enabled
+			and self.override_current_prototyper:IsValid()
 			and self.override_current_prototyper:HasTags(PROTOTYPER_TAGS) 
 			and not self.override_current_prototyper:HasOneOfTags(self.exclude_tags)
 			and (self.override_current_prototyper.components.prototyper.restrictedtag == nil or self.inst:HasTag(self.override_current_prototyper.components.prototyper.restrictedtag))
@@ -251,7 +253,7 @@ function Builder:EvaluateTechTrees()
 		end
 	end
 	
-	if ents == nil then
+	if enabled and ents == nil then
 		ents = TheSim:FindEntities(pos.x, pos.y, pos.z, TUNING.RESEARCH_MACHINE_DIST, PROTOTYPER_TAGS, self.exclude_tags)
 	end
 
@@ -262,31 +264,33 @@ function Builder:EvaluateTechTrees()
     self.station_recipes = {}
 
     local prototyper_active = false
-    for i, v in ipairs(ents) do
-        if v.components.prototyper ~= nil and (v.components.prototyper.restrictedtag == nil or self.inst:HasTag(v.components.prototyper.restrictedtag)) then
-            if not prototyper_active then
-                --activate the first machine in the list. This will be the one you're closest to.
-                v.components.prototyper:TurnOn(self.inst)
+	if ents then
+		for i, v in ipairs(ents) do
+			if v.components.prototyper and (v.components.prototyper.restrictedtag == nil or self.inst:HasTag(v.components.prototyper.restrictedtag)) then
+				if not prototyper_active then
+					--activate the first machine in the list. This will be the one you're closest to.
+					v.components.prototyper:TurnOn(self.inst)
 
-				--prototyper:GetTrees() returns a deepcopy, which we no longer want
-				CopyTechTrees(v.components.prototyper.trees, self.accessible_tech_trees)
+					--prototyper:GetTrees() returns a deepcopy, which we no longer want
+					CopyTechTrees(v.components.prototyper.trees, self.accessible_tech_trees)
 
-                if v.components.craftingstation ~= nil then
-                    local recs = v.components.craftingstation:GetRecipes(self.inst)
-                    for _, recname in ipairs(recs) do
-						local recipe = GetValidRecipe(recname)
-                        if recipe ~= nil and recipe.nounlock then
-                            --only nounlock recipes can be unlocked via crafting station
-                            self.station_recipes[recname] = v.components.craftingstation:GetRecipeCraftingLimit(recipe.name) or true
+					if v.components.craftingstation then
+						local recs = v.components.craftingstation:GetRecipes(self.inst)
+						for _, recname in ipairs(recs) do
+							local recipe = GetValidRecipe(recname)
+							if recipe and recipe.nounlock then
+								--only nounlock recipes can be unlocked via crafting station
+								self.station_recipes[recname] = v.components.craftingstation:GetRecipeCraftingLimit(recipe.name) or true
+							end
 						end
-                    end
-				end
+					end
 
-                prototyper_active = true
-                self.current_prototyper = v
-            else
-                --you've already activated a machine. Turn all the other machines off.
-                v.components.prototyper:TurnOff(self.inst)
+					prototyper_active = true
+					self.current_prototyper = v
+				else
+					--you've already activated a machine. Turn all the other machines off.
+					v.components.prototyper:TurnOff(self.inst)
+				end
             end
         end
     end
@@ -407,7 +411,9 @@ function Builder:EvaluateTechTrees()
 end
 
 function Builder:UsePrototyper(prototyper)
-	if prototyper ~= nil then
+	if self.inst.player_classified and not self.inst.player_classified.iscraftingenabled:value() then
+		return false
+	elseif prototyper then
 		if not prototyper:HasTags(PROTOTYPER_TAGS) 
 			or prototyper:HasOneOfTags(self.exclude_tags)
 			or (prototyper.components.prototyper ~= nil and prototyper.components.prototyper.restrictedtag ~= nil and not self.inst:HasTag(prototyper.components.prototyper.restrictedtag))

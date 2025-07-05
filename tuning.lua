@@ -3593,6 +3593,7 @@ function Tune(overrides)
         YOTG_PERD_SPAWNCHANCE = .3,
         MAX_WALKABLE_PLATFORM_RADIUS = 4,
         PLATFORM_HOP_DELAY_TICKS = 8,
+		PLATFORM_FLOATING_HOP_DELAY_TICKS = 4,
         GOOD_LEAKSPAWN_PLATFORM_RADIUS = 9, -- (MAX_WALKABLE_PLATFORM_RADIUS * 0.75) ^2
         ROWING_RADIUS = 0.6,
         ROWING_RADIUS_ITERATIONS = 4,
@@ -4310,6 +4311,8 @@ function Tune(overrides)
 		},
 
         DEFAULT_LOCOMOTOR_HOP_DISTANCE = 6.0,
+		FLOATING_HOP_DISTANCE_PLATFORM = 2, --for players only
+		FLOATING_HOP_DISTANCE_LAND = 3,
 
         CARRAT =
         {
@@ -8394,7 +8397,8 @@ function Tune(overrides)
         PLAYINGCARDS_NUM_PIPS = 13,
 
         -- Rifts 5
-        DROWNING_SHALLOW_SCALE = 0.33,
+		DROWNING_SHALLOW_SCALE = 1 / 3, --drowning penalty scale
+		DROWNING_FLOAT_SCALE = 0.2, --(if floating, it's only wetness penalty)
         DROWNING_ITEMDROP_SHALLOWS = 7,
         DROWNING_ITEMDROP_NORMAL = 5,
 
@@ -8467,6 +8471,7 @@ function Tune(overrides)
         WAGPUNK_ARENA_WAGSTAFF_NAG_COOLDOWN_TIME = 20,
         WAGPUNK_ARENA_WAGBOSS_ROBOT_DESPAWN_GRACE_TIME = 5 * 60, -- If a player disconnects or a save is loaded.
         WAGPUNK_ARENA_WAGBOSS_ROBOT_COOLDOWN_DEFEATED_TIME = total_day_time * 20, -- If the boss is defeated.
+        WAGPUNK_ARENA_COLLISION_NOBUILD_THICKNESS = 3, -- Units away from the barrier that things cannot build in and the band of destruction for breaking structures near the barrier.
 
         GESTALT_CAGE_FILLED_PLACEMENT_RADIUS = 2,
 

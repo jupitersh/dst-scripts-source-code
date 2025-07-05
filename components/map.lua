@@ -252,6 +252,10 @@ local function IsNearOther(other, pt, min_spacing_sq, min_spacing)
 end
 
 function Map:IsDeployPointClear(pt, inst, min_spacing, min_spacing_sq_fn, near_other_fn, check_player, custom_ignore_tags)
+    if self:IsXZWithThicknessInWagPunkArenaAndBarrierIsUp(pt.x, pt.z, TUNING.WAGPUNK_ARENA_COLLISION_NOBUILD_THICKNESS) then
+        return false
+    end
+
     local min_spacing_sq = min_spacing ~= nil and min_spacing * min_spacing or nil
     near_other_fn = near_other_fn or IsNearOther
     for _, v in ipairs(TheSim:FindEntities(pt.x, 0, pt.z, math.max(DEPLOY_EXTRA_SPACING, min_spacing), nil, (custom_ignore_tags ~= nil and custom_ignore_tags) or (check_player and DEPLOY_IGNORE_TAGS_NOPLAYER) or DEPLOY_IGNORE_TAGS)) do
@@ -282,6 +286,10 @@ end
 
 --this is very similiar to IsDeployPointClear, but does the math a bit better, and DEPLOY_EXTRA_SPACING now works a lot better.
 function Map:IsDeployPointClear2(pt, inst, object_size, object_size_fn, near_other_fn, check_player, custom_ignore_tags)
+    if self:IsXZWithThicknessInWagPunkArenaAndBarrierIsUp(pt.x, pt.z, TUNING.WAGPUNK_ARENA_COLLISION_NOBUILD_THICKNESS) then
+        return false
+    end
+
     local entities_radius = object_size + DEPLOY_EXTRA_SPACING
     near_other_fn = near_other_fn or IsNearOther2
     for i, v in ipairs(TheSim:FindEntities(pt.x, 0, pt.z, entities_radius, nil, (custom_ignore_tags ~= nil and custom_ignore_tags) or (check_player and DEPLOY_IGNORE_TAGS_NOPLAYER) or DEPLOY_IGNORE_TAGS)) do
@@ -1265,6 +1273,19 @@ function Map:IsPointInWagPunkArenaAndBarrierIsUp(x, y, z)
     end
 
     return world.net.components.wagpunk_floor_helper:IsPointInArena(x, y, z)
+end
+
+function Map:IsXZWithThicknessInWagPunkArenaAndBarrierIsUp(x, z, thickness)
+    local world = TheWorld
+    if world.net == nil or world.net.components.wagpunk_floor_helper == nil then
+        return false
+    end
+
+    if not world.net.components.wagpunk_floor_helper:IsBarrierUp() then
+        return false
+    end
+
+    return world.net.components.wagpunk_floor_helper:IsXZWithThicknessInArena(x, z, thickness)
 end
 
 function Map:GetWagPunkArenaCenterXZ()

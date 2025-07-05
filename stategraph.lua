@@ -262,7 +262,7 @@ State = Class(
 	end)
 
 function State:HandleEvent(sg, eventname, data)
-    if not data or not data.state or data.state == self.name then
+	if type(data) ~= "table" or data.state == nil or data.state == self.name then
         local handler = self.events[eventname]
         if handler ~= nil then
             return handler.fn(sg.inst, data)

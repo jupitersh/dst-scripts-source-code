@@ -243,6 +243,7 @@ Action = Class(function(self, data, instant, rmb, distance, ghost_valid, ghost_e
     self.ghost_valid = self.ghost_exclusive or data.ghost_valid or false -- If it's ghost-exclusive, then it must be ghost-valid
     self.mount_valid = data.mount_valid or false
     self.encumbered_valid = data.encumbered_valid or false
+	self.floating_valid = data.floating_valid or false
     self.canforce = data.canforce or nil
     self.rangecheckfn = self.canforce ~= nil and data.rangecheckfn or nil
     self.mod_name = nil
@@ -281,11 +282,11 @@ ACTIONS =
 {
     REPAIR = Action({ mount_valid=true, encumbered_valid=true }),
     READ = Action({ mount_valid=true }),
-    DROP = Action({ priority=-1, mount_valid=true, encumbered_valid=true, is_relative_to_platform=true, extra_arrive_dist=ExtraDropDist }),
+	DROP = Action({ priority=-1, mount_valid=true, encumbered_valid=true, floating_valid=true, is_relative_to_platform=true, extra_arrive_dist=ExtraDropDist }),
     TRAVEL = Action(),
 	CHOP = Action({ distance=1.75, invalid_hold_action=true }),
 	ATTACK = Action({priority=2, canforce=true, mount_valid=true, invalid_hold_action=true }), -- No custom range check, attack already handles that
-    EAT = Action({ mount_valid=true }),
+	EAT = Action({ mount_valid=true, floating_valid=true }),
     PICK = Action({ canforce=true, rangecheckfn=PhysicsPaddedRangeCheck, extra_arrive_dist=ExtraPickupRange, mount_valid = true }),
     PICKUP = Action({ priority=1, extra_arrive_dist=ExtraPickupRange, mount_valid=true }),
 	MINE = Action({ invalid_hold_action=true }),
@@ -320,14 +321,15 @@ ACTIONS =
     MARK = Action({ distance=2, priority=-1 }),
     UNHITCH = Action({ distance=2, priority=-1 }),
     HITCH = Action({ priority=-1 }),
-    EQUIP = Action({ priority=0,instant=true, mount_valid=true, encumbered_valid=true, paused_valid=true }),
-    UNEQUIP = Action({ priority=-2,instant=true, mount_valid=true, encumbered_valid=true, paused_valid=true }),
+	EQUIP = Action({ priority=0,instant=true, mount_valid=true, encumbered_valid=true, floating_valid=true, paused_valid=true }),
+	UNEQUIP = Action({ priority=-2,instant=true, mount_valid=true, encumbered_valid=true, floating_valid=true, paused_valid=true }),
     --OPEN_SHOP = Action(),
     SHAVE = Action({ mount_valid=true }),
 	STORE = Action({ mount_valid=true }),
     RUMMAGE = Action({ priority=-1, mount_valid=true }),
 	DEPLOY = Action({distance=1.1, mount_valid=true, extra_arrive_dist=ExtraDeployDist }),
     DEPLOY_TILEARRIVE = Action({customarrivecheck=CheckTileWithinRange, theme_music = "farming"}), -- Note: If this is used for non-farming in the future, this would need to be swapped to theme_music_fn
+	DEPLOY_FLOATING = Action({do_not_locomote=true, floating_valid=true }),
     PLAY = Action({ mount_valid=true }),
     CREATE = Action(),
     JOIN = Action(),
@@ -376,7 +378,7 @@ ACTIONS =
     BLINK = Action({ priority=HIGH_ACTION_PRIORITY, rmb=true, distance=36, mount_valid=true, encumbered_valid=true }),
     BLINK_MAP = Action({ priority=HIGH_ACTION_PRIORITY, customarrivecheck=ArriveAnywhere, rmb=true, mount_valid=true, encumbered_valid=true, map_action=true, }),
     COMBINESTACK = Action({ mount_valid=true, extra_arrive_dist=ExtraPickupRange }),
-	TOGGLE_DEPLOY_MODE = Action({ priority=HIGH_ACTION_PRIORITY, instant=true, mount_valid=true }),
+	TOGGLE_DEPLOY_MODE = Action({ priority=HIGH_ACTION_PRIORITY, instant=true, mount_valid=true, floating_valid=true }),
     SUMMONGUARDIAN = Action({ rmb=false, distance=5 }),
     HAUNT = Action({ rmb=false, mindistance=2, ghost_valid=true, ghost_exclusive=true, canforce=true, rangecheckfn=DefaultRangeCheck }),
     UNPIN = Action(),
@@ -1000,7 +1002,7 @@ ACTIONS.DROP.fn = function(act)
                     act.invobject.components.stackable.forcedropsingle),
                 (act.invobject.components.inventoryitem ~= nil
                     and act.invobject.components.inventoryitem.droprandomdir)
-                or false,
+				or act.doer.components.inventory:IsFloaterHeld(),
 				act:GetActionPoint(),
 				true -- <--keepoverstacked
 			)
@@ -1013,6 +1015,10 @@ ACTIONS.DROP.strfn = function(act)
             or (act.invobject:HasTag("mine") and "SETMINE")
             or (act.invobject:HasTag("soul") and "FREESOUL")
             or (act.invobject.prefab == "pumpkin_lantern" and "PLACELANTERN")
+			or (act.invobject:HasTag("playerfloater") and
+				act.invobject.replica.equippable and
+				--act.invobject.replica.equippable:IsEquipped() and --redundant, playerfloater only has equippable component when it is equipped
+				"PLAYERFLOATER")
             or (act.invobject.GetDropActionString ~= nil and act.invobject:GetDropActionString(act:GetActionPoint()))
             or nil
     end
@@ -1470,6 +1476,11 @@ end
 ACTIONS.DEPLOY_TILEARRIVE.fn = ACTIONS.DEPLOY.fn
 ACTIONS.DEPLOY_TILEARRIVE.stroverridefn = function(act)
     return STRINGS.ACTIONS.DEPLOY[ACTIONS.DEPLOY.strfn(act) or "GENERIC"]
+end
+
+ACTIONS.DEPLOY_FLOATING.fn = ACTIONS.DEPLOY.fn
+ACTIONS.DEPLOY_FLOATING.stroverridefn = function(act)
+	return STRINGS.ACTIONS.DEPLOY[ACTIONS.DEPLOY.strfn(act) or "GENERIC"]
 end
 
 ACTIONS.TOGGLE_DEPLOY_MODE.strfn = ACTIONS.DEPLOY.strfn

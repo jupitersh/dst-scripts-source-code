@@ -25,6 +25,10 @@ local function onheavylifting(self, heavylifting)
     self.inst.replica.inventory:SetHeavyLifting(heavylifting)
 end
 
+local function onfloaterheld(self, floaterheld)
+	self.inst.replica.inventory:SetFloaterHeld(floaterheld or false)
+end
+
 local Inventory = Class(function(self, inst)
     self.inst = inst
 
@@ -42,6 +46,7 @@ local Inventory = Class(function(self, inst)
 
     self.equipslots = {}
     self.heavylifting = false
+	--self.floaterheld = nil
 
     self.activeitem = nil
     self.acceptsstacks = true
@@ -68,6 +73,7 @@ end,
 nil,
 {
     heavylifting = onheavylifting,
+	floaterheld = onfloaterheld,
 })
 
 function Inventory:EnableDropOnDeath()
@@ -366,6 +372,10 @@ end
 
 function Inventory:IsHeavyLifting()
     return self.heavylifting
+end
+
+function Inventory:IsFloaterHeld()
+	return self.floaterheld or false
 end
 
 function Inventory:ApplyDamage(damage, attacker, weapon, spdamage)
@@ -1079,6 +1089,8 @@ function Inventory:Unequip(equipslot, slip)
         end
         if equipslot == EQUIPSLOTS.BODY then
             self.heavylifting = false
+		elseif equipslot == EQUIPSLOTS.HANDS then
+			self.floaterheld = nil
         end
     end
 
@@ -1212,6 +1224,8 @@ function Inventory:Equip(item, old_to_active, no_animation, force_ui_anim)
                 self.inst:PushEvent("setoverflow", { overflow = item })
             end
             self.heavylifting = item:HasTag("heavy")
+		elseif eslot == EQUIPSLOTS.HANDS then
+			self.floaterheld = item.components.playerfloater and true
         end
 
         self.inst:PushEvent("equip", { item = item, eslot = eslot, no_animation = no_animation })
@@ -2121,7 +2135,7 @@ function Inventory:ControllerUseItemOnSceneFromInvTile(item, target, actioncode,
         end
         ClearClientRequestedAction()
 
-        if act == nil or act.action == ACTIONS.UNEQUIP then
+		if act == nil or act.action == ACTIONS.UNEQUIP or act.action == ACTIONS.DROP then
             return
         elseif actioncode == nil then
             self.inst.components.playercontroller:DoActionAutoEquip(act)

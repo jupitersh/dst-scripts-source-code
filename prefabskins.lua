@@ -250,6 +250,11 @@ PREFAB_SKINS = {
 		"berrybush_cawnival",
 		"berrybush_mystical",
 	},
+	berrybush_waxed =
+	{
+		"berrybush_waxed_cawnival",
+		"berrybush_waxed_mystical",
+	},
 	birdcage =
 	{
 		"birdcage_adventure",
@@ -331,6 +336,7 @@ PREFAB_SKINS = {
 		"bundle_cawnival",
 		"bundle_gothic",
 		"bundle_kitchen",
+		"bundle_metal",
 		"bundle_mystical",
 		"bundle_vintage",
 	},
@@ -339,6 +345,7 @@ PREFAB_SKINS = {
 		"bundlewrap_cawnival",
 		"bundlewrap_gothic",
 		"bundlewrap_kitchen",
+		"bundlewrap_metal",
 		"bundlewrap_mystical",
 		"bundlewrap_vintage",
 	},
@@ -511,6 +518,7 @@ PREFAB_SKINS = {
 	},
 	decor_centerpiece =
 	{
+		"decor_centerpiece_cawnival",
 		"decor_centerpiece_fantasy",
 		"decor_centerpiece_hallowed",
 		"decor_centerpiece_handmade",
@@ -518,6 +526,7 @@ PREFAB_SKINS = {
 	},
 	decor_flowervase =
 	{
+		"decor_flowervase_cawnival",
 		"decor_flowervase_fantasy",
 		"decor_flowervase_hallowed",
 		"decor_flowervase_handmade",
@@ -525,6 +534,7 @@ PREFAB_SKINS = {
 	},
 	decor_lamp =
 	{
+		"decor_lamp_cawnival",
 		"decor_lamp_fantasy",
 		"decor_lamp_hallowed",
 		"decor_lamp_handmade",
@@ -532,6 +542,7 @@ PREFAB_SKINS = {
 	},
 	decor_pictureframe =
 	{
+		"decor_pictureframe_cawnival",
 		"decor_pictureframe_fantasy",
 		"decor_pictureframe_hallowed",
 		"decor_pictureframe_handmade",
@@ -539,6 +550,7 @@ PREFAB_SKINS = {
 	},
 	decor_portraitframe =
 	{
+		"decor_portraitframe_cawnival",
 		"decor_portraitframe_fantasy",
 		"decor_portraitframe_hallowed",
 		"decor_portraitframe_handmade",
@@ -593,6 +605,11 @@ PREFAB_SKINS = {
 	{
 		"dug_berrybush_cawnival",
 		"dug_berrybush_mystical",
+	},
+	dug_berrybush_waxed =
+	{
+		"dug_berrybush_waxed_cawnival",
+		"dug_berrybush_waxed_mystical",
 	},
 	dug_gravestone =
 	{
@@ -734,6 +751,10 @@ PREFAB_SKINS = {
 	{
 		"fishbox_nautical",
 		"fishbox_pirate",
+	},
+	flotationcushion =
+	{
+		"flotationcushion_cawnival",
 	},
 	flowerhat =
 	{
@@ -1150,6 +1171,7 @@ PREFAB_SKINS = {
 	},
 	phonograph =
 	{
+		"decor_phonograph_cawnival",
 		"decor_phonograph_fantasy",
 		"decor_phonograph_hallowed",
 		"decor_phonograph_handmade",
@@ -1618,6 +1640,7 @@ PREFAB_SKINS = {
 		"torch_shadow_alt",
 		"torch_spooky",
 		"torch_spookyp",
+		"torch_tesla",
 	},
 	tornado =
 	{
@@ -1642,6 +1665,7 @@ PREFAB_SKINS = {
 		"treasurechest_ancient",
 		"treasurechest_cake",
 		"treasurechest_carpetbag",
+		"treasurechest_clock",
 		"treasurechest_corruption",
 		"treasurechest_cotl_basic",
 		"treasurechest_cotl_fancy",
@@ -1781,6 +1805,7 @@ PREFAB_SKINS = {
 	{
 		"walrushat_blue",
 		"walrushat_cawnival",
+		"walrushat_ceremonial",
 		"walrushat_party",
 	},
 	walter =
@@ -1916,6 +1941,7 @@ PREFAB_SKINS = {
 	},
 	wathgrithrhat =
 	{
+		"wathgrithrhat_flower",
 		"wathgrithrhat_lunar",
 		"wathgrithrhat_valkyrie",
 		"wathgrithrhat_western",
@@ -2307,6 +2333,7 @@ PREFAB_SKINS = {
 	},
 	wood_chair =
 	{
+		"wood_chair_cawnival",
 		"wood_chair_fantasy",
 		"wood_chair_hallowed",
 		"wood_chair_handmade",
@@ -2314,6 +2341,7 @@ PREFAB_SKINS = {
 	},
 	wood_stool =
 	{
+		"chair_stool_cawnival",
 		"chair_stool_fantasy",
 		"chair_stool_hallowed",
 		"chair_stool_handmade",
@@ -2321,6 +2349,7 @@ PREFAB_SKINS = {
 	},
 	wood_table_round =
 	{
+		"round_table_cawnival",
 		"round_table_fantasy",
 		"round_table_hallowed",
 		"round_table_handmade",
@@ -2328,6 +2357,7 @@ PREFAB_SKINS = {
 	},
 	wood_table_square =
 	{
+		"wood_table_cawnival",
 		"wood_table_fantasy",
 		"wood_table_hallowed",
 		"wood_table_handmade",
@@ -2478,6 +2508,7 @@ PREFAB_SKINS = {
 	yellowamulet =
 	{
 		"amulet_yellow_an",
+		"amulet_yellow_flame",
 		"amulet_yellow_ornate",
 		"amulet_yellow_relic",
 	},

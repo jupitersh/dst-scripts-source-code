@@ -95,6 +95,13 @@ local function SpellFn(inst, target, pos, caster)
     end
 
     local caster_pos = caster:GetPosition()
+    local owner_pos = owner:GetPosition()
+    if TheWorld.Map:IsPointInWagPunkArenaAndBarrierIsUp(caster_pos:Get()) ~= TheWorld.Map:IsPointInWagPunkArenaAndBarrierIsUp(owner_pos:Get()) then
+        -- No escaping Wagstaff's barrier here.
+        caster:PushEvent("wortox_reviver_failteleport")
+        return
+    end
+
     if owner == caster then
         -- Free the Souls.
         if caster.components.inventory then
@@ -112,7 +119,6 @@ local function SpellFn(inst, target, pos, caster)
         caster.sg:GoToState("wortox_teleport_reviver_selfuse", { item = inst, })
     else
         -- Go to owner.
-        local owner_pos = owner:GetPosition()
         local offset
         for radius = 6, 1, -1 do
             offset = FindWalkableOffset(owner_pos, math.random() * TWOPI, radius, 8, true, true, NoHoles, false, true)

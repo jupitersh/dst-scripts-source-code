@@ -76,13 +76,36 @@ local function _OnHeavyLiftingDirty(inst, classified)
     if inst ~= nil and inst.components.playeractionpicker ~= nil then
         inst.components.playeractionpicker:PopActionFilter(HeavyLiftingActionFilter)
         if classified.heavylifting:value() then
-            inst.components.playeractionpicker:PushActionFilter(HeavyLiftingActionFilter, 10)
+			inst.components.playeractionpicker:PushActionFilter(HeavyLiftingActionFilter, ACTION_FILTER_PRIORITIES.heavylifting)
         end
     end
 end
 
 local function OnHeavyLiftingDirty(classified)
     _OnHeavyLiftingDirty(classified._parent, classified)
+end
+
+local function FloaterHeldActionFilter(inst, action)
+	return action.floating_valid == true
+end
+
+local function _OnFloaterHeldDirty(inst, classified)
+	if inst.components.playeractionpicker then
+		inst.components.playeractionpicker:PopActionFilter(FloaterHeldActionFilter)
+		if classified.floaterheld:value() then
+			inst.components.playeractionpicker:PushActionFilter(FloaterHeldActionFilter, ACTION_FILTER_PRIORITIES.floaterheld)
+		end
+	end
+	if inst.sg then
+		inst.sg:HandleEvent(classified.floaterheld:value() and "sg_startfloating" or "sg_stopfloating")
+	end
+end
+
+local function OnFloaterHeldDirty(classified)
+	local inst = classified._parent
+	if inst then
+		_OnFloaterHeldDirty(inst, classified)
+	end
 end
 
 function Inventory:AttachClassified(classified)
@@ -93,6 +116,7 @@ function Inventory:AttachClassified(classified)
 
     self.inst:ListenForEvent("visibledirty", OnVisibleDirty, classified)
     self.inst:ListenForEvent("heavyliftingdirty", OnHeavyLiftingDirty, classified)
+	self.inst:ListenForEvent("floaterhelddirty", OnFloaterHeldDirty, classified)
     classified:DoStaticTaskInTime(0, OnVisibleDirty)
 
     --V2C: can re-open inventory with backpack equipped as Werebeaver->Woodie
@@ -159,6 +183,13 @@ function Inventory:SetHeavyLifting(heavylifting)
     end
 end
 
+function Inventory:SetFloaterHeld(floaterheld)
+	if self.classified then
+		self.classified.floaterheld:set(floaterheld)
+		_OnFloaterHeldDirty(self.inst, self.classified)
+	end
+end
+
 --------------------------------------------------------------------------
 --Common interface
 --------------------------------------------------------------------------
@@ -212,6 +243,14 @@ function Inventory:IsHeavyLifting()
     else
         return self.classified ~= nil and self.classified.heavylifting:value()
     end
+end
+
+function Inventory:IsFloaterHeld()
+	if self.inst.components.inventory then
+		return self.inst.components.inventory:IsFloaterHeld()
+	else
+		return self.classified ~= nil and self.classified.floaterheld:value()
+	end
 end
 
 function Inventory:IsVisible()

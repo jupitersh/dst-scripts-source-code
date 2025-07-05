@@ -3719,14 +3719,6 @@ local fx =
         build = "abigail_shield",
         anim = "player_shield",
     },
-    {
-        name = "flotationcushion_pop",
-        bank = "balloon_pop",
-        build = "balloon_pop",
-        anim = "pop_low",
-        sound = "dontstarve/common/balloon_pop",
-        fn = FinalOffset1,
-    },
 	{
 		name = "wagdrone_rolling_collide_small_fx",
 		bank = "hits_sparks",

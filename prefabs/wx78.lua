@@ -344,9 +344,10 @@ local function moisturetrack_update(inst)
         inst.components.upgrademoduleowner:AddCharge(-1)
         inst._moisture_steps = 0
 
-        SpawnPrefab("wx78_big_spark"):AlignToTarget(inst)
-
-        inst.sg:GoToState("hit")
+		if not inst.sg:HasStateTag("invisible") and inst.entity:IsVisible() then
+			SpawnPrefab("wx78_big_spark"):AlignToTarget(inst)
+		end
+		inst:PushEventImmediate("wx78_spark")
     end
 
     -- Send a message for the UI.
@@ -575,9 +576,10 @@ local function on_hunger_drain_tick(inst)
     if inst.components.health ~= nil and not (inst.components.health:IsDead() or inst.components.health:IsInvincible()) then
         inst.components.upgrademoduleowner:AddCharge(-1)
 
-        SpawnPrefab("wx78_big_spark"):AlignToTarget(inst)
-
-        inst.sg:GoToState("hit")
+		if not inst.sg:HasStateTag("invisible") and inst.entity:IsVisible() then
+			SpawnPrefab("wx78_big_spark"):AlignToTarget(inst)
+		end
+		inst:PushEventImmediate("wx78_spark")
     end
     inst.components.timer:StartTimer(HUNGERDRAIN_TIMERNAME, TUNING.WX78_HUNGRYCHARGEDRAIN_TICKTIME)
 end

@@ -516,7 +516,7 @@ function MakeBanner(self)
 		--
 		--REMINDER: Check MakeBannerFront as well!
 		--
-		MakeRift5Banner(self, banner_root, anim)
+		MakeCawnivalBanner(self, banner_root, anim)
         
     elseif IsSpecialEventActive(SPECIAL_EVENTS.YOTS) then
         MakeYOTSBanner(self, banner_root, anim)        
@@ -533,7 +533,7 @@ function MakeBanner(self)
 	elseif IsSpecialEventActive(SPECIAL_EVENTS.HALLOWED_NIGHTS) then
         MakeHallowedNights2024Banner(self, banner_root, anim)
 	elseif IsSpecialEventActive(SPECIAL_EVENTS.CARNIVAL) then
-        MakeWurtWinonaQOLBanner(self, banner_root, anim)
+		MakeCawnivalBanner(self, banner_root, anim)
 	else
 		--*** !!! ***
 		--REMINDER: Check MakeBannerFront as well!
@@ -649,14 +649,15 @@ local function MakeBannerFront(self)
         return nil
 
     elseif IsSpecialEventActive(SPECIAL_EVENTS.CARNIVAL) then
-        local banner_front = Widget("banner_front")
+        --[[local banner_front = Widget("banner_front")
         banner_front:SetPosition(0, 0)
         banner_front:SetClickable(false)
         local anim = banner_front:AddChild(UIAnim())
 
         MakeWinonaWurtCarnivalBannerFront(self, banner_front, anim)
         
-        return banner_front
+        return banner_front]]
+		return nil
     else
         --[[local banner_front = Widget("banner_front")
         banner_front:SetPosition(0, 0)

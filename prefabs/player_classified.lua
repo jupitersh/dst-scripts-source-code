@@ -749,6 +749,19 @@ local function OnOpenCraftingMenuEvent(inst)
     end
 end
 
+local function OnIsCraftingEnabledDirty(inst)
+	if inst._parent and inst._parent.HUD then
+		if inst.iscraftingenabled:value() then
+			inst._parent.HUD.controls:ShowCrafting()
+		else
+			inst._parent.HUD.controls:HideCrafting()
+			if inst._parent.components.playercontroller then
+				inst._parent.components.playercontroller:CancelPlacement()
+			end
+		end
+	end
+end
+
 local function OnInkedEvent(inst)
     if inst._parent ~= nil and TheFocalPoint.entity:GetParent() == inst._parent then
         inst._parent:PushEvent("inked")
@@ -1065,6 +1078,11 @@ fns.ShowActions = function(inst, show)
     inst.isactionsvisible:set(show)
 end
 
+fns.ShowCrafting = function(inst, show)
+	inst.iscraftingenabled:set(show)
+	OnIsCraftingEnabledDirty(inst)
+end
+
 fns.ShowHUD = function(inst, show)
     inst.ishudvisible:set(show)
     OnPlayerHUDDirty(inst)
@@ -1123,6 +1141,7 @@ local function RegisterNetListeners_local(inst)
     inst:ListenForEvent("moisturedirty", OnMoistureDirty)
     inst:ListenForEvent("techtreesdirty", OnTechTreesDirty)
     inst:ListenForEvent("recipesdirty", OnRecipesDirty)
+	inst:ListenForEvent("iscraftingenableddirty", OnIsCraftingEnabledDirty)
     inst:ListenForEvent("bufferedbuildsdirty", OnBufferedBuildsDirty)
     inst:ListenForEvent("isperformactionsuccessdirty", OnIsPerformActionSuccessDirty)
     inst:ListenForEvent("pausepredictionframesdirty", OnPausePredictionFramesDirty)
@@ -1233,6 +1252,7 @@ function fns.OnInitialDirtyStates(inst)
     fns.OnYotbSkinDirty(inst)
     OnMountHurtDirty(inst)
     OnGhostModeDirty(inst)
+	OnIsCraftingEnabledDirty(inst)
     OnPlayerHUDDirty(inst)
     OnPlayerCameraDirty(inst)
     fns.OnPlayerCameraExtraDistDirty(inst, true)
@@ -1454,6 +1474,8 @@ local function fn()
     inst.isfreebuildmode = net_bool(inst.GUID, "builder.freebuildmode", "recipesdirty")
     inst.current_prototyper = net_entity(inst.GUID, "builder.current_prototyper", "current_prototyper_dirty")
     inst.opencraftingmenuevent = net_event(inst.GUID, "builder.opencraftingmenu")
+	inst.iscraftingenabled = net_bool(inst.GUID, "builder.iscraftingenabled", "iscraftingenableddirty")
+	inst.iscraftingenabled:set(true)
     inst.recipes = {}
     inst.bufferedbuilds = {}
     for k, v in pairs(AllRecipes) do
@@ -1569,6 +1591,7 @@ local function fn()
     inst.SetUsedTouchStones = SetUsedTouchStones
     inst.SetGhostMode = fns.SetGhostMode
     inst.ShowActions = fns.ShowActions
+	inst.ShowCrafting = fns.ShowCrafting
     inst.ShowHUD = fns.ShowHUD
     inst.EnableMapControls = fns.EnableMapControls
     inst.SetOldagerRate = fns.SetOldagerRate

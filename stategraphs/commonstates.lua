@@ -706,7 +706,7 @@ CommonStates.AddHopStates = function(states, wait_for_pre, anims, timelines, lan
 		onexit = function(inst)
             inst.Physics:ClearLocalCollisionMask()
 			if inst.sg.statemem.collisionmask ~= nil then
-	            inst.Physics:SetCollisionMask(inst.sg.statemem.collisionmask)
+                inst.Physics:SetCollisionMask(inst.sg.statemem.collisionmask)
 			end
             inst:RemoveTag("ignorewalkableplatforms")
 			if not inst.sg.statemem.not_interrupted then

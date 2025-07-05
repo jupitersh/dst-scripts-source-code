@@ -1199,7 +1199,7 @@ function EntityScript:StopAllWatchingWorldStates()
     self.worldstatewatching = nil
 end
 
-function EntityScript:PushEvent(event, data)
+function EntityScript:PushEvent_Internal(event, data, immediate)
     if self.event_listeners then
         local listeners = self.event_listeners[event]
         if listeners then
@@ -1217,15 +1217,25 @@ function EntityScript:PushEvent(event, data)
         end
     end
 
-    if self.sg and
-        self.sg:IsListeningForEvent(event) and
-        SGManager:OnPushEvent(self.sg) then
-        self.sg:PushEvent(event, data)
+	if self.sg then
+		if immediate then
+			self.sg:HandleEvent(event, data)
+		elseif self.sg:IsListeningForEvent(event) and SGManager:OnPushEvent(self.sg) then
+			self.sg:PushEvent(event, data)
+		end
     end
 
     if self.brain then
         self.brain:PushEvent(event, data)
     end
+end
+
+function EntityScript:PushEvent(event, data)
+	self:PushEvent_Internal(event, data, false)
+end
+
+function EntityScript:PushEventImmediate(event, data)
+	self:PushEvent_Internal(event, data, true)
 end
 
 function EntityScript:SetPhysicsRadiusOverride(radius)

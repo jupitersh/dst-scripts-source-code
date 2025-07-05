@@ -458,7 +458,6 @@ local function InitCheckSpawnBuild(inst)
 		inst.AnimState:ClearOverrideSymbol("splat_liquid")
 		inst.AnimState:SetFinalOffset(-1)
 
-		inst.SoundEmitter:PlaySound("rifts5/lunar_boss/idle_a_LP", "idlea")
 		inst.SoundEmitter:PlaySound("rifts5/lunar_boss/idle_b_LP", "idleb")
 
 		inst:StartDomainExpansion()
@@ -1038,6 +1037,7 @@ local function fn()
 
 	inst:AddComponent("locomotor")
 	inst.components.locomotor.walkspeed = TUNING.ALTERGUARDIAN_PHASE4_LUNARRIFT_WALKSPEED
+	inst.components.locomotor.pathcaps = { ignorewalls = true }
 
 	inst:AddComponent("colouradder")
 

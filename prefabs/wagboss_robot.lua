@@ -467,11 +467,19 @@ local function OnDroppedTarget(inst)--, data)
 	SetEngaged(inst, false, 3)
 end
 
+local function SetIgnoreWalls(inst, ignore)
+	if (inst.components.locomotor.pathcaps ~= nil) == not ignore then
+		inst.components.locomotor.pathcaps = ignore and { ignorewalls = true } or nil
+		inst.components.locomotor:Stop()
+	end
+end
+
 local function DoOffScreenReset(inst)
 	inst._resettask = nil
 	inst.shouldreset = nil
 	inst:RemoveTag("notarget")
 	inst:SetTempNoCollide(false, "reset")
+	SetIgnoreWalls(inst, false)
 	if not (inst.components.health and inst.components.health:IsDead()) then
 		local x, z = TheWorld.Map:GetWagPunkArenaCenterXZ()
 		if x and z then
@@ -490,6 +498,7 @@ local function DoReset(inst)
 				inst.shouldreset = true
 				inst:AddTag("notarget")
 				inst:SetTempNoCollide(true, "reset")
+				SetIgnoreWalls(inst, true)
 			end
 		end
 	elseif inst:IsAsleep() and not (inst.components.health and inst.components.health:IsDead()) then
@@ -504,6 +513,7 @@ local function CancelReset(inst)
 		inst.shouldreset = nil
 		inst:RemoveTag("notarget")
 		inst:SetTempNoCollide(false, "reset")
+		SetIgnoreWalls(inst, false)
 		if inst._resettask then
 			inst._resettask:Cancel()
 			inst._resettask = nil
@@ -729,6 +739,16 @@ local function AddCrownFlameFx(inst, crown, idx)
 	return fx
 end
 
+local function crown_OnEntityWake(crown)
+	--V2C: on server host, nested flame followers may not wake properly
+	--     when crown follower symbols are hidden (i.e off but broken).
+	for i, v in ipairs(crown.flames) do
+		if v:IsAsleep() then
+			v.Follower:FollowSymbol(crown.GUID, "lb_flame_loop_follow_"..tostring(i), nil, nil, nil, true)
+		end
+	end
+end
+
 local function AddCrownLayer(inst, layer, numflames)
 	local fx = CreateEntity()
 
@@ -756,6 +776,10 @@ local function AddCrownLayer(inst, layer, numflames)
 	fx.flames = {}
 	for i = 1, numflames do
 		AddCrownFlameFx(inst, fx, i)
+	end
+
+	if TheWorld.ismastersim then
+		fx.OnEntityWake = crown_OnEntityWake
 	end
 
 	return fx

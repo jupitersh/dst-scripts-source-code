@@ -378,14 +378,16 @@ local RPC_HANDLERS =
         end
     end,
 
-	PredictOverrideLocomote = function(player, dir)
-		if not checknumber(dir) then
+	PredictOverrideLocomote = function(player, dir, floathop)
+		if not (checknumber(dir) and
+				optbool(floathop))
+		then
 			printinvalid("PredictOverrideLocomote", player)
 			return
 		end
 		local playercontroller = player.components.playercontroller
 		if playercontroller ~= nil then
-			playercontroller:OnRemotePredictOverrideLocomote(dir)
+			playercontroller:OnRemotePredictOverrideLocomote(dir, floathop)
 		end
 	end,
 

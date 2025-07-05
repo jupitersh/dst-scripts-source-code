@@ -1001,7 +1001,7 @@ local function OnSetOwner(inst)
             inst:AddComponent("playercontroller")
             inst:AddComponent("playervoter")
             inst:AddComponent("playermetrics")
-            inst.components.playeractionpicker:PushActionFilter(PlayerActionFilter, -99)
+			inst.components.playeractionpicker:PushActionFilter(PlayerActionFilter, ACTION_FILTER_PRIORITIES.default)
             inst._serverpauseddirtyfn = function() ex_fns.OnWorldPaused(inst) end
             inst:ListenForEvent("serverpauseddirty", inst._serverpauseddirtyfn, TheWorld)
             ex_fns.OnWorldPaused(inst)
@@ -1291,18 +1291,30 @@ local function OnLoad(inst, data)
     inst:DoTaskInTime(0, function()
         --V2C: HACK! enabled false instead of nil means it was overriden by weregoose on load.
         --     Please refactor drownable and this block to use POST LOAD timing instead.
+		local item = inst.components.inventory:GetEquippedItem(EQUIPSLOTS.HANDS)
+		local playerfloater = item and item.components.playerfloater
         if inst.components.drownable ~= nil and inst.components.drownable.enabled ~= false then
             local my_x, my_y, my_z = inst.Transform:GetWorldPosition()
 
             if not TheWorld.Map:IsPassableAtPoint(my_x, my_y, my_z) then
-            for k,v in pairs(Ents) do
-                    if v:IsValid() and v:HasTag("multiplayer_portal") then
-                        inst.Transform:SetPosition(v.Transform:GetWorldPosition())
-                        inst:SnapCamera()
-                    end
-                end
+				if playerfloater then
+					playerfloater = nil --clear this so it doens't get reset below
+					inst.sg:GoToState("float")
+				else
+					for k, v in pairs(Ents) do
+						if v:HasTag("multiplayer_portal") then
+							inst.Transform:SetPosition(v.Transform:GetWorldPosition())
+							inst:SnapCamera()
+							break
+						end
+					end
+				end
             end
         end
+		--Reset playerfloater if we didn't make it into "float" state
+		if playerfloater then
+			playerfloater:Reset(inst)
+		end
     end)
 end
 
@@ -1484,6 +1496,12 @@ fns.ShowActions = function(inst, show)
     if TheWorld.ismastersim then
         inst.player_classified:ShowActions(show)
     end
+end
+
+fns.ShowCrafting = function(inst, show)
+	if TheWorld.ismastersim then
+		inst.player_classified:ShowCrafting(show)
+	end
 end
 
 fns.ShowHUD = function(inst, show)
@@ -1921,6 +1939,8 @@ local function MakePlayerCharacter(name, customprefabs, customassets, common_pos
 		Asset("ANIM", "anim/player_sit_toast.zip"),
 		Asset("ANIM", "anim/player_sit_wave.zip"),
 		--
+		Asset("ANIM", "anim/player_float.zip"),
+		--
 
         Asset("ANIM", "anim/player_slurtle_armor.zip"),
         Asset("ANIM", "anim/player_staff.zip"),
@@ -2071,6 +2091,7 @@ local function MakePlayerCharacter(name, customprefabs, customassets, common_pos
         "tears",
         "shock_fx",
         "splash",
+		"splash_sink",
         "globalmapiconnamed",
         "lavaarena_player_revive_from_corpse_fx",
         "superjump_fx",
@@ -2080,14 +2101,13 @@ local function MakePlayerCharacter(name, customprefabs, customassets, common_pos
 		"impact",
         "ghostvision_buff",
         "elixir_player_forcefield",
-        
+		"player_float_hop_water_fx",
+
         -- Player specific classified prefabs
         "player_classified",
         "inventory_classified",
         "wonkey",
         "spellbookcooldown",
-
-
     }
 
     if starting_inventory ~= nil or customprefabs ~= nil then
@@ -2759,6 +2779,7 @@ end
         --HUD interface
         inst.IsHUDVisible = fns.IsHUDVisible
         inst.ShowActions = fns.ShowActions
+		inst.ShowCrafting = fns.ShowCrafting
         inst.ShowHUD = fns.ShowHUD
         inst.ShowPopUp = fns.ShowPopUp
         inst.ResetMinimapOffset = fns.ResetMinimapOffset

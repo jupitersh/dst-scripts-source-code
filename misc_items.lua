@@ -6656,6 +6656,20 @@ MISC_ITEMS =
 		output_items = {  "woodie_survivorp", "body_woodie_survivorp", },
 		release_group = 74,
 	},
+	pack_woodworking_cawnival =
+	{
+		type = "purchase",
+		skin_tags = { },
+		featured_pack = true,
+		display_order = 1,
+		build_name_override = "pack_common",
+		display_atlas = "images/iap_images_woodworking_cawnival.xml",
+		display_tex = "woodworking_cawnival.tex",
+		box_build = "box_shop_plain",
+		display_items = {  "round_table_cawnival", "wood_table_cawnival", "chair_stool_cawnival", "wood_chair_cawnival", "decor_centerpiece_cawnival", "decor_flowervase_cawnival", "decor_lamp_cawnival", "decor_phonograph_cawnival", "decor_pictureframe_cawnival", "decor_portraitframe_cawnival", },
+		output_items = {  "round_table_cawnival", "wood_table_cawnival", "chair_stool_cawnival", "wood_chair_cawnival", "decor_centerpiece_cawnival", "decor_flowervase_cawnival", "decor_lamp_cawnival", "decor_phonograph_cawnival", "decor_pictureframe_cawnival", "decor_portraitframe_cawnival", },
+		release_group = 168,
+	},
 	pack_woodworking_fantasy =
 	{
 		type = "purchase",

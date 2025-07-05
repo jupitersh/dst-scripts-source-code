@@ -79,8 +79,9 @@ local function axisalignedplacement_outline_fn()
     inst.AnimState:SetBank("gridplacer")
     inst.AnimState:SetBuild("gridplacer")
     inst.AnimState:PlayAnimation("tileunit")
-	inst.AnimState:SetLayer(LAYER_BACKGROUND)
+    inst.AnimState:SetLayer(LAYER_WORLD_BACKGROUND)
     inst.AnimState:SetSortOrder(3)
+    inst.AnimState:SetFinalOffset(7)
     inst.AnimState:SetOrientation(ANIM_ORIENTATION.OnGround)
 
     return inst

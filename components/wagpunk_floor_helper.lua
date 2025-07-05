@@ -24,36 +24,53 @@ local SIZE_SKINNY = 5 * scale
 
 -- Common.
 
-function self:IsPointInArena(x, y, z)
-    if not self.arena_active:value() then
-        return false
-    end
-
+function self:IsXZWithThicknessInArena_Calculation(x, z, thickness)
     -- NOTES(JBK): This arena is a very square circle.
     -- The size is fixed and tied to the shape of hermitcrab_01 static layout.
     -- We can check if any point is in the arena by checking a total of three rectangles.
     local ax, az = self.arena_origin_x:value(), self.arena_origin_z:value()
     local dx, dz = ax - x, az - z
+
+    local WIDE_WITH_THICKNESS = SIZE_WIDE + thickness
+    local SKINNY_WITH_THICKNESS = SIZE_SKINNY + thickness
+    local SQUARE_WITH_THICKNESS = SIZE_SQUARE + thickness
     -- The first rectangle is the horizontal wide.
-    if dx >= -SIZE_WIDE and dx <= SIZE_WIDE then
-        if dz >= -SIZE_SKINNY and dz <= SIZE_SKINNY then
+    if dx >= -WIDE_WITH_THICKNESS and dx <= WIDE_WITH_THICKNESS then
+        if dz >= -SKINNY_WITH_THICKNESS and dz <= SKINNY_WITH_THICKNESS then
             return true
         end
     end
     -- Then the vertical tall.
-    if dx >= -SIZE_SKINNY and dx <= SIZE_SKINNY then
-        if dz >= -SIZE_WIDE and dz <= SIZE_WIDE then
+    if dx >= -SKINNY_WITH_THICKNESS and dx <= SKINNY_WITH_THICKNESS then
+        if dz >= -WIDE_WITH_THICKNESS and dz <= WIDE_WITH_THICKNESS then
             return true
         end
     end
     -- Finally the square center.
-    if dx >= -SIZE_SQUARE and dx <= SIZE_SQUARE then
-        if dz >= -SIZE_SQUARE and dz <= SIZE_SQUARE then
+    if dx >= -SQUARE_WITH_THICKNESS and dx <= SQUARE_WITH_THICKNESS then
+        if dz >= -SQUARE_WITH_THICKNESS and dz <= SQUARE_WITH_THICKNESS then
             return true
         end
     end
 
     return false
+end
+
+function self:IsPointInArena(x, y, z)
+    if not self.arena_active:value() then
+        return false
+    end
+
+    return self:IsXZWithThicknessInArena_Calculation(x, z, 0)
+end
+
+function self:IsXZWithThicknessInArena(x, z, thickness)
+    if not self.arena_active:value() then
+        return false
+    end
+
+    -- Along the barrier means a band from the barrier so it should be inside the arena with a positive thickness and outside of it with a negative thickness.
+    return self:IsXZWithThicknessInArena_Calculation(x, z, thickness) and not self:IsXZWithThicknessInArena_Calculation(x, z, -thickness)
 end
 
 function self:GetArenaOrigin()

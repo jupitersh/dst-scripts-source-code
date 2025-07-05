@@ -432,6 +432,7 @@ STRINGS =
             FREESOUL = "Release Soul",
             PLACELANTERN = "Place",
             YOTC_ENTERRACE = "Enter Race",
+			PLAYERFLOATER = "Let Go",
         },
         PICK =
 		{

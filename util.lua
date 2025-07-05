@@ -782,7 +782,6 @@ end
 
 -- make environment
 local env = {  -- add functions you know are safe here
-    loadstring=loadstring -- functions can get serialized to text, this is required to turn them back into functions
  }
 
 function RunInEnvironment(fn, fnenv)
@@ -816,7 +815,7 @@ function RunInSandboxSafe(untrusted_code, error_handler)
 end
 
 --same as above, but catches infinite loops
-function RunInSandboxSafeCatchInfiniteLoops(untrusted_code, error_handler)
+function RunInSandboxSafeCatchInfiniteLoops(untrusted_code, error_handler, maxops)
     if DEBUGGER_ENABLED then
         --The debugger makes use of debug.sethook, so it conflicts with this function
         --We'll rely on the debugger to catch infinite loops instead, so in this case, just fallback
@@ -831,7 +830,7 @@ function RunInSandboxSafeCatchInfiniteLoops(untrusted_code, error_handler)
     local co = coroutine.create(function()
         coroutine.yield(xpcall(untrusted_function, error_handler or function() end))
     end)
-    debug.sethook(co, function() error("infinite loop detected") end, "", 20000)
+    debug.sethook(co, function() error("infinite loop detected") end, "", maxops or 20000)
     --clear out all entries to the metatable of string, since that can be accessed even by doing local string = "" string.whatever()
     local string_backup = deepcopy(string)
     cleartable(string)
@@ -1702,7 +1701,7 @@ end
 
 function DecodeAndUnzipString(str)
     if type(str) == "string" then
-        local success, savedata = RunInSandbox(TheSim:DecodeAndUnzipString(str))
+        local success, savedata = RunInSandboxSafeCatchInfiniteLoops(TheSim:DecodeAndUnzipString(str), nil, 2000000)
         if success then
             return savedata
         else
@@ -1875,33 +1874,91 @@ function ControllerReticle_Blink_GetPosition(player, validwalkablefn)
     return pos
 end
 
+local function _RecordLastGoodBoatSpot(placer, rotation, offset, ox, oz)
+	placer._boat_last_rot = rotation
+	placer._boat_last_offs = placer.offset
+	placer._boat_last_t = GetTime()
+	placer._boat_last_ox = ox
+	placer._boat_last_oz = oz
+end
+
+local function _ResetLastGoodBoatSpot(placer)
+	placer._boat_last_rot = nil
+	placer._boat_last_offs = nil
+	placer._boat_last_t = nil
+	placer._boat_last_ox = nil
+	placer._boat_last_oz = nil
+end
+
+local function _ShouldKeepLastGoodBoatSpot(placer, ox, oz)
+	return (math.abs(placer._boat_last_ox - ox) < 0.1 and math.abs(placer._boat_last_oz - oz) < 0.1)
+		or placer._boat_last_t + 1 > GetTime()
+end
+
 -- NOTES(JBK): Controller placer AKA should this placer move to a better spot so controllers can still place it.
 function ControllerPlacer_Boat_SpotFinder_Internal(placer, player, ox, oy, oz)
+	local SWEEPS = 15
+	local CONE_ANGLE = TUNING.CONTROLLER_BOATPLACEMENT_ANGLE
+
     local x, y, z = player.Transform:GetWorldPosition()
-    x, z = math.floor(x), math.floor(z)
-    local rotation = player.Transform:GetRotation() * DEGREES
+	local orot = player.Transform:GetRotation()
+	local snap_to_degrees = CONE_ANGLE / SWEEPS
+	local rotation = math.floor(orot / snap_to_degrees + 0.5) * snap_to_degrees * DEGREES
+
+	local tx = x + placer.offset * math.cos(rotation)
+	local tz = z - placer.offset * math.sin(rotation)
+	placer.inst.Transform:SetPosition(tx, 0, tz)
+	if placer:TestCanBuild() then
+		_RecordLastGoodBoatSpot(placer, rotation, placer.offset, ox, oz)
+		return
+	end
+
     -- Conical sweep.
-    local SWEEPS = 10
-    local CONE_ANGLE = TUNING.CONTROLLER_BOATPLACEMENT_ANGLE
-    for r = placer.offset, 1, -.5 do
-        for i = 1, SWEEPS do
-            local deviation = (i / SWEEPS) * CONE_ANGLE * DEGREES
-            local tx, tz = math.floor(x + r * math.cos(rotation + deviation)), math.floor(z - r * math.sin(rotation + deviation))
+	local min_r = placer._min_boat_radius or 1
+	local delta_r = placer.offset - min_r
+	delta_r = delta_r / math.ceil(delta_r / 0.5) - 0.001
+	local deviation_delta = CONE_ANGLE * DEGREES / SWEEPS
+	for i = 1, SWEEPS do
+		local deviation = i * deviation_delta
+		for r = placer.offset, min_r, -delta_r do
+			tx, tz = x + r * math.cos(rotation + deviation), z - r * math.sin(rotation + deviation)
             placer.inst.Transform:SetPosition(tx, 0, tz)
             if placer:TestCanBuild() then
+				_RecordLastGoodBoatSpot(placer, rotation + deviation, r, ox, oz)
                 return
             end
-            tx, tz = math.floor(x + r * math.cos(rotation - deviation)), math.floor(z - r * math.sin(rotation - deviation))
+			tx, tz = x + r * math.cos(rotation - deviation), z - r * math.sin(rotation - deviation)
             placer.inst.Transform:SetPosition(tx, 0, tz)
             if placer:TestCanBuild() then
+				_RecordLastGoodBoatSpot(placer, rotation - deviation, r, ox, oz)
                 return
             end
         end
     end
+
     -- Reset it back to where it was before the modifications.
     placer.inst.Transform:SetPosition(ox, oy, oz)
+	if placer:TestCanBuild() then
+		_RecordLastGoodBoatSpot(placer, orot * DEGREES, placer.offset, ox, oz)
+		return
+	end
+
+	-- No good spots.
+	if placer._boat_last_rot then
+		if _ShouldKeepLastGoodBoatSpot(placer, ox, oz) then
+			tx = x + placer._boat_last_offs * math.cos(placer._boat_last_rot)
+			tz = z - placer._boat_last_offs * math.sin(placer._boat_last_rot)
+			placer.inst.Transform:SetPosition(tx, 0, tz)
+			placer._boat_last_ox = ox
+			placer._boat_last_oz = oz
+		else
+			_ResetLastGoodBoatSpot(placer)
+		end
+	end
 end
-function ControllerPlacer_Boat_SpotFinder(inst)
+function ControllerPlacer_Boat_SpotFinder(inst, boat_radius)
+	local min_range = boat_radius + 0.5 --see CLIENT_CanDeployBoat (boat.lua, yotd_boats.lua)
+	inst.components.placer._min_boat_radius = min_range + 0.01 --make sure placer stays within valid range of CLIENT_CanDeployBoat
     inst.components.placer.controllergroundoverridefn = ControllerPlacer_Boat_SpotFinder_Internal
 end
 

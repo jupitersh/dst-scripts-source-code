@@ -249,10 +249,14 @@ local function is_enabled_flotation_item(item)
 		and (not item.components.equippable or item.components.equippable:IsEquipped())
 end
 
+function Drownable:GetDrowningDamageTuning()
+	return (self.customtuningsfn and self.customtuningsfn(self.inst))
+		or TUNING.DROWNING_DAMAGE[string.upper(self.inst.prefab)]
+		or TUNING.DROWNING_DAMAGE[self.inst.isplayer and "DEFAULT" or "CREATURE"]
+end
+
 function Drownable:TakeDrowningDamage()
-	local tunings = (self.customtuningsfn ~= nil and self.customtuningsfn(self.inst))
-					or TUNING.DROWNING_DAMAGE[string.upper(self.inst.prefab)]
-					or TUNING.DROWNING_DAMAGE[self.inst:HasTag("player") and "DEFAULT" or "CREATURE"]
+	local tunings = self:GetDrowningDamageTuning()
 
 	local penalty_scale = 1.0
 	if self.src_x then

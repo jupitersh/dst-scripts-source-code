@@ -70,7 +70,12 @@ function WagbossRobotBrain:OnStart()
 						return not self.inst.sg:HasStateTag("busy")
 					end),
 					ParallelNodeAny{
-						ConditionWaitNode(function() return TheWorld.components.wagboss_tracker and TheWorld.components.wagboss_tracker:IsWagbossDefeated() end),
+						ConditionWaitNode(
+							function()
+								return TheWorld.components.wagboss_tracker
+									and TheWorld.components.wagboss_tracker:IsWagbossDefeated()
+									or not TheWorld.Map:IsPointInWagPunkArenaAndBarrierIsUp(self.inst.Transform:GetWorldPosition())
+								end),
 						WaitNode(14),
 					},
 					ActionNode(function()

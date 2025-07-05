@@ -640,6 +640,19 @@ end
 
 --------------------------------------------------------------------------
 
+local function IsPlayerFloater(item)
+	return item.components.playerfloater ~= nil and item.components.equippable == nil
+end
+
+local function FindPlayerFloater(inst)
+	--NOTE: Don't use Inventory:IsOpenedBy(inst) because that will fail even if it's just hidden
+	return inst.components.inventory.isopen
+		and inst.components.inventory:FindItem(IsPlayerFloater)
+		or nil
+end
+
+--------------------------------------------------------------------------
+
 local actionhandlers =
 {
     ActionHandler(ACTIONS.CHOP,
@@ -755,13 +768,19 @@ local actionhandlers =
         return action.invobject and action.invobject.components.complexprojectile and "throw_deploy" or "doshortaction" 
     end),
     ActionHandler(ACTIONS.DEPLOY_TILEARRIVE, "doshortaction"),
+	ActionHandler(ACTIONS.DEPLOY_FLOATING, function(inst)
+		inst.sg.statemem.floating = true
+		return "float_action"
+	end),
     ActionHandler(ACTIONS.STORE, "doshortaction"),
     ActionHandler(ACTIONS.DROP,
         function(inst)
-            return inst.components.inventory:IsHeavyLifting()
-                and not inst.components.rider:IsRiding()
-                and "heavylifting_drop"
-                or "doshortaction"
+			if not inst.components.inventory:IsFloaterHeld() then
+				return inst.components.inventory:IsHeavyLifting()
+					and not inst.components.rider:IsRiding()
+					and "heavylifting_drop"
+					or "doshortaction"
+			end
         end),
     ActionHandler(ACTIONS.MURDER,
         function(inst)
@@ -915,10 +934,18 @@ local actionhandlers =
             else
                 return
             end
-			return (obj:HasTag("quickeat") and "quickeat")
-				or (obj:HasTag("sloweat") and "eat")
-                or (obj.components.edible.foodtype == FOODTYPE.MEAT and "eat")
-                or "quickeat"
+			local state =
+				(obj:HasTag("quickeat") and "quickeat") or
+				(obj:HasTag("sloweat") and "eat") or
+				(obj.components.edible.foodtype == FOODTYPE.MEAT and "eat") or
+				"quickeat"
+
+			if inst.sg:HasStateTag("floating") then
+				inst.sg.statemem.floating = true
+				--for searching: "float_eat", "float_quickeat"
+				return "float_"..state
+			end
+			return state
         end),
     ActionHandler(ACTIONS.GIVE,
         function(inst, action)
@@ -1764,6 +1791,12 @@ local events =
             end
         end),
 
+	EventHandler("wx78_spark", function(inst)
+		if not inst.sg:HasAnyStateTag("nointerrupt", "floating") then
+			inst.sg:GoToState("hit")
+		end
+	end),
+
     EventHandler("becomeyounger_wanda",
         function(inst)
             if inst.sg:HasStateTag("idle") then
@@ -1779,7 +1812,7 @@ local events =
         end),
 
     EventHandler("onsink", function(inst, data)
-        if not inst.components.health:IsDead() and not inst.sg:HasStateTag("drowning") and
+		if not inst.components.health:IsDead() and not inst.sg:HasAnyStateTag("drowning", "floating") and
                 (inst.components.drownable ~= nil and inst.components.drownable:ShouldDrown()) then
             if data ~= nil and data.boat ~= nil then
                 inst.sg:GoToState("sink", data.shore_pt)
@@ -1866,9 +1899,7 @@ local events =
         end),
     EventHandler("emote",
         function(inst, data)
-            if not (inst.sg:HasStateTag("busy") or
-                    inst.sg:HasStateTag("nopredict") or
-                    inst.sg:HasStateTag("sleeping"))
+			if not inst.sg:HasAnyStateTag("busy", "nopredict", "sleeping", "floating")
                 and not inst.components.inventory:IsHeavyLifting()
                 and (data.mounted or not inst.components.rider:IsRiding())
                 and (not data.mountonly or inst.components.rider:IsRiding())
@@ -1898,7 +1929,7 @@ local events =
         end),
     EventHandler("wonteatfood",
         function(inst)
-            if inst.components.health ~= nil and not inst.components.health:IsDead() then
+			if inst.components.health and not inst.components.health:IsDead() and not inst.sg:HasStateTag("floating") then
                 inst.sg:GoToState("refuseeat")
             end
         end),
@@ -5608,11 +5639,10 @@ local states =
                 feed = inst:GetBufferedAction().invobject
             end
 
-            if feed == nil or
-                feed.components.edible == nil or
-                feed.components.edible.foodtype ~= FOODTYPE.GEARS then
-                inst.SoundEmitter:PlaySound("dontstarve/wilson/eat", "eating")
-            end
+			inst.sg.statemem.doeatingsfx =
+				feed == nil or
+				feed.components.edible == nil or
+				feed.components.edible.foodtype ~= FOODTYPE.GEARS
 
             if feed ~= nil and feed.components.soul ~= nil then
                 inst.sg.statemem.soulfx = SpawnPrefab("wortox_eat_soul_fx")
@@ -5624,7 +5654,11 @@ local states =
 
             if inst.components.inventory:IsHeavyLifting() and
                 not inst.components.rider:IsRiding() then
+				--V2C: don't think this is used anymore?
                 inst.AnimState:PlayAnimation("heavy_eat")
+				if inst.sg.statemem.doeatingsfx then
+					inst.SoundEmitter:PlaySound("dontstarve/wilson/eat", "eating")
+				end
             else
                 inst.AnimState:PlayAnimation("eat_pre")
                 inst.AnimState:PushAnimation("eat", false)
@@ -5635,6 +5669,11 @@ local states =
 
         timeline =
         {
+			FrameEvent(6, function(inst)
+				if inst.sg.statemem.doeatingsfx and not inst.SoundEmitter:PlayingSound("eating") then
+					inst.SoundEmitter:PlaySound("dontstarve/wilson/eat", "eating")
+				end
+			end),
             TimeEvent(28 * FRAMES, function(inst)
                 if inst.sg.statemem.feed == nil then
                     inst:PerformBufferedAction()
@@ -5658,7 +5697,10 @@ local states =
 				end
 			end),
             TimeEvent(70 * FRAMES, function(inst)
-                inst.SoundEmitter:KillSound("eating")
+				if inst.sg.statemem.doeatingsfx then
+					inst.sg.statemem.doeatingsfx = nil
+					inst.SoundEmitter:KillSound("eating")
+				end
             end),
 			FrameEvent(94, TryResumePocketRummage),
         },
@@ -5682,7 +5724,9 @@ local states =
         },
 
         onexit = function(inst)
-            inst.SoundEmitter:KillSound("eating")
+			if inst.sg.statemem.doeatingsfx then
+				inst.SoundEmitter:KillSound("eating")
+			end
             if not GetGameModeProperty("no_hunger") then
                 inst.components.hunger:Resume()
             end
@@ -5717,15 +5761,18 @@ local states =
                 feed = inst:GetBufferedAction().invobject
             end
 
-            if feed == nil or
-                feed.components.edible == nil or
-                feed.components.edible.foodtype ~= FOODTYPE.GEARS then
-                inst.SoundEmitter:PlaySound("dontstarve/wilson/eat", "eating")
-            end
+			inst.sg.statemem.doeatingsfx =
+				feed == nil or
+				feed.components.edible == nil or
+				feed.components.edible.foodtype ~= FOODTYPE.GEARS
 
             if inst.components.inventory:IsHeavyLifting() and
                 not inst.components.rider:IsRiding() then
+				--V2C: don't think this is used anymore?
                 inst.AnimState:PlayAnimation("heavy_quick_eat")
+				if inst.sg.statemem.doeatingsfx then
+					inst.SoundEmitter:PlaySound("dontstarve/wilson/eat", "eating")
+				end
             else
                 inst.AnimState:PlayAnimation("quick_eat_pre")
                 inst.AnimState:PushAnimation("quick_eat", false)
@@ -5736,6 +5783,11 @@ local states =
 
         timeline =
         {
+			FrameEvent(10, function(inst)
+				if inst.sg.statemem.doeatingsfx and not inst.SoundEmitter:PlayingSound("eating") then
+					inst.SoundEmitter:PlaySound("dontstarve/wilson/eat", "eating")
+				end
+			end),
             TimeEvent(12 * FRAMES, function(inst)
                 if inst.sg.statemem.feed ~= nil then
                     inst.components.eater:Eat(inst.sg.statemem.feed, inst.sg.statemem.feeder)
@@ -5776,7 +5828,9 @@ local states =
         },
 
         onexit = function(inst)
-            inst.SoundEmitter:KillSound("eating")
+			if inst.sg.statemem.doeatingsfx then
+				inst.SoundEmitter:KillSound("eating")
+			end
             if not GetGameModeProperty("no_hunger") then
                 inst.components.hunger:Resume()
             end
@@ -12047,7 +12101,10 @@ local states =
                 inst.sg:AddStateTag("dismounting")
             end
 
-            if shore_pt ~= nil then
+			if FindPlayerFloater(inst) then
+				inst.sg.statemem.float = true
+				inst.sg.statemem.shore_pt = shore_pt
+			elseif shore_pt then
                 inst.components.drownable:OnFallInOcean(shore_pt:Get())
             else
                 inst.components.drownable:OnFallInOcean()
@@ -12055,13 +12112,32 @@ local states =
             inst.DynamicShadow:Enable(false)
 
             inst:ShowHUD(false)
+			if inst.components.playercontroller then
+				inst.components.playercontroller:Enable(false)
+				inst.components.playercontroller:EnableMapControls(false)
+			end
         end,
 
         timeline =
         {
             TimeEvent(75 * FRAMES, function(inst)
+				inst.SoundEmitter:PlaySound("turnoftides/common/together/water/splash/medium")
+				if inst.sg.statemem.float then
+					local floater = FindPlayerFloater(inst)
+					if floater then
+						inst.sg.statemem.floating = true
+						inst.sg:GoToState("float_pre_splash", floater)
+						return
+					end
+					inst.sg.statemem.float = nil
+					if inst.sg.statemem.shore_pt then
+						inst.components.drownable:OnFallInOcean(inst.sg.statemem.shore_pt:Get())
+						inst.sg.statemem.shore_pt = nil
+					else
+						inst.components.drownable:OnFallInOcean()
+					end
+				end
                 inst.components.drownable:DropInventory()
-                inst.SoundEmitter:PlaySound("turnoftides/common/together/water/splash/medium")
             end),
         },
 
@@ -12105,8 +12181,14 @@ local states =
                 DoneTeleporting(inst)
             end
 
-            inst.DynamicShadow:Enable(true)
-            inst:ShowHUD(true)
+			if not inst.sg.statemem.floating then
+				inst.DynamicShadow:Enable(true)
+				inst:ShowHUD(true)
+				if inst.components.playercontroller then
+					inst.components.playercontroller:Enable(true)
+					inst.components.playercontroller:EnableMapControls(true)
+				end
+			end
         end,
     },
 
@@ -12131,9 +12213,17 @@ local states =
                 inst.sg:AddStateTag("dismounting")
             end
 
-            inst.components.drownable:OnFallInOcean()
+			if FindPlayerFloater(inst) then
+				inst.sg.statemem.float = true
+			else
+				inst.components.drownable:OnFallInOcean()
+			end
             inst.DynamicShadow:Enable(false)
             inst:ShowHUD(false)
+			if inst.components.playercontroller then
+				inst.components.playercontroller:Enable(false)
+				inst.components.playercontroller:EnableMapControls(false)
+			end
         end,
 
         timeline =
@@ -12142,12 +12232,22 @@ local states =
                 inst.AnimState:Show("float_front")
                 inst.AnimState:Show("float_back")
             end),
-
+			FrameEvent(15, function(inst)
+				if inst.sg.statemem.float then
+					local floater = FindPlayerFloater(inst)
+					if floater then
+						inst.sg.statemem.floating = true
+						inst.sg:GoToState("float_pre_splash", floater)
+						return
+					end
+					inst.sg.statemem.float = nil
+					inst.components.drownable:OnFallInOcean()
+				end
+			end),
             TimeEvent(16 * FRAMES, function(inst)
                 inst.components.drownable:DropInventory()
             end),
         },
-
 
         events =
         {
@@ -12189,10 +12289,83 @@ local states =
                 DoneTeleporting(inst)
             end
 
-            inst.DynamicShadow:Enable(true)
-            inst:ShowHUD(true)
+			if not inst.sg.statemem.floating then
+				inst.DynamicShadow:Enable(true)
+				inst:ShowHUD(true)
+				if inst.components.playercontroller then
+					inst.components.playercontroller:Enable(true)
+					inst.components.playercontroller:EnableMapControls(true)
+				end
+			end
         end,
     },
+
+	State{
+		name = "sink_instant",
+		tags = { "busy", "nopredict", "nomorph", "drowning", "nointerrupt" },
+
+		onenter = function(inst)
+			ForceStopHeavyLifting(inst)
+			inst:ClearBufferedAction()
+
+			inst.components.locomotor:Stop()
+			inst.components.locomotor:Clear()
+
+			local mount = inst.components.rider and inst.components.rider:GetMount()
+			if mount then
+				inst.components.rider:ActualDismount()
+				if mount.components.drownable then
+					mount:PushEvent("onsink", { noanim = true, shore_pt = Vector3(inst.components.drownable.dest_x, inst.components.drownable.dest_y, inst.components.drownable.dest_z) })
+				elseif mount.components.health then
+					mount:Hide()
+					mount.components.health:Kill()
+				end
+			end
+
+			local floater = FindPlayerFloater(inst)
+			if floater then
+				inst.sg.statemem.floating = true
+				inst.sg:GoToState("float_pre", floater)
+				return
+			end
+
+			inst.DynamicShadow:Enable(false)
+			inst:ShowHUD(false)
+			if inst.components.playercontroller then
+				inst.components.playercontroller:Enable(false)
+				inst.components.playercontroller:EnableMapControls(false)
+			end
+
+			inst.components.drownable:OnFallInOcean()
+			inst.components.drownable:DropInventory()
+			StartTeleporting(inst)
+			inst.components.drownable:WashAshore()
+		end,
+
+		events =
+		{
+			EventHandler("on_washed_ashore", function(inst)
+				inst.sg:GoToState("washed_ashore")
+			end),
+		},
+
+		onexit = function(inst)
+			if inst.sg.statemem.isphysicstoggle then
+				ToggleOnPhysics(inst)
+			end
+			if inst.sg.statemem.isteleporting then
+				DoneTeleporting(inst)
+			end
+			if not inst.sg.statemem.floating then
+				inst.DynamicShadow:Enable(true)
+				inst:ShowHUD(true)
+				if inst.components.playercontroller then
+					inst.components.playercontroller:Enable(true)
+					inst.components.playercontroller:EnableMapControls(true)
+				end
+			end
+		end,
+	},
 
     State{
         name = "abandon_ship_pre",
@@ -12228,7 +12401,14 @@ local states =
             inst.AnimState:PlayAnimation("plank_hop")
 
             inst:ShowHUD(false)
-            if inst.components.drownable ~= nil then
+			if inst.components.playercontroller then
+				inst.components.playercontroller:Enable(false)
+				inst.components.playercontroller:EnableMapControls(false)
+			end
+
+			if FindPlayerFloater(inst) then
+				inst.sg.statemem.float = true
+			else
                 inst.components.drownable:OnFallInOcean()
             end
 
@@ -12244,14 +12424,24 @@ local states =
             TimeEvent(1 * FRAMES, function(inst)
                 inst.Physics:SetMotorVel(inst.sg.statemem.speed, 0, 0)
             end),
-
-            TimeEvent(12 * FRAMES, function(inst)
-                -- TODO: Start camera fade here
-            end),
-
-            TimeEvent(15 * FRAMES, function(inst)
-                inst.DynamicShadow:Enable(false)
-                inst.Physics:Stop()
+			FrameEvent(15, function(inst)
+				inst.Physics:Stop()
+				inst.SoundEmitter:PlaySound("turnoftides/common/together/water/splash/medium")
+			end),
+			FrameEvent(16, function(inst)
+				inst.DynamicShadow:Enable(false)
+			end),
+			FrameEvent(19, function(inst)
+				if inst.sg.statemem.float then
+					local floater = FindPlayerFloater(inst)
+					if floater then
+						inst.sg.statemem.floating = true
+						inst.sg:GoToState("float_pre_splash", floater)
+						return
+					end
+					inst.sg.statemem.float = nil
+					inst.components.drownable:OnFallInOcean()
+				end
 
                 if TheWorld.Map:IsPassableAtPoint(inst.Transform:GetWorldPosition()) or inst.components.drownable == nil then
                     inst.sg:GoToState("idle")
@@ -12259,7 +12449,6 @@ local states =
                     inst.components.drownable:DropInventory()
                 end
             end),
-            TimeEvent(10*FRAMES, function(inst) inst.SoundEmitter:PlaySound("turnoftides/common/together/water/splash/medium") end),
         },
 
         events =
@@ -12281,6 +12470,7 @@ local states =
         },
 
         onexit = function(inst)
+			inst.Physics:Stop()
             if inst.sg.statemem.isphysicstoggle then
                 ToggleOnPhysics(inst)
             end
@@ -12289,10 +12479,15 @@ local states =
                 DoneTeleporting(inst)
             end
 
-            inst.DynamicShadow:Enable(true)
-            inst:ShowHUD(true)
+			if not inst.sg.statemem.floating then
+				inst.DynamicShadow:Enable(true)
+				inst:ShowHUD(true)
+				if inst.components.playercontroller then
+					inst.components.playercontroller:Enable(true)
+					inst.components.playercontroller:EnableMapControls(true)
+				end
+			end
         end,
-
     },
 
     State{
@@ -23440,6 +23635,951 @@ local states =
 				inst.Physics:Stop()
 			end
 		end,
+	},
+
+	State{
+		name = "float_pre_splash",
+		tags = { "busy", "nopredict", "silentmorph", "notalking", "nointerrupt", "floating", "invisible", "noattack" },
+
+		onenter = function(inst, floater)
+			ForceStopHeavyLifting(inst)
+			inst:ClearBufferedAction()
+
+			inst.components.locomotor:Stop()
+			inst.components.locomotor:Clear()
+
+			if floater and floater.components.playerfloater then
+				floater.components.playerfloater:AutoDeploy(inst)
+			end
+
+			local mount = inst.components.rider:GetMount()
+			if mount then
+				inst.components.rider:ActualDismount()
+				if mount.components.drownable then
+					mount:PushEvent("onsink", { noanim = true, shore_pt = Vector3(inst.components.drownable.dest_x, inst.components.drownable.dest_y, inst.components.drownable.dest_z) })
+				elseif mount.components.health then
+					mount:Hide()
+					mount.components.health:Kill()
+				end
+			end
+
+			inst.Transform:SetSixFaced()
+			inst.AnimState:PlayAnimation("float_splash")
+
+			inst.DynamicShadow:Enable(false)
+			inst:ShowHUD(false)
+			if inst.components.playercontroller then
+				inst.components.playercontroller:Enable(false)
+				inst.components.playercontroller:EnableMapControls(false)
+			end
+		end,
+
+		events =
+		{
+			EventHandler("unequip", function(inst, data)
+				if data and data.eslot == EQUIPSLOTS.HANDS and data.item and data.item.components.playerfloater then
+					inst.sg.statemem.sink = true
+					inst.sg:GoToState("sink_instant")
+					return true
+				end
+			end),
+			EventHandler("animover", function(inst)
+				if inst.AnimState:AnimDone() then
+					inst.sg.statemem.floating = true
+					inst.sg:GoToState("float_pre")
+				end
+			end),
+		},
+
+		onexit = function(inst)
+			if not (inst.sg.statemem.floating or inst.sg.statemem.sink) then
+				inst.DynamicShadow:Enable(true)
+				inst:ShowHUD(true)
+				if inst.components.playercontroller then
+					inst.components.playercontroller:Enable(true)
+					inst.components.playercontroller:EnableMapControls(true)
+				end
+			end
+			if not inst.sg.statemem.floating then
+				inst.Transform:SetFourFaced()
+
+				local floater = inst.components.inventory:GetEquippedItem(EQUIPSLOTS.HANDS)
+				if floater and floater.components.playerfloater then
+					floater.components.playerfloater:LetGo(inst, true)
+				end
+			end
+		end,
+	},
+
+	State{
+		name = "float_pre",
+		tags = { "busy", "nopredict", "silentmorph", "nointerrupt", "floating" },
+
+		onenter = function(inst, floater)
+			ForceStopHeavyLifting(inst)
+			inst:ClearBufferedAction()
+
+			inst.components.locomotor:Stop()
+			inst.components.locomotor:Clear()
+
+			if floater and floater.components.playerfloater then
+				floater.components.playerfloater:AutoDeploy(inst)
+			end
+
+			local tunings = inst.components.drownable:GetDrowningDamageTuning()
+			if inst.components.moisture and tunings.WETNESS then
+				inst.components.moisture:DoDelta(TUNING.DROWNING_FLOAT_SCALE * tunings.WETNESS, true)
+			end
+
+			local mount = inst.components.rider:GetMount()
+			if mount then
+				inst.components.rider:ActualDismount()
+				if mount.components.drownable then
+					mount:PushEvent("onsink", { noanim = true, shore_pt = Vector3(inst.components.drownable.dest_x, inst.components.drownable.dest_y, inst.components.drownable.dest_z) })
+				elseif mount.components.health then
+					mount:Hide()
+					mount.components.health:Kill()
+				end
+			end
+
+			inst.Transform:SetSixFaced()
+			inst.AnimState:PlayAnimation("float_pre")
+			inst.AnimState:OverrideSymbol("splash_wave", "player_float", "splash_wave")
+
+			inst.SoundEmitter:PlaySound("turnoftides/common/together/water/splash/small")
+
+			inst.DynamicShadow:Enable(false)
+			inst:ShowHUD(false)
+			if inst.components.playercontroller then
+				inst.components.playercontroller:Enable(false)
+				inst.components.playercontroller:EnableMapControls(false)
+			end
+		end,
+
+		timeline =
+		{
+			FrameEvent(6, function(inst)
+				inst:ShowHUD(true)
+				inst:ShowCrafting(false)
+				if inst.components.playercontroller then
+					inst.components.playercontroller:Enable(true)
+					inst.components.playercontroller:EnableMapControls(true)
+				end
+			end),
+			FrameEvent(19, function(inst) inst.SoundEmitter:PlaySound("turnoftides/common/together/flotation_device/hit_water") end),
+		},
+
+		events =
+		{
+			EventHandler("unequip", function(inst, data)
+				if data and data.eslot == EQUIPSLOTS.HANDS and data.item and data.item.components.playerfloater then
+					inst.sg.statemem.sink = true
+					inst.sg:GoToState("sink_fast")
+					return true
+				end
+			end),
+			EventHandler("animover", function(inst)
+				if inst.AnimState:AnimDone() then
+					inst.sg.statemem.floating = true
+					inst.sg:GoToState("float")
+					if inst.sg.currentstate.name == "float" then
+						inst.components.talker:Say(GetString(inst, "ANNOUNCE_FLOATER_HELD"))
+					end
+				end
+			end),
+		},
+
+		onexit = function(inst)
+			inst.AnimState:ClearOverrideSymbol("splash_wave")
+			if not (inst.sg.statemem.floating or inst.sg.statemem.sink) then
+				inst.DynamicShadow:Enable(true)
+			end
+			if not inst.sg.statemem.sink then
+				inst:ShowHUD(true)
+				if inst.components.playercontroller then
+					inst.components.playercontroller:Enable(true)
+					inst.components.playercontroller:EnableMapControls(true)
+				end
+			end
+			if not inst.sg.statemem.floating then
+				inst.Transform:SetFourFaced()
+				inst:ShowCrafting(true)
+
+				local floater = inst.components.inventory:GetEquippedItem(EQUIPSLOTS.HANDS)
+				if floater and floater.components.playerfloater then
+					floater.components.playerfloater:LetGo(inst, true)
+				end
+			end
+		end,
+	},
+
+	State{
+		name = "float",
+		tags = { "overridelocomote", "silentmorph", "canrotate", "floating" },
+
+		onenter = function(inst, data)
+			inst.components.locomotor:Stop()
+			inst.Transform:SetSixFaced()
+			inst.DynamicShadow:Enable(false)
+			inst:ShowCrafting(false)
+
+			if data and data.fromstate then
+				inst.AnimState:PushAnimation("float_loop")
+				shallowcopy(data, inst.sg.statemem)
+				if data.fromstate == "float_eat" or data.fromstate == "float_quickeat" then
+					inst.sg.statemem.fromstate = data.fromstate
+					inst.sg.statemem.canceleatfn = function(inst)
+						inst.sg.statemem.canceleatfn = nil
+						if inst.sg.statemem.doeatingsfx then
+							inst.sg.statemem.doeatingsfx = nil
+							inst.SoundEmitter:KillSound("eating")
+						end
+						if not GetGameModeProperty("no_hunger") then
+							inst.components.hunger:Resume()
+						end
+						if inst.sg.statemem.soulfx then
+							inst.sg.statemem.soulfx:Remove()
+							inst.sg.statemem.soulfx = nil
+						end
+					end
+				end
+			else
+				inst.AnimState:PlayAnimation("float_loop", true)
+			end
+
+			local mount = inst.components.rider:GetMount()
+			if mount then
+				inst.components.rider:ActualDismount()
+				if mount.components.drownable then
+					mount:PushEvent("onsink", { noanim = true, shore_pt = Vector3(inst.components.drownable.dest_x, inst.components.drownable.dest_y, inst.components.drownable.dest_z) })
+				elseif mount.components.health then
+					mount:Hide()
+					mount.components.health:Kill()
+				end
+			end
+		end,
+
+		onupdate = function(inst)
+			if inst:GetCurrentPlatform() or TheWorld.Map:IsVisualGroundAtPoint(inst.Transform:GetWorldPosition()) then
+				inst.sg:GoToState("float_cancel")
+			end
+		end,
+
+		timeline =
+		{
+			--float_eat
+			FrameEvent(70 - 30, function(inst)
+				if inst.sg.statemem.fromstate == "float_eat" then
+					if inst.sg.statemem.doeatingsfx then
+						inst.sg.statemem.doeatingsfx = nil
+						inst.SoundEmitter:KillSound("eating")
+					end
+				end
+			end),
+			FrameEvent(99 - 30, function(inst)
+				if inst.sg.statemem.fromstate == "float_eat" then
+					if inst.sg.statemem.canceleatfn then
+						inst.sg.statemem.canceleatfn(inst)
+					end
+				end
+			end),
+
+			--float_quickeat
+			FrameEvent(24 - 12, function(inst)
+				if inst.sg.statemem.fromstate == "float_quickeat" then
+					if inst.sg.statemem.canceleatfn then
+						inst.sg.statemem.canceleatfn(inst)
+					end
+				end
+			end),
+		},
+
+		events =
+		{
+			EventHandler("ontalk", function(inst)
+				if inst.sg.statemem.canceleatfn then
+					inst.sg.statemem.canceleatfn(inst)
+				end
+				if inst.sg.statemem.floatingtalktask then
+					inst.sg.statemem.floatingtalktask:Cancel()
+					inst.sg.statemem.floatingtalktask = nil
+				end
+				local duration = inst.sg.statemem.talktask and GetTaskRemaining(inst.sg.statemem.talktask) or 1.5 + math.random() * 0.5
+				if inst:HasTag("mime") then
+					inst.AnimState:PlayAnimation("float_mime")
+					for i = 2, math.floor(duration / inst.AnimState:GetCurrentAnimationLength() + 0.5) do
+						inst.AnimState:PushAnimation("float_mime")
+					end
+					inst.AnimState:PushAnimation("float_loop")
+				else
+					inst.AnimState:PlayAnimation("float_dial_loop", true)
+					inst.sg.statemem.floatingtalktask = inst:DoTaskInTime(duration, function(inst)
+						inst.sg.statemem.floatingtalktask = nil
+						if inst.AnimState:IsCurrentAnimation("float_dial_loop") then
+							inst.AnimState:PlayAnimation("float_loop", true)
+						end
+					end)
+				end
+				return OnTalk_Override(inst)
+			end),
+			EventHandler("donetalking", function(inst)
+				if inst.sg.statemem.floatingtalktask then
+					inst.sg.statemem.floatingtalktask:Cancel()
+					inst.sg.statemem.floatingtalktask = nil
+					if inst.AnimState:IsCurrentAnimation("float_dial_loop") then
+						inst.AnimState:PlayAnimation("float_loop", true)
+					end
+				end
+				return OnDoneTalking_Override(inst)
+			end),
+			EventHandler("equip", function(inst, data)
+				if inst.sg.statemem.canceleatfn then
+					inst.sg.statemem.canceleatfn(inst)
+				end
+				inst.AnimState:PlayAnimation("float_item_in")
+				inst.AnimState:PushAnimation("float_loop")
+			end),
+			EventHandler("unequip", function(inst, data)
+				if data and data.eslot == EQUIPSLOTS.HANDS then
+					inst.sg.statemem.sink = true
+					inst.sg:GoToState("sink_fast")
+					return true
+				end
+				if inst.sg.statemem.canceleatfn then
+					inst.sg.statemem.canceleatfn(inst)
+				end
+				inst.AnimState:PlayAnimation("float_item_in")
+				inst.AnimState:PushAnimation("float_loop")
+			end),
+			EventHandler("performaction", function(inst, data)
+				if data and data.action and data.action.action == ACTIONS.DROP then
+					local item = data.action.invobject
+					if item and item.components.playerfloater and item.components.equippable and item.components.equippable:IsEquipped() then
+						inst.sg.statemem.floating = true
+						inst.sg:GoToState("float_let_go")
+						return
+					end
+					if inst.sg.statemem.canceleatfn then
+						inst.sg.statemem.canceleatfn(inst)
+					end
+					inst.AnimState:PlayAnimation("float_item_in")
+					inst.AnimState:PushAnimation("float_loop")
+				end
+			end),
+			EventHandler("locomote", function(inst, data)
+				local x1, y1, z1, nodelay
+				if inst.components.locomotor.dest then
+					local pt = inst.components.locomotor.dest.pt
+					if pt then
+						x1, y1, z1 = pt:Get()
+					end
+					inst.components.locomotor:Stop()
+					inst.components.locomotor:Clear()
+					nodelay = true
+				end
+				if data and data.dir then
+					inst.Transform:SetRotation(data.dir)
+
+					if data.remoteoverridelocomote then
+						if not data.floathop then
+							return true
+						end
+						x1, y1, z1 = nil, nil, nil
+						nodelay = true
+					end
+
+					local x, y, z = inst.Transform:GetWorldPosition()
+					local dx, dz
+					if x1 then
+						if x ~= x1 or z ~= z1 then
+							local dx = x1 - x
+							local dz = z1 - z
+							local len = math.sqrt(dx * dx + dz * dz)
+							dx = dx / len
+							dz = dz / len
+						end
+					end
+					if dx == nil then
+						local theta = data.dir * DEGREES
+						dx = math.cos(theta)
+						dz = -math.sin(theta)
+					end
+					local step_size = 0.5
+					local steps_to_platform = math.ceil(TUNING.FLOATING_HOP_DISTANCE_PLATFORM / step_size)
+					local steps_to_land = math.ceil(TUNING.FLOATING_HOP_DISTANCE_LAND / step_size)
+					local can_hop, px, pz, found_platform = inst.components.locomotor:ScanForPlatformInDirFromFloating(TheWorld.Map, x, z, dx, dz, steps_to_platform, steps_to_land, step_size, nodelay)
+					if can_hop then
+						inst.components.locomotor:StartHopping(px, pz, found_platform)
+					end
+				end
+				return true
+			end),
+			EventHandler("onhop", function(inst)
+				inst.sg.statemem.floating = true
+				inst.sg:GoToState("float_hop_pre")
+				return true
+			end),
+		},
+
+		onexit = function(inst)
+			if inst.sg.statemem.canceleatfn then
+				inst.sg.statemem.canceleatfn(inst)
+			end
+			if not (inst.sg.statemem.floating or inst.sg.statemem.sink) then
+				inst.DynamicShadow:Enable(true)
+			end
+			if not inst.sg.statemem.floating then
+				inst.Transform:SetFourFaced()
+				inst:ShowCrafting(true)
+
+				local floater = inst.components.inventory:GetEquippedItem(EQUIPSLOTS.HANDS)
+				if floater and floater.components.playerfloater then
+					floater.components.playerfloater:LetGo(inst, true)
+				end
+			end
+			if inst.sg.statemem.floatingtalktask then
+				inst.sg.statemem.floatingtalktask:Cancel()
+			end
+			CancelTalk_Override(inst)
+		end,
+	},
+
+	State{
+		name = "float_action",
+		tags = { "doing", "busy", "silentmorph", "floating" },
+
+		onenter = function(inst)
+			inst.components.locomotor:Stop()
+			inst.DynamicShadow:Enable(false)
+			inst:ShowCrafting(false)
+
+			inst.Transform:SetSixFaced()
+			inst.AnimState:PlayAnimation("float_action_pre")
+			inst.AnimState:PushAnimation("float_action_pst", false)
+		end,
+
+		timeline =
+		{
+			FrameEvent(13, function(inst)
+				inst:PerformBufferedAction()
+				inst.sg.statemem.floating = true
+				inst.sg:GoToState("float", {
+					fromstate = "float_action",
+				})
+			end),
+		},
+
+		events =
+		{
+			EventHandler("unequip", function(inst, data)
+				if data and data.eslot == EQUIPSLOTS.HANDS then
+					inst.sg.statemem.sink = true
+					inst.sg:GoToState("sink_fast")
+				end
+			end),
+			EventHandler("animqueueover", function(inst)
+				if inst.AnimState:AnimDone() then
+					inst.sg.statemem.floating = true
+					inst.sg:GoToState("float")
+				end
+			end),
+		},
+
+		onexit = function(inst)
+			if not (inst.sg.statemem.floating or inst.sg.statemem.sink) then
+				inst.DynamicShadow:Enable(true)
+			end
+			if not inst.sg.statemem.floating then
+				inst.Transform:SetFourFaced()
+				inst:ShowCrafting(true)
+
+				local floater = inst.components.inventory:GetEquippedItem(EQUIPSLOTS.HANDS)
+				if floater and floater.components.playerfloater then
+					floater.components.playerfloater:LetGo(inst, true)
+				end
+			end
+		end,
+	},
+
+	State{
+		name = "float_eat",
+		tags = { "busy", "floating", "silentmorph" },
+
+		onenter = function(inst)
+			inst.components.locomotor:Stop()
+			inst.DynamicShadow:Enable(false)
+			inst:ShowCrafting(false)
+
+			local buffaction = inst:GetBufferedAction()
+			local feed = buffaction and buffaction.invobject
+
+			inst.sg.statemem.doeatingsfx = not (feed and feed.components.edible and feed.components.edible.foodtype == FOODTYPE.GEARS)
+
+			if feed and feed.components.soul then
+				inst.sg.statemem.soulfx = SpawnPrefab("wortox_eat_soul_fx")
+				inst.sg.statemem.soulfx.entity:SetParent(inst.entity)
+			end
+
+			inst.Transform:SetSixFaced()
+			inst.AnimState:PlayAnimation("float_eat_pre")
+			inst.AnimState:PushAnimation("float_eat", false)
+
+			inst.components.hunger:Pause()
+		end,
+
+		timeline =
+		{
+			FrameEvent(6, function(inst)
+				if inst.sg.statemem.doeatingsfx then
+					inst.SoundEmitter:PlaySound("dontstarve/wilson/eat", "eating")
+				end
+			end),
+			FrameEvent(28, function(inst)
+				inst:PerformBufferedAction()
+			end),
+			FrameEvent(30, function(inst)
+				inst.sg.statemem.floating = true
+				inst.sg.statemem.eating = true
+				inst.sg:GoToState("float", {
+					fromstate = "float_eat",
+					doeatingsfx = inst.sg.statemem.doeatingsfx,
+					soulfx = inst.sg.statemem.soulfx,
+				})
+			end),
+			FrameEvent(70, function(inst)
+				if inst.sg.statemem.doeatingsfx then
+					inst.sg.statemem.doeatingsfx = nil
+					inst.SoundEmitter:KillSound("eating")
+				end
+			end),
+		},
+
+		events =
+		{
+			EventHandler("unequip", function(inst, data)
+				if data and data.eslot == EQUIPSLOTS.HANDS then
+					inst.sg.statemem.sink = true
+					inst.sg:GoToState("sink_fast")
+				end
+			end),
+			EventHandler("animqueueover", function(inst)
+				if inst.AnimState:AnimDone() then
+					inst.sg.statemem.floating = true
+					inst.sg:GoToState("float")
+				end
+			end),
+		},
+
+		onexit = function(inst)
+			if not inst.sg.statemem.eating then
+				if inst.sg.statemem.doeatingsfx then
+					inst.SoundEmitter:KillSound("eating")
+				end
+				if not GetGameModeProperty("no_hunger") then
+					inst.components.hunger:Resume()
+				end
+				if inst.sg.statemem.soulfx then
+					inst.sg.statemem.soulfx:Remove()
+				end
+			end
+			if not (inst.sg.statemem.floating or inst.sg.statemem.sink) then
+				inst.DynamicShadow:Enable(true)
+			end
+			if not inst.sg.statemem.floating then
+				inst.Transform:SetFourFaced()
+				inst:ShowCrafting(true)
+
+				local floater = inst.components.inventory:GetEquippedItem(EQUIPSLOTS.HANDS)
+				if floater and floater.components.playerfloater then
+					floater.components.playerfloater:LetGo(inst, true)
+				end
+			end
+		end,
+	},
+
+	State{
+		name = "float_quickeat",
+		tags = { "busy", "floating", "silentmorph" },
+
+		onenter = function(inst, foodinfo)
+			inst.components.locomotor:Stop()
+			inst.DynamicShadow:Enable(false)
+			inst:ShowCrafting(false)
+
+			local buffaction = inst:GetBufferedAction()
+			local feed = buffaction and buffaction.invobject
+
+			inst.sg.statemem.doeatingsfx = not (feed and feed.components.edible and feed.components.edible.foodtype == FOODTYPE.GEARS)
+
+			inst.Transform:SetSixFaced()
+			inst.AnimState:PlayAnimation("float_quick_eat_pre")
+			inst.AnimState:PushAnimation("float_quick_eat", false)
+
+			inst.components.hunger:Pause()
+		end,
+
+		timeline =
+		{
+			FrameEvent(10, function(inst)
+				if inst.sg.statemem.doeatingsfx then
+					inst.SoundEmitter:PlaySound("dontstarve/wilson/eat", "eating")
+				end
+			end),
+			FrameEvent(12, function(inst)
+				inst:PerformBufferedAction()
+				inst.sg.statemem.floating = true
+				inst.sg.statemem.eating = true
+				inst.sg:GoToState("float", {
+					fromstate = "float_quickeat",
+					doeatingsfx = inst.sg.statemem.doeatingsfx,
+				})
+			end),
+		},
+
+		events =
+		{
+			EventHandler("unequip", function(inst, data)
+				if data and data.eslot == EQUIPSLOTS.HANDS then
+					inst.sg.statemem.sink = true
+					inst.sg:GoToState("sink_fast")
+				end
+			end),
+			EventHandler("animqueueover", function(inst)
+				if inst.AnimState:AnimDone() then
+					inst.sg.statemem.floating = true
+					inst.sg:GoToState("float")
+				end
+			end),
+		},
+
+		onexit = function(inst)
+			if not inst.sg.statemem.eating then
+				if inst.sg.statemem.doeatingsfx then
+					inst.SoundEmitter:KillSound("eating")
+				end
+				if not GetGameModeProperty("no_hunger") then
+					inst.components.hunger:Resume()
+				end
+			end
+			if not (inst.sg.statemem.floating or inst.sg.statemem.sink) then
+				inst.DynamicShadow:Enable(true)
+			end
+			if not inst.sg.statemem.floating then
+				inst.Transform:SetFourFaced()
+				inst:ShowCrafting(true)
+
+				local floater = inst.components.inventory:GetEquippedItem(EQUIPSLOTS.HANDS)
+				if floater and floater.components.playerfloater then
+					floater.components.playerfloater:LetGo(inst, true)
+				end
+			end
+		end,
+	},
+
+	State{
+		name = "float_let_go",
+		tags = { "busy", "nopredict", "nomorph", "nointerrupt", "floating" },
+
+		onenter = function(inst)
+			ForceStopHeavyLifting(inst)
+			inst:ClearBufferedAction()
+
+			inst.components.locomotor:Stop()
+			inst.components.locomotor:Clear()
+
+			inst.Transform:SetSixFaced()
+
+			if inst.prefab == "wx78" then
+				inst.sg.statemem.wx = true
+				inst.AnimState:PlayAnimation("float_let_go_wx_pre") --16 frames
+				inst.AnimState:PushAnimation("float_let_go_wx", false) --101 frames
+			else
+				inst.AnimState:PlayAnimation("float_let_go_pre") --9 frames
+				inst.AnimState:PushAnimation("float_let_go", false) --50 frames
+			end
+
+			inst.DynamicShadow:Enable(false)
+			inst:ShowHUD(false)
+			if inst.components.playercontroller then
+				inst.components.playercontroller:Enable(false)
+				inst.components.playercontroller:EnableMapControls(false)
+			end
+
+			inst.components.talker:Say(GetString(inst, "ANNOUNCE_FLOATER_LETGO"))
+		end,
+
+		timeline =
+		{
+			--non-wx
+			FrameEvent(9 + 2, function(inst)
+				if not inst.sg.statemem.wx then
+					inst.SoundEmitter:PlaySound("turnoftides/common/together/water/splash/jump_small")
+				end
+			end),
+			FrameEvent(9 + 9, function(inst)
+				if not inst.sg.statemem.wx then
+					inst.sg:AddStateTag("notalking")
+				end
+			end),
+			FrameEvent(9 + 10, function(inst)
+				if not inst.sg.statemem.wx then
+					inst.sg:AddStateTag("noattack")
+				end
+			end),
+			FrameEvent(9 + 11, function(inst)
+				if not inst.sg.statemem.wx then
+					inst.SoundEmitter:PlaySound("turnoftides/common/together/water/splash/bird")
+				end
+			end),
+			FrameEvent(9 + 13, function(inst)
+				if not inst.sg.statemem.wx then
+					inst.sg:AddStateTag("invisible")
+				end
+			end),
+			FrameEvent(9 + 27, function(inst)
+				if not inst.sg.statemem.wx then
+					local floater = inst.components.inventory:GetEquippedItem(EQUIPSLOTS.HANDS)
+					if floater and floater.components.playerfloater then
+						floater.components.playerfloater:LetGo(inst, true)
+					end
+
+					local newfloater = FindPlayerFloater(inst)
+					if newfloater then
+						inst.sg.statemem.floating = true
+						inst.sg:GoToState("float_pre", newfloater)
+						return
+					end
+
+					if floater and floater:IsValid() then
+						SpawnPrefab("splash_sink").Transform:SetPosition(inst.Transform:GetWorldPosition())
+					end
+					inst.components.drownable:OnFallInOcean()
+					inst.components.drownable:DropInventory()
+				end
+			end),
+			FrameEvent(9 + 50 + 90, function(inst)
+				if not inst.sg.statemem.wx then
+					StopTalkSound(inst, true)
+					inst.components.talker:ShutUp()
+				end
+			end),
+
+			--wx
+			FrameEvent(16 + 2, function(inst)
+				if inst.sg.statemem.wx then
+					inst.SoundEmitter:PlaySound("turnoftides/common/together/water/splash/jump_small")
+				end
+			end),
+			FrameEvent(16 + 16, function(inst)
+				if inst.sg.statemem.wx then
+					inst.sg:AddStateTag("notalking")
+				end
+			end),
+			FrameEvent(16 + 17, function(inst)
+				if inst.sg.statemem.wx then
+					inst.sg:AddStateTag("noattack")
+				end
+			end),
+			FrameEvent(16 + 18, function(inst)
+				if inst.sg.statemem.wx then
+					local floater = inst.components.inventory:GetEquippedItem(EQUIPSLOTS.HANDS)
+					if floater and floater.components.playerfloater then
+						floater.components.playerfloater:LetGo(inst, true)
+						if floater:IsValid() then
+							SpawnPrefab("splash_sink").Transform:SetPosition(inst.Transform:GetWorldPosition())
+						end
+					end
+
+					if FindPlayerFloater(inst) then
+						inst.sg.statemem.float = true
+					else
+						inst.components.drownable:OnFallInOcean()
+						inst.components.drownable:DropInventory()
+					end
+				end
+			end),
+			FrameEvent(16 + 61, function(inst)
+				if inst.sg.statemem.wx then
+					inst.SoundEmitter:PlaySound("turnoftides/common/together/water/splash/bird")
+				end
+			end),
+			FrameEvent(16 + 63, function(inst)
+				if inst.sg.statemem.wx then
+					inst.sg:AddStateTag("invisible")
+				end
+			end),
+			FrameEvent(16 + 67, function(inst)
+				if inst.sg.statemem.wx then
+					if inst.sg.statemem.float then
+						local floater = FindPlayerFloater(inst)
+						if floater then
+							inst.sg.statemem.floating = true
+							inst.sg:GoToState("float_pre", floater)
+							return
+						end
+						inst.sg.statemem.float = nil
+						inst.components.drownable:OnFallInOcean()
+						inst.components.drownable:DropInventory()
+					end
+				end
+			end),
+			FrameEvent(16 + 101 + 90, function(inst)
+				if inst.sg.statemem.wx then
+					StopTalkSound(inst, true)
+					inst.components.talker:ShutUp()
+				end
+			end),
+		},
+
+		events =
+		{
+			EventHandler("ontalk", function(inst)
+				return OnTalk_Override(inst)
+			end),
+			EventHandler("donetalking", function(inst)
+				return OnDoneTalking_Override(inst)
+			end),
+			EventHandler("animqueueover", function(inst)
+				if inst.AnimState:AnimDone() then
+					StartTeleporting(inst)
+					inst.components.drownable:WashAshore()
+				end
+			end),
+			EventHandler("on_washed_ashore", function(inst)
+				inst.sg:GoToState("washed_ashore")
+			end),
+		},
+
+		onexit = function(inst)
+			if inst.sg.statemem.isphysicstoggle then
+				ToggleOnPhysics(inst)
+			end
+			if inst.sg.statemem.isteleporting then
+				DoneTeleporting(inst)
+			end
+			if not inst.sg.statemem.floating then
+				inst.Transform:SetFourFaced()
+				inst.DynamicShadow:Enable(true)
+				inst:ShowHUD(true)
+				inst:ShowCrafting(true)
+				if inst.components.playercontroller then
+					inst.components.playercontroller:Enable(true)
+					inst.components.playercontroller:EnableMapControls(true)
+				end
+			end
+			CancelTalk_Override(inst)
+		end,
+	},
+
+	State{
+		name = "float_hop_pre",
+		tags = { "busy", "nopredict", "nomorph", "nointerrupt", "floating", "boathopping", "jumping", "nosleep" },
+
+		onenter = function(inst)
+			local embark_x, embark_z = inst.components.embarker:GetEmbarkPosition()
+			inst:ForceFacePoint(embark_x, 0, embark_z)
+			inst.DynamicShadow:Enable(false)
+			inst.Transform:SetSixFaced()
+			inst.AnimState:PlayAnimation("float_pst")
+			inst.sg.statemem.water = SpawnPrefab("player_float_hop_water_fx")
+			inst.sg.statemem.water.entity:SetParent(inst.entity)
+		end,
+
+		timeline =
+		{
+			FrameEvent(0, function(inst)
+				inst.components.embarker.embark_speed = math.clamp(inst.components.locomotor:RunSpeed() * inst.components.locomotor:GetSpeedMultiplier() + TUNING.WILSON_EMBARK_SPEED_BOOST, TUNING.WILSON_EMBARK_SPEED_MIN, TUNING.WILSON_EMBARK_SPEED_MAX)
+			end),
+			FrameEvent(5, function(inst) inst.SoundEmitter:PlaySound("turnoftides/common/together/water/splash/jump_small") end),
+			FrameEvent(6, function(inst)
+				local x, y, z = inst.Transform:GetWorldPosition()
+
+				local floater = inst.components.inventory:GetEquippedItem(EQUIPSLOTS.HANDS)
+				if floater and floater.components.playerfloater then
+					floater.components.playerfloater:LetGo(inst, true, Vector3(x, y, z))
+				end
+				SpawnPrefab("splash_sink").Transform:SetPosition(x, 0, z)
+
+				local water = inst.sg.statemem.water
+				inst.sg.statemem.water = nil --clear ref so it doesn't get removed onexit
+				water.entity:SetParent(nil)
+				water.Transform:SetPosition(x, y, z)
+				water.Transform:SetRotation(inst.Transform:GetRotation())				
+
+				inst.sg:RemoveStateTag("floating")
+				inst.DynamicShadow:Enable(true)
+				inst:ShowCrafting(true)
+
+				inst.sg.statemem.collisionmask = inst.Physics:GetCollisionMask()
+				inst.Physics:SetCollisionMask(COLLISION.GROUND)
+				inst.components.embarker:StartMoving()
+			end),
+			FrameEvent(7, function(inst)
+				inst.Transform:SetFourFaced()
+				inst.AnimState:PlayAnimation("boat_jump_pre")
+				inst.AnimState:SetFrame(5)
+			end),
+		},
+
+		events =
+		{
+			EventHandler("animover", function(inst)
+				inst.sg.statemem.not_interrupted = true
+				inst.sg:GoToState("hop_loop", { queued_post_land_state = inst.sg.statemem.queued_post_land_state, collisionmask = inst.sg.statemem.collisionmask })
+			end),
+			EventHandler("cancelhop", function(inst)
+				inst.sg:GoToState("hop_cancelhop")
+			end),
+		},
+
+		onexit = function(inst)
+			if inst.sg.statemem.water then
+				--interrupted while still parented
+				inst.sg.statemem.water:Remove()
+			end
+			if not inst.sg.statemem.not_interrupted then
+				if inst.sg.statemem.collisionmask then
+					inst.Physics:SetCollisionMask(inst.sg.statemem.collisionmask)
+				end
+				inst.components.embarker:Cancel()
+			end
+			if not inst.sg.statemem.floating then
+				inst.Transform:SetFourFaced()
+				inst.DynamicShadow:Enable(true)
+				inst:ShowCrafting(true)
+
+				local floater = inst.components.inventory:GetEquippedItem(EQUIPSLOTS.HANDS)
+				if floater and floater.components.playerfloater then
+					floater.components.playerfloater:LetGo(inst, true)
+				end
+			end
+		end,
+	},
+
+	State{
+		name = "float_cancel",
+		tags = { "busy", "nomorph", "nopredict" },
+
+		onenter = function(inst)
+			ClearStatusAilments(inst)
+			ForceStopHeavyLifting(inst)
+			inst.components.locomotor:Stop()
+			inst:ClearBufferedAction()
+
+			inst.AnimState:PlayAnimation("slip_fall_idle")
+			inst.AnimState:SetFrame(inst.AnimState:GetCurrentAnimationNumFrames() - 9)
+			inst.AnimState:PushAnimation("slip_fall_pst", false)
+			inst.SoundEmitter:PlaySound("turnoftides/common/together/water/splash/bird")
+			PlayFootstep(inst, 0.6)
+		end,
+
+		timeline =
+		{
+			FrameEvent(9 + 6, function(inst) PlayFootstep(inst, 0.6) end),
+			FrameEvent(9 + 12, function(inst)
+				inst.sg:GoToState("idle", true)
+			end),
+		},
 	},
 }
 

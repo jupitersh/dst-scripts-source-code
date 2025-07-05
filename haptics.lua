@@ -11,7 +11,7 @@ HapticEffects =
 	-- movement
 	{ event="dontstarve/movement/run_web", vibration=true, audio=false, vibration_intensity=1.0, audio_intensity=1.0 },		
 	{ event="dontstarve/movement/run_marble", vibration=true, audio=false, vibration_intensity=1.0, audio_intensity=1.0 },	
-	{ event="dontstarve/movement/slip_fall_whoop", vibration=true, audio=true, vibration_intensity=1.0, audio_intensity=1.0 },	
+	--{ event="dontstarve/movement/slip_fall_whoop", vibration=true, audio=true, vibration_intensity=1.0, audio_intensity=1.0 },	
 	{ event="dontstarve/movement/slip_fall_thud", vibration=true, audio=true, vibration_intensity=1.0, audio_intensity=1.0 },	
 	
 	-- revive
@@ -740,6 +740,7 @@ HapticEffects =
 	{ event="rifts5/wagstaff_boss/footstep_stomp", vibration=true, audio=true, vibration_intensity=1.0, audio_intensity=1.0 },	
 	{ event="rifts5/wagstaff_boss/missile_explode", vibration=true, audio=true, vibration_intensity=1.0, audio_intensity=1.0 },	
 	{ event="rifts5/wagstaff_boss/foot_land", vibration=true, audio=true, vibration_intensity=1.0, audio_intensity=1.0 },	
+	{ event="rifts5/wagstaff_boss/beam_down_LP", vibration=true, audio=true, vibration_intensity=1.0, audio_intensity=1.0 },	
 	{ event="rifts5/lunar_boss/footstep", vibration=true, audio=true, vibration_intensity=1.0, audio_intensity=1.0 },	
 	{ event="rifts5/lunar_boss/fsbig", vibration=true, audio=true, vibration_intensity=1.0, audio_intensity=1.0 },	
 	{ event="rifts5/lunar_boss/spawn_3", vibration=true, audio=true, vibration_intensity=1.0, audio_intensity=1.0 },	

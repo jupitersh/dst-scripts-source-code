@@ -915,7 +915,7 @@ local function ControllerUseItemOnSceneFromInvTile(inst, item)
             act = inst._parent.components.playercontroller:GetItemUseAction(item)
         end
 
-		if act ~= nil and act.action ~= ACTIONS.UNEQUIP and not TryNonNetworkedAction(inst, act, item) then
+		if act and act.action ~= ACTIONS.UNEQUIP and act.action ~= ACTIONS.DROP and not TryNonNetworkedAction(inst, act, item) then
             inst._parent.components.playercontroller:DoActionAutoEquip(act)
             inst._parent.components.playercontroller:RemoteControllerUseItemOnSceneFromInvTile(act, item)
         end
@@ -1400,6 +1400,7 @@ local function fn()
     --Network variables
     inst.visible = net_bool(inst.GUID, "inventory.visible", "visibledirty")
     inst.heavylifting = net_bool(inst.GUID, "inventory.heavylifting", "heavyliftingdirty")
+	inst.floaterheld = net_bool(inst.GUID, "inventory.floaterheld", "floaterhelddirty")
 
     inst._active = net_entity(inst.GUID, "inventory._active", "activedirty")
     inst._items = {}

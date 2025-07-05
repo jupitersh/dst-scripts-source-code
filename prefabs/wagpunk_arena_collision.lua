@@ -195,6 +195,25 @@ local function OnEntityWake(inst)
     inst.updateclientfxtask = inst:DoPeriodicTask(0.75, UpdateClientFXTick)
 end
 
+local CLEARSPOT_ONEOF_TAGS = {"structure", "wall"}
+local CLEARSPOT_CANT_TAGS = {"INLIMBO", "NOCLICK", "FX", "irreplaceable"}
+local function DestroyEntitiesInBarrier(inst)
+    local _world = TheWorld
+    local _map = _world.Map
+    local thickness = TUNING.WAGPUNK_ARENA_COLLISION_NOBUILD_THICKNESS
+
+    local x, y, z = inst.Transform:GetWorldPosition()
+    local ents = TheSim:FindEntities(x, 0, z, 40, nil, CLEARSPOT_CANT_TAGS, CLEARSPOT_ONEOF_TAGS)
+    for _, ent in ipairs(ents) do
+        if ent:IsValid() then
+            local ex, ey, ez = ent.Transform:GetWorldPosition()
+            if _map:IsXZWithThicknessInWagPunkArenaAndBarrierIsUp(ex, ez, thickness) then
+                DestroyEntity(ent, _world)
+            end
+        end
+    end
+end
+
 local function fn()
     local inst = CreateEntity()
 
@@ -226,6 +245,8 @@ local function fn()
         return inst
     end
     inst.persists = false
+
+    inst.DestroyEntitiesInBarrier = DestroyEntitiesInBarrier
 
     return inst
 end

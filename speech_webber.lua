@@ -1158,7 +1158,11 @@ return{
 
     ANNOUNCE_ELIXIR_TOO_SUPER = "That's too much for us.",
 
+    -- Rift 5
+
     ANNOUNCE_LUNARGUARDIAN_INCOMING = "The giant ball is back.",
+    ANNOUNCE_FLOATER_HELD = "We float!",
+    ANNOUNCE_FLOATER_LETGO = "Weeee!",
 
 	BATTLECRY =
 	{
@@ -5692,13 +5696,13 @@ return{
 		WAGDRONE_PARTS = "Can we use that to fix a broken one?",
 		WAGDRONE_BEACON = "It makes a make-believe wall!",
 
-        WAGPUNK_WORKSTATION = "Can we building something fun?",
+        WAGPUNK_WORKSTATION = "Can we build something fun?",
         WAGPUNK_LEVER = "It's our turn to pull it!",
         WAGPUNK_FLOOR_KIT = "We'll have more room to play.",
         WAGPUNK_CAGEWALL = "Now we can't cross the line?",
 
 		WAGSTAFF_ITEM_1 = "We can touch the glove!",
-		WAGSTAFF_ITEM_2 = "Why isn't it a projection anymore? We don't undertand.",
+		WAGSTAFF_ITEM_2 = "It's real? We don't understand.",
 
         HERMITCRAB_RELOCATION_KIT = "We get to help Ms. Pearl find a new home!",
 
@@ -5709,7 +5713,7 @@ return{
         },
 
         GESTALT_GUARD_EVOLVED = "Why are they mad at us?",
-        FLOTATIONCUSHION = "But we're not afraid of the water!",
+        FLOTATIONCUSHION = "Promise we won't splash...",
         LUNAR_SEED = "So pretty! Can we keep it?",
     },
 

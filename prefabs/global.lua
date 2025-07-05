@@ -99,8 +99,8 @@ local assets =
     Asset("FILE", "sound/wickerbottom_rework.fsb"),
     --Asset("FILE", "sound/wickerbottom_rework_music.fsb"),
 
-    --Asset("SOUNDPACKAGE", "sound/skin_sfx.fev"),
-    --Asset("FILE", "sound/skin_sfx.fsb"), 
+    Asset("SOUNDPACKAGE", "sound/skin_sfx.fev"),
+    Asset("FILE", "sound/skin_sfx.fsb"), 
 
     Asset("SOUNDPACKAGE", "sound/stageplay_set.fev"),
     Asset("FILE", "sound/stageplay_set.fsb"),

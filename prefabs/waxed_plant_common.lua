@@ -19,7 +19,12 @@ local function Configure(inst, data)
     if data.build then
         inst.savedata.build = data.build
 
-        inst.AnimState:SetBuild(data.build)
+        if data.skin_build then
+            inst.savedata.skin_build = data.skin_build
+            inst.AnimState:SetSkin(data.skin_build, data.build)
+        else
+            inst.AnimState:SetBuild(data.build)
+        end
     end
 
     if data.scale then
@@ -569,6 +574,7 @@ local function WaxPlant(plant, doer, waxitem)
         build = waxed.build ~= build and build or nil, -- Saved
         multcolor = {plant.AnimState:GetMultColour()},
         scale = scale ~= 1 and scale or nil,  -- Saved
+        skin_build = skin_build, -- Saved
     }
 
     waxed:Configure(data)

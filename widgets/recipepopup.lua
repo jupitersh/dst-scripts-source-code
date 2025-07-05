@@ -142,7 +142,7 @@ function RecipePopup:BuildWithSpinner(horizontal)
         self.last_recipe_click = GetStaticTime()
         if not self.recipe_held then
             if not DoRecipeClick(self.owner, self.recipe, self.skins_spinner.GetItem()) then
-                self.owner.HUD.controls.craftingmenu:Close()
+				self.owner.HUD:CloseCrafting(true)
             end
         end
         self.recipe_held = false
@@ -236,7 +236,7 @@ function RecipePopup:BuildNoSpinner(horizontal)
         self.last_recipe_click = GetStaticTime()
         if not self.recipe_held then
             if not DoRecipeClick(self.owner, self.recipe) then
-                self.owner.HUD.controls.craftingmenu:Close()
+				self.owner.HUD:CloseCrafting(true)
             end
         end
         self.recipe_held = false

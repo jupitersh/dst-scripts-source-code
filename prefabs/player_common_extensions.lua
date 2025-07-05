@@ -61,7 +61,7 @@ end
 
 local function ConfigureGhostActions(inst)
     if inst.components.playeractionpicker ~= nil then
-        inst.components.playeractionpicker:PushActionFilter(GhostActionFilter, 99)
+		inst.components.playeractionpicker:PushActionFilter(GhostActionFilter, ACTION_FILTER_PRIORITIES.ghost)
     end
 end
 
@@ -78,7 +78,7 @@ end
 local function PausePlayerActions(inst)
     if inst.components.playeractionpicker ~= nil then
         inst.components.playeractionpicker:PopActionFilter(PausedActionFilter) --always pop the filter in case one is already there.
-        inst.components.playeractionpicker:PushActionFilter(PausedActionFilter, 999)
+		inst.components.playeractionpicker:PushActionFilter(PausedActionFilter, ACTION_FILTER_PRIORITIES.paused)
     end
 end
 

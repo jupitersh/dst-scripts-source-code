@@ -127,7 +127,7 @@ return{
             TOOFAR = "Is pot very small, or just far away?",
         },
         DEPLOY = {
-            HERMITCRAB_RELOCATE = "Oh, empty. I try again later.",
+            HERMITCRAB_RELOCATE = "Oh, empty. Wolfgang try again later.",
         },
         DIRECTCOURIER_MAP =
         {
@@ -1159,7 +1159,11 @@ return{
 
     ANNOUNCE_ELIXIR_TOO_SUPER = "Yuck! No, too much.",
 
+    -- Rift 5
+
     ANNOUNCE_LUNARGUARDIAN_INCOMING = "It back!",
+    ANNOUNCE_FLOATER_HELD = "Wolfgang unsinkable!",
+    ANNOUNCE_FLOATER_LETGO = "Oopsie!",
 
 	BATTLECRY =
 	{

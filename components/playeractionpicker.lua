@@ -1,3 +1,13 @@
+ACTION_FILTER_PRIORITIES =
+{
+	paused = 999,
+	ghost = 99,
+	mounted = 20,
+	floaterheld = 15,
+	heavylifting = 10,
+	default = -99,
+}
+
 local PlayerActionPicker = Class(function(self, inst)
     self.inst = inst
     self.map = TheWorld.Map
@@ -460,14 +470,9 @@ function PlayerActionPicker:DoGetMouseActions(position, target, spellbook)
 		if isaoetargeting then
 			position = self.inst.components.playercontroller:GetAOETargetingPos()
 			spellbook = spellbook or self.inst.components.playercontroller:GetActiveSpellBook()
-        else
-            if self.inst.components.playercontroller:IsAxisAlignedPlacement() then
-                position = self.inst.components.playercontroller:GetPlacerPosition()
-            end
-            if position == nil then
-                position = TheInput:GetWorldPosition()
-            end
-            target = target or TheInput:GetWorldEntityUnderMouse()
+		else
+			position = TheInput:GetWorldPosition()
+			target = target or TheInput:GetWorldEntityUnderMouse()
 		end
 
         local cansee
