@@ -408,6 +408,7 @@ STRINGS =
             SOCKET   = "Socket",
             CELESTIAL = "Offer",
             SHOW = "Show",
+			REPAIR = "Repair",
 			APPLY    = "Apply {item}",
             DRINK    = "Drink {item}",
             QUAGMIRE_POT_HANGER = "Hang {item}",
@@ -473,6 +474,7 @@ STRINGS =
 		{
 			GENERIC = "Examine",
 			CLOSEINSPECT = "Closely Examine",
+			READ = "Read",
 		},
         TALKTO = "Talk to",
 		INTERACT_WITH =
@@ -613,6 +615,7 @@ STRINGS =
             GATHER_MERM = "Gather Merm",
             FAKE_PICKUP = "Pick up",
             PLAY_WITH = "Play with",
+			PULL = "Pull",
         },
 
 		OPEN_CRAFTING =
@@ -1109,6 +1112,12 @@ STRINGS =
 
 		-- Rifts 5
 		POUNCECAPTURE = "Encapsulate",
+        
+        -- rifts5.1
+        DIVEGRAB = "Restrain",
+        STARTELECTRICLINK = "Toggle Linking",
+        ENDELECTRICLINK = "Disconnect Links",
+        REMOVELUNARBUILDUP = "Clear",
     },
 
 	WOBY_COMMANDS =
@@ -1423,6 +1432,9 @@ STRINGS =
 		TURF_FUNGUS_MOON = "Mutated Fungal Turf",
 
 		TURF_ARCHIVE = "Ancient Stonework",
+        TURF_VAULT = "Ancient Sanctum Stonework",
+        TURF_VENT = "Cave Fumarole Turf",
+
 
 		BLUEPRINT_CRAFTINGSET_RUINS_BUILDER = "Ruins Turf Blueprints",
 		BLUEPRINT_CRAFTINGSET_RUINSGLOW_BUILDER = "Imitation Ruins Turf Blueprints",
@@ -1490,7 +1502,7 @@ STRINGS =
         TORCH = "Torch",
         SEEDS = "Seeds",
         HOUND = "Hound",
-		HOUNDCORPSE = "Hound",
+		--HOUNDCORPSE = "Hound", -- NOTE: Deprecated.
         FIREHOUND = "Red Hound",
         SEEDS_COOKED = "Toasted Seeds",
         SILK = "Silk",
@@ -2065,6 +2077,11 @@ STRINGS =
         RUINSRELIC_CHIPBOWL = "Replica Relic Dish",
         RUINSRELIC_VASE = "Replica Relic Vase",
         RUINSRELIC_TABLE = "Replica Relic Table",
+		VAULTRELIC = "Sanctum Relic",
+		VAULTRELIC_BROKEN = "Broken Sanctum Relic",
+		VAULTRELIC_BOWL = "Replica Sanctum Bowl",
+		VAULTRELIC_VASE = "Replica Sanctum Vase",
+		VAULTRELIC_PLANTER = "Replica Sanctum Planter",
         MULTITOOL_AXE_PICKAXE = "Pick/Axe",
         SLURPER_PELT = "Slurper Pelt",
         THULECITE = "Thulecite",
@@ -2397,6 +2414,8 @@ STRINGS =
         CHESSPIECE_SHARKBOI = "Frostjaw Figure",
         CHESSPIECE_WORMBOSS = "Great Depths Worm Figure",
         CHESSPIECE_YOTS = "Gilded Depths Worm Figure",
+        CHESSPIECE_WAGBOSS_ROBOT = "W.A.R.B.O.T. Figure",
+        CHESSPIECE_WAGBOSS_LUNAR = "Celestial Scion Figure",
 
         CHESSPIECE_PAWN_BUILDER = "Pawn Figure",
         CHESSPIECE_ROOK_BUILDER = "Rook Figure",
@@ -2440,6 +2459,8 @@ STRINGS =
         CHESSPIECE_SHARKBOI_BUILDER = "Frostjaw Figure",
         CHESSPIECE_WORMBOSS_BUILDER = "Great Depths Worm Figure",
         CHESSPIECE_YOTS_BUILDER = "Gilded Depths Worm Figure",
+        CHESSPIECE_WAGBOSS_ROBOT_BUILDER = "W.A.R.B.O.T. Figure",
+        CHESSPIECE_WAGBOSS_LUNAR_BUILDER = "Celestial Scion Figure",
 
         CHESSPIECE_BUTTERFLY_SKETCH = "Moon Moth Figure Sketch",
         CHESSPIECE_ANCHOR_SKETCH = "Anchor Figure Sketch",
@@ -2460,6 +2481,8 @@ STRINGS =
         CHESSPIECE_YOTD_SKETCH = "Start Tower Figure Sketch",
         CHESSPIECE_SHARKBOI_SKETCH = "Frostjaw Figure Sketch",
         CHESSPIECE_YOTS_SKETCH = "Gilded Depths Worm Figure Sketch",
+        CHESSPIECE_WAGBOSS_ROBOT_SKETCH = "W.A.R.B.O.T. Figure Sketch",
+        CHESSPIECE_WAGBOSS_LUNAR_SKETCH = "Celestial Scion Figure Sketch",
 
         SHADOW_ROOK = "Shadow Rook",
         SHADOW_KNIGHT = "Shadow Knight",
@@ -3140,7 +3163,7 @@ STRINGS =
 		MOONSPIDER_SPIKE = "Shattered Spider",
         MOONSPIDERDEN = "Shattered Spider Hole",
 		FRUITDRAGON = "Saladmander",
-        MUTATED_PENGUIN = "Moonrock Pengull",
+        MUTATED_PENGUIN = "Permafrost Pengull",
         PUFFIN = "Puffin",
 
 		BULLKELP_PLANT = "Bull Kelp",
@@ -3530,6 +3553,8 @@ STRINGS =
 
         ARCHIVE_MOON_STATUE = "Ancient Moon Statue",
         ARCHIVE_RUNE_STATUE = "Ancient Lunarune Stone",
+		VAULT_RUNE = "Sanctum Lunarune Stone",
+		VAULT_STATUE = "Sanctum Statue",
 
         ARCHIVE_RESONATOR = "Astral Detector",
         ARCHIVE_RESONATOR_ITEM = "Astral Detector",
@@ -3668,13 +3693,16 @@ STRINGS =
         MOONSTORM_STATIC = "Energetic Static",
         MOONSTORM_STATIC_ITEM = "Restrained Static",
         MOONSTORM_STATIC_NOWAG = "Energetic Static",
+        MOONSTORM_STATIC_ROAMER = "Unrestrained Static",
 
         ALTERGUARDIANHAT = "Enlightened Crown",
         ALTERGUARDIANHATSHARD = "Enlightened Shard",
 
         MOONSTORM_GOGGLESHAT = "Astroggles",
+        MOONSTORM_GOGGLESHAT_BLUEPRINT = "Astroggles Blueprint",
 
         MOON_DEVICE_CONSTRUCTION1 = "Incomplete Experiment",
+        MOON_DEVICE_CONSTRUCTION1_BLUEPRINT = "Incomplete Experiment Blueprint",
         MOON_DEVICE_CONSTRUCTION2 = "Nearly Completed Experiment",
         MOON_DEVICE_CONSTRUCTION3 = "Lunar Siphonator",
 
@@ -3886,6 +3914,7 @@ STRINGS =
 
         PLAYBILL_THE_DOLL = "The Enchanted Doll\nA Stage Play",
         PLAYBILL_THE_VEIL = "The Pall\nA Stage Play",
+        PLAYBILL_THE_VAULT = "A Task Complete\nA Confession",
         STATUEHARP_HEDGESPAWNER = "Overgrown Statue",
 
         -- Year of the Rabbit
@@ -3920,7 +3949,7 @@ STRINGS =
 
 		LUNAR_GRAZER = "Grazer",
         LUNARTHRALL_PLANT = "Deadly Brightshade",
-        LUNARTHRALL_PLANT_GESTALT = "Brightshade Gestalt",
+        LUNARTHRALL_PLANT_GESTALT = "Incursive Gestalt",
         LUNARTHRALL_PLANT_VINE_END = "Tunneling Vine",
 
         PUREBRILLIANCE = "Pure Brilliance",
@@ -4053,6 +4082,11 @@ STRINGS =
         WAGPUNKBITS_KIT = "Auto-Mat-O-Chanic",
 
         WAGSTAFF_MUTATIONS_NOTE = "Research Notes",
+        WAGSTAFF_MATERIALS_NOTE = "Research Notes",
+        WAGSTAFF_ENERGY_NOTE = "Research Notes",
+        WAGSTAFF_CONTAINMENT_NOTE = "Research Notes",
+        WAGSTAFF_THERMAL_NOTE = "Research Notes",
+        WAGSTAFF_ELECTRICITY_NOTE = "Research Notes",
 
         -- Meta 3
 
@@ -4315,6 +4349,66 @@ STRINGS =
         GESTALT_GUARD_EVOLVED = "Inimical Gestalt",
         LUNAR_SEED = "Celestial Jewel",
 		TEMP_BETA_MSG = "Beta Report",
+
+        -- rifts5.1
+        WAGBOSS_ROBOT_CONSTRUCTIONSITE = "W.A.R.B.O.T. Base",
+        WAGBOSS_ROBOT_CONSTRUCTIONSITE_KIT = "W.A.R.B.O.T. Base Kit",
+        WAGBOSS_ROBOT_CREATION_PARTS = "W.A.R.B.O.T. Parts",
+        MOONSTORM_STATIC_CATCHER = "Static Restrainer",
+        COOLANT = "Nucleation Fluid",
+
+        FENCE_ELECTRIC = "T.I.N.G.L.E. Node",
+        FENCE_ELECTRIC_FIELD = "T.I.N.G.L.E",
+        FENCE_ELECTRIC_ITEM = "T.I.N.G.L.E. Node",
+
+        MUTATEDBIRD = "Bright-Beaked Bird",
+        MUTATEDBUZZARD_GESTALT = "Crystal-Crested Buzzard",
+
+        -- Names for missed scrapbook entries
+        WAVEYJONES = "Wavey Jones",
+        SHADOWHAND = "Shadow Hand",
+
+        -- Rifts 6
+
+        SHADOWTHRALL_CENTIPEDE = "Mega Blight",
+        SHADOWTHRALL_CENTIPEDE_ALLEGIANCE = "Ripple",
+
+        TREE_ROCK = "Boulderbough",
+        CAVE_VENT_ROCK = "Fumarole",
+
+		ABYSSPILLAR_MINION = "Sequitor",
+		ABYSSPILLAR_TRIAL = "Lever", --Pillar puzzle lever
+
+        VAULT_TELEPORTER = "Sanctum Waymark", -- Channel device to teleport players around the vault.
+		VAULT_TELEPORTER_BROKEN = "Broken Sanctum Waymark",
+		VAULT_ORB = "Portation Orb",
+		VAULT_LOBBY_EXIT = "Chasm",
+		VAULT_CHANDELIER_BROKEN = "Sanctum Lustre",
+
+		ANCIENT_HUSK = "Ancient Remains",
+		MASK_ANCIENT_HANDMAIDHAT = "Elytra's Mask",
+		MASK_ANCIENT_ARCHITECTHAT = "Visionist's Mask",
+		MASK_ANCIENT_MASONHAT = "Artificer's Mask",
+
+        TREE_ROCK_SEED = "Boulderbough Seed",
+        TREE_ROCK_SAPLING = "Boulderbough Sapling",
+
+        CAVE_FERN_WITHERED = "Withered Fern",
+        FLOWER_CAVE_WITHERED = "Withered Light Flower",
+
+        -- Rifts 6.1
+
+        OCEANWHIRLBIGPORTAL = "Giant Whirlpool",
+        OCEANWHIRLBIGPORTALEXIT = "Ocean Detritus", -- The flotsam pickable not the waterfall.
+
+		VAULT_TORCH = "Flummoxing Flame",
+
+        CAVE_VENT_MITE = "Geothermite",
+
+		-- Hallowed Nights 2025
+
+		PUMPKINHAT = "Faceless Pumpkin",
+		PUMPKINHAT_CARVED = "Pumpkin Head",
 	},
 
     NAME_DETAIL_EXTENTION =
@@ -4538,6 +4632,8 @@ STRINGS =
         TURF_METEOR = "The cratered surface of the moon.",
         TURF_FUNGUS_MOON = "The mutated fungal floor of a cave.",
 		TURF_ARCHIVE = "Ancient stonework from an unsealed archive.",
+        TURF_VAULT = "Ancient stonework from the Sanctum.",
+        TURF_VENT = "The craggy stone floor of a fumey cave.",
 		BLUEPRINT_CRAFTINGSET_RUINS_BUILDER = "Build a floor in the style of a long-gone civilization.",
 		BLUEPRINT_CRAFTINGSET_RUINSGLOW_BUILDER = "As faithful a recreation as could be mustered.",
 		TURF_RUINSBRICK = "Ancient stone flooring, decorated with a magical technique lost to time.",
@@ -4609,6 +4705,10 @@ STRINGS =
         RUINSRELIC_CHIPBOWL = "Don't double dip.",
         RUINSRELIC_VASE = "A faux-vintage vase.",
         RUINSRELIC_TABLE = "Don't put your elbows on it.",
+
+		VAULTRELIC_BOWL = "It's not dirty, it's \"developing a patina\".",
+		VAULTRELIC_VASE = "Decor from a bygone age.",
+		VAULTRELIC_PLANTER = "Too brittle to plant anything in, but a great conversation piece.",
 
         RAINCOAT = "A waterproof coat to keep you dry.",
         RAINHAT = "Soft to the touch, slick to the rain.",
@@ -4752,6 +4852,8 @@ STRINGS =
         CHESSPIECE_SHARKBOI_BUILDER = "An homage to a cold-blooded bully.",
         CHESSPIECE_WORMBOSS_BUILDER = "Brings back memories of being digested.",
         CHESSPIECE_YOTS_BUILDER = "A reminder of a lucky worm encounter.",
+        CHESSPIECE_WAGBOSS_ROBOT_BUILDER = "The automation.",
+        CHESSPIECE_WAGBOSS_LUNAR_BUILDER = "The abomination.",
 
         CHESSPIECE_BUTTERFLY_SKETCH = "A sculpture sketch of a Moon Moth.",
         CHESSPIECE_ANCHOR_SKETCH = "A sculpture sketch of an anchor.",
@@ -5447,12 +5549,27 @@ STRINGS =
         BLUEGEM = "Bears the color of blue.",
         MOONGLASS = "A fragment from the Moon.",
 
+        WANDERINGTRADERSHOP_LIVINGLOG = "Life wood be a scream...", --NOTE (Omar): regular Living log recipe description doesn't work in the context of wandering trader! so here's a new one
+
         GESTALT_CAGE = "Combined pseudo and science for catching certain entities.",
         WAGPUNK_FLOOR_KIT = "Make the Ocean smaller! Permanently. Restrictions apply.",
 
         HERMITCRAB_RELOCATION_KIT = "Home is where the hermit is... relocated.",
 
         FLOTATIONCUSHION = "Become unsinkable. Take that, Ocean!",
+
+        WAGBOSS_ROBOT_CONSTRUCTIONSITE_KIT = "Build first. Panic later.",
+        WAGBOSS_ROBOT_CREATION_PARTS = "Piece by piece, assemble your very own war machine.",
+        MOONSTORM_STATIC_CATCHER = "Catch static from every direction.",
+        MOONSTORM_GOGGLESHAT_BLUEPRINT = "Not your average potato recipe.",
+        MOON_DEVICE_CONSTRUCTION1_BLUEPRINT = "Meddling with forces beyond comprehension demands careful planning.",
+        SECURITY_PULSE_CAGE = "Secure that Security Pulse!",
+
+        FENCE_ELECTRIC = "A shockingly effective way to contain yourself... or others.",
+        FENCE_ELECTRIC_ITEM = "A shockingly effective way to contain yourself... or others.",
+
+		-- Halloween 2025
+		PUMPKINHAT = "It's only natural to wear a pumpkin on your head after you've carved a face into it.",
     },
 
     -- MAXWELL_TEST = {"Say pal, you don't look so good.", "You better find something to eat before night comes!"},
@@ -5635,6 +5752,7 @@ STRINGS =
     MERM_BATTLECRY           = {{"Glorp! Go away!", "Glorp! Glorpy glup!"}, {"Destroy you!", "Wult glut!"},},
     MERM_GUARD_BATTLECRY     = {{"To battle!", "Wult flrot!"}, {"For Mermfolk!", "Flort Glurtsu flut!"}, {"ATTAAAACK!!", "GLOT FLOOOORPH!!"}, {"Defend King!", "Glurph Glurtsen!"}},
     MERM_TALK_PANICBOSS      = {{"Something coming!", "Gloppy flort!"}, {"Aaah!! Bad thing! Bad thing!", "Gloooorph!! Glurph glot! Glurph glot!"}, {"It come to destroy us!", "Flort wult Glurtsu!"}},
+    MERM_TALK_PANICELECTRICITY = {{"Bad tingle! Bad tingle!", "Glurph flirks! Glurph flirks!"}},
     MERM_TALK_PANICBOSS_KING = {{"Rally to King!", "Glurtsen blut flort!"}, {"Hurry! Protect kingdom!", "Flurph flrot! Gloppy Glurtsam!"}, {"S-stay brave!!", "G-glop blut flrot!!"}},
     MERM_TALK_NEED_HEAL      = {{"Help, florp!", "Flopt, florp!"}, {"Hurt!", "Glorg!"}, {"No feel so good...", "Glorggu blurg..."}, {"Ouchie, ouchie!", "Glurk, glurk!"}},
 
@@ -6010,6 +6128,7 @@ STRINGS =
     PIG_TALK_ATTEMPT_TRADE = { "WHAT YOU GOT?", "BETTER BE GOOD." },
     PIG_TALK_PANIC = { "NOOOOO!", "TOO DARK! TOO DARK!", "AAAAAAAAAH!!" },
     PIG_TALK_PANICFIRE = { "HOT HOT HOT!", "OWWWWW!", "IT BURNS!" },
+    PIG_TALK_PANICELECTRICITY = { "OWWWWW!","AAAAH!","DON'T LIKE!", "ME FRIED!" },
     PIG_TALK_PANICHOUSEFIRE = { "HOUSE BURNS!", "MY STUFF!", "AAAH! FIRE!", "PANIC!" },
     PIG_TALK_PANICBOSS = { "AHHHH", "UH OH!", "ME SCARED", "BAD!", "OHHH!" },
     PIG_TALK_PANICHAUNT = { "SPOOKY!", "AAAAH!!", "A GHOST! A GHOST!" },
@@ -6084,6 +6203,7 @@ STRINGS =
     RABBIT_RETREAT = { "AWAY!", "HURT!", "HOME!", "RUN!" },
     RABBIT_RESCUE = { "KILL!", "FIGHT!", "BITE!", "PUNCH!" },
     RABBIT_PANICFIRE = { "EEEH!", "OOH!", "AAAH!" },
+    RABBIT_PANICELECTRICITY = { "OUCH!!", "HURT!", "STING!"},
     RABBIT_PANICHOUSEFIRE = { "HOME!", "FIRE!", "BURNING!" },
     RABBIT_PANICHAUNT = { "SCARED!", "AAAH!!", "OHH!", "GHOST!" },
     RABBIT_PANICBOSS = { "RUN!", "AHHH!", "IT MAD", "EHHH!" },
@@ -8225,6 +8345,8 @@ STRINGS.UI =
     {
         TITLE = "Playing with controller?",
         BODY = "The game supports multiple control schemes for playing with controller. Would you like to see them and select one?",
+        XB1_TITLE = "Playing with gamepad?",
+        XB1_BODY = "The game supports multiple control schemes for playing with gamepad. Would you like to see them and select one?",
         YES = "Show me!",
         NO = "No thanks",
     },
@@ -8326,6 +8448,7 @@ STRINGS.UI =
             "Amanda Wong",
             "Kent Reimer",
             "Garnet (G50) Syberg-Olsen",
+            "Omar Al-Saadi",
         },
 
         ALTGAMES =
@@ -8736,7 +8859,7 @@ STRINGS.UI =
         CANT_LOAD_ROG = "Reign of Giants is not installed. Unable to load.",
 
 		MAINBANNER_ROT_BETA_TITLE = "Beta Build", --unused now.
-		MAINBANNER_BETA_TITLE = "Skill Spotlight - Beta Branch\nWalter, Wendy & Wortox", -- "Title/nBeta Branch"
+		MAINBANNER_BETA_TITLE = "From Beyond - Ancient Echoes - Beta Branch", -- "Title/nBeta Branch"
 
         CONSOLE_EDITION_TEXT = "Console Edition",
 
@@ -9417,6 +9540,14 @@ STRINGS.UI =
 		CARVE = "Carve",
 	},
 
+	PUMPKINHAT_CARVING_POPUP =
+	{
+		RANDOMIZE = "Randomize",
+		REYE = "Eye",
+		LEYE = "Other Eye",
+		MOUTH = "Mouth",
+	},
+
 	SNOWMAN_DECORATING_POPUP =
 	{
 		MAX_DECOR = "You have reached the maximum number of decorations!",
@@ -9493,8 +9624,12 @@ STRINGS.UI =
         MINIMAPZOOMCURSOR = "Zoom Cursor Focus:",
         VIBRATION = "Vibration:",
         CONTROLLER_AUDIO = "Controller Audio:",
-        UI_HAPTICS = "Interface Haptics:",
-        UI_VIBRATION = "Interface Vibration:",
+        HAPTICS_STRENGTH = "Effect Strength:",
+        HAPTICS_EFFECTS_UI = "Interface Effects:",
+        HAPTICS_EFFECTS_DANGER = "Danger Effects:",
+        HAPTICS_EFFECTS_PLAYER = "Player Effects:",
+        HAPTICS_EFFECTS_ENVIRO = "Environmental Effects:",
+        HAPTICS_EFFECTS_BOSS = "Boss Effects:",
         WATHGRITHRFONT = "Wigfrid's Umlauts:",
         WALTERCAMERA = "Campfire Camera:",
         BOATCAMERA = "Seafaring Camera:",
@@ -9548,7 +9683,8 @@ STRINGS.UI =
         DYNAMICCONTENT_ENABLE = "Re-enable Dynamic Content",
         OFFLINE_MODE_TITLE = "Offline Mode",
         OFFLINE_MODE_BODY = "Your selection is not available in offline mode. Please log in and try again.",
-        KLEI_ID_PREFIX = "Klei ID: ",
+        KLEI_ID_PREFIX = "Klei ID",
+        VERSION = "Version",
 		COMMANDWHEEL = "Social Menu Movement:",
 
 		INTRO_MOVIE = "Intro Movie",
@@ -9600,8 +9736,12 @@ STRINGS.UI =
             VIBRATION = "Make your controller vibrate at key gameplay moments.",
 			VIBRATION_WIRELESS = "Enable vibration of your wireless controller at key gameplay moments.",
             CONTROLLER_AUDIO = "Enable audio from your wireless controller at key gameplay moments.",
-            UI_HAPTICS = "Enable vibration and/or audio from your wireless controller when interacting with the user interface.",
-            UI_VIBRATION = "Enable vibration when interacting with the user interface.",
+            HAPTICS_STRENGTH = "Adjust the strength of haptic effects.",
+            HAPTICS_EFFECTS_UI = "Toggle haptic effects from interacting with the user interface.",
+            HAPTICS_EFFECTS_DANGER = "Toggle haptic effects when your character is in danger.",
+            HAPTICS_EFFECTS_PLAYER = "Toggle haptic effects from your character's actions.",
+            HAPTICS_EFFECTS_BOSS = "Toggle haptic effects from boss enemy actions.",
+            HAPTICS_EFFECTS_ENVIRO = "Toggle haptic effects from the environment.",
             FX = "Change how loud things are in the world.",
             MUSIC = "Tone up or down the musical fanfare in your adventures.",
             AMBIENT = "The environment makes noise too, luckily you can control how loudly it does.",
@@ -10726,7 +10866,7 @@ STRINGS.UI =
         EARTHQUAKES = "Earthquakes",
         CAVELIGHT = "Sinkhole Lights",
 
-        PENGUINS_MOON = "Moonrock Pengulls",
+        PENGUINS_MOON = "Permafrost Pengulls",
         BEES_SETTING = "Bees",
         CATCOONS = "Catcoons",
         FROGS = "Frogs",
@@ -10843,6 +10983,15 @@ STRINGS.UI =
 
         OCEAN_OTTERDENS = "Marotter Dens",
         OTTERS_SETTING = "Marotters",
+
+        MUTATED_BIRDS = "Mutated Birds",
+        MUTATED_MERM = "Mutated Merms",
+        MUTATED_SPIDERQUEEN = "Shattered Spider Holes",
+        MUTATED_BIRD_GESTALT = "Bright-Beaked Birds",
+        MUTATED_BUZZARD_GESTALT = "Crystal-Crested Buzzards",
+        MUTATED_DEERCLOPS = "Crystal Deerclops",
+        MUTATED_BEARGER = "Armored Bearger",
+        MUTATED_WARG = "Possessed Vargs",
 		-- End of world customization strings
     },
 
@@ -12551,6 +12700,8 @@ STRINGS.UI =
         FAILED_NOPERMISSIONS_NOCHOICE = "I understand",
 
         MYSTERYBOX_DISABLE = "You must be logged in to access the Treasury.",
+
+        NOT_AVAILABLE_OFFLINE = "This feature is not available in offline mode."
     },
 
     BEARDSCREEN =
@@ -12611,6 +12762,7 @@ STRINGS.UI =
         COMMERCE_INFO_NOBUY_UNOWNED = "You must have {character} unlocked to weave this item from Spools.",
         COMMERCE_INFO_GRIND = "This curio can be unraveled into {doodad_value} Spools.",
         COMMERCE_INFO_NOGRIND = "This curio cannot be unraveled.",
+        COMMERCE_INFO_GRIND_ENTITLEMENT = "Note: {entitlement_count} of the {total_owned} selected curio is linked to an owned DLC or a past event and can not be unraveled.",
         NO_MARKET = "This curio cannot be traded or sold.",
         CANCEL = "Never mind",
         OK = "OK",
@@ -14270,6 +14422,7 @@ STRINGS.UI =
         CHOICEEVENTS = "Events",
         CHOICESURVIVORS = "Survivors",
         CHOICEGIANTS = "Giants",
+        CHOICELUNARMUTATIONS = "Lunar Mutations",
 
         WORLDSETTINGS_RESOURCEREGROWTH = "Resource Regrowth",
         WORLDSETTINGS_PORTALRESOURCES = "Unnatural Portal Resources",
@@ -15652,9 +15805,14 @@ STRINGS.CAST = {
     MIRROR = "The Mirror",
     FOOL = "The Fool",
     TREE = "The Tree",
+    --
     SAGE = "The Sage",
     HALFWIT = "The Halfwit",
     TOADY = "The Toady",
+    --
+    VISIONIST = "The Visionist",
+    ARTIFICER = "The Artificer",
+    ELYTRA = "Elytra",
 }
 
 STRINGS.PLAYS = {
@@ -15670,7 +15828,39 @@ STRINGS.PLAYS = {
         "Act 3 - Scene 3",
         "- The Reunion -",
     },
-    THEVEIL = "The Pall",           
+    THEVEIL = "The Pall",
+    THEVAULT = "A Task Complete",
+}
+
+STRINGS.ARCHIVE_RUNE_STATUE = {
+	LINE_1 = "\"We remain faithful to Alter, as Alter remains faithful to us. Ever watching, knowing, waiting.\"",
+	LINE_2 = "\"Alter, Glorious Moon in the cold night sky. Cast your Life-giving Light on us forever.\"",
+	LINE_3 = "\"Mighty Alter, the source of our strength, our sole provider. We are loyal to none but You.\"",
+	LINE_4 = "\"Alter is our Champion. Alter is the Champion. The Champion is Alter.\"",
+	LINE_5 = "\"Alter is good. Alter shall not forsake us. Alter shall return.\"",
+}
+STRINGS.VAULT_RUNE = {
+	LOBBY = "\"This vault shall become a tomb for all who dare trespass.\"",
+	TELEPORT1 = "\"Bound together are these chambers, yet in ways unnatural, wrought to confound all who enter.\"",
+	LORE1 = "\"Trust none. The Shadow twists all it touches.\"",
+	LORE2 = "\"Through the Keystone, all kin and kind shall fall.\"",
+	LORE3 = "\"Let the cursed Keystone never cross this threshold.\"",
+	PUZZLE1 = "\"Paths are taken but once. Leap wisely, tarry not, or the abyss claims all.\"",
+	PUZZLE2 = "\"Only when all torches burn shall the way be revealed.\"",
+}
+STRINGS.NIGHTMARE_OVERGROWTH = {
+    LINE_1 = "\"Forsaken wretches of the one who turned away.\"",
+    LINE_2 = "\"Orphans cast upon the barren expanse. Lost in the wake of neglect.\"",
+    LINE_3 = "\"From desolation were we drawn. Into the veiled embrace of Them.\"",
+    LINE_4 = "\"No longer doth the shadow stir terror within our hearts.\"",
+    LINE_5 = "\"For dark is become our shield. Our sustenance. Our solace.\"",
+}
+STRINGS.ATRIUM_OVERGROWTH = {
+    LINE_1 = "\"The unknown hath been made known. The abyss revealed as refuge.\"",
+    LINE_2 = "\"Dread twisted into devotion. Trembling into gratitude.\"",
+    LINE_3 = "\"Loyalty unending. We kneel before the undying. The unaltering.\"",
+    LINE_4 = "\"Thou art called by manifold names in myriad realms.\"",
+    LINE_5 = "\"To us, Thou art Shrouden. Many and one. Beyond all time. Beyond all realms.\"",
 }
 
 STRINGS.SPELLS = {
@@ -16460,7 +16650,6 @@ STRINGS.SKILLTREE = {
 
         WOLFGANG_ALLEGIANCE_LUNAR_3_TITLE = "Lunar Strategist III",
         WOLFGANG_ALLEGIANCE_LUNAR_3_DESC = "The Cryptic Founder will reward your curiosity by revealing the enemy's weaknesses.\nAdd +30% of total damage fighting Shadow-aligned creatures when Mighty.",
-
     },
 
     WOODIE = {
@@ -16863,6 +17052,7 @@ STRINGS.SCRAPBOOK = {
         SMALLEPIC = "Mini Giant",
         SLINGSHOTAMMO = "Slingshot Round",
         SLINGSHOTPART = "Slingshot Part",
+        GESTALT = "Gestalt",
     },
 
     SANITYDESC ={
@@ -16890,6 +17080,8 @@ STRINGS.SCRAPBOOK = {
         WOOD = "WOOD",
         GOODIES = "GOODIES",
         MONSTER = "MONSTER",
+        LUNAR_SHARDS = "LUNAR SHARDS",
+        CORPSE = "CORPSE",
     },
 
     DATA_NEEDS_INVESTIGATION = "This needs more investigation.",
@@ -17487,6 +17679,49 @@ STRINGS.SCRAPBOOK = {
         DECK_OF_CARDS = "Play a game of cards, however you like. Hit it to shuffle, but be careful!",
         PLAYING_CARD = "A single card for playing games! Combine these together to make a deck.",
 
+        -- Rifts 5
+        WAGBOSS_ROBOT_LEG = "Although the W.A.R.B.O.T. material failed to fully contain the Celestial Scion, it may still prove useful in protecting the survivors.",
+        WAGBOSS_MISSILE = "These heat-seeking missiles lock onto the warmest thing they can find... So make sure that isn't you!",
+        HERMITCRAB_RELOCATION_KIT = "Help Pearl find a new home! It might be tricky to find the perfect spot, but remember - she loves being near the ocean.",
+        WANDERINGTRADER = "He travels between a few Points of Interest, looking for survivors to trade with. He gets new stock every couple of days, so be sure to check back in regularly!",
+        LUNAR_SEED = "They came from an enlightened crown - so return them to one, to bask in eternal enlightenment.",
+
+        -- rifts5.1
+        WAGSTAFF_MATERIALS_NOTE = "\n\"Day 89 - Material Study\"\n\n\"Thulecite appears sufficient to contain lunar entities. Structural integrity holds under moderate strain. Further testing advised.\"\n",
+        WAGSTAFF_ENERGY_NOTE = "\n\"Day 195 - Energy\"\n\n\"Eureka. Lunar forms radiate boundless energy. Containable. Obedient, even? Control may be possible. Endless applications... if stability holds.\"\n",
+        WAGSTAFF_CONTAINMENT_NOTE = "\n\"Day 226 - Containment Measures\"\n\n\"Area of containment necessary prior to experimentation. Consider implementing a kinetic and teleportational dampening field?\"\n",
+        WAGSTAFF_THERMAL_NOTE = "\n\"Day 354 - Heat Signature Detection\"\n\n\"Preliminary thermal tracking functional. However, response irregularities suggest vulnerability to rudimentary interference - false positives observed with minimal thermal masking.\"\n",
+        WAGSTAFF_ELECTRICITY_NOTE = "\n\"Day 418 - Electrifying!\"\n\n\"Interesting. Can redirect controlled electric discharge for practical (and offensive) applications. Truly remarkable potential. Note to self: don appropriate insulative layers next time. That last zap was... unexpectedly exhilarating.\"\n",
+
+        WAGBOSS_ROBOT_CONSTRUCTIONSITE = "Build the W.A.R.B.O.T. using only the most authentic parts.",
+        WAGBOSS_ROBOT_CONSTRUCTIONSITE_KIT = "There is only one place that this contraption can go so that the containment barrier can do its part in stabilizing the energies used.",
+        WAGBOSS_ROBOT_CREATION_PARTS = "Parts cut according to the correct specifications for W.A.R.B.O.T. construction.",
+        MOONSTORM_STATIC_CATCHER = "Now you're the catcher!\nFind the energy running loose in the storms and try to restrain it.",
+        COOLANT = "Essence of insight... Fuel of power... ...Bubbling.",
+
+        FENCE_ELECTRIC = "\"Transdermal Induction Neurological Galvanic Learning Experience\" Uses electrolunetic technology to deliver shocks to conductive entities.\n\nOnce toggled, the T.I.N.G.L.E. node will search for another nearby node to link to, establishing an electric field between the two.\n\nNo physical harm is done (mental harm is up for debate). Most subjects will flee away after the brief shock.\n\nThe tester is recommended to use insulative gear to avoid this special learning experience!",
+        FENCE_ELECTRIC_ITEM = "\"Transdermal Induction Neurological Galvanic Learning Experience\" Uses electrolunetic technology to deliver shocks to conductive entities.\n\nOnce toggled, the T.I.N.G.L.E. node will search for another nearby node to link to, establishing an electric field between the two.\n\nNo physical harm is done (mental harm is up for debate). Most subjects will flee away after the brief shock.\n\nThe tester is recommended to use insulative gear to avoid this special learning experience!",
+
+        -- Rifts 6 and Rifts6.1
+        TREE_ROCK = "The vines uproot more than boulders, depending on where they are planted.",
+        SHADOWTHRALL_CENTIPEDE_HEAD = "Dense and unyielding, it will take great effort to crack its shell.",
+        CAVE_VENT_ROCK = "These vents can billow out more than mere heat.",
+        CAVE_VENT_MITE = "The Fumarole's cycle begins with the Geothermite.",
+        OCEANWHIRLBIGPORTAL = "Hypnotically swirling, ever-drawing, it swallows all caught within its eye.\nHighly destructive to boats and structures alike.",
+        OCEANWHIRLBIGPORTALEXIT = "A heap of sludge. Best dig in!",
+        VAULT_LOBBY_EXIT = "The longer you gaze, the stronger the urge to leap.",
+        VAULT_TELEPORTER = "Flashy transportation. Keep your gaze on the floor if you feel dizzy or disoriented.",
+        VAULT_ORB = "A focus of intent for the Sanctum Waymark, drawing together those beyond.",
+        VAULT_RUNE = "Engraved markings, enduring through eternity. Perhaps decipherable.",
+        VAULT_TORCH = "The flame is calming. If only it would stay lit.",
+        ABYSSPILLAR_MINION = "They block your path. Are they following a pattern?",
+        ABYSSPILLAR_TRIAL = "The urge to pull this lever is... unusually strong.",
+        MASK_ANCIENT_HANDMAIDHAT = "Costume piece used in stage plays.\nShe did what was necessary in service of her Queen.",
+        MASK_ANCIENT_ARCHITECTHAT = "Costume piece used in stage plays.\nIs it better to face the bitter truth or embrace sweet ignorance?",
+        MASK_ANCIENT_MASONHAT = "Costume piece used in stage plays.\nBetrayal begets the darkest of curses.",
+        PLAYBILL_THE_DOLL = "Charlie's version of events.",
+        PLAYBILL_THE_VEIL = "Shady promotional material.",
+        PLAYBILL_THE_VAULT = "A grim testimony from the past, and a foreshadowing of what awaits.",
     },
 
     -- Full name: "{name} Scrapbook Page"
@@ -17501,6 +17736,8 @@ STRINGS.TEMP_BETA_MSG =
 	RIFTS5_BASIC = "Thanks for playing the beta!\nBoss final phase and rewards coming soon...",
 	RIFTS5_BASIC_NEW = "Thanks for playing the beta!",
 	RIFTS5_KILLTIME_FMT = "You defeated {name} in {time}s.",
+	--
+	RIFTS6_BASIC = "Thanks for playing the beta!\nThe room beyond this point is not yet available.",
 }
 
 --Don't include this in pot generation as this file is already translated.

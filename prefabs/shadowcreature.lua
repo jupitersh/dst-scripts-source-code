@@ -282,7 +282,7 @@ local function MakeShadowCreature(data)
         inst:ListenForEvent("newcombattarget", OnNewCombatTarget)
         inst:ListenForEvent("death", OnDeath)
 
-        if data.name == "terrorbeak" then
+		if data.name == "terrorbeak" and TheWorld.has_ocean then
             inst.followtosea = true
             inst.ExchangeWithOceanTerror = ExchangeWithOceanTerror
         end

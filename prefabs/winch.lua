@@ -310,7 +310,7 @@ local function onburnt(inst)
 	inst:RemoveComponent("shelf")
 
     inst.SoundEmitter:KillSound("mooring")
-	inst.sg:Stop()
+	inst:ClearStateGraph()
 end
 
 local function onbuilt(inst)

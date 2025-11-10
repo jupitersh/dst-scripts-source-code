@@ -853,6 +853,8 @@ local function DoInitGame(savedata, profile)
 	TheNet:SetServerPlaystyle(ShardGameIndex:GetServerData().playstyle)
 
 	-- remove the LOOP_BLANK_SUB before we do anything else
+	-- NOTE: WE REPOPULATE NODE ID TILES LATER. YOU MUST DO THIS!
+	local do_repopulate_node_map = false
 	for i = #savedata.map.topology.ids, 1, -1 do
 		local name = savedata.map.topology.ids[i]
 		if string.find(name, "LOOP_BLANK_SUB") ~= nil then
@@ -863,6 +865,8 @@ local function DoInitGame(savedata, profile)
 					table.remove(savedata.map.topology.edges, eid)
 				end
 			end
+
+			do_repopulate_node_map = true
 		end
 	end
 
@@ -936,6 +940,14 @@ local function DoInitGame(savedata, profile)
     GroundTiles.Initialize()
 
     PopulateWorld(savedata, profile)
+
+	-- Since we tampered with savedata.map.topology.ids, we must repopulate our node id tile map!
+	if do_repopulate_node_map then
+		for i = 1, #savedata.map.topology.nodes do
+			local node = savedata.map.topology.nodes[i]
+			TheWorld.Map:RepopulateNodeIdTileMap(i, node.x, node.y, node.poly)
+		end
+	end
 
     if true --[[ Profile.persistdata.debug_world  == 1]] then
     	if savedata.map.topology == nil then

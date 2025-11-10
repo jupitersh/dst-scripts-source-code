@@ -373,7 +373,7 @@ local function teleport_func(inst, target, pos, caster)
 
     local x, y, z = target.Transform:GetWorldPosition()
 	local target_in_ocean = target.components.locomotor ~= nil and target.components.locomotor:IsAquatic()
-	local no_teleport = target:HasTag("noteleport") or TheWorld.Map:IsPointInWagPunkArenaAndBarrierIsUp(x, y, z) --targetable by spell, but don't actually teleport
+	local no_teleport = target:HasTag("noteleport") or not IsTeleportLinkingPermittedFromPoint(x, y, z) --targetable by spell, but don't actually teleport
 	local loctarget
 	if not no_teleport then
 		loctarget = (target.components.minigame_participator ~= nil and target.components.minigame_participator:GetMinigame())

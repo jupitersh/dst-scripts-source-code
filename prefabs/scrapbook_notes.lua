@@ -14,10 +14,40 @@ local NOTES =
         tags = { "mutationsnote" },
         build = "wagstaff_notes",
     },
+    {
+        name = "wagstaff_materials",
+        --tags = { "mutationsnote" },
+        build = "wagstaff_notes",
+    },
+    {
+        name = "wagstaff_energy",
+        --tags = { "mutationsnote" },
+        build = "wagstaff_notes",
+    },
+    {
+        name = "wagstaff_containment",
+        --tags = { "mutationsnote" },
+        build = "wagstaff_notes",
+    },
+    {
+        name = "wagstaff_thermal",
+        --tags = { "mutationsnote" },
+        build = "wagstaff_notes",
+    },
+    {
+        name = "wagstaff_electricity",
+        --tags = { "mutationsnote" },
+        build = "wagstaff_notes",
+    },
 }
 
 -- For searching purposes:
---     wagstaff_mutations_note
+--      wagstaff_mutations_note
+--      wagstaff_materials_note
+--      wagstaff_energy_note
+--      wagstaff_containment_note
+--      wagstaff_thermal_note
+--      wagstaff_electricity_note
 
 local function CancelReservation(inst)
     inst.reserved_userid = nil
@@ -83,8 +113,9 @@ local function MakeScrapbookNote(data)
             end
         end
 
-        inst.entity:SetPristine()
+        inst:SetPrefabNameOverride("wagstaff_mutations_note")
 
+        inst.entity:SetPristine()
         if not TheWorld.ismastersim then
             return inst
         end
@@ -93,6 +124,7 @@ local function MakeScrapbookNote(data)
 
         inst:AddComponent("inspectable")
         inst:AddComponent("inventoryitem")
+        inst.components.inventoryitem:ChangeImageName("wagstaff_mutations_note")
 
         inst:AddComponent("erasablepaper")
 

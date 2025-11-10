@@ -1,10 +1,5 @@
 require("stategraphs/commonstates")
 
-local actionhandlers =
-{
-}
-
-
 local events=
 {
     CommonHandlers.OnLocomote(true, true),
@@ -12,10 +7,10 @@ local events=
     CommonHandlers.OnFallInVoid(),
     CommonHandlers.OnSleep(),
     CommonHandlers.OnFreeze(),
+	CommonHandlers.OnElectrocute(),
     CommonHandlers.OnAttack(),
     CommonHandlers.OnAttacked(),
     CommonHandlers.OnDeath(),
-
 
     EventHandler("doattack", function(inst)
                                 local nstate = "attack"
@@ -221,7 +216,7 @@ local states=
         },
 
     State{  name = "ruinsrespawn",
-            tags = {"busy"},
+			tags = { "busy", "noelectrocute" },
 
             onenter = function(inst)
                 inst.AnimState:PlayAnimation("spawn")
@@ -240,7 +235,6 @@ local states=
                 EventHandler("animover", function(inst) inst.sg:GoToState("sleeping") end),
             },
         },
-
 }
 
 CommonStates.AddWalkStates(states,
@@ -296,8 +290,8 @@ CommonStates.AddCombatStates(states,
 })
 
 CommonStates.AddFrozenStates(states)
+CommonStates.AddElectrocuteStates(states)
 CommonStates.AddSinkAndWashAshoreStates(states)
 CommonStates.AddVoidFallStates(states)
 
-
-return StateGraph("rook", states, events, "idle", actionhandlers)
+return StateGraph("rook", states, events, "idle")

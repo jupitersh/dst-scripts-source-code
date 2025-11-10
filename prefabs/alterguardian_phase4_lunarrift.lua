@@ -39,6 +39,7 @@ local prefabs =
 	"purebrilliance",
 	"gears",
 	"temp_beta_msg", --#TEMP_BETA
+    "chesspiece_wagboss_lunar_sketch",
 }
 
 SetSharedLootTable("alterguardian_phase4_lunarrift",
@@ -62,6 +63,8 @@ SetSharedLootTable("alterguardian_phase4_lunarrift",
 	{ "trinket_6",			0.7 },
 	{ "gears",				1.0 },
 	{ "gears",				0.5 },
+
+	{"chesspiece_wagboss_lunar_sketch", 1.0},
 })
 
 local WAGSTAFF_LOOT =
@@ -894,6 +897,11 @@ end
 
 --------------------------------------------------------------------------
 
+local SCRAPBOOK_SYMBOLCOLOURS = {
+	{"lb_glow", 1, 1, 1, 0.375},
+	--{"lb_flame_loop", 1, 1, 1, 0.75},
+}
+
 local function fn()
 	local inst = CreateEntity()
 
@@ -989,6 +997,9 @@ local function fn()
 
 		return inst
 	end
+
+	inst.scrapbook_anim = "scrapbook"
+	inst.scrapbook_symbolcolours = SCRAPBOOK_SYMBOLCOLOURS
 
 	inst:AddComponent("inspectable")
 
@@ -1126,16 +1137,9 @@ local function slamfx_CreateGroundFx()
 	return fx
 end
 
-local function slamfx_CancelPostUpdate_Client(inst, slamfx_PostUpdate_Client)
-	inst._cancelpostupdatetask = nil
-	inst.components.updatelooper:RemovePostUpdateFn(slamfx_PostUpdate_Client)
-end
-
 local function slamfx_PostUpdate_Client(inst)
-	if inst._cancelpostupdatetask == nil then
-		inst._cancelpostupdatetask = inst:DoStaticTaskInTime(0, slamfx_CancelPostUpdate_Client, slamfx_PostUpdate_Client)
-		inst.ring.AnimState:SetTime(inst.AnimState:GetCurrentAnimationTime())
-	end
+	inst.ring.AnimState:SetTime(inst.AnimState:GetCurrentAnimationTime())
+	inst.components.updatelooper:RemovePostUpdateFn(slamfx_PostUpdate_Client)
 end
 
 local function slamfxfn()

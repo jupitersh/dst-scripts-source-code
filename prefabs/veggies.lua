@@ -687,6 +687,7 @@ local function MakeVeggie(name, has_seeds)
         MakeHauntableLaunchAndPerish(inst)
 
         if name == "carrot" then
+            --TODO: Disallow this when it's not the actual event -__-
             inst.Spin = Carrot_StartSpinning
 
             inst:AddComponent("timer")

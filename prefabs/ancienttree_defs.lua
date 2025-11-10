@@ -195,7 +195,11 @@ local TREE_DEFS =
 
         GROW_CONSTRAINT =
         {
-            TILE = WORLD_TILES.ROCKY,
+            TILE = {
+                [WORLD_TILES.ROCKY] = true,
+                [WORLD_TILES.UNDERROCK] = true,
+                [WORLD_TILES.VENT] = true,
+            },
             SEASON = SEASONS.SUMMER,
         },
 
@@ -238,9 +242,9 @@ local TREE_DEFS =
 
         common_postinit = function(inst)
             inst.AnimState:SetLightOverride(0.1)
-            inst.AnimState:SetSymbolLightOverride("fire_parts", 0.5)
+            inst.AnimState:SetSymbolLightOverride("fire_loop", 0.5)
             inst.AnimState:SetSymbolLightOverride("fire_glow", 0.5)
-            inst.AnimState:SetSymbolBloom("fire_parts")
+            inst.AnimState:SetSymbolBloom("fire_loop")
         end,
 
         --master_postinit = function(inst)
@@ -258,7 +262,10 @@ local TREE_DEFS =
 
         GROW_CONSTRAINT =
         {
-            TILE = WORLD_TILES.MARSH,
+            TILE = {
+                [WORLD_TILES.MARSH] = true,
+                [WORLD_TILES.MUD] = true,
+            },
             SEASON = SEASONS.WINTER,
         },
 

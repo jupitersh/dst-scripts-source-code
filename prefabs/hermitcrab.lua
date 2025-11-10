@@ -43,7 +43,7 @@ local SHOP_LEVELS =
     "HERMITCRABSHOP_L4",
 }
 
-local TASKS = {
+local TASKS = { -- TODO(JBK): The current save data for this assumes these tasks will not be removed and must be in order as an enum. This should be changed in friendlevels component at some point.
     FIX_HOUSE_1 = 1,
     FIX_HOUSE_2 = 2,
     FIX_HOUSE_3 = 3,
@@ -1587,6 +1587,8 @@ local function markerfn()
     inst:AddTag("NOBLOCK")
     inst:AddTag("NOCLICK")
     inst:AddTag("hermitcrab_marker")
+    inst:AddTag("ignorewalkableplatforms")
+	inst:AddTag("ignorewalkableplatformdrowning")
 
     TheWorld:PushEvent("ms_register_hermitcrab_marker", inst)
     TheWorld:PushEvent("ms_register_pearl_entity", inst)
@@ -1602,6 +1604,8 @@ local function markerfishingfn()
     inst:AddTag("NOBLOCK")
     inst:AddTag("NOCLICK")
     inst:AddTag("hermitcrab_marker_fishing")
+    inst:AddTag("ignorewalkableplatforms")
+	inst:AddTag("ignorewalkableplatformdrowning")
 
     TheWorld:PushEvent("ms_register_pearl_entity", inst)
 
@@ -1616,6 +1620,8 @@ local function luremarkerfn()
     inst:AddTag("NOBLOCK")
     inst:AddTag("NOCLICK")
     inst:AddTag("hermitcrab_lure_marker")
+    inst:AddTag("ignorewalkableplatforms")
+	inst:AddTag("ignorewalkableplatformdrowning")
 
     TheWorld:PushEvent("ms_register_pearl_entity", inst)
 

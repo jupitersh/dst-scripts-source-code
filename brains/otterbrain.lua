@@ -1,7 +1,7 @@
 require "behaviours/chaseandattack"
 require "behaviours/doaction"
 
-require "brains/braincommon"
+local BrainCommon = require "brains/braincommon"
 
 local OtterBrain = Class(Brain, function(self, inst)
     Brain._ctor(self, inst)
@@ -290,11 +290,9 @@ function OtterBrain:OnStart()
     local root = PriorityNode({
         FailIfSuccessDecorator(ConditionWaitNode(function() return not self.inst.sg:HasStateTag("jumping") end, "Block While Jumping")),
         -----------------------------------------------------------------------------------------
+        BrainCommon.PanicTrigger(self.inst),
+        BrainCommon.ElectricFencePanicTrigger(self.inst),
 
-        WhileNode( function() return (self.inst.components.health ~= nil and self.inst.components.health.takingfiredamage)
-                                or (self.inst.components.burnable ~= nil and self.inst.components.burnable:IsBurning()) end,
-                                "OnFire",
-            Panic(self.inst)),
         ChaseAndAttack(self.inst, STEAL_CHASE_TIMEOUT_TIME, 1.5 * self.max_wander_dist),
         WhileNode( IsHungry_Redirect, "Is Hungry",
             PriorityNode({

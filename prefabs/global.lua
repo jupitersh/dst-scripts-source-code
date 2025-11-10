@@ -159,6 +159,14 @@ local assets =
     Asset("SOUNDPACKAGE", "sound/rifts5.fev"),
     Asset("FILE", "sound/rifts5.fsb"),
 
+    Asset("SOUNDPACKAGE", "sound/lunarhail_event.fev"),
+    Asset("FILE", "sound/lunarhail_event.fsb"),
+
+    Asset("SOUNDPACKAGE", "sound/rifts6.fev"),
+    Asset("FILE", "sound/rifts6.fsb"),
+
+    Asset("SOUNDPACKAGE", "sound/hallowednights2025.fev"),
+    Asset("FILE", "sound/hallowednights2025.fsb"),
 
     Asset("FILE", "sound/wilton.fsb"),         -- Legacy sound that can be used in mods
     Asset("FILE", "sound/winnie.fsb"),         -- Legacy sound that can be used in mods
@@ -358,6 +366,10 @@ local assets =
     Asset("SHADER", "shaders/anim_fade.ksh"),
     Asset("SHADER", "shaders/anim_bloom.ksh"),
     Asset("SHADER", "shaders/anim_holo.ksh"),
+
+    Asset("SHADER", "shaders/anim_skinned.ksh"),
+    Asset("SHADER", "shaders/anim_bloom_skinned.ksh"),
+
     Asset("SHADER", "shaders/creep.ksh"),
     Asset("SHADER", "shaders/debug_line.ksh"),
     Asset("SHADER", "shaders/debug_tri.ksh"),

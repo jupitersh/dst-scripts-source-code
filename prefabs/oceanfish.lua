@@ -96,7 +96,7 @@ local function OnProjectileLand(inst)
 		inst.leaving = true
 		inst.persists = false
 		inst.sg:GoToState("idle")
-		inst:RestartBrain()
+		inst:RestartBrain("fish_out_of_water")
 	    SpawnPrefab("splash").Transform:SetPosition(x, y, z)
 	else
 		local fish = SpawnPrefab(inst.fish_def.prefab.."_inv")
@@ -121,7 +121,7 @@ local function OnMakeProjectile(inst)
     inst:AddComponent("complexprojectile")
     inst.components.complexprojectile:SetOnHit(OnProjectileLand)
 
-	inst:StopBrain()
+	inst:StopBrain("fish_out_of_water")
 	inst.sg:GoToState("launched_out_of_water")
 
 	inst.Physics:SetCollisionMask(PROJECTILE_COLLISION_MASK)

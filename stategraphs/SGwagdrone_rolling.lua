@@ -217,7 +217,7 @@ local function DoSpinningAOE(inst, targets)
 								PlayMiningFX(inst, v)
 								v.components.workable:WorkedBy(inst, 0.5)
 								numuses = numuses + 1
-								if v:IsValid() and v.components.workable:CanBeWorked() then
+								if v:IsValid() and v.components.workable and v.components.workable:CanBeWorked() then
 									slowdown = true
 								end
 								targets[v] = t + 0.2
@@ -225,7 +225,7 @@ local function DoSpinningAOE(inst, targets)
 								PlayMiningFX(inst, v)
 								v.components.workable:WorkedBy(inst, 0.5)
 								numuses = numuses + 1
-								if v:IsValid() and v.components.workable:CanBeWorked() then
+								if v:IsValid() and v.components.workable and v.components.workable:CanBeWorked() then
 									recoil = true
 								end
 								targets[v] = t + 0.5
@@ -748,6 +748,11 @@ local states =
 				inst.AnimState:PlayAnimation("off_idle")
 			end
 			ToggleOffAllObjectCollisions(inst)
+			if inst.components.inventoryitem and inst.components.inventoryitem:IsHeld() then
+				--V2C: -Forced to this state when picked up.
+				--     -ToggleOffAllObjectCollisions may teleport to world position, so reset it.
+				inst.Transform:SetPosition(0, 0, 0)
+			end
 			inst:SetBrainEnabled(false)
 			WagdroneCommon.SetLedEnabled(inst, false)
 			if inst.sg.mem.todespawn then

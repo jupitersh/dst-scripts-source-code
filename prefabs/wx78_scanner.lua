@@ -672,7 +672,6 @@ local function DoTurnOff(inst)
 
         inst._turned_off = true
 
-        inst:StopBrain()
         inst:SetBrain(nil)
     end
 end

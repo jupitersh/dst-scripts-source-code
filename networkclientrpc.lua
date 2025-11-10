@@ -378,16 +378,14 @@ local RPC_HANDLERS =
         end
     end,
 
-	PredictOverrideLocomote = function(player, dir, floathop)
-		if not (checknumber(dir) and
-				optbool(floathop))
-		then
+	PredictOverrideLocomote = function(player, dir)
+		if not checknumber(dir) then
 			printinvalid("PredictOverrideLocomote", player)
 			return
 		end
 		local playercontroller = player.components.playercontroller
 		if playercontroller ~= nil then
-			playercontroller:OnRemotePredictOverrideLocomote(dir, floathop)
+			playercontroller:OnRemotePredictOverrideLocomote(dir)
 		end
 	end,
 
@@ -995,6 +993,8 @@ local RPC_HANDLERS =
         local popup = GetPopupFromPopupCode(popupcode, mod_name)
         if not popup.validaterpcfn(...) then
             printinvalid("ClosePopup"..tostring(popup.id), player)
+			popup:Close(player)
+			return
         end
         popup:Close(player, ...)
     end,
@@ -1337,6 +1337,24 @@ end
 local WorldSettings_Overrides = require("worldsettings_overrides")
 local SHARD_RPC_HANDLERS =
 {
+    ShardTransactionSteps = function(shardid, shardpayload_string)
+        shardid = tostring(shardid) -- shardid is converted to an integer and must be back to string.
+        local shardtransactionsteps = TheWorld and TheWorld.components.shardtransactionsteps or nil
+        if shardtransactionsteps then
+            local success, shardpayload = RunInSandboxSafe(shardpayload_string)
+            if success and (shardid == shardpayload.originshardid or shardid == shardpayload.receivershardid) then
+                shardtransactionsteps:OnShardTransactionSteps(shardpayload)
+            end
+        end
+    end,
+    PruneShardTransactionSteps = function(shardid, newfinalizedid)
+        shardid = tostring(shardid) -- shardid is converted to an integer and must be back to string.
+        local shardtransactionsteps = TheWorld and TheWorld.components.shardtransactionsteps or nil
+        if shardtransactionsteps then
+            shardtransactionsteps:OnPruneShardTransactionSteps(shardid, newfinalizedid)
+        end
+    end,
+
     ReskinWorldMigrator = function(shardid, migrator, skin_theme, skin_id, sessionid)
         for i,v in ipairs(ShardPortals) do
             if v.components.worldmigrator.id == migrator then

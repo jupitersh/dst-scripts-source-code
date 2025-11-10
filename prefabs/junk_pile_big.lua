@@ -5,6 +5,7 @@ local assets =
 
 local assets_big = {
 	Asset("ANIM", "anim/scrappile.zip"),
+    Asset("SCRIPT", "scripts/prefabs/junk_pile_common.lua"),
 	Asset("MINIMAP_IMAGE", "junk_pile_big"),
 }
 
@@ -16,93 +17,33 @@ local prefabs =
 	"daywalker2",
 }
 
+local junk_common = require("prefabs/junk_pile_common")
+junk_common.AddPrefabDeps(prefabs)
+
 local SIDE_SPAWN_RADIUS = 2
 local SIDE_ANGLE_OFFSET = 36--degrees
 local HEAD_SPAWN_RADIUS = 1.8
 local HEAD_ANGLE_OFFSET = 45--degrees
 
--- Loot copy paste from junk_pile this should be in its own common if they are to remain the same.
-local CRITTER_SPAWN_CHANCE = 0.1
-local LOOT_PERISHABLE_PERCENT = 0.25
+local FENCE_BLUEPRINT_LOOT = "fence_electric_item_blueprint"
 
-local EMPTY = "EMPTY"
+table.insert(prefabs, FENCE_BLUEPRINT_LOOT)
 
-local LOOT = {
-    CRITTERS = {
-        { weight=4, prefab = "spider",         targetplayer=true, state="warrior_attack" }, -- 57.14%
-        { weight=1, prefab = "spider_warrior", targetplayer=true, state="warrior_attack" }, -- 14.29%
-        { weight=2, prefab = "catcoon",        targetplayer=true, state="pounceattack"   }, -- 28.57%
-        { weight=2, prefab = "mole",                              state="peek"           }, -- 28.57%
-    },
-
-    ITEMS = {
-        { weight=8, prefab = EMPTY          }, -- 25%
-        { weight=8, prefab = "wagpunk_bits" }, -- 25%
-        { weight=4, prefab = "rocks"        }, -- 12.5%
-        { weight=4, prefab = "log"          }, -- 12.5%
-        { weight=2, prefab = "boards"       }, -- 6.25%
-        { weight=2, prefab = "potato"       }, -- 6.25%
-        { weight=1, prefab = "transistor"   }, -- 3.125%
-        { weight=1, prefab = "trinket_6"    }, -- 3.125%
-        { weight=1, prefab = "blueprint"    }, -- 3.125%
-        { weight=1, prefab = "gears"        }, -- 3.125%
-    },
-}
-
-local WEIGHTED_CRITTER_TABLE = {}
-local WEIGHTED_ITEM_TABLE = {}
-
-for _, critter in ipairs(LOOT.CRITTERS) do
-    WEIGHTED_CRITTER_TABLE[critter] = critter.weight
-
-    if critter.prefab ~= EMPTY then
-        table.insert(prefabs, critter.prefab)
-    end
-end
-
-for _, item in ipairs(LOOT.ITEMS) do
-    WEIGHTED_ITEM_TABLE[item] = item.weight
-
-    if item.prefab ~= EMPTY then
-        table.insert(prefabs, item.prefab)
-    end
-end
 local function SpawnLoot(inst, digger, nopickup)
-    if math.random() <= CRITTER_SPAWN_CHANCE then
-        local choice = weighted_random_choice(WEIGHTED_CRITTER_TABLE)
+    junk_common.SpawnJunkLoot(inst, digger, nopickup)
+end
 
-        if choice.prefab ~= nil and choice.prefab ~= EMPTY then
-            local critter = SpawnPrefab(choice.prefab)
+local LAUNCHSPEED = 3
+local STARTHEIGHT = 7
+local VERTICALSPEED = 2
+local function SpawnBlueprintLoot(inst)
+	local x, y, z = inst.Transform:GetWorldPosition()
+	local bp = SpawnPrefab(FENCE_BLUEPRINT_LOOT)
 
-            inst.components.lootdropper:FlingItem(critter)
+	bp.Transform:SetPosition(x, y, z)
 
-            if choice.targetplayer and critter.components.combat ~= nil then
-                critter.components.combat:SetTarget(digger)
-            end
-
-            SpawnPrefab("junk_break_fx").Transform:SetPosition(critter.Transform:GetWorldPosition())
-
-            if choice.state ~= nil then
-                critter.sg:GoToState(choice.state, digger)
-            end
-        end
-    end
-
-    local choice = weighted_random_choice(WEIGHTED_ITEM_TABLE)
-
-    if choice.prefab ~= nil and choice.prefab ~= EMPTY then
-        local item = SpawnPrefab(choice.prefab)
-
-        if item.components.perishable ~= nil then
-            item.components.perishable:SetPercent(LOOT_PERISHABLE_PERCENT)
-        end
-
-		if not nopickup and digger.components.inventory and digger.components.inventory:IsOpenedBy(digger) then
-            digger.components.inventory:GiveItem(item, nil, inst:GetPosition())
-        else
-            inst.components.lootdropper:FlingItem(item)
-        end
-    end
+	--FIXME (Omar): junk pile is very tall so this is a lil awkward looking
+	Launch2(bp, inst, LAUNCHSPEED, 1, STARTHEIGHT, 0, VERTICALSPEED)
 end
 -- Loot
 
@@ -287,6 +228,27 @@ local function toss_junk(inst, x, z)
 	end
 end
 
+local function ResetFenceBP(inst)
+	inst.fence_scavenge_count = 0
+	--
+	--"rummage"
+	inst.blueprint = SpawnPrefab("junk_pile_blueprint")
+	inst.blueprint.Follower:FollowSymbol(inst.GUID, "blueprint_follow")
+	inst.blueprint.entity:SetParent(inst.entity)
+	inst.blueprint.AnimState:PlayAnimation("blueprint_pre")
+	inst.blueprint.AnimState:PushAnimation("blueprint_loop", true)
+	table.insert(inst.highlightchildren, inst.blueprint)
+end
+
+local function ClearFenceBP(inst)
+	inst.fence_scavenge_count = nil
+	--
+	if inst.blueprint then
+		inst.blueprint.AnimState:PlayAnimation("blueprint_pst")
+		inst.blueprint = nil
+	end
+end
+
 local KNOCKBACK_TAGS = { "_combat" }
 local KNOCKBACK_CANT_TAGS = { "INLIMBO", "notarget", "noattack", "flight", "invisible", "playerghost", "epic" }
 
@@ -312,6 +274,8 @@ local function DoReleaseDaywalker(inst)
 	inst.daywalker_state = nil
 	inst.sides[inst.daywalker_side]:Show()
 	inst.SoundEmitter:PlaySound("qol1/wagstaff_ruins/rummagepile_pst")
+
+	ResetFenceBP(inst)
 
 	local r = 3
 	for i, v in ipairs(TheSim:FindEntities(x2, 0, z2, r + 3, KNOCKBACK_TAGS, KNOCKBACK_CANT_TAGS)) do
@@ -340,6 +304,7 @@ local function onpickedfn(inst, picker, loot)
 		elseif inst.daywalker_state == 2 then
 			local x1, y1, z1 = inst.daywalker.Transform:GetWorldPosition()
 			DoReleaseDaywalker(inst)
+			--
 			toss_junk(inst, x1, z1)
         else
 			junkstolen = true
@@ -364,6 +329,8 @@ local function onpickedfn(inst, picker, loot)
 					SpawnPrefab("junk_break_fx").Transform:SetPosition(inst.daywalker.Transform:GetWorldPosition())
 					forestdaywalkerspawner:WatchDaywalker(inst.daywalker)
 				end
+				--
+				ClearFenceBP(inst)
 			else
 				inst.SoundEmitter:PlaySound("qol1/wagstaff_ruins/rummagepile_pst")
 			end
@@ -377,6 +344,22 @@ local function onpickedfn(inst, picker, loot)
 			inst.components.timer:StartTimer("loot_spawn_cd", TUNING.TOTAL_DAY_TIME * 0.25)
 			inst:SpawnLoot(picker)
 		end
+		--
+		if inst.fence_scavenge_count ~= nil then
+
+			inst.fence_scavenge_count = inst.fence_scavenge_count + 1
+			
+			local forestdaywalkerspawner = TheWorld.components.forestdaywalkerspawner
+			if 	(inst.fence_scavenge_count >= TUNING.RUMMAGE_COUNT_FOR_FENCE_BLUEPRINT) or
+				(forestdaywalkerspawner and forestdaywalkerspawner.daywalker and forestdaywalkerspawner.daywalker.defeated) --If boss is defeated, just give it to the player anyways
+			then
+				inst:SpawnBlueprintLoot()
+				ClearFenceBP(inst)
+
+				--If daywalker was defeated, make him say a line when you rummage the blueprint out?
+			end
+		end
+		--
 		--stolen even if no loot dropped!
 		local x, y, z = inst.Transform:GetWorldPosition()
 		for i, v in ipairs(TheSim:FindEntities(x, y, z, 16, JUNK_MOB_TAGS)) do
@@ -435,6 +418,8 @@ local function OnSave(inst, data)
 			data.daywalker_hp = inst.daywalker.components.health:GetPercent()
 		end
 	end
+
+	data.fence_scavenge_count = inst.fence_scavenge_count
 end
 
 local function OnLoad(inst, data)
@@ -451,6 +436,11 @@ local function OnLoad(inst, data)
 					inst.daywalker.components.health:SetPercent(data.daywalker_hp)
 				end
 			end
+		end
+
+		if data.fence_scavenge_count then
+			ResetFenceBP(inst)
+			inst.fence_scavenge_count = data.fence_scavenge_count
 		end
 	end
 end
@@ -522,6 +512,8 @@ local function TryBuryDaywalker(inst, daywalker)
 		inst.daywalker.sg.mem.level = 1
 
 		SpawnPrefab("junk_break_fx").Transform:SetPosition(x, 1, z)
+
+		ClearFenceBP(inst)
 		return true
 	end
 end
@@ -533,6 +525,10 @@ local function TryReleaseDaywalker(inst, daywalker)
 		SpawnPrefab("junk_break_fx").Transform:SetPosition(x1, y1 + 2, z1)
 		return true
 	end
+end
+
+local function GetStatus(inst)
+    return inst.blueprint ~= nil and "BLUEPRINT" or nil
 end
 
 local function fn()
@@ -576,6 +572,7 @@ local function fn()
 	inst.scrapbook_anim = "scrapbook"
 
 	inst:AddComponent("inspectable")
+	inst.components.inspectable.getstatus = GetStatus
 
 	inst:AddComponent("pickable")
 	inst.components.pickable.picksound = "dontstarve/wilson/pickup_reeds"
@@ -608,6 +605,7 @@ local function fn()
 
     inst:AddComponent("lootdropper")
     inst.SpawnLoot = SpawnLoot
+	inst.SpawnBlueprintLoot = SpawnBlueprintLoot
 
     TheWorld:PushEvent("ms_register_junk_pile_big", inst)
 
@@ -657,5 +655,59 @@ local function side_fn()
 	return inst
 end
 
+--
+
+local function blueprint_OnRemoveEntity(inst)
+	local parent = inst.entity:GetParent()
+	if parent and parent.highlightchildren then
+		table.removearrayvalue(parent.highlightchildren, inst)
+	end
+end
+
+local function blueprint_OnEntityReplicated(inst)
+	local parent = inst.entity:GetParent()
+	if parent and parent.prefab == "junk_pile_big" then
+		table.insert(parent.highlightchildren, inst)
+	end
+end
+
+local function OnAnimOver(inst)
+    if inst.AnimState:IsCurrentAnimation("blueprint_pst") then
+        inst:Remove()
+    end
+end
+
+local function blueprint_effect()
+	local inst = CreateEntity()
+	--
+	inst.entity:AddTransform()
+	inst.entity:AddAnimState()
+	inst.entity:AddFollower()
+	inst.entity:AddNetwork()
+
+	inst.AnimState:SetBank("scrappile")
+	inst.AnimState:SetBuild("scrappile")
+	inst.AnimState:PlayAnimation("blueprint_loop", true)
+
+	inst:AddTag("FX")
+
+	inst.entity:SetPristine()
+
+	inst.OnRemoveEntity = blueprint_OnRemoveEntity
+
+	if not TheWorld.ismastersim then
+		inst.OnEntityReplicated = blueprint_OnEntityReplicated
+
+	    return inst
+	end
+
+	inst:ListenForEvent("animover", OnAnimOver)
+
+	inst.persists = false
+	--
+	return inst
+end
+
 return Prefab("junk_pile_big", fn, assets_big, prefabs),
-	Prefab("junk_pile_side", side_fn, assets)
+	Prefab("junk_pile_side", side_fn, assets),
+	Prefab("junk_pile_blueprint", blueprint_effect, assets)

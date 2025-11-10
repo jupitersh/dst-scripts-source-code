@@ -1,3 +1,4 @@
+--NOTE (Omar): When adding new tasks, set a key for loot table in tree_rock_data
 AddTaskSet("default", {
 		name = STRINGS.UI.CUSTOMIZATIONSCREEN.TASKSETNAMES.DEFAULT,
         location = "forest",

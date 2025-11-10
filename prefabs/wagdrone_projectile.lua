@@ -110,12 +110,13 @@ local function OnUpdate(inst, dt)
 				v.components.combat and
 				inst.components.combat:CanTarget(v)
 			then
-				if v:HasTag("electricdamageimmune") or (v.components.inventory and v.components.inventory:IsInsulated()) then
+				if IsEntityElectricImmune(v) then
 					inst.components.combat:SetDefaultDamage(TUNING.WAGDRONE_FLYING_DAMAGE * TUNING.WAGDRONE_FLYING_INSULATED_DAMAGE_MULT)
 					inst.components.combat:DoAttack(v, nil, nil, "electric")
 					inst.components.combat:SetDefaultDamage(TUNING.WAGDRONE_FLYING_DAMAGE)
 				else
 					inst.components.combat:DoAttack(v, nil, nil, "electric")
+					v:PushEventImmediate("electrocute") -- (NOTE): Don't add electric tag to laserwire, or it counts as a fork attack! we dont want that!
 				end
 				inst.targets[v] = true
 			end

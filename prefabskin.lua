@@ -131,7 +131,9 @@ backpack_init_fn = function(inst, build_name, fns)
 	if fns and fns.initialize then
 		fns.initialize(inst)
 	end
-	inst:OnBackpackSkinChanged(build_name)
+    if inst.OnBackpackSkinChanged then
+        inst:OnBackpackSkinChanged(build_name)
+    end
 end
 backpack_clear_fn = function(inst)
     basic_clear_fn(inst, "swap_backpack")
@@ -141,7 +143,9 @@ backpack_clear_fn = function(inst)
 		end
 		inst.backpack_skin_fns = nil
 	end
-	inst:OnBackpackSkinChanged(nil)
+    if inst.OnBackpackSkinChanged then
+        inst:OnBackpackSkinChanged(nil)
+    end
 end
 
 spicepack_init_fn = function(inst, build_name) basic_init_fn( inst, build_name, "swap_chefpack" ) end
@@ -185,12 +189,34 @@ end
 armor_bramble_init_fn = function(inst, build_name) basic_init_fn(inst, build_name, "armor_bramble") end
 armor_bramble_clear_fn = function(inst) basic_clear_fn(inst, "armor_bramble") end
 
-wood_table_round_init_fn = function(inst, build_name) basic_init_fn(inst, build_name, "wood_table_round") end
-wood_table_round_clear_fn = function(inst) basic_clear_fn(inst, "wood_table_round") end
+local function _set_round_furniture_facings(inst, facings)
+	if facings == 8 then
+		inst.Transform:SetEightFaced()
+	elseif facings == 4 then
+		inst.Transform:SetFourFaced()
+	else
+		inst.Transform:SetNoFaced()
+	end
+end
+
+wood_table_round_init_fn = function(inst, build_name, facings)
+	basic_init_fn(inst, build_name, "wood_table_round")
+	_set_round_furniture_facings(inst, facings)
+end
+wood_table_round_clear_fn = function(inst)
+	basic_clear_fn(inst, "wood_table_round")
+	inst.Transform:SetNoFaced()
+end
 wood_table_square_init_fn = function(inst, build_name) basic_init_fn(inst, build_name, "wood_table_square") end
 wood_table_square_clear_fn = function(inst) basic_clear_fn(inst, "wood_table_square") end
-wood_stool_init_fn = function(inst, build_name) basic_init_fn(inst, build_name, "wood_chair_stool") end
-wood_stool_clear_fn = function(inst) basic_clear_fn(inst, "wood_chair_stool") end
+wood_stool_init_fn = function(inst, build_name, facings)
+	basic_init_fn(inst, build_name, "wood_chair_stool")
+	_set_round_furniture_facings(inst, facings)
+end
+wood_stool_clear_fn = function(inst)
+	basic_clear_fn(inst, "wood_chair_stool")
+	inst.Transform:SetNoFaced()
+end
 wood_chair_init_fn = function(inst, build_name)
     basic_init_fn(inst, build_name, "wood_chair_chair")
     if not TheWorld.ismastersim then
@@ -209,23 +235,35 @@ wood_chair_clear_fn = function(inst)
         inst.back.AnimState:ClearOverrideSymbol("chair01_parts")
     end
 end
-stone_table_round_init_fn = function(inst, build_name) basic_init_fn(inst, build_name, "stone_table_round") end
-stone_table_round_clear_fn = function(inst) basic_clear_fn(inst, "stone_table_round") end
+stone_table_round_init_fn = function(inst, build_name, facings)
+	basic_init_fn(inst, build_name, "stone_table_round")
+	_set_round_furniture_facings(inst, facings)
+end
+stone_table_round_clear_fn = function(inst)
+	basic_clear_fn(inst, "stone_table_round")
+	inst.Transform:SetNoFaced()
+end
 stone_table_square_init_fn = function(inst, build_name) basic_init_fn(inst, build_name, "stone_table_square") end
 stone_table_square_clear_fn = function(inst) basic_clear_fn(inst, "stone_table_square") end
-stone_stool_init_fn = function(inst, build_name) basic_init_fn(inst, build_name, "stone_chair_stool") end
-stone_stool_clear_fn = function(inst) basic_clear_fn(inst, "stone_chair_stool") end
+stone_stool_init_fn = function(inst, build_name, facings)
+	basic_init_fn(inst, build_name, "stone_chair_stool")
+	_set_round_furniture_facings(inst, facings)
+end
+stone_stool_clear_fn = function(inst)
+	basic_clear_fn(inst, "stone_chair_stool")
+	inst.Transform:SetFourFaced() --yes! base is 4-faced
+end
 stone_chair_init_fn = function(inst, build_name)
-    basic_init_fn(inst, build_name, "stone_chair_chair")
+	basic_init_fn(inst, build_name, "stone_chair")
     if not TheWorld.ismastersim then
         return
     end
     if inst.back then
-        inst.back.AnimState:OverrideItemSkinSymbol("chair01_parts", build_name, "chair01_parts", inst.GUID, "stone_chair_chair")
+		inst.back.AnimState:OverrideItemSkinSymbol("chair01_parts", build_name, "chair01_parts", inst.GUID, "stone_chair")
     end
 end
 stone_chair_clear_fn = function(inst)
-    basic_clear_fn(inst, "stone_chair_chair")
+	basic_clear_fn(inst, "stone_chair")
     if not TheWorld.ismastersim then
         return
     end
@@ -972,18 +1010,30 @@ flotationcushion_clear_fn = function(inst, build_name)
     basic_clear_fn(inst, "flotationcushion")
 end
 
+bookstation_init_fn = function(inst, build_name)
+    basic_init_fn(inst, build_name, "bookstation")
+end
+bookstation_clear_fn = function(inst, build_name)
+    basic_clear_fn(inst, "bookstation")
+end
+
 sisturn_init_fn = function(inst, build_name)
     basic_init_fn(inst, build_name, "sisturn")
     if not TheWorld.ismastersim then
         return
     end
     AddSkinSounds(inst)
-    inst:UpdateFlowerDecor()
+    --(Omar) NOTE: Remember placers get skins too! Placer doesn't have `UpdateFlowerDecor`!
+    if inst.UpdateFlowerDecor then
+        inst:UpdateFlowerDecor()
+    end
 end
 sisturn_clear_fn = function(inst)
     basic_clear_fn(inst, "sisturn")
     RemoveSkinSounds(inst)
-    inst:UpdateFlowerDecor()
+    if inst.UpdateFlowerDecor then
+        inst:UpdateFlowerDecor()
+    end
 end
 
 lucy_init_fn = function(inst, build_name)
@@ -1387,8 +1437,21 @@ dragonflyfurnace_clear_fn = function(inst) basic_clear_fn(inst, "dragonfly_furna
 birdcage_init_fn = function(inst, build_name) basic_init_fn( inst, build_name, "bird_cage" ) end
 birdcage_clear_fn = function(inst) basic_clear_fn(inst, "bird_cage" ) end
 
-meatrack_init_fn = function(inst, build_name) basic_init_fn( inst, build_name, "meat_rack" ) end
-meatrack_clear_fn = function(inst) basic_clear_fn(inst, "meat_rack" ) end
+meatrack_init_fn = function(inst, build_name)
+	basic_init_fn(inst, build_name, "meat_rack")
+	if not TheWorld.ismastersim then
+		return
+	end
+	if inst.OnMeatRackSkinChanged then
+		inst:OnMeatRackSkinChanged(build_name)
+	end
+end
+meatrack_clear_fn = function(inst)
+	basic_clear_fn(inst, "meat_rack")
+	if inst.OnMeatRackSkinChanged then
+		inst:OnMeatRackSkinChanged(nil)
+	end
+end
 
 beebox_init_fn = function(inst, build_name) basic_init_fn( inst, build_name, "bee_box" ) end
 beebox_clear_fn = function(inst) basic_clear_fn(inst, "bee_box" ) end
@@ -3510,6 +3573,43 @@ function resurrectionstatue_clear_fn(inst)
     basic_clear_fn(inst, "wilsonstatue")
 end
 
+function antlionhat_init_fn(inst, build_name)
+    basic_init_fn(inst, build_name, "hat_antlion")
+end
+function antlionhat_clear_fn(inst)
+    basic_clear_fn(inst, "hat_antlion")
+end
+function woodcarvedhat_init_fn(inst, build_name)
+    basic_init_fn(inst, build_name, "hat_woodcarved")
+end
+function woodcarvedhat_clear_fn(inst)
+    basic_clear_fn(inst, "hat_woodcarved")
+end
+function nightstick_init_fn(inst, build_name)
+    basic_init_fn(inst, build_name, "nightstick")
+end
+function nightstick_clear_fn(inst)
+    basic_clear_fn(inst, "nightstick")
+end
+function hawaiianshirt_init_fn(inst, build_name)
+    basic_init_fn(inst, build_name, "torso_hawaiian")
+end
+function hawaiianshirt_clear_fn(inst)
+    basic_clear_fn(inst, "torso_hawaiian")
+end
+
+
+function pumpkinhat_init_fn(inst, build_name)
+    basic_init_fn(inst, build_name, "hat_pumpkin")
+	if not TheWorld.ismastersim then
+		return
+	end
+	inst:OnPumpkinHatSkinChanged(build_name)
+end
+function pumpkinhat_clear_fn(inst)
+    basic_clear_fn(inst, "hat_pumpkin")
+	inst:OnPumpkinHatSkinChanged(nil)
+end
 
 
 function CreatePrefabSkin(name, info)

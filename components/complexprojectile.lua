@@ -149,7 +149,7 @@ function ComplexProjectile:Launch(targetPos, attacker, owningweapon)
 
 	-- if the attacker is standing on a moving platform, then inherit it's velocity too
 	local attacker_platform = attacker ~= nil and attacker:GetCurrentPlatform() or nil
-	if attacker_platform ~= nil then
+	if attacker_platform and attacker_platform.Physics then
 		local theta = self.inst.Transform:GetRotation() * DEGREES
 		local sintheta = math.sin(theta)
 		local costheta = math.cos(theta)

@@ -175,7 +175,7 @@ function UserCommandPickerScreen:UpdateActions()
             table.remove(self.actions, i)
         end
     end
-    table.sort(self.actions, function(a,b) return (a.menusort or 100) < (b.menusort or 100) or (a.menusort == b.menusort and a.prettyname < b.prettyname) end)
+    table.sort(self.actions, function(a,b) return (a.menusort or 100) < (b.menusort or 100) or (a.menusort == b.menusort and stringidsorter(a.prettyname, b.prettyname)) end)
 end
 
 function UserCommandPickerScreen:OnControl(control, down)

@@ -149,6 +149,25 @@ function Container:DropEverythingWithTag(tag, drop_pos, keepoverstacked)
     end
 end
 
+function Container:DropEverythingByFilter(filterfn)
+    local internal_containers = {}
+
+    for i = 1, self.numslots do
+        local item = self.slots[i]
+        if item ~= nil then
+            if filterfn(self.inst, item) then
+                self:DropItemBySlot(i)
+            elseif item.components.container ~= nil then
+                table.insert(internal_containers, item)
+            end
+        end
+    end
+
+    for i, v in ipairs(internal_containers) do
+        v.components.container:DropEverythingByFilter(filterfn)
+    end
+end
+
 function Container:DropEverything(drop_pos, keepoverstacked)
     for i = 1, self.numslots do
 		self:DropItemBySlot(i, drop_pos, keepoverstacked)
@@ -897,9 +916,7 @@ function Container:OnUpdate(dt)
 				--       your mount's container (e.g. Woby)
 				if (ismount or self.inst:HasTag("portablestorage")) and not (opener.sg and opener.sg:HasStateTag("keep_pocket_rummage")) then
 					self:Close(opener)
-					if opener.sg then
-						opener.sg:HandleEvent("ms_closeportablestorage", { item = self.inst })
-					end
+					opener:PushEventImmediate("ms_closeportablestorage", { item = self.inst })
 				end
 			elseif mount or not (opener:IsValid() and opener:IsNear(self.inst, CONTAINER_AUTOCLOSE_DISTANCE) and CanEntitySeeTarget(opener, self.inst)) then
 				self:Close(opener)
@@ -1389,6 +1406,7 @@ function Container:EnableReadOnlyContainer(enable)
                 self.readonlycontainer_addedpreserver = true
                 self.inst:AddComponent("preserver")
                 self.inst.components.preserver:SetPerishRateMultiplier(0)
+                self.inst.components.preserver:SetTemperatureRateMultiplier(0)
             end
 
             self.inst:ListenForEvent("itemget", ReadOnlyContainerAssert_in)

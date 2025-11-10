@@ -366,8 +366,14 @@ function ItemExplorer:_GetActionInfoText(item_data)
 
     if item_data.is_owned then
         if IsUserCommerceAllowedOnItemData(item_data) then
+            local grindable_owned = TheInventory:GetOwnedItemCountForCommerce(item_data.item_key)
+            local total_owned = item_data.owned_count
             local doodad_value = TheItems:GetBarterSellPrice(item_data.item_key)
             text = subfmt(STRINGS.UI.BARTERSCREEN.COMMERCE_INFO_GRIND, {doodad_value=doodad_value})
+            if grindable_owned ~= total_owned then
+                local entitlement_count = total_owned - grindable_owned
+                text = text .. "\n" .. subfmt(STRINGS.UI.BARTERSCREEN.COMMERCE_INFO_GRIND_ENTITLEMENT, {entitlement_count = entitlement_count, total_owned = total_owned})
+            end
         else
             text = STRINGS.UI.BARTERSCREEN.COMMERCE_INFO_NOGRIND
         end

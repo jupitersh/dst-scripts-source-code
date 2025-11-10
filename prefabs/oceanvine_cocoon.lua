@@ -197,6 +197,11 @@ local function OnHit(inst, attacker)
         play_hit(inst)
     end
 end
+local function OnLunarHailBuildupWorked(inst, data)
+    if data and data.doer then
+        OnHit(inst, data.doer)
+    end
+end
 
 local COCOON_HOME_TAGS = { "cocoon_home" }
 local function OnKilled(inst)
@@ -238,6 +243,7 @@ end
 local function OnLoad(inst, data)
     if data ~= nil and data.burnt then
         cocoon_burnt(inst)
+        RemoveLunarHailBuildup(inst)
     end
 end
 
@@ -361,6 +367,7 @@ local function fn()
     inst.components.combat:SetOnHit(OnHit)
 
     MakeSnowCovered(inst)
+    inst:ListenForEvent("lunarhailbuildupworked", OnLunarHailBuildupWorked)
 
     inst.OnSave = OnSave
     inst.OnPreLoad = OnPreLoad

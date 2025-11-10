@@ -61,6 +61,7 @@ function KnightBrain:OnStart()
     local root = PriorityNode(
     {
 		BrainCommon.PanicTrigger(self.inst),
+        BrainCommon.ElectricFencePanicTrigger(self.inst),
 		WhileNode(function() return ShouldAttack(self.inst) end, "AttackMomentarily",
 			ChaseAndAttack(self.inst, MAX_CHASE_TIME, MAX_CHASE_DIST)),
 		WhileNode(function() return ShouldDodge(self.inst) end, "Dodge",

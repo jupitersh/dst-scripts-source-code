@@ -20,21 +20,23 @@ local actionhandlers =
 
 local events =
 {
-    EventHandler("attacked", function(inst)
-        if not inst.components.health:IsDead() and not inst.sg:HasStateTag("attack") then
-            inst.sg:GoToState("hit")
+	EventHandler("attacked", function(inst, data)
+		if not inst.components.health:IsDead() then
+			if CommonHandlers.TryElectrocuteOnAttacked(inst, data) then
+				return
+			elseif not inst.sg:HasAnyStateTag("attack", "electrocute") then
+				inst.sg:GoToState("hit")
+			end
         end
     end),
-    EventHandler("death", function(inst)
-        inst.sg:GoToState("death", inst.sg.statemem.dead)
-    end),
+    CommonHandlers.OnDeath(),
     EventHandler("doattack", function(inst, data)
-        if not inst.components.health:IsDead() and (inst.sg:HasStateTag("hit") or not inst.sg:HasStateTag("busy")) then
+		if not inst.components.health:IsDead() and ((inst.sg:HasStateTag("hit") and not inst.sg:HasStateTag("electrocute")) or not inst.sg:HasStateTag("busy")) then
             inst.sg:GoToState("attack", data.target)
         end
     end),
     EventHandler("doink", function(inst, data)
-        if not inst.components.health:IsDead() and (inst.sg:HasStateTag("hit") or not inst.sg:HasStateTag("busy")) then
+		if not inst.components.health:IsDead() and ((inst.sg:HasStateTag("hit") and not inst.sg:HasStateTag("electrocute")) or not inst.sg:HasStateTag("busy")) then
             inst.sg:GoToState("shoot", data.target)
         end
     end),
@@ -45,6 +47,7 @@ local events =
     CommonHandlers.OnHop(),
     CommonHandlers.OnLocomote(true, false),
     CommonHandlers.OnFreeze(),
+	CommonHandlers.OnElectrocute(),
 }
 
 local function dimLight(inst,dim,instant,zero,time)
@@ -208,7 +211,7 @@ local states =
 
     State{
         name = "spawn",
-        tags = { "busy" },
+		tags = { "busy", "noelectrocute" },
 
         onenter = function(inst)
             dimLight(inst, false, false, true, 20*FRAMES)
@@ -232,7 +235,7 @@ local states =
 
     State{
         name = "despawn",
-        tags = { "busy" },
+		tags = { "busy", "noelectrocute" },
 
         onenter = function(inst)
             dimLight(inst,true)
@@ -587,7 +590,7 @@ local states =
 			inst.AnimState:SetFrame(5)
             inst.AnimState:PushAnimation("jump_loop")
 
-            inst:StopBrain()
+			inst:StopBrain("SGsquid_fling")
 
             inst.components.locomotor:Stop()
             inst.components.locomotor:EnableGroundSpeedMultiplier(false)
@@ -683,7 +686,7 @@ local states =
             inst.components.locomotor:Stop()
             inst.components.locomotor:EnableGroundSpeedMultiplier(true)
             inst.Physics:ClearMotorVelOverride()
-            inst:RestartBrain()
+			inst:RestartBrain("SGsquid_fling")
             RestoreCollidesWith(inst)
         end,
 
@@ -697,40 +700,16 @@ local states =
         name = "death",
         tags = { "busy" },
 
-        onenter = function(inst, reanimating)
-            if reanimating then
-                inst.AnimState:Pause()
-            else
-                inst.AnimState:PlayAnimation("dead")
-                if inst.components.amphibiouscreature ~= nil and inst.components.amphibiouscreature.in_water then
-                    inst.AnimState:PushAnimation("dead_loop", true)
-                end
+        onenter = function(inst)
+            inst.AnimState:PlayAnimation("dead")
+            if inst.components.amphibiouscreature ~= nil and inst.components.amphibiouscreature.in_water then
+                inst.AnimState:PushAnimation("dead_loop", true)
             end
             inst.Physics:Stop()
             RemovePhysicsColliders(inst)
             inst.SoundEmitter:PlaySound(inst.sounds.death)
             inst.components.lootdropper:DropLoot(inst:GetPosition())
             inst.eyeglow.Light:Enable(false)
-        end,
-
-        timeline =
-        {
-            TimeEvent(TUNING.GARGOYLE_REANIMATE_DELAY, function(inst)
-                if not inst:IsInLimbo() then
-                    inst.AnimState:Resume()
-                end
-            end),
-            TimeEvent(11 * FRAMES, function(inst)
-                if inst.sg.statemem.clay then
-                    PlayClayFootstep(inst)
-                end
-            end),
-        },
-
-        onexit = function(inst)
-            if not inst:IsInLimbo() then
-                inst.AnimState:Resume()
-            end
         end,
     },
 
@@ -1130,5 +1109,6 @@ CommonStates.AddSleepStates(states,
 CommonStates.AddWalkStates(states, nil, nil, nil, true)
 
 CommonStates.AddFrozenStates(states)
+CommonStates.AddElectrocuteStates(states)
 
 return StateGraph("squid", states, events, "idle", actionhandlers)

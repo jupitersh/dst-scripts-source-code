@@ -105,6 +105,9 @@ local function enable_despawn(inst)
 	inst._can_despawn = true
 end
 
+local SCRAPBOOK_OVERRIDEDATA = {
+	{"head_fx", "brightmare_gestalt_head", "up"},
+}
 local function fn()
     local inst = CreateEntity()
 
@@ -162,11 +165,15 @@ local function fn()
 		inst.components.transparentonsanity:ForceUpdate()
 	end
 
+    inst.scrapbook_inspectonseen = true
+
     inst.entity:SetPristine()
 
     if not TheWorld.ismastersim then
         return inst
     end
+
+	inst.scrapbook_overridedata = SCRAPBOOK_OVERRIDEDATA
 
 	inst.persists = false
 

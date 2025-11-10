@@ -230,6 +230,10 @@ local Wisecracker = Class(function(self, inst)
 		inst.components.talker:Say(GetString(inst, "ANNOUNCE_TOOL_TOOWEAK"))
 	end)
 
+    inst:ListenForEvent("weapontooweak", function(inst, data)
+		inst.components.talker:Say(GetString(inst, "ANNOUNCE_WEAPON_TOOWEAK"))
+	end)
+
     if inst:HasTag("soulstealer") then
         inst:ListenForEvent("soulempty", function(inst)
             if inst.wortox_inclination == "nice" then
@@ -403,6 +407,19 @@ local Wisecracker = Class(function(self, inst)
 			callwobytask = inst:DoTaskInTime(0.7, talktowoby, woby, "ANNOUNCE_WOBY_RETURN", nil, 4, 0)
 		end)
 	end
+
+    inst:ListenForEvent("vault_teleporter_does_nothing", function(inst)
+        inst.components.talker:Say(GetString(inst, "ANNOUNCE_VAULT_TELEPORTER_DOES_NOTHING"))
+    end)
+
+	local lastlightsoutshadowhand
+	inst:ListenForEvent("see_lightsout_shadowhand", function(inst)
+		local t = GetTime()
+		if lastlightsoutshadowhand == nil or lastlightsoutshadowhand + 15 < t then
+			lastlightsoutshadowhand = t
+			inst.components.talker:Say(GetString(inst, "ANNOUNCE_LIGHTSOUT_SHADOWHAND"))
+		end
+	end)
 
     if TheNet:GetServerGameMode() == "quagmire" then
         event_server_data("quagmire", "components/wisecracker").AddQuagmireEventListeners(inst)

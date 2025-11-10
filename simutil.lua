@@ -270,6 +270,14 @@ function ShakeAllCameras(mode, duration, speed, scale, source_or_pt, maxDist)
     end
 end
 
+function ShakeAllCamerasWithFilter(filterfn, mode, duration, speed, scale, source_or_pt, maxDist)
+    for i, v in ipairs(AllPlayers) do
+        if filterfn(v) then
+            v:ShakeCamera(mode, duration, speed, scale, source_or_pt, maxDist)
+        end
+    end
+end
+
 function ShakeAllCamerasOnPlatform(mode, duration, speed, scale, platform)
     local walkableplatform = platform and platform.components.walkableplatform or nil
 	if walkableplatform == nil then return end
@@ -325,7 +333,7 @@ function FindWalkableOffset(position, start_angle, radius, attempts, check_los, 
                 local y = position.y + offset.y
                 local z = position.z + offset.z
                 return (TheWorld.Map:IsAboveGroundAtPoint(x, y, z, allow_water) or (allow_boats and TheWorld.Map:GetPlatformAtPoint(x,z) ~= nil))
-                    and (TheWorld.Map:IsPointInWagPunkArenaAndBarrierIsUp(position:Get()) == TheWorld.Map:IsPointInWagPunkArenaAndBarrierIsUp(x, y, z))
+                    and (IsTeleportingPermittedFromPointToPoint(position.x, position.y, position.z, x, y, z))
                     and (not check_los or
                         TheWorld.Pathfinder:IsClear(
                             position.x, position.y, position.z,
@@ -564,6 +572,7 @@ function ErodeAway(inst, erode_time)
     if inst.components.floater ~= nil then
         inst.components.floater:Erode(time_to_erode)
     end
+    inst._eroding_away = true
 
     inst:StartThread(function()
         local ticks = 0

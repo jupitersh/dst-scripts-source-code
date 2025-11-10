@@ -577,7 +577,11 @@ function c_printpos(inst)
     print(c_pos(inst))
 end
 
+--V2C: also supports c_teleport(inst, x, y, z)
 function c_teleport(x, y, z, inst)
+	if EntityScript.is_instance(x) then
+		inst, x, y, z = x, y, z, inst
+	end
     inst = ListingOrConsolePlayer(inst)
     if inst ~= nil then
 		if x == nil then
@@ -2077,6 +2081,10 @@ function c_showradius(radius, parent)
 
         table.insert(_showradius_ents, ent)
     end
+end
+
+function c_use_deprecated_floating_heavyobstaclephysics_exploit()
+	require("components/heavyobstaclephysics").deprecated_floating_exploit = true
 end
 
 -- Nuke any controller mappings, for when people get in a hairy situation with a controller mapping that is totally busted.

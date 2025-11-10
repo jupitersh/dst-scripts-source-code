@@ -55,39 +55,21 @@ end
 
 local RETARGET_MUST_TAGS = { "_combat" }
 local INVADER_RETARGET_CANT_TAGS = { "playerghost", "INLIMBO"}
+local function IsValidTarget(guy, inst)
+    local can = inst.components.combat:CanTarget(guy)
+    if guy == inst.components.entitytracker:GetEntity("swarmTarget") then
+        return can
+    end
+
+    local guy_leader = guy.components.follower and guy.components.follower:GetLeader()
+    if guy:HasTag("player") or (guy_leader and guy_leader:HasTag("player")) then
+        return can
+    end
+end
+
 local function Retarget(inst)
     return IsNearInvadeTarget(inst, TUNING.MUTANT_BIRD_AGGRO_DIST)
-    --[[
-        and FindEntity(
-                inst,
-                TUNING.MUTANT_BIRD_TARGET_DIST,
-                function(guy)
-                    local can = inst.components.combat:CanTarget(guy)
-                    if guy:HasTag("player") or (guy.components.follower and guy.components.follower:GetLeader() and guy.components.follower:GetLeader():HasTag("player")) then
-                        return can
-                    end
-                end,
-                RETARGET_MUST_TAGS,
-                INVADER_RETARGET_CANT_TAGS
-            )
-            ]]
-
-        and FindEntity(
-                inst,
-                TUNING.MUTANT_BIRD_TARGET_DIST,
-                function(guy)
-                    local can = inst.components.combat:CanTarget(guy)
-                    if guy == inst.components.entitytracker:GetEntity("swarmTarget") then
-                        return can
-                    end
-                    if guy:HasTag("player") or (guy.components.follower and guy.components.follower:GetLeader() and guy.components.follower:GetLeader():HasTag("player")) then
-                        return can
-                    end
-                end,
-                RETARGET_MUST_TAGS,
-                INVADER_RETARGET_CANT_TAGS
-            )
-
+        and FindEntity(inst, TUNING.MUTANT_BIRD_TARGET_DIST, IsValidTarget, RETARGET_MUST_TAGS, INVADER_RETARGET_CANT_TAGS)
         or nil
 end
 
@@ -142,6 +124,7 @@ local function commonPreMain(inst)
         chirp = "moonstorm/creatures/mutated_crow/chirp",
         takeoff = "moonstorm/creatures/mutated_crow/take_off",
         attack = "moonstorm/creatures/mutated_crow/attack",
+        death = "moonstorm/creatures/mutated_crow/death",
     }
 
     --Initialize physics
@@ -178,6 +161,8 @@ end
 
 
 local function commonPostMain(inst)
+	inst.override_combat_fx_size = "tiny"
+
     inst:AddComponent("occupier")
 
     inst:AddComponent("eater")
@@ -272,6 +257,7 @@ local function spitterfn()
         takeoff = "moonstorm/creatures/mutated_robin/take_off",
         attack = "moonstorm/creatures/mutated_robin/attack",
         spit_pre = "moonstorm/creatures/mutated_robin/bile_shoot_spin_pre",
+        death = "moonstorm/creatures/mutated_robin/death",
     }
 
 	inst:AddTag("bird_mutant_spitter")

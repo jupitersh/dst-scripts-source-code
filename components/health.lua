@@ -534,6 +534,15 @@ function Health:Kill()
     end
 end
 
+function Health:ForceKill() -- To bypass invincible
+    if self.currenthealth > 0 then
+        --V2C: didn't want to change external interface of DoDelta for this one internal use case
+		self._ignore_maxdamagetakenperhit = true
+        self:DoDelta(-self.currenthealth, nil, nil, true, nil, true)
+		self._ignore_maxdamagetakenperhit = nil
+    end
+end
+
 function Health:IsDead()
     return self.currenthealth <= 0
 end
@@ -541,6 +550,11 @@ end
 function Health:SetPercent(percent, overtime, cause)
     self:SetVal(self.maxhealth * percent, cause)
     self:DoDelta(0, overtime, cause, true, nil, true)
+end
+
+function Health:CanFadeOut()
+    -- Intentional lack of IsValid().
+    return not self.nofadeout and not EntityHasCorpse(self.inst)
 end
 
 function Health:SetVal(val, cause, afflicter)
@@ -574,7 +588,7 @@ function Health:SetVal(val, cause, afflicter)
 
         --V2C: If "death" handler removes ourself, then the prefab should explicitly set nofadeout = true.
         --     Intentionally NOT using IsValid() here to hide those bugs.
-        if not self.nofadeout then
+        if self:CanFadeOut() then
             self.inst:AddTag("NOCLICK")
             self.inst.persists = false
             self.inst.erode_task = self.inst:DoTaskInTime(self.destroytime or 2, ErodeAway)

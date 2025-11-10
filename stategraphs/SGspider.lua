@@ -21,18 +21,25 @@ local events =
     CommonHandlers.OnHop(),
     CommonHandlers.OnSleep(),
     CommonHandlers.OnFreeze(),
+	CommonHandlers.OnElectrocute(),
     CommonHandlers.OnSink(),
     CommonHandlers.OnFallInVoid(),
+    CommonHandlers.OnDeath(),
 
-    EventHandler("attacked", function(inst)
-        if not inst.components.health:IsDead() then
-            if inst:HasTag("spider_warrior") or inst:HasTag("spider_spitter") or inst:HasTag("spider_moon") then
-                if not inst.sg:HasAnyStateTag("attack", "moving") then -- don't interrupt attack, exit shield or moviment
-                    inst.sg:GoToState("hit") -- can still attack
-                end
-            elseif not inst.sg:HasStateTag("shield") then
-                inst.sg:GoToState("hit_stunlock")  -- can't attack during hit reaction
-            end
+	EventHandler("attacked", function(inst, data)
+        --V2C: health check since corpse shares this SG
+		if inst.components.health and not inst.components.health:IsDead() then
+			if CommonHandlers.TryElectrocuteOnAttacked(inst, data) then
+				return
+			elseif not inst.sg:HasStateTag("electrocute") then
+				if inst:HasAnyTag("spider_warrior", "spider_spitter", "spider_moon") then
+					if not inst.sg:HasAnyStateTag("attack", "moving") then -- don't interrupt attack, exit shield or moviment
+						inst.sg:GoToState("hit") -- can still attack
+					end
+				elseif not inst.sg:HasStateTag("shield") then
+					inst.sg:GoToState("hit_stunlock")  -- can't attack during hit reaction
+				end
+			end
         end
     end),
     EventHandler("doattack", function(inst, data)
@@ -83,7 +90,7 @@ local events =
                 if wants_to_move then
                     inst.sg:GoToState("premoving")
                 else
-                    inst.sg:GoToState("idle")
+                    inst.sg:GoToState("idle", "walk_pst")
                 end
             end
         end
@@ -101,9 +108,11 @@ local events =
         end
     end),
 
-    EventHandler("death", function(inst) inst.sg:GoToState("death") end),
     EventHandler("entershield", function(inst) inst.sg:GoToState("shield") end),
     EventHandler("exitshield", function(inst) inst.sg:GoToState("shield_end") end),
+
+	-- Corpse handlers
+	CommonHandlers.OnCorpseChomped(),
 }
 
 local function SoundPath(inst, event)
@@ -113,8 +122,15 @@ end
 local states =
 {
     State{
+		name = "init",
+		onenter = function(inst)
+			inst.sg:GoToState(inst.components.locomotor ~= nil and "idle" or "corpse_idle")
+		end,
+	},
+
+    State{
         name = "death",
-        tags = {"busy"},
+        tags = { "busy" },
 
         onenter = function(inst)
             inst.SoundEmitter:PlaySound(SoundPath(inst, "die"))
@@ -124,6 +140,7 @@ local states =
             if not inst.shadowthrall_parasite_hosted_death or not TheWorld.components.shadowparasitemanager then
                 RemovePhysicsColliders(inst)
                 inst.components.lootdropper:DropLoot(inst:GetPosition())
+                inst:SetDeathLootLevel(1)
             end
         end,
 
@@ -132,6 +149,8 @@ local states =
             EventHandler("animover", function(inst)
                 if inst.shadowthrall_parasite_hosted_death and TheWorld.components.shadowparasitemanager then
                     TheWorld.components.shadowparasitemanager:ReviveHosted(inst)
+                elseif inst.AnimState:AnimDone() then
+                    inst.sg:GoToState("corpse")
                 end
             end),
         },
@@ -472,15 +491,10 @@ local states =
             inst.AnimState:PlayAnimation("heal")
         end,
 
-        timeline=
+        timeline =
         {
-            TimeEvent(30*FRAMES, function(inst)
-
-                -- DANY
-                --inst.SoundEmitter:PlaySound("SPIDER SMOKE SOUND")
-
-                inst:DoHeal()
-            end ),
+            TimeEvent(6*FRAMES, function(inst) inst.SoundEmitter:PlaySound(SoundPath(inst, "heal")) end),
+            TimeEvent(30*FRAMES, function(inst) inst:DoHeal() end),
         },
 
         events=
@@ -568,7 +582,7 @@ local states =
 
     State{
         name = "trapped",
-        tags = { "busy", "trapped" },
+		tags = { "busy", "trapped", "noelectrocute" },
 
         onenter = function(inst)
             inst.Physics:Stop()
@@ -585,7 +599,7 @@ local states =
 
     State{
         name = "mutate",
-        tags = {"busy", "mutating"},
+		tags = { "busy", "mutating", "noelectrocute" },
 
         onenter = function(inst, start_anim)
             inst.Physics:Stop()
@@ -639,7 +653,7 @@ local states =
 
     State{
         name = "mutate_pst",
-        tags = {"busy", "mutating"},
+		tags = { "busy", "mutating", "noelectrocute" },
 
         onenter = function(inst)
             inst.Physics:Stop()
@@ -654,7 +668,7 @@ local states =
 
     State{
         name = "parasite_revive",
-        tags = {"busy"},
+		tags = { "busy", "noelectrocute" },
 
         onenter = function(inst)
             inst.sg.statemem.bank = inst.AnimState:GetBankHash()
@@ -693,8 +707,89 @@ CommonStates.AddSleepStates(states,
 })
 
 CommonStates.AddFrozenStates(states)
+CommonStates.AddElectrocuteStates(states)
 CommonStates.AddHopStates(states, true, { pre = "boat_jump_pre", loop = "boat_jump", pst = "boat_jump_pst"})
 CommonStates.AddSinkAndWashAshoreStates(states)
 CommonStates.AddVoidFallStates(states)
 
-return StateGraph("spider", states, events, "idle", actionhandlers)
+CommonStates.AddCorpseStates(states, nil,
+{
+    corpseoncreate = function(inst, corpse)
+        corpse:SetAltBuild(inst.prefab)
+        corpse:SetAltBank(inst.prefab)
+    end,
+}, "spidercorpse")
+
+local function PlayHiderSound(inst, sound)
+    if inst:HasTag("spider_hider") then
+        inst.SoundEmitter:PlaySound(sound)
+    end
+end
+
+local function PlaySpitterSound(inst, sound)
+    if inst:HasTag("spider_spitter") then
+        inst.SoundEmitter:PlaySound(sound)
+    end
+end
+
+CommonStates.AddLunarPreRiftMutationStates(states,
+{
+    mutate_timeline = {
+        SoundFrameEvent(4, "lunarhail_event/creatures/lunar_mutation/mutate_crack_thump_small"),
+        SoundFrameEvent(26, "lunarhail_event/creatures/lunar_mutation/mutate_crack_small"),
+        SoundFrameEvent(35, "lunarhail_event/creatures/lunar_mutation/mutate_crack_thump_small"),
+        SoundFrameEvent(52, "lunarhail_event/creatures/lunar_mutation/mutate_crack_small"),
+        SoundFrameEvent(61, "lunarhail_event/creatures/lunar_mutation/mutate_crack_small"),
+        SoundFrameEvent(82, "lunarhail_event/creatures/lunar_mutation/mutate_crack"),
+        SoundFrameEvent(70, "lunarhail_event/creatures/lunar_mutation/mutate_crack_thump"),
+        SoundFrameEvent(86, "lunarhail_event/creatures/lunar_mutation/mutate_rip_pre_31f"),
+        SoundFrameEvent(87, "lunarhail_event/creatures/lunar_mutation/mutate_crack_small"),
+        SoundFrameEvent(115, "lunarhail_event/creatures/lunar_mutation/mutate_crack"),
+
+
+        FrameEvent(2, function(inst) PlayHiderSound(inst, "lunarhail_event/creatures/lunar_mutation/mutate_crack_fleshy") end),
+        FrameEvent(4, function(inst) PlayHiderSound(inst, "lunarhail_event/creatures/lunar_mutation/mutate_crack_small") end),
+        FrameEvent(20, function(inst) PlayHiderSound(inst, "turnoftides/creatures/together/mutated_hound/punch") end),
+        FrameEvent(31, function(inst) PlayHiderSound(inst, "lunarhail_event/creatures/lunar_mutation/mutate_crack_thump_small") end),
+        FrameEvent(57, function(inst) PlayHiderSound(inst, "turnoftides/creatures/together/mutated_hound/punch") end),
+        FrameEvent(68, function(inst) PlayHiderSound(inst, "lunarhail_event/creatures/lunar_mutation/mutate_crack_thump_small") end),
+        FrameEvent(75, function(inst) PlayHiderSound(inst, "lunarhail_event/creatures/lunar_mutation/mutate_crack") end),
+        FrameEvent(76, function(inst) PlayHiderSound(inst, "turnoftides/creatures/together/mutated_hound/punch") end),
+        FrameEvent(83, function(inst) PlayHiderSound(inst, "lunarhail_event/creatures/lunar_mutation/mutate_rip_pre_31f") end),
+        FrameEvent(87, function(inst) PlayHiderSound(inst, "lunarhail_event/creatures/lunar_mutation/mutate_crack_thump_small") end),
+        FrameEvent(88, function(inst) PlayHiderSound(inst, "lunarhail_event/creatures/lunar_mutation/mutate_crack_fleshy") end),
+
+        FrameEvent(2, function(inst) PlaySpitterSound(inst, "lunarhail_event/creatures/lunar_mutation/mutate_crack_fleshy") end),
+        FrameEvent(4, function(inst) PlaySpitterSound(inst, "lunarhail_event/creatures/lunar_mutation/mutate_crack_small") end),
+        FrameEvent(21, function(inst) PlaySpitterSound(inst, "turnoftides/creatures/together/mutated_hound/punch") end),
+        FrameEvent(31, function(inst) PlaySpitterSound(inst, "lunarhail_event/creatures/lunar_mutation/mutate_crack_thump_small") end),
+        FrameEvent(57, function(inst) PlaySpitterSound(inst, "lunarhail_event/creatures/lunar_mutation/mutate_crack_small") end),
+        FrameEvent(57, function(inst) PlaySpitterSound(inst, "turnoftides/creatures/together/mutated_hound/punch") end),
+        FrameEvent(61, function(inst) PlaySpitterSound(inst, "lunarhail_event/creatures/lunar_mutation/mutate_crack") end),
+        FrameEvent(67, function(inst) PlaySpitterSound(inst, "lunarhail_event/creatures/lunar_mutation/mutate_crack_small") end),
+        FrameEvent(71, function(inst) PlaySpitterSound(inst, "lunarhail_event/creatures/lunar_mutation/mutate_crack_thump_small") end),
+        FrameEvent(76, function(inst) PlaySpitterSound(inst, "lunarhail_event/creatures/lunar_mutation/mutate_crack") end),
+        FrameEvent(76, function(inst) PlaySpitterSound(inst, "turnoftides/creatures/together/mutated_hound/punch") end),
+        FrameEvent(83, function(inst) PlaySpitterSound(inst, "lunarhail_event/creatures/lunar_mutation/mutate_rip_pre_31f") end),
+        FrameEvent(87, function(inst) PlaySpitterSound(inst, "lunarhail_event/creatures/lunar_mutation/mutate_crack_thump_small") end),
+    },
+
+    mutatepst_timeline = {
+        SoundFrameEvent(0, "lunarhail_event/creatures/lunar_mutation/mutate_rip"),
+    },
+},
+{
+    mutate = "mutated_spider_reviving",
+    mutate_pst = "mutated_spider_spawn",
+},
+{
+    mutatepst_onenter = function(inst)
+        inst.SoundEmitter:PlaySound(SoundPath(inst, "scream"))
+    end,
+},
+{
+    mutated_spawn_timing = 115 * FRAMES,
+    post_mutate_state = "taunt",
+})
+
+return StateGraph("spider", states, events, "init", actionhandlers)

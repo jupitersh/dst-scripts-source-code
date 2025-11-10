@@ -41,6 +41,8 @@ local prefabs_mutated =
 	"purebrilliance",
     "chesspiece_warg_mutated_sketch",
     "winter_ornament_boss_mutatedwarg",
+    "coolant",
+    "moonglass",
 }
 
 local brain = require("brains/wargbrain")
@@ -138,9 +140,18 @@ SetSharedLootTable('mutatedwarg',
 	{ "spoiled_food",				  1.0  },
 	{ "spoiled_food",				  1.0  },
 	{ "spoiled_food",				  0.5  },
+
 	{ "purebrilliance",				  1.0  },
 	{ "purebrilliance",				  0.75 },
-    {'chesspiece_warg_mutated_sketch',1.00},
+
+    { "moonglass",                    1.0  },
+    { "moonglass",                    1.0  },
+    { "moonglass",                    1.0  },
+    { "moonglass",                    0.75 },
+    { "moonglass",                    0.75 },
+    { "moonglass",                    0.25 },
+
+    {'chesspiece_warg_mutated_sketch', 1.00},
 })
 
 local scrapbook_removedeps_basic =
@@ -334,7 +345,7 @@ end
 local function PropCreationFn_Normal(inst)
     local ent = SpawnPrefab("koalefantcorpse_prop")
     if TheWorld.state.iswinter then
-        ent:SetAltBuild()
+		ent:SetAltBuild("winter")
     end
     ent.Transform:SetPosition(inst.Transform:GetWorldPosition())
 
@@ -432,14 +443,18 @@ local function Clay_OnEyeFlamesDirty(inst)
 end
 
 local function OnSave(inst, data)
-	data.looted = inst.looted
+	-- inst.looted used to be saved here. Leaving this stub here.
 end
 
 local function OnLoad(inst, data, ents)
-	inst.looted = data ~= nil and data.looted or nil
-	if inst.looted and inst.components.health:IsDead() then
-		inst.sg:GoToState("corpse")
-	end
+    -- Deprecated, kept for old saves
+    inst.looted = data.looted
+    if inst.looted then
+        inst:SetDeathLootLevel(1)
+        if inst.components.health:IsDead() then
+		    inst.sg:GoToState("corpse")
+	    end
+    end
 end
 
 local function OnClaySave(inst, data)
@@ -708,7 +723,6 @@ local function SpawnHounds(inst, radius_override)
         inst.max_hound_spawns = inst.max_hound_spawns - num
     end
 
-	local forcemutate = inst:HasTag("lunar_aligned") or nil
     local pt = inst:GetPosition()
     for i = 1, num do
         local hound = hounded:SummonSpawn(pt, radius_override)
@@ -755,6 +769,13 @@ local mutated_scrapbook_overridedata = {
     { "mouthflameR", "lunar_flame", "mouthflameanim", 0.6 },
 }
 
+
+local COOLANT_LOOT = {"coolant"}
+local function LootSetupFn_mutated(lootdropper)
+    lootdropper:SetLoot(TheWorld.components.wagboss_tracker and TheWorld.components.wagboss_tracker:IsWagbossDefeated() and COOLANT_LOOT or nil)
+    lootdropper:SetChanceLootTable("mutatedwarg")
+end
+
 local function MakeWarg(data)
     local name     = data.name
     local bank     = data.bank
@@ -762,6 +783,10 @@ local function MakeWarg(data)
     local prefabs  = data.prefabs
     local tag      = data.tag
 	local epic     = data.epic
+
+    local is_clay = (tag == "clay")
+    local is_gingerbread = (tag == "gingerbread")
+    local is_mutated = (tag == "lunar_aligned")
 
     local assets =
     {
@@ -772,9 +797,9 @@ local function MakeWarg(data)
     elseif bank ~= build then
         table.insert(assets, Asset("ANIM", "anim/"..bank..".zip"))
     end
-    if tag == "gingerbread" then
+    if is_gingerbread then
         table.insert(assets, Asset("ANIM", "anim/warg_gingerbread.zip"))
-    elseif tag == "lunar_aligned" then
+    elseif is_mutated then
         table.insert(assets, Asset("ANIM", "anim/warg_mutated_actions.zip"))
 		table.insert(assets, Asset("ANIM", "anim/lunar_flame.zip"))
     end
@@ -809,10 +834,17 @@ local function MakeWarg(data)
         if tag ~= nil then
             inst:AddTag(tag)
 
-            if tag == "clay" then
+			if is_clay or is_gingerbread then
+				inst:AddTag("electricdamageimmune")
+			end
+
+            if is_clay then
                 inst._eyeflames = net_bool(inst.GUID, "claywarg._eyeflames", "eyeflamesdirty")
 				inst:ListenForEvent("eyeflamesdirty", Clay_OnEyeFlamesDirty)
-			elseif tag == "lunar_aligned" then
+			elseif is_mutated then
+                inst:AddTag("gestaltmutant")
+                inst:AddTag("soulless") -- no wortox souls
+
 				if epic then
 					inst:AddTag("noepicmusic")
 				end
@@ -878,13 +910,15 @@ local function MakeWarg(data)
             return inst
         end
 
+		inst.override_combat_fx_size = "med"
+
         inst:AddComponent("inspectable")
         inst.components.inspectable.getstatus = GetStatus
 
         inst:AddComponent("leader")
 
         inst:AddComponent("locomotor")
-        inst.components.locomotor.runspeed = tag == "clay" and TUNING.CLAYWARG_RUNSPEED or TUNING.WARG_RUNSPEED
+        inst.components.locomotor.runspeed = is_clay and TUNING.CLAYWARG_RUNSPEED or TUNING.WARG_RUNSPEED
         inst.components.locomotor:SetShouldRun(true)
 
         inst:AddComponent("combat")
@@ -897,17 +931,21 @@ local function MakeWarg(data)
         inst:ListenForEvent("attacked", OnAttacked)
 
         inst:AddComponent("health")
-		if tag == "lunar_aligned" then
+		if is_mutated then
 			inst.components.health:SetMaxHealth(TUNING.MUTATED_WARG_HEALTH)
 		else
 			inst.components.health:SetMaxHealth(TUNING.WARG_HEALTH)
 		end
-		if tag ~= "clay" then
+		if not is_clay then
 			inst.components.health.nofadeout = true
 		end
 
         inst:AddComponent("lootdropper")
-        inst.components.lootdropper:SetChanceLootTable(name)
+        if is_mutated then
+            inst.components.lootdropper:SetLootSetupFn(LootSetupFn_mutated)
+        else
+            inst.components.lootdropper:SetChanceLootTable(name)
+        end
 
         inst.base_hound_num = TUNING.WARG_BASE_HOUND_AMOUNT
 
@@ -915,7 +953,7 @@ local function MakeWarg(data)
 		inst.OnLoad = OnLoad
         inst.SpawnHounds = SpawnHounds
 
-        if tag == "clay" then
+        if is_clay then
             inst.NumHoundsToSpawn = NoHoundsToSpawn
             inst.LaunchGooIcing = NoGooIcing
 			inst.OnSave = OnClaySave --Overriding, but does call the default OnSave as well
@@ -930,7 +968,7 @@ local function MakeWarg(data)
 
             inst:ListenForEvent("spawnedforhunt", OnSpawnedForHunt_Clay)
             inst:ListenForEvent("restoredfollower", OnRestoredFollower)
-        elseif tag == "gingerbread" then
+        elseif is_gingerbread then
             inst.NumHoundsToSpawn = NoHoundsToSpawn
             inst.LaunchGooIcing = LaunchGooIcing
             inst.components.combat:SetHurtSound("dontstarve_DLC001/creatures/vargr/hit")
@@ -940,7 +978,7 @@ local function MakeWarg(data)
             MakeLargeBurnableCharacter(inst, "swap_fire")
 
 			inst:ListenForEvent("death", OnDead)
-        elseif tag == "lunar_aligned" then
+        elseif is_mutated then
             inst.components.combat:SetHurtSound("dontstarve_DLC001/creatures/vargr/hit")
 
 			inst:AddComponent("planarentity")
@@ -995,17 +1033,26 @@ local function MakeWarg(data)
         MakeLargeFreezableCharacter(inst)
 
 		inst:SetStateGraph("SGwarg")
+		if is_clay and is_gingerbread then
+			inst.sg.mem.noelectrocute = true
+		end
+        if is_clay then
+            inst.sg.mem.nolunarmutate = true
+            inst.sg.mem.nocorpse = true
+        else
+            inst.spawn_gestalt_mutated_tuning = "SPAWN_MUTATED_WARG"
+        end
 
 		inst:AddComponent("hauntable")
 		inst.components.hauntable:SetHauntValue(TUNING.HAUNT_TINY)
 
-        if tag == "gingerbread" then
+        if is_gingerbread then
             inst.sg:GoToState("gingerbread_intro")
         end
 
         inst:SetBrain(brain)
 
-        if tag == "clay" then
+        if is_clay then
             inst.noidlesound = false
             inst.sg:GoToState("statue")
         end

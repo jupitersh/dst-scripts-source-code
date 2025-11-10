@@ -52,7 +52,7 @@ local function OnSetPlayerMode(inst, self)
         self.ongotonplatform = function(owner, platform) if platform.components.healthsyncer ~= nil then self.boatmeter:Enable(platform) end end
         self.inst:ListenForEvent("got_on_platform", self.ongotonplatform, self.owner)
 
-        self.ongotoffplatform = function(owner, platform) self.boatmeter:Disable() end
+        self.ongotoffplatform = function(owner, platform) if platform.components.healthsyncer ~= nil then self.boatmeter:Disable() end end
         self.inst:ListenForEvent("got_off_platform", self.ongotoffplatform, self.owner)
     end
 

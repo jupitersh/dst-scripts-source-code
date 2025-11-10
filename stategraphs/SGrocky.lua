@@ -30,15 +30,6 @@ local events =
     EventHandler("exitshield", function(inst) inst.sg:GoToState("shield_end") end),
 }
 
-local function pickrandomstate(inst, choiceA, choiceB, chance)
-	if math.random() >= chance then
-		inst.sg:GoToState(choiceA)
-	else
-		inst.sg:GoToState(choiceB)
-	end
-end
-
-
 local states =
 {
 
@@ -197,7 +188,7 @@ local states =
 
     State{
         name = "shield_end",
-        tags = {"busy", "hiding"},
+        tags = { "busy", "hiding", "shield_end" },
 
         onenter = function(inst)
             inst.AnimState:PlayAnimation("unhide")
@@ -320,24 +311,7 @@ local states =
                 PlayLobSound(inst, "dontstarve/creatures/rocklobster/explode")
             end),
         },
-       
     },
-
-    State{
-        name = "parasite_revive",
-        tags = {"busy"},
-
-        onenter = function(inst)
-            inst.AnimState:PlayAnimation("parasite_death_pst")
-            inst.Physics:Stop()
-        end,
-
-        events=
-        {
-            EventHandler("animover", function(inst) inst.sg:GoToState("idle") end ),
-        },
-    },      
-
 }
 
 CommonStates.AddWalkStates(states,
@@ -379,5 +353,6 @@ CommonStates.AddIdle(states, "idle_tendril", nil ,
     TimeEvent(5*FRAMES, function(inst) PlayLobSound(inst, "dontstarve/creatures/rocklobster/foley") end),
     TimeEvent(30*FRAMES, function(inst) PlayLobSound(inst,"dontstarve/creatures/rocklobster/foley") end),
 })
+CommonStates.AddParasiteReviveState(states)
 
 return StateGraph("rocky", states, events, "idle", actionhandlers)

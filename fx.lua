@@ -587,6 +587,18 @@ local fx =
         fn = FinalOffset1,
         update_while_paused = true
     },
+	{
+		name = "spawn_fx_ocean_static",
+		bank = "pond_splash_fx",
+		build = "pond_splash_fx",
+		anim = "pond_splash",
+		sound = "turnoftides/common/together/water/splash/medium",
+		fn = function(inst)
+			inst.Transform:SetScale(2, 2, 2)
+			inst.AnimState:SetFinalOffset(1)
+		end,
+		update_while_paused = true,
+	},
     --[[{
         name = "spawn_fx_large",
         bank = "spawn_fx",
@@ -674,6 +686,14 @@ local fx =
         sound = "dontstarve_DLC001/common/shocked",
         eightfaced = true,
         autorotate = true,
+        fn = FinalOffset1,
+    },
+    {
+        name = "shock_arc_fx",
+        bank = "shock_fx",
+        build = "shock_fx",
+        anim = "arc",
+        eightfaced = true,
         fn = FinalOffset1,
     },
     {
@@ -1858,6 +1878,30 @@ local fx =
             inst.AnimState:SetOceanBlendParams(TUNING.OCEAN_SHADER.EFFECT_TINT_AMOUNT)
         end,
     },
+	{
+		name = "ocean_splash_swim1",
+		bank = "splash_weregoose_fx",
+		build = "splash_water_drop",
+		anim = "no_splash",
+		sound = "turnoftides/common/together/water/splash/bird",
+		fn = function(inst)
+			inst.AnimState:SetLayer(LAYER_WORLD_BACKGROUND)
+			inst.AnimState:SetDeltaTimeMultiplier(0.7)
+			inst.SoundEmitter:OverrideVolumeMultiplier(0.6)
+		end,
+	},
+	{
+		name = "ocean_splash_swim2",
+		bank = "splash_weregoose_fx",
+		build = "splash_water_drop",
+		anim = "no_splash2",
+		sound = "turnoftides/common/together/water/splash/bird",
+		fn = function(inst)
+			inst.AnimState:SetLayer(LAYER_WORLD_BACKGROUND)
+			inst.AnimState:SetDeltaTimeMultiplier(0.7)
+			inst.SoundEmitter:OverrideVolumeMultiplier(0.6)
+		end,
+	},
     {
         name = "washashore_puddle_fx",
         bank = "water_puddle",
@@ -2986,6 +3030,14 @@ local fx =
         sound = "meta4/turfraiser_helm/raise_turf",
     },
     {
+        name = "pull_smoke_fx",
+        bank = "pull_smoke_fx",
+        build = "pull_smoke_fx",
+        anim = "fx",
+        sound = "lunarhail_event/gestalt/moonshard_smoke_pull",
+        fn = GroundOrientation,
+    },
+    {
         name = "pillowfight_confetti_fx",
         bank = "pillowfight_confetti",
         build = "pillowfight_confetti",
@@ -3770,6 +3822,26 @@ local fx =
 		anim = "impact",
 		sound = "rifts5/wagstaff_boss/missile_explode",
 	},
+    {
+        name = "tree_rock_chop",
+        bank = "tree_rock_fx",
+        build = "tree_rock_fx",
+        anim = "chop",
+        --sound = "dontstarve_DLC001/fall/leaf_rustle",
+    },
+    {
+        name = "tree_rock_fall",
+        bank = "tree_rock_fx",
+        build = "tree_rock_fx",
+        anim = "fall",
+        --sound = "dontstarve_DLC001/fall/leaf_rustle",
+    },
+	{
+		name = "vault_portal_fx",
+		bank = "vault_portal_fx",
+		build = "vault_portal_fx",
+		anim = "activate",
+	},
 }
 
 for cratersteamindex = 1, 4 do
@@ -3859,6 +3931,29 @@ for _, shot_type in ipairs(SHOT_TYPES) do
 		    inst.AnimState:SetFinalOffset(3)
 		end,
     })
+end
+
+local FX_SIZES = { "tiny", "small", "med", "large" }
+local FX_HEIGHTS = { "_low", "", "_high" } -- "med" height has no identifier
+for i, size in ipairs(FX_SIZES) do
+    local sound
+    if size == "tiny" or size == "small" then
+        sound = "lunarhail_event/creatures/lunar_buzzard/flame_extinguish_S"
+    elseif size == "med" then
+        sound = "lunarhail_event/creatures/lunar_buzzard/flame_extinguish_M"
+    elseif size == "large" then
+        sound = "lunarhail_event/creatures/lunar_buzzard/flame_extinguish_L"
+    end
+    for j, height in ipairs(FX_HEIGHTS) do
+        table.insert(fx, {
+            name = "lunarflame_puff_"..size..height,
+            bank = "warg_mutated_breath_fx",
+            build = "warg_mutated_breath_fx",
+            anim = "flame_puff_"..size..height,
+            sound = sound,
+            fn = FinalOffset1,
+        })
+    end
 end
 
 FinalOffset1 = nil

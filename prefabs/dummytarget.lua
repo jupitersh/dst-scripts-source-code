@@ -50,6 +50,8 @@ local function MakeDummy(name, common_postinit, master_postinit)
 			return inst
 		end
 
+        MakeSnowCovered(inst)
+
 		inst:AddComponent("bloomer")
 		inst:AddComponent("colouradder")
 

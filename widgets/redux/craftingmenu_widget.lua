@@ -150,11 +150,13 @@ function CraftingMenuWidget:PopulateRecipeDetailPanel(recipe, skin_name)
 	self.details_root:PopulateRecipeDetailPanel(recipe, skin_name)
 end
 
-local function search_exact_match(search, str)
-    str = str:gsub(" ", "")
+local function trim_spaces_and_periods(str)
+    return str:gsub("[ %.]", "")
+end
 
+local function search_exact_match(search, str)
     --Simple find in strings for multi word search
-	return string.find( str, search, 1, true ) ~= nil
+	return string.find( trim_spaces_and_periods(str), search, 1, true ) ~= nil
 end
 
 local function text_filter(recipe, search_str)
@@ -640,7 +642,7 @@ function CraftingMenuWidget:IsRecipeValidForSearch(name)
 end
 
 function CraftingMenuWidget:SetSearchText(search_text)
-	search_text = TrimString(string.lower(search_text)):gsub(" ", "")
+	search_text = trim_spaces_and_periods(TrimString(string.lower(search_text)))
 
 	if search_text == self.last_search_text then
 		return

@@ -18,7 +18,6 @@ end
 
 local events =
 {
-    CommonHandlers.OnFreeze(),
     CommonHandlers.OnDeath(),
     CommonHandlers.OnLocomote(false, true),
 	CommonHandlers.OnAttacked(nil, TUNING.ALTERGUARDIAN_PHASE3_MAX_STUN_LOCKS, hit_recovery_skip_cooldown_fn),
@@ -302,7 +301,7 @@ local states =
 {
     State{
         name = "spawn",
-        tags = {"busy", "noaoestun", "noattack", "nofreeze", "nosleep", "nostun" },
+        tags = {"busy", "noaoestun", "noattack", "nosleep", "nostun" },
 
         onenter = function(inst)
             inst.AnimState:SetBuild("alterguardian_spawn_death")
@@ -462,7 +461,7 @@ local states =
 
         onexit = function(inst)
             -- If we're not exiting via the animover event,
-            -- we need to clean up the circle (i.e. frozen, death)
+            -- we need to clean up the circle (i.e. death)
             if not inst.sg.statemem.loop_exit then
                 stop_summon_circle(inst)
             end
@@ -522,7 +521,7 @@ local states =
 
         onexit = function(inst)
             -- Whether we go to pst or loop, we're fine.
-            -- This is to cover stuff like death and frozen.
+            -- This is to cover stuff like death
             if not inst.sg.statemem.legit_exit then
                 inst.SoundEmitter:KillSound("summon_loop")
                 stop_summon_circle(inst)
@@ -566,8 +565,6 @@ local states =
             inst.sg.statemem.skybeamanim_playing = true
 
             inst.components.combat:StartAttack()
-
-            inst.sg:AddStateTag("nofreeze")
 
             inst.sg:SetTimeout(15)
         end,
@@ -637,7 +634,6 @@ local states =
 
         onexit = function(inst)
             inst.SoundEmitter:KillSound("channel")
-            inst.sg:RemoveStateTag("nofreeze")
         end,
     },
 
@@ -660,8 +656,6 @@ local states =
             inst.sg.statemem.target = target
 
             inst.SoundEmitter:PlaySound("moonstorm/creatures/boss/alterguardian3/atk_beam")
-
-            inst.sg:AddStateTag("nofreeze")
         end,
 
         onupdate = function(inst)
@@ -760,7 +754,6 @@ local states =
 
         onexit = function(inst)
             inst.Transform:SetSixFaced()
-            inst.sg:RemoveStateTag("nofreeze")
         end,
     },
 
@@ -781,8 +774,6 @@ local states =
 
             inst:ForceFacePoint(target.Transform:GetWorldPosition())
             inst.sg.statemem.target = target
-
-            inst.sg:AddStateTag("nofreeze")
 
             inst.SoundEmitter:PlaySound("moonstorm/creatures/boss/alterguardian3/atk_beam")
         end,
@@ -871,7 +862,6 @@ local states =
 
         onexit = function(inst)
             inst.Transform:SetSixFaced()
-            inst.sg:RemoveStateTag("nofreeze")
         end,
     },
 
@@ -954,6 +944,8 @@ local states =
             EventHandler("animover", function(inst)
                 local orb = SpawnPrefab("alterguardian_phase3deadorb")
                 orb.Transform:SetPosition(inst.Transform:GetWorldPosition())
+                orb.Transform:SetRotation(inst.Transform:GetRotation())
+                orb.AnimState:MakeFacingDirty() -- not needed for clients
 
                 inst:Remove()
             end),
@@ -975,6 +967,5 @@ CommonStates.AddWalkStates(states,
 })
 
 CommonStates.AddHitState(states)
-CommonStates.AddFrozenStates(states)
 
 return StateGraph("alterguardian_phase3", states, events, "idle", actionhandlers)

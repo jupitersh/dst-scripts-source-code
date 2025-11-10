@@ -1308,6 +1308,9 @@ function Inventory:RemoveItem(item, wholestack, checkallcontainers, keepoverstac
     return item
 end
 
+-- NOTE TODO (Omar): We may want to update the usage of GetOverflowContainer to support multiple overflow containers it is not the biggest deal but many inventory mechanics currently miss out
+-- on Wilsons beard storage causing some consequences like items not going into the storage automatically or FindItems not including it.
+-- If we ever do more general containers that are attached to the player like the backpack or Wilsons beard than it is something we should really do.
 function Inventory:GetOverflowContainer()
     if self.ignoreoverflow then
         return
@@ -1649,6 +1652,42 @@ function Inventory:DropEverythingWithTag(tag)
     end
 end
 
+function Inventory:DropEverythingByFilter(filterfn)
+    local containers = {}
+
+    if self.activeitem ~= nil then
+        if filterfn(self.inst, self.activeitem) then
+            self:DropItem(self.activeitem, true, true)
+            self:SetActiveItem(nil)
+        elseif self.activeitem.components.container ~= nil then
+            table.insert(containers, self.activeitem)
+        end
+    end
+
+    for k = 1, self.maxslots do
+        local v = self.itemslots[k]
+        if v ~= nil then
+            if filterfn(self.inst, v) then
+                self:DropItem(v, true, true)
+            elseif v.components.container ~= nil then
+                table.insert(containers, v)
+            end
+        end
+    end
+
+    for k, v in pairs(self.equipslots) do
+        if filterfn(self.inst, v) then
+            self:DropItem(v, true, true)
+        elseif v.components.container ~= nil then
+            table.insert(containers, v)
+        end
+    end
+
+    for i, v in ipairs(containers) do
+        v.components.container:DropEverythingByFilter(filterfn)
+    end
+end
+
 function Inventory:DropEverything(ondeath, keepequip)
     if self.inst:HasTag("player") and not GetGhostEnabled() and not GetGameModeProperty("revivable_corpse") then
         -- NOTES(JBK): This is for items like Wanda's watches that normally stick inside the inventory but Wilderness mode will force the player to reroll so drop everything.
@@ -1679,9 +1718,11 @@ function Inventory:DropEverything(ondeath, keepequip)
     end
 end
 
-function Inventory:DropEquipped(keepBackpack)
+function Inventory:DropEquipped(keepBackpack, keepPreventUnequipping)
     for k, v in pairs(self.equipslots) do
-        if not (keepBackpack and v:HasTag("backpack")) then
+		if not (keepBackpack and v:HasTag("backpack")) and
+			not (keepPreventUnequipping and v.components.equippable and v.components.equippable:ShouldPreventUnequipping())
+		then
             self:DropItem(v, true, true)
         end
     end

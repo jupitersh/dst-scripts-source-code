@@ -285,6 +285,7 @@ fns.swapmask = function(inst, line, cast)
     if cast == nil then return end
 	for _, costume in ipairs(line.roles) do
 		local player = cast[costume].castmember
+        player.stageactingprop_ignorecostumecheck_hack = true
 		if line.mask then
 			local mask = player.components.inventory:GetEquippedItem(EQUIPSLOTS.HEAD)
 			mask:Remove()
@@ -297,6 +298,7 @@ fns.swapmask = function(inst, line, cast)
 			local newbody = SpawnPrefab(line.body)
 			player.components.inventory:Equip(newbody)
 		end
+        player.stageactingprop_ignorecostumecheck_hack = nil
 	end
 end
 
@@ -311,6 +313,9 @@ local POSITIONS = {
 	[8] = {theta = (3/4)*PI,	radius = 3},	-- BACK
 	[9] = {theta = 0,			radius = 2.8},	-- LEFT WIDE
 	[10] = {theta = 1.5*PI,		radius = 2.8},	-- RIGHT WIDE
+	--
+	[11] = {theta = 1.5*PI,		radius = 1.2}, 	-- Special case for A Task Complete, right behind position 3
+	[12] = {theta = -PI/8,		radius = 2.2},	-- Special case for A Task Complete, right behind position 2
 }
 
 local function on_findposition_timeout(castmember)
@@ -360,6 +365,85 @@ fns.findpositions = function(inst, line, cast)
                 castmember:DoTaskInTime((line.duration or (2*FRAMES))/2, teleport_to_position, inst_pos+offset)
             end
         end
+	end
+end
+
+fns.override_with_chalice = function(inst, line, cast)
+	for costume, data in pairs(cast) do
+		local player = data.castmember
+		player.AnimState:OverrideSymbol("ghostly_elixirs_swap", "chalice_swap", "chalice_swap_comp")
+	end
+end
+
+fns.clear_chalice_symbol = function(inst, line, cast)
+	for costume, data in pairs(cast) do
+		local player = data.castmember
+		player.AnimState:ClearOverrideSymbol("ghostly_elixirs_swap")
+	end
+end
+
+fns.override_with_dagger = function(inst, line, cast)
+	for i, costume in ipairs(line.roles) do
+		local actor = cast[costume].castmember
+		actor._stage_old_swap_build, actor._stage_old_swap_sym = actor.AnimState:GetSymbolOverride("swap_object")
+		actor.AnimState:OverrideSymbol("swap_object", "vault_dagger", "vault_dagger01")
+        actor.AnimState:Show("ARM_carry")
+        actor.AnimState:Hide("ARM_normal")
+	end
+end
+
+fns.clear_dagger_symbol = function(inst, line, cast)
+	for i, costume in ipairs(line.roles) do
+		local actor = cast[costume].castmember
+		actor.AnimState:ClearOverrideSymbol("swap_object")
+        actor.AnimState:Hide("ARM_carry")
+        actor.AnimState:Show("ARM_normal")
+
+		if actor._stage_old_swap_build then
+			actor.AnimState:OverrideSymbol("swap_object", actor._stage_old_swap_build, actor._stage_old_swap_sym)
+			actor._stage_old_swap_build = nil
+			actor._stage_old_swap_sym = nil
+		end
+	end
+end
+
+fns.do_emote_fx = function(inst, line, cast)
+	for i, costume in ipairs(line.roles) do
+		local actor = cast[costume].castmember
+
+		local fx = SpawnPrefab("emote_fx")
+    	if fx ~= nil then
+    	    if actor.components.rider and actor.components.rider:IsRiding() then
+    	        fx.Transform:SetSixFaced()
+    	    end
+    	    fx.entity:SetParent(actor.entity)
+    	    fx.entity:AddFollower()
+
+			if actor:HasTag("equipmentmodel") then
+				fx.Follower:FollowSymbol(actor.GUID, "headbase", 0, -200, 0)
+			else
+    	    	fx.Follower:FollowSymbol(actor.GUID, "emotefx", 0, 0, 0)
+			end
+    	end
+  	end
+end
+
+fns.play_sound_with_delay_fn_constructor = function(delay, sound_name) -- CALL this to create a function!
+    return function(inst, line, cast)
+	    for i, costume in ipairs(line.roles) do
+	    	local actor = cast[costume].castmember
+
+	    	actor:DoTaskInTime(delay, function()
+                actor.SoundEmitter:PlaySound(sound_name)
+            end)
+  	    end
+    end
+end
+
+fns.apply_vault_dagger = function(inst, line, cast)
+	for i, costume in ipairs(line.roles) do
+		local actor = cast[costume].castmember
+		actor.AnimState:OverrideSymbol("vault_dagger01", "vault_dagger", "vault_dagger01")
 	end
 end
 

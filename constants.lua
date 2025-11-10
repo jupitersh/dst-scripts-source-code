@@ -1,7 +1,7 @@
 require "util"
 local TechTree = require("techtree")
 
-local IS_BETA = BRANCH == "staging" --or BRANCH == "dev"
+local IS_BETA = BRANCH == "staging" or BRANCH == "dev"
 
 PI = math.pi
 PI2 = PI*2
@@ -23,6 +23,9 @@ PLAYER_CAMERA_SEE_DISTANCE = 40.0 -- NOTES(JBK): Based off of an approximation o
 PLAYER_CAMERA_SEE_DISTANCE_SQ = PLAYER_CAMERA_SEE_DISTANCE * PLAYER_CAMERA_SEE_DISTANCE -- Helper.
 PLAYER_CAMERA_SHOULD_SNAP_DISTANCE = 20.0 -- NOTES(JBK): This is an approximate distance traveled where the camera should snap and fade out to not cause disorientations.
 PLAYER_CAMERA_SHOULD_SNAP_DISTANCE_SQ = PLAYER_CAMERA_SHOULD_SNAP_DISTANCE * PLAYER_CAMERA_SHOULD_SNAP_DISTANCE -- Helper.
+--NOTE if we ever have other ways of increasing camera in-game, increase this!
+PLAYER_CAMERA_MAX_DIST = 65 -- 50 maxdist in forest world + 15 maxdist from scrap_monoclehat
+PLAYER_CAMERA_MAX_DIST_CAVES = 50 -- 35 maxdist in caves world + 15 maxdist from scrap_monoclehat
 
 MAX_FE_SCALE = 3 --Default if you don't call SetMaxPropUpscale
 MAX_HUD_SCALE = 1.25
@@ -74,6 +77,7 @@ SCALEMODE_FIXEDSCREEN_NONDYNAMIC = 4 --scale same amount as window scaling from 
 PHYSICS_TYPE_ANIMATION_CONTROLLED = 0
 PHYSICS_TYPE_PHYSICS_CONTROLLED = 1
 
+ALT_RENDERPATH = 1	-- You should really not use this unless you know what it is and how it works. Otherwise it can crash things, consume lots of memory, reduce performance, you name it.
 
 MOVE_UP = 1
 MOVE_DOWN = 2
@@ -253,7 +257,7 @@ VIRTUAL_CONTROL_INV_ACTION_RIGHT = 10016
 --
 VIRTUAL_CONTROL_STRAFE_UP = 10017
 VIRTUAL_CONTROL_STRAFE_DOWN = 10018
-VIRTUAL_CONTROL_STRAFE_LEFT = 100019
+VIRTUAL_CONTROL_STRAFE_LEFT = 10019
 VIRTUAL_CONTROL_STRAFE_RIGHT = 10020
 --
 
@@ -489,6 +493,7 @@ require("beefalo_clothing")
 require("misc_items")
 require("emote_items")
 require("item_blacklist")
+require("entitlementlookups")
 
 CLOTHING.body_default1 =
 {
@@ -832,8 +837,8 @@ SPECIAL_EVENTS =
     YOTD = "year_of_the_dragonfly",
     YOTS = "year_of_the_snake",
 }
-WORLD_SPECIAL_EVENT = SPECIAL_EVENTS.CARNIVAL
---WORLD_SPECIAL_EVENT = IS_BETA and SPECIAL_EVENTS.NONE or SPECIAL_EVENTS.YOTR
+--WORLD_SPECIAL_EVENT = SPECIAL_EVENTS.CARNIVAL
+WORLD_SPECIAL_EVENT = SPECIAL_EVENTS.HALLOWED_NIGHTS --IS_BETA and SPECIAL_EVENTS.NONE or SPECIAL_EVENTS.CARNIVAL
 WORLD_EXTRA_EVENTS = {}
 
 FESTIVAL_EVENTS =
@@ -883,6 +888,13 @@ FESTIVAL_EVENT_FRONTEND_PREFABS = { WORLD_FESTIVAL_EVENT.."_fest_frontend" }
 ---------------------------------------------------------
 SPECIAL_EVENT_MUSIC =
 {
+	--hallowed nights
+	[SPECIAL_EVENTS.HALLOWED_NIGHTS] =
+	{
+		bank = "music_frontend_hallowednights2024.fsb",
+		sound = "dontstarve/music/music_FE_hallowednights2025",
+	},
+
     --winter's feast carol
     [SPECIAL_EVENTS.WINTERS_FEAST] =
     {
@@ -1143,9 +1155,9 @@ end
 FE_MUSIC =
     (FESTIVAL_EVENT_MUSIC[WORLD_FESTIVAL_EVENT] ~= nil and FESTIVAL_EVENT_MUSIC[WORLD_FESTIVAL_EVENT].sound) or
     (SPECIAL_EVENT_MUSIC[WORLD_SPECIAL_EVENT] ~= nil and SPECIAL_EVENT_MUSIC[WORLD_SPECIAL_EVENT].sound) or
-    "dontstarve/music/music_FE_wagboss"
+    "dontstarve/music/music_FE_cavepuzzle"
+    --"dontstarve/music/music_FE_wagboss"
     --"dontstarve/music/music_FE_balatro"
-    --"dontstarve/music/music_FE_hallowednights2024"
     --"dontstarve/music/music_FE_rifts4"
     --"dontstarve/music/music_FE_winonawurt"
     --"dontstarve/music/music_FE_junkyardhog"
@@ -1984,6 +1996,9 @@ FOODTYPE =
 	WOOD = "WOOD",
     GOODIES = "GOODIES",
     MONSTER = "MONSTER", -- Added in for woby, uses the secondary foodype originally added for the berries
+    LUNAR_SHARDS = "LUNAR_SHARDS", -- For rift birds, yummy glass
+    CORPSE = "CORPSE", -- For rift buzzards potentially
+    MIASMA = "MIASMA", -- For the centipede thrall
 }
 
 FOODGROUP =
@@ -2381,6 +2396,7 @@ WORMHOLETYPE =
     WORM = 0,
     TENTAPILLAR = 1,
     OCEANWHIRLPORTAL = 2,
+    VAULTLOBBYEXIT = 3,
 }
 
 -- Houndwarning level, max value of 63 (net_smallbyte)
@@ -2871,10 +2887,39 @@ NIGHTSWORD_FX_OFFSETS = {
     DOWN = 2.9,-- 2.6,
 }
 
+SHARDTRANSACTIONSTEPS = {
+    INITIATE = 0,
+    ACCEPTED = 1,
+    FINALIZED = 2,
+}
+SHARDTRANSACTIONTYPES = {
+    TRANSFERINVENTORYITEM = 0,
+}
+
 -- Tag pairs in this list behave mutually exclusively,
 -- when trying to attune to different objects.
 EQUIVALENT_ATTUNABLE_TAGS =
 {
     ["remoteresurrector"] = "gravestoneresurrector",
     ["gravestoneresurrector"] = "remoteresurrector",
+}
+
+-- This must match the Categories enum in HapticsManager
+HAPTICS = 
+{
+    CATEGORIES = 
+    {
+        ["ui"]          = 2,       -- 0x02
+        ["danger"] 	    = 4,       -- 0x04
+        ["player"]      = 8,       -- 0x08
+        ["environment"] = 16,      -- 0x10
+        ["boss"]        = 32,      -- 0x20
+
+        -- These are included here for reference only since they exist and have meaning in C++
+        -- I won't include them in the table so we don't accidentally iterate over them        
+        -- ["default"]     = 1,       -- 0x01
+        -- ["all"]         = 255,     -- 0xFF    
+    },
+
+    CATEGORY_ENABLED_BY_DEFAULT = rawget(_G, "IsPS5") and IsPS5() or false,
 }

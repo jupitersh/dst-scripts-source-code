@@ -1,24 +1,16 @@
 require("stategraphs/commonstates")
 
-local actionhandlers =
-{
-    --ActionHandler(ACTIONS.PICKUP, "doshortaction"),
-    --ActionHandler(ACTIONS.EAT, "eat"),
-    --ActionHandler(ACTIONS.CHOP, "chop"),
-    --ActionHandler(ACTIONS.PICKUP, "pickup"),
-}
-
-
 local events=
 {
     CommonHandlers.OnStep(),
     CommonHandlers.OnLocomote(true,true),
     CommonHandlers.OnSleep(),
     CommonHandlers.OnFreeze(),
+	CommonHandlers.OnElectrocute(),
 	CommonHandlers.OnAttacked(nil, math.huge), --hit delay only for projectiles
 
     EventHandler("doattack", function(inst, data)
-        if not inst.components.health:IsDead() then
+		if not (inst.components.health:IsDead() or inst.sg:HasStateTag("electrocute")) then
             local weapon = inst.components.combat and inst.components.combat:GetWeapon()
             if weapon then
                 if weapon:HasTag("snotbomb") then
@@ -31,15 +23,20 @@ local events=
     end),
     EventHandler("death", function(inst) inst.sg:GoToState("death") end),
     EventHandler("heardhorn", function(inst, data)
-        if not inst.components.health:IsDead()
-           and not inst.sg:HasStateTag("attack")
-           and data and data.musician then
-            inst:FacePoint(Vector3(data.musician.Transform:GetWorldPosition()))
+		if data and data.musician and
+			not (	inst.components.health:IsDead() or
+					inst.sg:HasAnyStateTag("attack", "electrocute")
+				)
+		then
+			inst:ForceFacePoint(data.musician.Transform:GetWorldPosition())
             inst.sg:GoToState("bellow")
         end
     end),
-    EventHandler("loseloyalty", function(inst) if not inst.components.health:IsDead() and not inst.sg:HasStateTag("attack") then inst.sg:GoToState("shake") end end),
-
+	EventHandler("loseloyalty", function(inst)
+		if not inst.components.health:IsDead() and not inst.sg:HasAnyStateTag("attack", "electrocute") then
+			inst.sg:GoToState("shake")
+		end
+	end),
 }
 
 local states=
@@ -68,7 +65,7 @@ local states=
 
 	State{
 		name = "spawn_shake",
-		tags = { "busy", "invisible", "noattack", "temp_invincible" },
+		tags = { "busy", "invisible", "noattack", "temp_invincible", "noelectrocute" },
 
 		onenter = function(inst)
 			inst.components.locomotor:StopMoving()
@@ -243,7 +240,6 @@ local states=
             RemovePhysicsColliders(inst)
             inst.components.lootdropper:DropLoot(Vector3(inst.Transform:GetWorldPosition()))
         end,
-
     },
 }
 
@@ -268,6 +264,7 @@ CommonStates.AddRunStates(
 
 CommonStates.AddSimpleState(states, "hit", "hit", nil, nil, nil, { onenter = CommonHandlers.UpdateHitRecovery })
 CommonStates.AddFrozenStates(states)
+CommonStates.AddElectrocuteStates(states)
 
 CommonStates.AddSleepStates(states,
 {
@@ -277,5 +274,4 @@ CommonStates.AddSleepStates(states,
     },
 })
 
-return StateGraph("spat", states, events, "idle", actionhandlers)
-
+return StateGraph("spat", states, events, "idle")

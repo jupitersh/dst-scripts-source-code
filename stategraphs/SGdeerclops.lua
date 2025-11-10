@@ -363,23 +363,24 @@ local events =
 	CommonHandlers.OnSleepEx(),
 	CommonHandlers.OnWakeEx(),
     CommonHandlers.OnFreeze(),
+	CommonHandlers.OnElectrocute(),
     CommonHandlers.OnDeath(),
     CommonHandlers.OnSink(),
     CommonHandlers.OnFallInVoid(),
 
 	EventHandler("attacked", function(inst, data)
 		--V2C: health check since corpse shares this SG
-		if inst.components.health ~= nil and not inst.components.health:IsDead() and (
-			not inst.sg:HasStateTag("busy") or
-			inst.sg:HasStateTag("caninterrupt") or
-			inst.sg:HasStateTag("frozen")
-		) then
-			if inst.sg:HasStateTag("staggered") then
-				inst.sg.statemem.staggered = true
-				inst.sg:GoToState("stagger_hit")
-			elseif not CommonHandlers.HitRecoveryDelay(inst) then
-				--hit out of struggle state lowers priority for chain re-entering struggle state
-				inst.sg:GoToState("hit", inst.sg:HasStateTag("struggle"))
+		if inst.components.health and not inst.components.health:IsDead() then
+			if CommonHandlers.TryElectrocuteOnAttacked(inst, data) then
+				return
+			elseif not inst.sg:HasStateTag("busy") or inst.sg:HasAnyStateTag("caninterrupt", "frozen") then
+				if inst.sg:HasStateTag("staggered") then
+					inst.sg.statemem.staggered = true
+					inst.sg:GoToState("stagger_hit")
+				elseif not CommonHandlers.HitRecoveryDelay(inst) then
+					--hit out of struggle state lowers priority for chain re-entering struggle state
+					inst.sg:GoToState("hit", inst.sg:HasStateTag("struggle"))
+				end
 			end
 		end
 	end),
@@ -410,6 +411,9 @@ local events =
 			end
 		end
 	end),
+
+	-- Corpse handlers
+	CommonHandlers.OnCorpseChomped(),
 }
 
 local states =
@@ -767,7 +771,7 @@ local states =
 			inst.AnimState:PlayAnimation("death")
 			inst.SoundEmitter:PlaySound(inst.sounds.death)
 			inst.components.lootdropper:DropLoot(inst:GetPosition())
-			inst.looted = 1
+			inst:SetDeathLootLevel(1)
 			if inst.components.burnable.nocharring then
 				inst.components.burnable.fastextinguish = true
 				inst.components.burnable:SetBurnTime(0)
@@ -785,7 +789,7 @@ local states =
 					local player--[[, rangesq]] = inst:GetNearestPlayer()
 					LaunchAt(SpawnPrefab("winter_ornament_light1"), inst, player, 1, 6, .5)
 					inst.SoundEmitter:PlaySound("dontstarve/wilson/equip_item_gold")
-					inst.looted = 2
+					inst:SetDeathLootLevel(2)
 				end
 			end),
 			FrameEvent(33, function(inst)
@@ -837,11 +841,7 @@ local states =
 
 		events =
 		{
-			EventHandler("animover", function(inst)
-				if inst.AnimState:AnimDone() then
-					inst.sg:GoToState("corpse")
-				end
-			end),
+			CommonHandlers.OnCorpseDeathAnimOver(),
 		},
 
 		onexit = function(inst)
@@ -849,207 +849,6 @@ local states =
 				inst.sg.mem.circle:KillFX(true)
 				inst.sg.mem.circle = nil
 			end
-		end,
-	},
-
-	State{
-		name = "corpse",
-		tags = { "dead", "busy", "noattack" },
-
-		onenter = function(inst, loading)
-			if inst.components.burnable.nocharring then
-				inst.components.burnable.fastextinguish = true
-				inst.components.burnable:SetBurnTime(0)
-				inst.components.burnable:Extinguish()
-			end
-			inst.components.locomotor:Stop()
-			inst.AnimState:PlayAnimation("corpse")
-			if loading and inst.yule and inst.looted ~= 2 then
-				inst.components.lootdropper:SpawnLootPrefab("winter_ornament_light1")
-				inst.looted = 2
-			end
-		end,
-
-		timeline =
-		{
-			--delay 1 frame in case we are loading
-			FrameEvent(1, function(inst)
-				local corpse = not inst:HasTag("lunar_aligned") and TheWorld.components.lunarriftmutationsmanager ~= nil and TheWorld.components.lunarriftmutationsmanager:TryMutate(inst, "deerclopscorpse") or nil
-				if corpse == nil then
-					inst:AddTag("NOCLICK")
-					inst.persists = false
-					RemovePhysicsColliders(inst)
-
-					--68 + 1 frames since death anim started
-					local delay = (inst.components.health.destroytime or 2) - 69 * FRAMES
-					if delay > 0 then
-						inst.sg:SetTimeout(delay)
-					else
-						ErodeAway(inst)
-						if inst.components.burnable:IsBurning() then
-							inst.components.burnable.fastextinguish = true
-							inst.components.burnable:KillFX()
-						end
-					end
-				elseif inst.yule then
-					corpse:SetAltBuild("yule")
-				end
-			end),
-		},
-
-		ontimeout = function(inst)
-			ErodeAway(inst)
-			if inst.components.burnable:IsBurning() then
-				inst.components.burnable.fastextinguish = true
-				inst.components.burnable:KillFX()
-			end
-		end,
-	},
-
-	--------------------------------------------------------------------------
-	--Used by "deerclopscorpse"
-
-	State{
-		name = "corpse_idle",
-
-		onenter = function(inst)
-			inst.AnimState:PlayAnimation("corpse")
-		end,
-	},
-
-	State{
-		name = "corpse_mutate_pre",
-		tags = { "mutating" },
-
-		onenter = function(inst, mutantprefab)
-			inst.AnimState:PlayAnimation("twitch", true)
-			inst.sg:SetTimeout(3)
-			inst.sg.statemem.mutantprefab = mutantprefab
-			inst.SoundEmitter:PlaySound("rifts3/mutated_deerclops/twitching_LP", "loop")
-		end,
-
-		ontimeout = function(inst)
-			inst.sg:GoToState("corpse_mutate", inst.sg.statemem.mutantprefab)
-		end,
-
-		onexit = function(inst)
-			inst.SoundEmitter:KillSound("loop")
-		end,
-	},
-
-	State{
-		name = "corpse_mutate",
-		tags = { "mutating" },
-
-		onenter = function(inst, mutantprefab)
-			inst.AnimState:OverrideSymbol("eye_crystal", "deerclops_mutated", "eye_crystal")
-			inst.AnimState:OverrideSymbol("frozen_debris", "deerclops_mutated", "frozen_debris")
-			inst.AnimState:PlayAnimation("mutate_pre")
-			inst.SoundEmitter:PlaySound("rifts3/mutated_deerclops/ice_crackling_LP", "loop")
-			inst.sg.statemem.mutantprefab = mutantprefab
-		end,
-
-		timeline =
-		{
-			FrameEvent(0, function(inst) inst.SoundEmitter:PlaySound("rifts3/mutated_deerclops/mutate_pre_f0") end),
-			FrameEvent(6, function(inst) inst.SoundEmitter:PlaySound("rifts3/mutated_deerclops/ice_grow_4f_leadin") end),
-			FrameEvent(10, function(inst)
-				inst.components.burnable.fastextinguish = true
-				inst.components.burnable:Extinguish()
-				inst.components.burnable.fastextinguish = false
-			end),
-			FrameEvent(45, function(inst) inst.SoundEmitter:PlaySound("rifts3/mutated_deerclops/mutate_pre_f45") end),
-			FrameEvent(46, function(inst) inst.SoundEmitter:PlaySound("rifts3/mutated_deerclops/ice_grow_4f_leadin") end),
-			FrameEvent(50, function(inst)
-				inst.components.burnable.fastextinguish = true
-				inst.components.burnable:Extinguish()
-				inst.components.burnable.fastextinguish = false
-			end),
-			FrameEvent(61, function(inst) inst.SoundEmitter:PlaySound("rifts3/mutated_deerclops/ice_grow_4f_leadin") end),
-			FrameEvent(65, function(inst)
-				inst.components.burnable.fastextinguish = true
-				inst.components.burnable:Extinguish()
-				inst.components.burnable.fastextinguish = false
-			end),
-			FrameEvent(66, function(inst) inst.SoundEmitter:PlaySound("rifts3/mutated_deerclops/ice_grow_4f_leadin") end),
-			FrameEvent(70, function(inst)
-				inst.SoundEmitter:KillSound("loop")
-				inst.components.burnable.fastextinguish = true
-				inst.components.burnable:Extinguish()
-				inst.components.burnable.fastextinguish = false
-			end),
-			FrameEvent(71, function(inst)
-				inst.AnimState:SetAddColour(.5, .5, .5, 0)
-				inst.AnimState:SetLightOverride(.5)
-			end),
-		},
-
-		events =
-		{
-			EventHandler("animover", function(inst)
-				if inst.AnimState:AnimDone() then
-					local rot = inst.Transform:GetRotation()
-					local creature = ReplacePrefab(inst, inst.sg.statemem.mutantprefab)
-					creature.Transform:SetRotation(rot)
-					creature.AnimState:MakeFacingDirty() --not needed for clients
-					creature.sg:GoToState("mutate_pst")
-				end
-			end),
-		},
-
-		onexit = function(inst)
-			--Shouldn't reach here!
-			inst.AnimState:ClearAllOverrideSymbols()
-			inst.AnimState:SetAddColour(0, 0, 0, 0)
-			inst.AnimState:SetLightOverride(0)
-			inst.SoundEmitter:KillSound("loop")
-			inst.components.burnable:SetBurnTime(TUNING.MED_BURNTIME)
-			inst.components.burnable.fastextinguish = false
-		end,
-	},
-
-	--------------------------------------------------------------------------
-	--Transitions from corpse_mutate after prefab switch
-	State{
-		name = "mutate_pst",
-		tags = { "busy", "noattack", "temp_invincible" },
-
-		onenter = function(inst)
-			inst.components.locomotor:Stop()
-			inst.AnimState:PlayAnimation("mutate")
-			inst.sg.statemem.flash = 24
-		end,
-
-		onupdate = function(inst)
-			local c = inst.sg.statemem.flash
-			if c >= 0 then
-				inst.sg.statemem.flash = c - 1
-				c = easing.inOutQuad(math.min(20, c), 0, 1, 20)
-				inst.AnimState:SetAddColour(c, c, c, 0)
-				inst.AnimState:SetLightOverride(c)
-			end
-		end,
-
-		timeline =
-		{
-			FrameEvent(16, function(inst) inst.SoundEmitter:PlaySound("rifts3/mutated_deerclops/stunned_pst_f70") end),
-			FrameEvent(20, function(inst)
-				DeerclopsFootstep(inst, false, true)
-			end),
-		},
-
-		events =
-		{
-			EventHandler("animover", function(inst)
-				if inst.AnimState:AnimDone() then
-					inst.sg:GoToState("taunt")
-				end
-			end),
-		},
-
-		onexit = function(inst)
-			inst.AnimState:SetAddColour(0, 0, 0, 0)
-			inst.AnimState:SetLightOverride(0)
 		end,
 	},
 
@@ -1604,7 +1403,7 @@ local states =
 
 	State{
 		name = "struggle_pre",
-		tags = { "struggle", "busy" },
+		tags = { "struggle", "busy", "noelectrocute" },
 
 		onenter = function(inst)
 			inst.components.locomotor:Stop()
@@ -1634,7 +1433,7 @@ local states =
 
 	State{
 		name = "struggle_loop",
-		tags = { "struggle", "busy" },
+		tags = { "struggle", "busy", "noelectrocute" },
 
 		onenter = function(inst, loops)
 			inst.components.locomotor:Stop()
@@ -1718,7 +1517,7 @@ local states =
 
 	State{
 		name = "stagger_pre",
-		tags = { "staggered", "busy", "nosleep" },
+		tags = { "staggered", "busy", "nosleep", "noelectrocute" },
 
 		onenter = function(inst)
 			inst.sg.mem.dostagger = nil
@@ -1770,6 +1569,7 @@ local states =
 				ShakeAllCameras(CAMERASHAKE.FULL, .7, .02, 2, inst, SHAKE_DIST)
 			end),
 			FrameEvent(46, function(inst)
+				inst.sg:RemoveStateTag("noelectrocute")
 				inst.sg:AddStateTag("caninterrupt")
 			end),
 		},
@@ -1904,7 +1704,9 @@ local states =
 			end
 			inst.sg.mem.noice = 1
 			inst.sg.mem.noeyeice = true
-			if not nohit then
+			if nohit then
+				inst.sg:AddStateTag("noelectrocute")
+			else
 				inst.sg:AddStateTag("caninterrupt")
 			end
 			if inst.components.sleeper ~= nil then
@@ -1918,6 +1720,7 @@ local states =
 			FrameEvent(33, function(inst)
 				inst.sg:RemoveStateTag("staggered")
 				inst.sg:RemoveStateTag("caninterrupt")
+				inst.sg:RemoveStateTag("noelectrocute")
 				inst.SoundEmitter:PlaySound("rifts3/mutated_deerclops/ice_crackling_LP", "loop")
 			end),
 			FrameEvent(51, function(inst)
@@ -2051,7 +1854,126 @@ CommonStates.AddSleepExStates(states,
     end,
 })
 CommonStates.AddFrozenStates(states)
+
+CommonStates.AddElectrocuteStates(states,
+nil, --timeline
+{	--anims
+	loop = function(inst)
+		if inst.sg.lasttags["staggered"] then
+			inst.sg:AddStateTag("staggered")
+			inst.override_combat_fx_height = "low"
+			return "staggered_shock_loop"
+		end
+	end,
+	pst = function(inst)
+		if inst.sg.lasttags["staggered"] then
+			inst.sg:AddStateTag("staggered")
+			return "staggered_shock_pst"
+		end
+	end,
+},
+{	--fns
+	loop_onenter = function(inst)
+		if inst.sg:HasStateTag("staggered") then
+			--V2C: can change this back since fx is already spawned at this point
+			inst.override_combat_fx_height = nil
+		end
+	end,
+	onanimover = function(inst)
+		if inst.AnimState:AnimDone() then
+			if not inst.sg:HasStateTag("staggered") then
+				inst.sg:GoToState("idle")
+			elseif inst.components.timer:TimerExists("stagger") then
+				inst.sg:GoToState("stagger_idle")
+			else
+				inst.sg:GoToState("stagger_pst", true)
+			end
+		end
+	end,
+})
+
 CommonStates.AddSinkAndWashAshoreStates(states)
 CommonStates.AddVoidFallStates(states)
+CommonStates.AddCorpseStates(states, nil,
+{
+    corpseonenter = function(inst, loading)
+        if inst.components.burnable.nocharring then
+			inst.components.burnable.fastextinguish = true
+			inst.components.burnable:SetBurnTime(0)
+			inst.components.burnable:Extinguish()
+		end
+        if loading and inst.yule and inst:GetDeathLootLevel() < 2 then
+			inst.components.lootdropper:SpawnLootPrefab("winter_ornament_light1")
+            inst:SetDeathLootLevel(2)
+		end
+    end,
+
+    corpseoncreate = function(inst, corpse)
+        if inst.yule then
+            corpse:SetAltBuild("yule")
+        end
+    end,
+
+    corpseonerode = function(inst)
+        if inst.components.burnable:IsBurning() then
+            inst.components.burnable.fastextinguish = true
+            inst.components.burnable:KillFX()
+        end
+    end,
+})
+
+CommonStates.AddLunarRiftMutationStates(states,
+{ -- timelines
+    mutate_timeline = {
+		FrameEvent(0, function(inst) inst.SoundEmitter:PlaySound("rifts3/mutated_deerclops/mutate_pre_f0") end),
+		FrameEvent(6, function(inst) inst.SoundEmitter:PlaySound("rifts3/mutated_deerclops/ice_grow_4f_leadin") end),
+		FrameEvent(10, function(inst)
+			inst.components.burnable.fastextinguish = true
+			inst.components.burnable:Extinguish()
+			inst.components.burnable.fastextinguish = false
+		end),
+		FrameEvent(45, function(inst) inst.SoundEmitter:PlaySound("rifts3/mutated_deerclops/mutate_pre_f45") end),
+		FrameEvent(46, function(inst) inst.SoundEmitter:PlaySound("rifts3/mutated_deerclops/ice_grow_4f_leadin") end),
+		FrameEvent(50, function(inst)
+			inst.components.burnable.fastextinguish = true
+			inst.components.burnable:Extinguish()
+			inst.components.burnable.fastextinguish = false
+		end),
+		FrameEvent(61, function(inst) inst.SoundEmitter:PlaySound("rifts3/mutated_deerclops/ice_grow_4f_leadin") end),
+		FrameEvent(65, function(inst)
+			inst.components.burnable.fastextinguish = true
+			inst.components.burnable:Extinguish()
+			inst.components.burnable.fastextinguish = false
+		end),
+		FrameEvent(66, function(inst) inst.SoundEmitter:PlaySound("rifts3/mutated_deerclops/ice_grow_4f_leadin") end),
+		FrameEvent(70, function(inst)
+			inst.SoundEmitter:KillSound("loop")
+			inst.components.burnable.fastextinguish = true
+			inst.components.burnable:Extinguish()
+			inst.components.burnable.fastextinguish = false
+		end),
+		FrameEvent(71, function(inst)
+			inst.AnimState:SetAddColour(.5, .5, .5, 0)
+			inst.AnimState:SetLightOverride(.5)
+		end),
+	},
+
+    mutatepst_timeline = {
+        FrameEvent(16, function(inst) inst.SoundEmitter:PlaySound("rifts3/mutated_deerclops/stunned_pst_f70") end),
+		FrameEvent(20, function(inst) DeerclopsFootstep(inst, false, true) end),
+    },
+},
+nil,
+{ -- fns
+    mutate_onenter = function(inst)
+        inst.AnimState:OverrideSymbol("eye_crystal", "deerclops_mutated", "eye_crystal")
+		inst.AnimState:OverrideSymbol("frozen_debris", "deerclops_mutated", "frozen_debris")
+        inst.SoundEmitter:PlaySound("rifts3/mutated_deerclops/ice_crackling_LP", "loop")
+    end,
+},
+{
+    twitch_lp = "rifts3/mutated_deerclops/twitching_LP",
+    post_mutate_state = "taunt",
+})
 
 return StateGraph("deerclops", states, events, "init", actionhandlers)

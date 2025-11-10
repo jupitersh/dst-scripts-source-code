@@ -98,7 +98,8 @@ local function OnWerenessDelta(parent, data)
     end
 end
 
-local NON_DANGER_TAGS = {"noepicmusic", "shadow", "shadowchesspiece", "smolder", "thorny"}
+-- Keep NON_DANGER_TAGS in sync with dynamicmusic NON_DANGER_TAGS
+local NON_DANGER_TAGS = {"noepicmusic", "shadow", "shadowchesspiece", "smolder", "thorny", "nodangermusic"}
 local function OnAttacked(parent, data)
     parent.player_classified.attackedpulseevent:push()
     parent.player_classified.isattackedbydanger:set(
@@ -676,6 +677,12 @@ local function OnIsCarefulWalkingDirty(inst)
     end
 end
 
+local function OnExternalVelocityVectorDirty(inst)
+    if inst._parent then
+        inst._parent.Physics:SetMotorVelExternal(inst.externalvelocityvectorx:value(), 0, inst.externalvelocityvectorz:value())
+    end
+end
+
 local function OnPlayerCameraShake(inst)
     if inst._parent ~= nil and inst._parent.HUD ~= nil then
         TheCamera:Shake(
@@ -983,6 +990,8 @@ local function OnWormholeTravelDirty(inst)
             TheFocalPoint.SoundEmitter:PlaySound("dontstarve/cave/tentapiller_hole_travel")
         elseif inst._parent.player_classified.wormholetravelevent:value() == WORMHOLETYPE.OCEANWHIRLPORTAL then
             TheFocalPoint.SoundEmitter:PlaySound("meta3/whirlpool/whirlpool_travel")
+        elseif inst._parent.player_classified.wormholetravelevent:value() == WORMHOLETYPE.VAULTLOBBYEXIT then
+            TheFocalPoint.SoundEmitter:PlaySound("dontstarve/cave/tentapiller_hole_travel") -- FIXME(JBK): rifts6 sounds
         end
     end
 end
@@ -1147,6 +1156,7 @@ local function RegisterNetListeners_local(inst)
     inst:ListenForEvent("pausepredictionframesdirty", OnPausePredictionFramesDirty)
 	inst:ListenForEvent("isstrafingdirty", fns.OnIsStrafingDirty)
     inst:ListenForEvent("iscarefulwalkingdirty", OnIsCarefulWalkingDirty)
+    inst:ListenForEvent("externalvelocityvectordirty", OnExternalVelocityVectorDirty)
     inst:ListenForEvent("isghostmodedirty", OnGhostModeDirty)
     inst:ListenForEvent("actionmeterdirty", OnActionMeterDirty)
     inst:ListenForEvent("playerhuddirty", OnPlayerHUDDirty)
@@ -1550,6 +1560,8 @@ local function fn()
     inst.externalspeedmultiplier = net_float(inst.GUID, "locomotor.externalspeedmultiplier")
     inst.runspeed:set(TUNING.WILSON_RUN_SPEED)
     inst.externalspeedmultiplier:set(1)
+    inst.externalvelocityvectorx = net_float(inst.GUID, "locomotor.externalvelocityvectorx", "externalvelocityvectordirty")
+    inst.externalvelocityvectorz = net_float(inst.GUID, "locomotor.externalvelocityvectorz", "externalvelocityvectordirty")
 	inst.busyremoteoverridelocomote = net_bool(inst.GUID, "locomotor.busyremoteoverridelocomote")
 	inst.isstrafing = net_bool(inst.GUID, "locomotor.isstrafing", "isstrafingdirty")
 

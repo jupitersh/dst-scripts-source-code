@@ -20,18 +20,30 @@ end
 
 local TWIGS_MUST = {"cattoy"}
 
-
 local events=
 {
     CommonHandlers.OnStep(),
     CommonHandlers.OnLocomote(true,true),
     CommonHandlers.OnSleep(),
     CommonHandlers.OnFreeze(),
+	CommonHandlers.OnElectrocute(),
     CommonHandlers.OnHop(),
 
-    EventHandler("doattack", function(inst) if not inst.components.health:IsDead() then inst.sg:GoToState("attack") end end),
-    EventHandler("death", function(inst) inst.sg:GoToState("death") end),
-    EventHandler("attacked", function(inst) if not inst.components.health:IsDead() and not inst.sg:HasStateTag("attack") then inst.sg:GoToState("hit") end end),
+	EventHandler("doattack", function(inst)
+		if not (inst.components.health:IsDead() or inst.sg:HasAnyStateTag("nointerrupt", "electrocute")) then
+			inst.sg:GoToState("attack")
+		end
+	end),
+    CommonHandlers.OnDeath(),
+	EventHandler("attacked", function(inst, data)
+		if not inst.components.health:IsDead() then
+			if CommonHandlers.TryElectrocuteOnAttacked(inst, data) then
+				return
+			elseif not inst.sg:HasAnyStateTag("attack", "electrocute", "nointerrupt") then
+				inst.sg:GoToState("hit")
+			end
+		end
+	end),
 
     EventHandler("startfalling", function(inst)  inst.sg:GoToState("fall_pre")  end),
 
@@ -44,12 +56,16 @@ local events=
                 twignums = twignums + 1
             end
         end
-        if twignums < 3 and not inst.components.health:IsDead() and not inst.sg:HasStateTag("busy") and not inst.sg:HasStateTag("attack") then 
+		if twignums < 3 and not (inst.components.health:IsDead() or inst.sg:HasAnyStateTag("busy", "attack")) then 
             inst.sg:GoToState("shed") 
         end 
     end),
 
-    EventHandler("diveandrelocate", function(inst) if not inst.components.health:IsDead() and not inst.sg:HasStateTag("busy") and not inst.sg:HasStateTag("attack") then inst.sg:GoToState("dive") end end),
+	EventHandler("diveandrelocate", function(inst)
+		if not (inst.components.health:IsDead() or inst.sg:HasAnyStateTag("busy", "attack")) then
+			inst.sg:GoToState("dive")
+		end
+	end),
 }
 
 local states=
@@ -170,6 +186,11 @@ local states=
         onenter = function(inst)
             inst.SoundEmitter:PlaySound("waterlogged2/creatures/grass_gator/death")
             inst.AnimState:PlayAnimation("death")
+            local amphibiouscreature = inst.components.amphibiouscreature
+            if amphibiouscreature and amphibiouscreature.in_water then
+                inst.AnimState:PushAnimation("death_idle", true)
+            end
+
             inst.components.locomotor:StopMoving()
             inst.components.lootdropper:DropLoot(Vector3(inst.Transform:GetWorldPosition()))
 
@@ -213,7 +234,7 @@ local states=
 
     State{
         name = "fall_pre",
-        tags = { "busy" },
+		tags = { "busy", "noelectrocute" },
         onenter = function(inst)   
             inst.sg:SetTimeout(2)
             inst:Hide()
@@ -230,7 +251,7 @@ local states=
 
     State{
         name = "fall",
-        tags = { "busy" },
+		tags = { "busy", "noelectrocute" },
         onenter = function(inst)   
             --inst.AnimState:SetBank("grass_gator_water")         
             --ChangeToCharacterPhysics(inst)
@@ -271,7 +292,7 @@ local states=
 
     State{
         name = "land",
-        tags = {"busy"},
+		tags = { "busy", "noelectrocute" },
 
         onenter = function(inst)
             inst.components.locomotor:StopMoving()
@@ -284,7 +305,6 @@ local states=
                spawnwaves(inst, 6, 360, 4, nil, nil, 2, nil, true)
             end),
             TimeEvent(1*FRAMES, function(inst) inst.SoundEmitter:PlaySound("turnoftides/common/together/water/splash/large") end),
-            
         },
 
         events=
@@ -331,11 +351,21 @@ local states=
                 inst.DynamicShadow:Enable(false)
             end),
 
-            TimeEvent(21*FRAMES, function(inst) inst.SoundEmitter:PlaySound("turnoftides/common/together/water/submerge/medium") end),
+			TimeEvent(21*FRAMES, function(inst)
+				inst.SoundEmitter:PlaySound("turnoftides/common/together/water/submerge/medium")
+				inst.sg:AddStateTag("noelectrocute")
+			end),
 
             TimeEvent(27*FRAMES, function(inst) 
                 spawnwaves(inst, 6, 360, 4, nil, nil, 2, nil, true)
             end),
+			FrameEvent(28, function(inst)
+				inst.sg:AddStateTag("noattack")
+				inst.sg:AddStateTag("nointerrupt")
+			end),
+			FrameEvent(31, function(inst)
+				inst.sg:AddStateTag("invisible")
+			end),
         },
 
         events=
@@ -350,7 +380,7 @@ local states=
 
     State{
         name = "dive_loop",
-        tags = {"canrotate","noattack","busy","diving"},
+		tags = { "canrotate", "invisible", "noattack", "nointerrupt", "busy", "diving", "noelectrocute" },
 
         onenter = function(inst, pushanim)   
             inst.DynamicShadow:Enable(false)  
@@ -397,7 +427,7 @@ local states=
 
     State{
         name = "surface",
-        tags = {"canrotate","busy", "diving"},
+		tags = { "canrotate", "invisible", "noattack", "nointerrupt", "busy", "diving", "noelectrocute" },
 
         onenter = function(inst)
             inst.components.locomotor:StopMoving()
@@ -411,7 +441,15 @@ local states=
             end),
             TimeEvent(5*FRAMES, function(inst) 
                 inst.SoundEmitter:PlaySound("turnoftides/common/together/water/emerge/medium") 
+				inst.sg:RemoveStateTag("invisible")
             end),
+			FrameEvent(7, function(inst)
+				inst.sg:RemoveStateTag("noattack")
+				inst.sg:RemoveStateTag("nointerrupt")
+			end),
+			FrameEvent(9, function(inst)
+				inst.sg:RemoveStateTag("noelectrocute")
+			end),
         },
 
         events=
@@ -534,7 +572,6 @@ CommonStates.AddAmphibiousCreatureHopStates(states,
 
 CommonStates.AddSleepStates(states,
 {
-
     starttimeline =
     {
         TimeEvent(24*FRAMES, function(inst)
@@ -553,6 +590,6 @@ CommonStates.AddSleepStates(states,
     },
 })
 CommonStates.AddFrozenStates(states)
+CommonStates.AddElectrocuteStates(states)
 
 return StateGraph("grassgator", states, events, "idle")
-

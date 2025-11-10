@@ -230,6 +230,7 @@ local function deck_fn()
     inst.AnimState:SetBuild("deck_of_cards")
     inst.AnimState:PlayAnimation("single")
 
+    inst:AddTag("deck_of_cards") -- For NON_LIFEFORM_TARGET_TAGS, could reuse deckcontainer. But, just in case someone wants to mod a living deckcontainer creature, haha.
     inst:AddTag("deckcontainer") -- from deckcontainer component
 
     MakeInventoryFloatable(inst, "small", 0.1, 1.2)

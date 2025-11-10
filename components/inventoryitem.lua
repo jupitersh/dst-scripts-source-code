@@ -118,6 +118,11 @@ function InventoryItem:GetMoisture()
     return self.inst.components.inventoryitemmoisture ~= nil and self.inst.components.inventoryitemmoisture.moisture or 0
 end
 
+function InventoryItem:GetMoisturePercent()
+    local inventoryitemmoisture = self.inst.components.inventoryitemmoisture
+    return inventoryitemmoisture and inventoryitemmoisture.moisture / TUNING.MAX_WETNESS
+end
+
 function InventoryItem:IsWet()
     return self.inst.components.inventoryitemmoisture ~= nil and self.inst.components.inventoryitemmoisture.iswet
 end

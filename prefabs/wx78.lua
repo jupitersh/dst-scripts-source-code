@@ -533,8 +533,8 @@ local function OnChargeFromBattery(inst, battery)
     inst.components.upgrademoduleowner:AddCharge(1)
 
 	--V2C: -switched to stategraph event instead of GoToState
-	--     -use HandleEvent to preserve legacy timing
-	inst.sg:HandleEvent("electrocute")
+	--     -use Immediate to preserve legacy timing
+	inst:PushEventImmediate("electrocute")
 
     return true
 end

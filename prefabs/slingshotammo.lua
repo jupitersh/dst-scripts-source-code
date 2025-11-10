@@ -732,9 +732,7 @@ end
 --------------------------------------------------------------------------
 
 local function OnHit_Scrapfeather(inst, attacker, target)
-	if target and target:IsValid() then
-		SpawnPrefab("electrichitsparks"):AlignToTarget(target, attacker and attacker:IsValid() and attacker or inst, true)
-    end
+	SpawnElectricHitSparks(attacker and attacker:IsValid() and attacker or inst, target, true)
 end
 
 local function CommonPostInit_Scrapfeather(inst)
@@ -744,7 +742,7 @@ local function CommonPostInit_Scrapfeather(inst)
 end
 
 local function ProjMasterPostInit_Scrapfeather(inst, attacker, target)
-    inst.components.weapon:SetElectric(1, TUNING.SLINGSHOT_AMMO_SCRAPFEATHER_WET_DAMAGE_MULT)
+	inst.components.weapon:SetElectric(TUNING.SLINGSHOT_AMMO_SCRAPFEATHER_DRY_DAMAGE_MULT, TUNING.SLINGSHOT_AMMO_SCRAPFEATHER_WET_DAMAGE_MULT)
 end
 
 --------------------------------------------------------------------------
@@ -1513,7 +1511,7 @@ local ammo =
         proj_master_postinit = ProjMasterPostInit_Scrapfeather,
         damage = TUNING.SLINGSHOT_AMMO_DAMAGE_SCRAPFEATHER,
 		skill = "walter_ammo_utility",
-		prefabs = { "electrichitsparks" },
+		prefabs = { "electrichitsparks", "electrichitsparks_electricimmune", },
 		--tailcolor = { h = 0.1, s = 0.5, v = 2, lo = 0.2 },
     },
     {

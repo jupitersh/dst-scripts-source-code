@@ -1,5 +1,17 @@
+local easing = require("easing")
+
 CommonStates = {}
 CommonHandlers = {}
+
+--------------------------------------------------------------------------
+local function ClearStatusAilments(inst)
+	if inst.components.freezable and inst.components.freezable:IsFrozen() then
+		inst.components.freezable:Unfreeze()
+	end
+	if inst.components.pinnable and inst.components.pinnable:IsStuck() then
+		inst.components.pinnable:Unstick()
+	end
+end
 
 --------------------------------------------------------------------------
 local function onstep(inst)
@@ -15,7 +27,7 @@ end
 
 --------------------------------------------------------------------------
 local function onsleep(inst)
-    if inst.components.health == nil or (inst.components.health ~= nil and not inst.components.health:IsDead()) then
+	if not (inst.components.health and inst.components.health:IsDead() or inst.sg:HasStateTag("electrocute")) then
         local fallingreason = inst.components.drownable and inst.components.drownable:GetFallingReason() or nil
         if fallingreason ~= nil and inst.sg:HasStateTag("jumping") then
             if fallingreason == FALLINGREASON.OCEAN then
@@ -73,21 +85,6 @@ CommonHandlers.OnFossilize = function()
 end
 
 --------------------------------------------------------------------------
-local function onelectrocute(inst)
-	if not ((inst.components.inventory and inst.components.inventory:IsInsulated()) or
-			(inst.components.health and inst.components.health:IsDead()) or
-			inst.sg:HasStateTag("dead") or
-			inst.sg:HasStateTag("nointerrupt"))
-	then
-		inst.sg:GoToState("electrocute")
-	end
-end
-
-CommonHandlers.OnElectrocute = function()
-	return EventHandler("electrocute", onelectrocute)
-end
-
---------------------------------------------------------------------------
 -- delay: how long before we can play another hit reaction animation, 
 -- max_hitreacts: the number of hit reacts before we enter the react cooldown. The creature's AI may still early out of this.
 -- skip_cooldown_fn: return true if you want to allow hit reacts while the hit react is in cooldown (allowing stun locking)
@@ -102,11 +99,7 @@ local function hit_recovery_delay(inst, delay, max_hitreacts, skip_cooldown_fn)
 
 	local delaytime = delay or inst.hit_recovery or TUNING.DEFAULT_HIT_RECOVERY
 	if was_projectile then
-		if was_electric and
-			not (	inst:HasTag("electricdamageimmune") or
-					(inst.components.inventory and inst.components.inventory:IsInsulated())
-				)
-		then
+		if was_electric and not IsEntityElectricImmune(inst) then
 			--use melee hit recovery delay for electric projectiles
 		else
 			delaytime = delaytime * TUNING.DEFAULT_PROJECTILE_HIT_RECOVERY_MULTIPLIER
@@ -147,27 +140,167 @@ local function hit_recovery_delay(inst, delay, max_hitreacts, skip_cooldown_fn)
 	return on_cooldown
 end
 
+local function electrocute_recovery_delay(inst)
+	local delay = inst.electrocute_delay or TUNING.ELECTROCUTE_DEFAULT_DELAY
+	local resist = inst._electrocute_resist or 0
+	local t = GetTime()
+	if inst._last_electrocute_time == nil or inst._last_electrocute_time + math.max(10 * delay.max, delay.max + resist) < t then
+		return false --first hit, no delay
+	elseif inst._last_electrocute_delay == nil then
+		inst._last_electrocute_delay = GetRandomMinMax(delay.min, delay.max) + resist
+	end
+	return inst._last_electrocute_time + inst._last_electrocute_delay > t
+end
+
 CommonHandlers.HitRecoveryDelay = hit_recovery_delay -- returns true if inst is still in a hit reaction cooldown
+CommonHandlers.ElectrocuteRecoveryDelay = electrocute_recovery_delay
 
 local function update_hit_recovery_delay(inst)
 	inst._last_hitreact_time = GetTime()
 end
 
+local function update_electrocute_recovery_delay(inst)
+	local t = GetTime()
+	if inst._electrocute_resist then
+		if inst._last_electrocute_time then
+			local delay = inst.electrocute_delay or TUNING.ELECTROCUTE_DEFAULT_DELAY
+			local dt = t - inst._last_electrocute_time
+			if dt > delay.max then
+				inst._electrocute_resist = math.max(0, inst._electrocute_resist - (dt - delay.max) / 10)
+			end
+		end
+		inst._electrocute_resist = inst._electrocute_resist + 1
+	elseif inst:HasTag("epic") then
+		inst._electrocute_resist = 1
+	end
+	inst._last_electrocute_time = t
+	inst._last_electrocute_delay = nil
+end
+
 CommonHandlers.UpdateHitRecoveryDelay = update_hit_recovery_delay
+CommonHandlers.UpdateElectrocuteRecoveryDelay = update_electrocute_recovery_delay
 
 CommonHandlers.ResetHitRecoveryDelay = function(inst)
 	inst._last_hitreact_time = nil
 	inst._last_hitreact_count = nil
 end
 
+CommonHandlers.ResetElectrocuteRecoveryDelay = function(inst)
+	inst._last_electrocute_time = nil
+	inst._last_electrocute_delay = nil
+end
+
+local function attack_can_electrocute(inst, data)
+	if data and data.stimuli == "electric" then
+		if data.weapon then
+			local weapon = data.weapon.components.weapon
+			if weapon and
+				(	weapon.overridestimulifn and
+					weapon.overridestimulifn(weapon.inst, data.attacker, inst) or
+					weapon.stimuli
+				) == "electric"
+			then
+				return true
+			end
+		end
+		if data.attacker and data.attacker.components.electricattacks then
+			return true
+		end
+	end
+	return false
+end
+
+local function spawn_electrocute_fx(inst, data, duration)
+	duration = duration or CalcEntityElectrocuteDuration(inst, data and data.duration)
+	data = data and (
+		data.attackdata and {
+			attackdata = data.attackdata,
+			targets = data.targets,
+			numforks = data.numforks and data.numforks - 1 or nil,
+			duration = data.duration,
+			noburn = data.noburn,
+		} or
+		data.stimuli == "electric" and {
+			attackdata = data,
+			duration = data.duration,
+			noburn = data.noburn,
+		}
+	) or nil
+	local fx = SpawnPrefab("electrocute_fx")
+	fx:SetFxTarget(inst, duration, data)
+	return fx
+end
+
+--state & statedata are optional overrides if you don't
+--want it to use the default electrocute or hit states.
+local function try_goto_electrocute_state(inst, data, state, statedata, ongotostatefn)
+	if state == nil then
+		if inst.sg:HasState("electrocute") then
+			state = "electrocute"
+			statedata = data and (
+				data.stimuli == "electric" and {
+					attackdata = data,
+					duration = data.duration,
+					noburn = data.noburn,
+				}
+			) or data
+		elseif inst.sg:HasState("hit") then
+			state = "hit"
+		else
+			return false
+		end
+	end
+
+	if state ~= "electrocute" then
+		update_electrocute_recovery_delay(inst)
+		spawn_electrocute_fx(inst, data)
+		ClearStatusAilments(inst)
+		if inst.components.sleeper then
+			inst.components.sleeper:WakeUp()
+		end
+		if inst.sg.mem.burn_on_electrocute and not (data and data.noburn) and
+			inst.components.burnable and not inst.components.burnable:IsBurning()
+		then
+			local attackdata = data and data.attackdata or data
+			inst.components.burnable:Ignite(nil, attackdata and (attackdata.weapon or attackdata.attacker), attackdata and attackdata.attacker)
+		end
+	end
+	if ongotostatefn then
+		ongotostatefn(inst)
+	end
+	inst.sg:GoToState(state, statedata)
+	return true
+end
+
+--state & statedata are optional overrides if you don't
+--want it to use the default electrocute or hit states.
+local function try_electrocute_onattacked(inst, data, state, statedata, ongotostatefn)
+	return CanEntityBeElectrocuted(inst)
+		and attack_can_electrocute(inst, data)
+		and not (inst.components.inventory and inst.components.inventory:IsInsulated())
+		--and not inst:HasTag("electricdamageimmune") --V2C: redundant. either shouldn't have "electrocute" states if immune, or if using a shared SG then set sg.mem.noelectrocute = true
+		and (not inst.sg:HasAnyStateTag("nointerrupt", "noelectrocute") or inst.sg:HasStateTag("canelectrocute"))
+		and not electrocute_recovery_delay(inst)
+		and try_goto_electrocute_state(inst, data, state, statedata, ongotostatefn)
+end
+
+CommonHandlers.AttackCanElectrocute = attack_can_electrocute
+CommonHandlers.SpawnElectrocuteFx = spawn_electrocute_fx
+CommonHandlers.TryGoToElectrocuteState = try_goto_electrocute_state
+CommonHandlers.TryElectrocuteOnAttacked = try_electrocute_onattacked
+
 local function onattacked(inst, data, hitreact_cooldown, max_hitreacts, skip_cooldown_fn)
-    if inst.components.health ~= nil and not inst.components.health:IsDead()
-		and not hit_recovery_delay(inst, hitreact_cooldown, max_hitreacts, skip_cooldown_fn)
-        and (not inst.sg:HasStateTag("busy")
-            or inst.sg:HasStateTag("caninterrupt")
-            or inst.sg:HasStateTag("frozen")) then
-        inst.sg:GoToState("hit")
-    end
+	if inst.components.health and not inst.components.health:IsDead() then
+		if try_electrocute_onattacked(inst, data) then
+			return
+		elseif not hit_recovery_delay(inst, hitreact_cooldown, max_hitreacts, skip_cooldown_fn) and
+			(	not inst.sg:HasStateTag("busy") or
+				inst.sg:HasAnyStateTag("caninterrupt", "frozen")
+			)
+		then
+			inst.sg:GoToState("hit")
+		end
+	end
 end
 
 CommonHandlers.OnAttacked = function(hitreact_cooldown, max_hitreacts, skip_cooldown_fn) -- params are optional
@@ -181,9 +314,36 @@ CommonHandlers.OnAttacked = function(hitreact_cooldown, max_hitreacts, skip_cool
 end
 
 --------------------------------------------------------------------------
+
+--state & statedata are optional overrides if you don't
+--want it to use the default electrocute or hit states.
+local function try_electrocute_onevent(inst, data, state, statedata, ongotostatefn)
+	return not (inst.components.inventory and inst.components.inventory:IsInsulated())
+		--and not inst:HasTag("electricdamageimmune") and --V2C: redundant. either shouldn't have "electrocute" states if immune, or if using a shared SG then set sg.mem.noelectrocute = true
+		and not inst.sg.mem.noelectrocute
+		and (not inst.sg:HasAnyStateTag("dead", "nointerrupt", "noelectrocute") or inst.sg:HasStateTag("canelectrocute"))
+		and try_goto_electrocute_state(inst, data, state, statedata, ongotostatefn)
+end
+
+local function onelectrocute(inst, data)
+	if not (inst.components.health and inst.components.health:IsDead()) then
+		try_electrocute_onevent(inst, data)
+	end
+end
+
+CommonHandlers.TryElectrocuteOnEvent = try_electrocute_onevent
+
+CommonHandlers.OnElectrocute = function()
+	return EventHandler("electrocute", onelectrocute)
+end
+
+--------------------------------------------------------------------------
 local function onattack(inst)
-    if inst.components.health ~= nil and not inst.components.health:IsDead()
-        and (not inst.sg:HasStateTag("busy") or inst.sg:HasStateTag("hit")) then
+	if inst.components.health and not inst.components.health:IsDead() and
+		(	not inst.sg:HasStateTag("busy") or
+			(inst.sg:HasStateTag("hit") and not inst.sg:HasStateTag("electrocute"))
+		)
+	then
         inst.sg:GoToState("attack")
     end
 end
@@ -193,9 +353,20 @@ CommonHandlers.OnAttack = function()
 end
 
 --------------------------------------------------------------------------
+
+local function should_use_corpse_state_on_load(inst, cause)
+    return cause == "file_load" and EntityHasCorpse(inst) and inst:GetDeathLootLevel() > 0
+end
+CommonHandlers.ShouldUseCorpseStateOnLoad = should_use_corpse_state_on_load
+
 local function ondeath(inst, data)
 	if not inst.sg:HasStateTag("dead") then
-		inst.sg:GoToState("death", data)
+        local use_corpse_state = should_use_corpse_state_on_load(inst, data.cause)
+        if use_corpse_state then
+            inst.sg:GoToState("corpse", true)
+        else
+            inst.sg:GoToState("death", data)
+        end
 	end
 end
 
@@ -223,16 +394,6 @@ CommonHandlers.OnLocomote = function(can_run, can_walk)
             end
         end
     end)
-end
-
---------------------------------------------------------------------------
-local function ClearStatusAilments(inst)
-    if inst.components.freezable ~= nil and inst.components.freezable:IsFrozen() then
-        inst.components.freezable:Unfreeze()
-    end
-    if inst.components.pinnable ~= nil and inst.components.pinnable:IsStuck() then
-        inst.components.pinnable:Unstick()
-    end
 end
 
 --------------------------------------------------------------------------
@@ -610,7 +771,7 @@ local function DoHopLandSound(inst, land_sound)
 	end
 end
 
-CommonStates.AddHopStates = function(states, wait_for_pre, anims, timelines, land_sound, landed_in_falling_state, data)
+CommonStates.AddHopStates = function(states, wait_for_pre, anims, timelines, land_sound, landed_in_falling_state, data, fns)
 	anims = anims or {}
     timelines = timelines or {}
 	data = data or {}
@@ -620,6 +781,9 @@ CommonStates.AddHopStates = function(states, wait_for_pre, anims, timelines, lan
         tags = { "doing", "nointerrupt", "busy", "boathopping", "jumping", "autopredict", "nomorph", "nosleep" },
 
         onenter = function(inst)
+			if fns and fns.pre_onenter then
+				fns.pre_onenter(inst)
+			end
             local embark_x, embark_z = inst.components.embarker:GetEmbarkPosition()
             inst:ForceFacePoint(embark_x, 0, embark_z)
             if not wait_for_pre then
@@ -654,12 +818,14 @@ CommonStates.AddHopStates = function(states, wait_for_pre, anims, timelines, lan
                     end
                 end),
             EventHandler("cancelhop", function(inst)
-                inst.sg.statemem.not_interrupted = false
                 inst.sg:GoToState("hop_cancelhop")
             end),
         },
 
 		onexit = function(inst)
+			if fns and fns.pre_onexit then
+				fns.pre_onexit(inst)
+			end
 			if not inst.sg.statemem.not_interrupted then
 				if data.start_embarking_pre_frame ~= nil then
 					inst.Physics:ClearLocalCollisionMask()
@@ -677,6 +843,9 @@ CommonStates.AddHopStates = function(states, wait_for_pre, anims, timelines, lan
         tags = { "doing", "nointerrupt", "busy", "boathopping", "jumping", "autopredict", "nomorph", "nosleep" },
 
         onenter = function(inst, data)
+			if fns and fns.loop_onenter then
+				fns.loop_onenter(inst)
+			end
 			inst.sg.statemem.queued_post_land_state = data ~= nil and data.queued_post_land_state or nil
             inst.AnimState:PlayAnimation(FunctionOrValue(anims.loop, inst) or "jump_loop", true)
 			inst.sg.statemem.collisionmask = data ~= nil and data.collisionmask or inst.Physics:GetCollisionMask()
@@ -698,12 +867,14 @@ CommonStates.AddHopStates = function(states, wait_for_pre, anims, timelines, lan
                 inst.sg:GoToState("hop_pst", {landed_in_water = not TheWorld.Map:IsPassableAtPoint(px, 0, pz), queued_post_land_state = inst.sg.statemem.queued_post_land_state} )
             end),
             EventHandler("cancelhop", function(inst)
-				inst.sg.statemem.not_interrupted = false
                 inst.sg:GoToState("hop_cancelhop")
             end),
         },
 
 		onexit = function(inst)
+			if fns and fns.loop_onexit then
+				fns.loop_onexit(inst)
+			end
             inst.Physics:ClearLocalCollisionMask()
 			if inst.sg.statemem.collisionmask ~= nil then
                 inst.Physics:SetCollisionMask(inst.sg.statemem.collisionmask)
@@ -724,6 +895,9 @@ CommonStates.AddHopStates = function(states, wait_for_pre, anims, timelines, lan
         tags = { "doing", "nointerrupt", "boathopping", "jumping", "autopredict", "nomorph", "nosleep" },
 
         onenter = function(inst, data)
+			if fns and fns.pst_onenter then
+				fns.pst_onenter(inst)
+			end
             inst.AnimState:PlayAnimation(FunctionOrValue(anims.pst, inst) or "jump_pst", false)
 
             inst.components.embarker:Embark()
@@ -758,7 +932,11 @@ CommonStates.AddHopStates = function(states, wait_for_pre, anims, timelines, lan
         },
 
 		onexit = function(inst)
+			if fns and fns.pst_onexit then
+				fns.pst_onexit(inst)
+			end
 			-- here for now, should be moved into timeline
+			land_sound = FunctionOrValue(land_sound, inst)
 			if land_sound ~= nil then
 				--For now we just have the land on boat sound
 				--Delay since inst:GetCurrentPlatform() may not be updated yet
@@ -772,6 +950,9 @@ CommonStates.AddHopStates = function(states, wait_for_pre, anims, timelines, lan
         tags = {"autopredict", "nomorph", "nosleep" },
 
         onenter = function(inst)
+			if fns and fns.pst_complete_onenter then
+				fns.pst_complete_onenter(inst)
+			end
 			if inst.components.locomotor.isrunning then
                 inst:DoTaskInTime(0,
                     function()
@@ -783,6 +964,8 @@ CommonStates.AddHopStates = function(states, wait_for_pre, anims, timelines, lan
                 inst.sg:GoToState("idle")
             end
         end,
+
+		onexit = fns and fns.pst_complete_onexit,
     })
 
     table.insert(states, State{
@@ -790,6 +973,9 @@ CommonStates.AddHopStates = function(states, wait_for_pre, anims, timelines, lan
         tags = {"nopredict", "nomorph", "nosleep", "busy"},
 
         onenter = function(inst)
+			if fns and fns.cancelhop_onenter then
+				fns.cancelhop_onenter(inst)
+			end
             inst.components.locomotor:Stop()
             inst.AnimState:PlayAnimation(FunctionOrValue(anims.pst, inst) or "jump_pst", false)
         end,
@@ -799,6 +985,8 @@ CommonStates.AddHopStates = function(states, wait_for_pre, anims, timelines, lan
                 inst.sg:GoToState("idle")
             end),
         },
+
+		onexit = fns and fns.cancelhop_onexit,
     })
 end
 
@@ -849,11 +1037,9 @@ CommonStates.AddAmphibiousCreatureHopStates = function(states, config, anims, ti
 			if inst.components.embarker:HasDestination() then
 				if inst.sg.statemem.embarked then
 					inst.components.embarker:Embark()
-					inst.components.locomotor:FinishHopping()
 					inst.sg:GoToState("hop_pst", false)
 				elseif inst.sg.statemem.timeout then
 					inst.components.embarker:Cancel()
-					inst.components.locomotor:FinishHopping()
 
 					local x, y, z = inst.Transform:GetWorldPosition()
 					inst.sg:GoToState("hop_pst", not TheWorld.Map:IsVisualGroundAtPoint(x, y, z) and inst:GetCurrentPlatform() == nil)
@@ -862,7 +1048,6 @@ CommonStates.AddAmphibiousCreatureHopStates = function(states, config, anims, ti
                    (inst.sg.statemem.tryexit and inst.sg.statemem.swimming == TheWorld.Map:IsVisualGroundAtPoint(inst.Transform:GetWorldPosition())) or
                    (not inst.components.locomotor.dest and not inst.components.locomotor.wantstomoveforward) then
 				inst.components.embarker:Cancel()
-				inst.components.locomotor:FinishHopping()
 				local x, y, z = inst.Transform:GetWorldPosition()
 				inst.sg:GoToState("hop_pst", not TheWorld.Map:IsVisualGroundAtPoint(x, y, z) and inst:GetCurrentPlatform() == nil)
 			end
@@ -901,7 +1086,6 @@ CommonStates.AddAmphibiousCreatureHopStates = function(states, config, anims, ti
             inst.Physics:CollidesWith(COLLISION.LIMITS)
 			if inst.components.embarker:HasDestination() then
 				inst.components.embarker:Cancel()
-				inst.components.locomotor:FinishHopping()
 			end
 
 			if onexits ~= nil and onexits.hop_pre ~= nil then
@@ -1248,9 +1432,13 @@ CommonStates.AddCombatStates = function(states, timelines, anims, fns)
             if inst.components.locomotor ~= nil then
                 inst.components.locomotor:StopMoving()
             end
-            inst.AnimState:PlayAnimation(anims ~= nil and anims.death or "death")
+            inst.AnimState:PlayAnimation(anims ~= nil and anims.death or (fns and fns.deathanimfn and fns.deathanimfn(inst)) or "death")
             RemovePhysicsColliders(inst)
             inst.components.lootdropper:DropLoot(inst:GetPosition())
+
+            if fns ~= nil and fns.deathenter ~= nil then
+                fns.deathenter(inst)
+            end
         end,
 
         timeline = timelines ~= nil and timelines.deathtimeline or nil,
@@ -1292,6 +1480,96 @@ CommonStates.AddHitState = function(states, timeline, anim)
 end
 
 --------------------------------------------------------------------------
+CommonStates.AddElectrocuteStates = function(states, timelines, anims, fns)
+	table.insert(states, State{
+		name = "electrocute",
+		tags = { "electrocute", "hit", "busy", "noelectrocute", "nosleep" },
+
+		onenter = function(inst, data)
+			ClearStatusAilments(inst)
+			if inst.components.sleeper then
+				inst.components.sleeper:WakeUp()
+			end
+			if inst.components.locomotor then
+				inst.components.locomotor:StopMoving()
+			end
+
+			inst.sg.statemem.data = data
+
+			local anim = anims and FunctionOrValue(anims.loop, inst) or "shock_loop"
+			inst.AnimState:PlayAnimation(anim, true)
+
+			if inst.SoundEmitter and inst.sounds and inst.sounds.hit then
+				inst.SoundEmitter:PlaySound(inst.sounds.hit)
+			end
+
+			local duration = CalcEntityElectrocuteDuration(inst, data and data.duration)
+
+			update_hit_recovery_delay(inst)
+			update_electrocute_recovery_delay(inst)
+			inst.sg.statemem.fx = spawn_electrocute_fx(inst, data, duration)
+
+			inst.sg:SetTimeout(duration)
+
+			if fns and fns.loop_onenter then
+				fns.loop_onenter(inst)
+			end
+			inst:PushEvent("startelectrocute")
+		end,
+
+		timeline = timelines and timelines.loop,
+
+		ontimeout = function(inst)
+			if inst.components.sleeper then
+				inst.components.sleeper:WakeUp()
+			end
+			inst.sg.statemem.not_interrupted = true
+			inst.sg:GoToState("electrocute_pst")
+		end,
+
+		onexit = function(inst)
+			if inst.sg.mem.burn_on_electrocute then
+				local data = inst.sg.statemem.data
+				if not (data and data.noburn) and inst.components.burnable and not inst.components.burnable:IsBurning() then
+					local attackdata = data and data.attackdata or data
+					inst.components.burnable:Ignite(nil, attackdata and (attackdata.weapon or attackdata.attacker), attackdata and attackdata.attacker)
+				end
+			end
+			if fns and fns.loop_onexit then
+				fns.loop_onexit(inst)
+			end
+		end,
+	})
+
+	table.insert(states, State{
+		name = "electrocute_pst",
+		tags = { "electrocute", "hit", "busy", "noelectrocute" },
+
+		onenter = function(inst)
+			if inst.components.locomotor then
+				inst.components.locomotor:StopMoving()
+			end
+
+			local anim = anims and FunctionOrValue(anims.pst, inst) or "shock_pst"
+			inst.AnimState:PlayAnimation(anim)
+
+			if fns and fns.pst_onenter then
+				fns.pst_onenter(inst)
+			end
+		end,
+
+		timeline = timelines and timelines.pst,
+
+		events =
+		{
+			EventHandler("animover", fns and fns.onanimover or idleonanimover),
+		},
+
+		onexit = fns and fns.pst_onexit,
+	})
+end
+
+--------------------------------------------------------------------------
 CommonStates.AddDeathState = function(states, timeline, anim)
     table.insert(states, State{
         name = "death",
@@ -1324,7 +1602,7 @@ local function onsleepex(inst)
             elseif fallingreason == FALLINGREASON.VOID then
                 inst.sg:GoToState("abyss_fall")
             end
-		elseif not (inst.sg:HasStateTag("nosleep") or inst.sg:HasStateTag("sleeping")) then
+		elseif not inst.sg:HasAnyStateTag("nosleep", "sleeping") then
 		    inst.sg:GoToState("sleep")
 		end
     end
@@ -1359,6 +1637,20 @@ CommonHandlers.OnNoSleepAnimOver = function(nextstate)
             end
         end
     end)
+end
+
+CommonHandlers.OnNoSleepAnimQueueOver = function(nextstate)
+	return EventHandler("animqueueover", function(inst)
+		if inst.AnimState:AnimDone() then
+			if inst.sg.mem.sleeping then
+				inst.sg:GoToState("sleep")
+			elseif type(nextstate) == "string" then
+				inst.sg:GoToState(nextstate)
+			elseif nextstate then
+				nextstate(inst)
+			end
+		end
+	end)
 end
 
 CommonHandlers.OnNoSleepTimeEvent = function(t, fn)
@@ -1590,108 +1882,72 @@ end
 
 --------------------------------------------------------------------------
 
+local function GetRowHandAndFacing(inst)
+	local boat = inst:GetCurrentPlatform()
+	if boat then
+		local target_x, _, target_z
+		local buffaction = inst:GetBufferedAction()
+		if buffaction then
+			local target_pos = buffaction:GetActionPoint()
+			if target_pos then
+				target_x, _, target_z = target_pos:Get()
+			elseif buffaction.target then
+				target_x, _, target_z = buffaction.target.Transform:GetWorldPosition()
+				inst:ForceFacePoint(target_x, 0, target_z)
+			end
+		end
+		if target_x == nil then
+			target_x, _, target_z = inst.Transform:GetWorldPosition()
+		end
+
+		local x, _, z = inst.Transform:GetWorldPosition()
+		local dir = boat:GetAngleToPoint(x, 0, z)
+		local delta = dir / 45
+		local seg = math.floor(delta)
+		delta = delta - seg
+		local lefthand = delta < 0.5
+		seg = (lefthand and seg or seg + 1) * 45
+		if not (inst.components.playercontroller and inst.components.playercontroller.isclientcontrollerattached) and
+			(x ~= target_x or z ~= target_z)
+		then
+			local dir2 = math.atan2(z - target_z, target_x - x) * RADIANS
+			local diff = ReduceAngle(dir2 - dir)
+			if diff > 0 then
+				if not lefthand then
+					lefthand = true
+					dir = seg + 1
+				end
+			elseif diff < 0 and lefthand then
+				lefthand = false
+				dir = seg - 1
+			end
+		end
+		if dir == seg then
+			dir = seg + (lefthand and 1 or -1)
+		end
+		return dir, lefthand
+	end
+end
+
 CommonStates.AddRowStates = function(states, is_client)
     table.insert(states, State{
         name = "row",
         tags = { "rowing", "doing" },
 
         onenter = function(inst)
-            local locomotor = inst.components.locomotor
-            local target_pos = nil
-            if locomotor.bufferedaction then
-                target_pos = locomotor.bufferedaction:GetActionPoint()
-                if target_pos == nil then
-                    target_pos = locomotor.bufferedaction.target:GetPosition()
-                    inst:ForceFacePoint(target_pos:Get())
-                end
-            else
-                target_pos = Vector3(inst.Transform:GetWorldPosition())
-            end
+			local dir, lefthand = GetRowHandAndFacing(inst)
             inst:AddTag("is_rowing")
             inst.AnimState:PlayAnimation("row_pre")
-            locomotor:Stop()
-
-            local my_x, my_y, my_z = inst.Transform:GetWorldPosition()
-            local boat_x, boat_y, boat_z = 0, 0, 0
-            local boat = inst:GetCurrentPlatform()
-            if boat ~= nil then
-                boat_x, boat_y, boat_z = boat.Transform:GetWorldPosition()
-            end
+			inst.components.locomotor:Stop()
 
             if is_client then
                 inst:PerformPreviewBufferedAction()
             end
 
-            local target_x, target_z = nil,nil
-
-            if inst.components.playercontroller.isclientcontrollerattached then
-                local dir_x, dir_z = VecUtil_Normalize(my_x - boat_x, my_z - boat_z)
-                target_x, target_z = my_x + dir_x, my_z + dir_z
-            else
-                target_x, target_z = target_pos.x, target_pos.z
-            end
-
-            local delta_target_x, delta_target_z = target_x- my_x, target_z - my_z
-            local delta_boat_x, delta_boat_z = my_x - boat_x, my_z - boat_z
-
-            local camera_down_vec = TheCamera:GetDownVec()
-            local camera_right_vec = TheCamera:GetRightVec()
-
-            local camera_up_x, camera_up_z = -camera_down_vec.x, -camera_down_vec.z
-            local camera_right_x, camera_right_z = camera_right_vec.x, camera_right_vec.z
-
-            local delta_target_x_camera, delta_target_z_camera = delta_target_x * camera_right_x + delta_target_z * camera_right_z, delta_target_x * camera_up_x + delta_target_z * camera_up_z
-            local delta_boat_x_camera, delta_boat_z_camera = delta_boat_x * camera_right_x + delta_boat_z * camera_right_z, delta_boat_x * camera_up_x + delta_boat_z * camera_up_z
-
-            local target_anim = "row_medium"
-            local debug_id = ""
-            local is_facing_horizontal = math.abs(delta_target_x_camera) > math.abs(delta_target_z_camera)
-            local is_on_upper_half = delta_boat_z_camera > 0
-            local is_on_right_side = delta_boat_x_camera > 0
-            local is_facing_right = delta_target_x_camera > 0
-            local is_facing_up = delta_target_z_camera > 0
-
-            if is_facing_horizontal then
-                if is_on_upper_half then
-                    if is_facing_right then
-                        target_anim = "row_medium_off"
-                        debug_id = "is_facing_horizontal, is_on_upper_half, is_facing_right"
-                    else
-                        target_anim = "row_medium_off"
-                        debug_id = "is_facing_horizontal, is_on_upper_half, is_facing_left"
-                    end
-                else
-                    if is_facing_right then
-                        target_anim = "row_medium"
-                        debug_id = "is_facing_horizontal, is_on_lower_half, is_facing_right"
-                    else
-                        target_anim = "row_medium"
-                        debug_id = "is_facing_horizontal, is_on_lower_half, is_facing_left"
-                    end
-                end
-            else
-                if is_on_right_side then
-                    if is_facing_up then
-                        target_anim = "row_medium"
-                        debug_id = "is_facing_vertical, is_on_right_side, is_facing_up"
-                    else
-                        target_anim = "row_medium_off"
-                        debug_id = "is_facing_vertical, is_on_right_side, is_facing_down"
-                    end
-                else
-                    if is_facing_up then
-                        target_anim = "row_medium_off"
-                        debug_id = "is_facing_vertical, is_on_left_side, is_facing_up"
-                    else
-                        target_anim = "row_medium"
-                        debug_id = "is_facing_vertical, is_on_left_side, is_facing_down"
-                    end
-                end
-            end
-
-            inst.AnimState:PushAnimation(target_anim, false)
-
-            inst:ForceFacePoint(target_x, 0, target_z)
+			if dir then
+				inst.Transform:SetRotation(dir)
+			end
+			inst.AnimState:PushAnimation(lefthand and "row_medium_off" or "row_medium", false)
         end,
 
         onexit = function(inst)
@@ -1721,7 +1977,9 @@ CommonStates.AddRowStates = function(states, is_client)
         {
             EventHandler("unequip", function(inst) inst.sg:GoToState("idle") end),
             EventHandler("animqueueover", function(inst)
-                inst.sg:GoToState("row_idle")
+				if inst.AnimState:AnimDone() then
+					inst.sg:GoToState("row_idle")
+				end
             end),
         },
 
@@ -1738,16 +1996,20 @@ CommonStates.AddRowStates = function(states, is_client)
         tags = { "busy", "row_fail" },
 
         onenter = function(inst)
+			local dir, lefthand = GetRowHandAndFacing(inst)
             if is_client then
                 inst:PerformPreviewBufferedAction()
             else
                 inst:PerformBufferedAction()
             end
-
             inst:AddTag("is_row_failing")
             inst.components.locomotor:Stop()
+
+			if dir then
+				inst.Transform:SetRotation(dir)
+			end
             inst.AnimState:PlayAnimation("row_fail_pre")
-            inst.AnimState:PushAnimation("row_fail", false)
+			inst.AnimState:PushAnimation(lefthand and "row_fail_off" or "row_fail", false)
         end,
 
         onexit = function(inst)
@@ -1773,7 +2035,9 @@ CommonStates.AddRowStates = function(states, is_client)
         {
             EventHandler("unequip", function(inst) inst.sg:GoToState("idle") end),
             EventHandler("animqueueover", function(inst)
-                inst.sg:GoToState("row_idle")
+				if inst.AnimState:AnimDone() then
+					inst.sg:GoToState("row_idle")
+				end
             end),
         },
 
@@ -1833,7 +2097,7 @@ CommonStates.AddSinkAndWashAshoreStates = function(states, anims, timelines, fns
 
     table.insert(states, State{
         name = "sink",
-        tags = { "busy", "nopredict", "nomorph", "drowning", "nointerrupt", "nowake" },
+		tags = { "busy", "nopredict", "nomorph", "drowning", "nointerrupt", "nosleep" },
 
         onenter = function(inst, data)
             inst:ClearBufferedAction()
@@ -1854,9 +2118,7 @@ CommonStates.AddSinkAndWashAshoreStates = function(states, anims, timelines, fns
 			    inst.DynamicShadow:Enable(false)
 			end
 
-		    if inst.brain ~= nil then
-				inst.brain:Stop()
-			end
+			inst:StopBrain("sinking")
 
 			local skip_anim = data ~= nil and data.noanim
 			if anims.sink ~= nil and not skip_anim then
@@ -1879,6 +2141,10 @@ CommonStates.AddSinkAndWashAshoreStates = function(states, anims, timelines, fns
             end),
 
             EventHandler("on_washed_ashore", function(inst)
+				if inst.components.sleeper and inst.components.sleeper:IsAsleep() then
+					inst.components.sleeper:WakeUp()
+				end
+				ClearStatusAilments(inst)
 				inst.sg:GoToState("washed_ashore")
 			end),
         },
@@ -1907,9 +2173,7 @@ CommonStates.AddSinkAndWashAshoreStates = function(states, anims, timelines, fns
 				inst.components.combat:DropTarget()
 			end
 
-		    if inst.brain ~= nil then
-				inst.brain:Start()
-			end
+			inst:RestartBrain("sinking")
         end,
     })
 
@@ -1934,9 +2198,7 @@ CommonStates.AddSinkAndWashAshoreStates = function(states, anims, timelines, fns
 	            inst.AnimState:PushAnimation("sleep_pst", false)
 			end
 
-		    if inst.brain ~= nil then
-				inst.brain:Stop()
-			end
+			inst:StopBrain("washed_ashore")
 
 			if inst.components.drownable ~= nil then
 				inst.components.drownable:TakeDrowningDamage()
@@ -1959,9 +2221,7 @@ CommonStates.AddSinkAndWashAshoreStates = function(states, anims, timelines, fns
         },
 
         onexit = function(inst)
-		    if inst.brain ~= nil then
-				inst.brain:Start()
-			end
+			inst:RestartBrain("washed_ashore")
         end,
 	})
 end
@@ -2006,7 +2266,7 @@ CommonStates.AddVoidFallStates = function(states, anims, timelines, fns)
 
     table.insert(states, State{
         name = "abyss_fall",
-        tags = { "busy", "nopredict", "nomorph", "falling", "nointerrupt", "nowake" },
+		tags = { "busy", "nopredict", "nomorph", "falling", "nointerrupt", "nosleep" },
 
         onenter = function(inst, data)
             inst:ClearBufferedAction()
@@ -2027,9 +2287,7 @@ CommonStates.AddVoidFallStates = function(states, anims, timelines, fns)
 			    inst.DynamicShadow:Enable(false)
 			end
 
-		    if inst.brain ~= nil then
-				inst.brain:Stop()
-			end
+			inst:StopBrain("abyss_fall")
 
 			local skip_anim = data ~= nil and data.noanim
 			if anims.fallinvoid ~= nil and not skip_anim then
@@ -2053,6 +2311,10 @@ CommonStates.AddVoidFallStates = function(states, anims, timelines, fns)
             end),
 
             EventHandler("on_void_arrive", function(inst)
+				if inst.components.sleeper and inst.components.sleeper:IsAsleep() then
+					inst.components.sleeper:WakeUp()
+				end
+				ClearStatusAilments(inst)
 				inst.sg:GoToState("abyss_drop")
 			end),
         },
@@ -2081,9 +2343,7 @@ CommonStates.AddVoidFallStates = function(states, anims, timelines, fns)
 				inst.components.combat:DropTarget()
 			end
 
-		    if inst.brain ~= nil then
-				inst.brain:Start()
-			end
+			inst:RestartBrain("abyss_fall")
         end,
     })
 
@@ -2108,9 +2368,7 @@ CommonStates.AddVoidFallStates = function(states, anims, timelines, fns)
                 inst.AnimState:PushAnimation("sleep_pst", false)
             end
 
-            if inst.brain ~= nil then
-                inst.brain:Stop()
-            end
+			inst:StopBrain("abyss_drop")
 
             local x, y, z = inst.Transform:GetWorldPosition()
             SpawnPrefab("fallingswish_clouds_fast").Transform:SetPosition(x, y, z)
@@ -2128,9 +2386,7 @@ CommonStates.AddVoidFallStates = function(states, anims, timelines, fns)
         },
 
         onexit = function(inst)
-		    if inst.brain ~= nil then
-				inst.brain:Start()
-			end
+			inst:RestartBrain("abyss_drop")
         end,
 	})
 end
@@ -2140,7 +2396,7 @@ end
 function PlayMiningFX(inst, target, nosound)
     if target ~= nil and target:IsValid() then
         local frozen = target:HasTag("frozen")
-        local moonglass = target:HasTag("moonglass")
+        local moonglass = target:HasAnyTag("moonglass", "LunarBuildup")
         local crystal = target:HasTag("crystal")
         if target.Transform ~= nil then
             SpawnPrefab(
@@ -2193,3 +2449,394 @@ CommonStates.AddIpecacPoopState = function(states, anim)
 end
 
 --------------------------------------------------------------------------
+
+CommonStates.AddCorpseStates = function(states, anims, fns, overridecorpseprefab)
+    anims = anims or {}
+    -- For actual mob
+    local function DoCorpseErode(inst)
+        ErodeAway(inst)
+        --
+        if fns and fns.corpseonerode then
+            fns.corpseonerode(inst)
+        end
+    end
+
+    table.insert(states, State{
+		name = "corpse",
+		tags = { "dead", "busy", "noattack" },
+
+		onenter = function(inst, loading)
+            if fns and fns.corpseonenter then
+                fns.corpseonenter(inst, loading)
+            end
+
+            -- Assuming the death animation is one animation. Is there a case where it's split up?
+            inst.sg.statemem.deathtimeelapsed = (inst.AnimState:GetCurrentAnimationNumFrames() + 1) * FRAMES
+			inst.components.locomotor:Stop()
+
+            local anim, loop = FunctionOrValue(anims.corpse, inst)
+			inst.AnimState:PlayAnimation(anim or "corpse", loop)
+		end,
+
+		timeline =
+		{
+            --a 1 frame delay in case we are loading
+            FrameEvent(1, function(inst)
+                local corpseprefab = overridecorpseprefab or inst.sg.sg.name.."corpse"
+                local corpse = not inst:HasTag("lunar_aligned") and TryEntityToCorpse(inst, corpseprefab) or nil
+                if corpse == nil then
+	        		inst:AddTag("NOCLICK")
+	        		inst.persists = false
+	        		RemovePhysicsColliders(inst)
+
+	        		-- time since death anim started
+	        		local delay = (inst.components.health.destroytime or 2) - inst.sg.statemem.deathtimeelapsed
+                    if delay > 0 then
+	        			inst.sg:SetTimeout(delay)
+	        		else
+	        			DoCorpseErode(inst)
+	        		end
+                elseif fns and fns.corpseoncreate ~= nil then
+                    fns.corpseoncreate(inst, corpse)
+                end
+            end)
+		},
+
+		ontimeout = DoCorpseErode,
+	})
+
+    -- For corpse prefab
+    table.insert(states, State{
+        name = "corpse_idle",
+        tags = { "corpse" },
+
+        onenter = function(inst, start_anim)
+            local anim, loop = FunctionOrValue(anims.corpse, inst)
+            anim = anim or "corpse"
+            if start_anim then
+                inst.AnimState:PlayAnimation(start_anim)
+                inst.AnimState:PushAnimation(anim, loop)
+            else
+                inst.AnimState:PlayAnimation(anim, loop)
+            end
+        end,
+    })
+
+    table.insert(states, State{
+        name = "corpse_hit",
+        tags = { "corpse", "hit" },
+
+        onenter = function(inst, data)
+            local weapon_sound_modifier = "dull"
+            if data.weapon_sound_modifier ~= nil then
+                weapon_sound_modifier = data.weapon_sound_modifier
+            end
+            local anim, loop = FunctionOrValue(anims.corpse_hit, inst)
+            --
+            inst.AnimState:PlayAnimation(anim or "corpse_hit", loop)
+            inst.SoundEmitter:PlaySound(GetCreatureImpactSound(inst, weapon_sound_modifier))
+        end,
+
+        timeline =
+        {
+            -- Allow being hit again.
+            FrameEvent(6, function(inst) inst.sg:RemoveStateTag("hit") end),
+        },
+
+        events =
+        {
+            EventHandler("animover", function(inst)
+                if inst.AnimState:AnimDone() then
+                    inst.sg:GoToState("corpse_idle")
+                end
+            end),
+        },
+    })
+end
+
+--[[
+Notes on the mutations
+
+Pre Rift Mutations:
+-Animation is like something is punching inside, a new body appears out of it
+-Revival is very cartoony, corpse rips apart like paper
+-Mutated mob is quite horrific,
+-Mutated mob still has SOME of its instinctual and animalistic behaviours
+-Catalyst is general lunar energy
+
+
+Rift Mutations:
+-Gestalt is posessing the body,
+-Mutated mob does not have instinctual and animalistic behaviours, Alter is in full control!
+-Revival is quite horrific, crackling, glass sounds, corpse is tearing and distorting.
+-Mutated mob is a bit more "elegant" and "pretty" looking sporting beautiful crystals,
+-Catalyst is a Incursive Gestalt
+]]
+
+CommonStates.AddLunarPreRiftMutationStates = function(states, timelines, anims, fns, data)
+    data = data or {}
+    anims = anims or {}
+    -- These states are played on the corpse
+
+    table.insert(states, State{
+        name = "corpse_prerift_mutate",
+        tags = { "prerift_mutating" },
+
+        onenter = function(inst, mutantprefab)
+            if fns and fns.mutate_onenter then
+                fns.mutate_onenter(inst)
+            end
+            local anim_mutate, loop = FunctionOrValue(anims.mutate, inst)
+            inst.AnimState:PlayAnimation(anim_mutate or "reviving", loop)
+            inst.sg:SetTimeout(data.mutated_spawn_timing)
+            inst.sg.statemem.mutantprefab = mutantprefab
+        end,
+
+        ontimeout = function(inst)
+            local mutant = SpawnPrefab(inst.sg.statemem.mutantprefab)
+            mutant.Transform:SetPosition(inst.Transform:GetWorldPosition())
+            mutant.Transform:SetRotation(inst.Transform:GetRotation())
+
+            if mutant.sg then
+                mutant.sg:GoToState("corpse_prerift_mutate_pst")
+            elseif mutant.OnMutatePost ~= nil then -- For special cases like the moon spider den
+                mutant:OnMutatePost()
+            end
+
+            if mutant.LoadCorpseData ~= nil then
+                mutant:LoadCorpseData(inst)
+            end
+
+            if fns and fns.mutate_createmutant then
+                fns.mutate_createmutant(inst, mutant)
+            end
+
+            inst:AddTag("NOCLICK")
+            inst:AddTag("NOBLOCK")
+            inst:RemoveComponent("inspectable")
+	        inst:RemoveComponent("burnable")
+	        inst:RemoveComponent("propagator")
+            inst.DynamicShadow:Enable(false)
+
+            inst.sg:RemoveStateTag("prerift_mutating")
+            inst.OnEntitySleep = inst.Remove
+            inst.persists = false
+        end,
+
+        events =
+		{
+			EventHandler("animover", function(inst) inst:Remove() end),
+		},
+
+        timeline = timelines ~= nil and timelines.mutate_timeline or nil,
+    })
+
+    -- These states are played on the actual mutation mob
+
+    local mutatepst_onanimover = fns ~= nil and fns.mutatepst_onanimover or nil
+
+    table.insert(states, State{
+        name = "corpse_prerift_mutate_pst",
+        tags = { "prerift_mutating", "busy" },
+
+        onenter = function(inst)
+            if fns and fns.mutatepst_onenter then
+                fns.mutatepst_onenter(inst)
+            end
+            local anim_mutate, loop = FunctionOrValue(anims.mutate_pst, inst)
+            inst.components.locomotor:Stop()
+            inst.AnimState:PlayAnimation(anim_mutate or "mutated_spawn", loop)
+        end,
+
+        timeline = timelines ~= nil and timelines.mutatepst_timeline or nil,
+
+        events =
+		{
+			EventHandler("animover", mutatepst_onanimover or function(inst)
+				if inst.AnimState:AnimDone() then
+					inst.sg:GoToState(data.post_mutate_state or "idle")
+				end
+			end),
+		},
+    })
+end
+
+CommonStates.AddLunarRiftMutationStates = function(states, timelines, anims, fns, data)
+    anims = anims or {}
+    data = data or {}
+
+    -- These states are played on the corpse
+
+    table.insert(states, State{
+        name = "corpse_lunarrift_mutate_pre",
+        tags = { "lunarrift_mutating" },
+
+        onenter = function(inst, mutantprefab)
+            if fns and fns.mutatepre_onenter then
+                fns.mutatepre_onenter(inst, mutantprefab)
+            end
+            local anim_mutate_pre, loop = FunctionOrValue(anims.mutate_pre, inst)
+            if loop ~= false then
+                loop = true
+            end
+            inst.AnimState:PlayAnimation(anim_mutate_pre or "twitch", loop)
+            inst.sg:SetTimeout(3)
+            inst.sg.statemem.mutantprefab = mutantprefab
+            if data.twitch_lp then
+                inst.SoundEmitter:PlaySound(data.twitch_lp, "loop")
+            end
+        end,
+
+        timeline = timelines ~= nil and timelines.mutatepre_timeline or nil,
+
+        ontimeout = function(inst)
+            inst.sg.statemem.ismutating = true
+            inst.sg:GoToState("corpse_lunarrift_mutate", inst.sg.statemem.mutantprefab)
+        end,
+
+        onexit = function(inst)
+            if inst.sg.statemem.ismutating and not data.keep_twitch_lp then
+                inst.SoundEmitter:KillSound("loop")
+            end
+        end,
+    })
+
+    table.insert(states, State{
+        name = "corpse_lunarrift_mutate",
+        tags = { "lunarrift_mutating" },
+
+        onenter = function(inst, mutantprefab)
+            if fns and fns.mutate_onenter then
+                fns.mutate_onenter(inst, mutantprefab)
+            end
+            local anim_mutate = FunctionOrValue(anims.mutate, inst)
+            inst.AnimState:PlayAnimation(anim_mutate or "mutate_pre", false)
+            inst.sg.statemem.mutantprefab = mutantprefab
+        end,
+
+        timeline = timelines ~= nil and timelines.mutate_timeline or nil,
+
+        events =
+        {
+            EventHandler("animover", function(inst)
+				if inst.AnimState:AnimDone() then
+                    local x, y, z = inst.Transform:GetWorldPosition()
+					local rot = inst.Transform:GetRotation()
+					local creature = SpawnPrefab(inst.sg.statemem.mutantprefab)
+                    creature.Transform:SetPosition(x, y, z)
+					creature.Transform:SetRotation(rot)
+					creature.AnimState:MakeFacingDirty() --not needed for clients
+					creature.sg:GoToState("corpse_lunarrift_mutate_pst")
+
+                    if creature.LoadCorpseData ~= nil then
+                        creature:LoadCorpseData(inst)
+                    end
+
+                    inst:Remove()
+				end
+			end),
+        },
+
+        onexit = function(inst)
+            -- Shouldn't reach here!
+            if BRANCH == "dev" then
+                assert(false, "Bad! We somehow exited the corpse_lunarrift_mutate state for: "..inst:GetDisplayName())
+            else
+                inst.AnimState:ClearAllOverrideSymbols()
+			    inst.AnimState:SetAddColour(0, 0, 0, 0)
+			    inst.AnimState:SetLightOverride(0)
+			    inst.SoundEmitter:KillSound("loop")
+			    inst.components.burnable:SetBurnTime(TUNING.MED_BURNTIME)
+			    inst.components.burnable.fastextinguish = false
+            end
+        end,
+    })
+
+    -- These states are played on the actual mutation mob
+
+    table.insert(states, State{
+        name = "corpse_lunarrift_mutate_pst",
+        tags = { "busy", "noattack", "temp_invincible", "noelectrocute" },
+
+        onenter = function(inst)
+            if fns and fns.mutatepst_onenter then
+                fns.mutatepst_onenter(inst)
+            end
+            local anim_mutate_pst = FunctionOrValue(anims.mutate_pst, inst)
+            inst.components.locomotor:Stop()
+            inst.AnimState:PlayAnimation(anim_mutate_pst or "mutate", false)
+            inst.sg.statemem.flash = data.mutatepst_flashtime or 24
+        end,
+
+        timeline = timelines ~= nil and timelines.mutatepst_timeline or nil,
+
+        onupdate = function(inst)
+			local c = inst.sg.statemem.flash
+			if c >= 0 then
+				inst.sg.statemem.flash = c - 1
+				c = easing.inOutQuad(math.min(20, c), 0, 1, 20)
+				inst.AnimState:SetAddColour(c, c, c, 0)
+				inst.AnimState:SetLightOverride(c)
+			end
+		end,
+
+        events =
+		{
+			EventHandler("animover", fns.mutatepst_onanimover or function(inst)
+				if inst.AnimState:AnimDone() then
+					inst.sg:GoToState(data.post_mutate_state or "idle")
+				end
+			end),
+		},
+
+        onexit = function(inst)
+			inst.AnimState:SetAddColour(0, 0, 0, 0)
+			inst.AnimState:SetLightOverride(0)
+		end,
+    })
+end
+
+local function oncorpsedeathanimover(inst)
+    if inst.AnimState:AnimDone() and EntityHasCorpse(inst) then
+        inst.sg:GoToState("corpse")
+    end
+end
+
+CommonHandlers.OnCorpseDeathAnimOver = function(cancorpsefn)
+    local custom_handler = cancorpsefn and function(inst)
+        if cancorpsefn(inst) then
+            oncorpsedeathanimover(inst)
+        end
+    end or nil
+    --
+    return EventHandler("animover", custom_handler or oncorpsedeathanimover)
+end
+
+local function oncorpsechomped(inst, data)
+    if inst.sg:HasStateTag("corpse") and not inst.sg:HasStateTag("hit") then
+        inst.sg:GoToState("corpse_hit", data)
+    end
+end
+
+CommonHandlers.OnCorpseChomped = function()
+    return EventHandler("chomped", oncorpsechomped)
+end
+
+--------------------------------------------------------
+
+CommonStates.AddParasiteReviveState = function(states)
+    table.insert(states, State{
+        name = "parasite_revive",
+        tags = { "busy", "noelectrocute" },
+
+        onenter = function(inst)
+            inst.AnimState:PlayAnimation("parasite_death_pst")
+            inst.Physics:Stop()
+        end,
+
+        events =
+        {
+            EventHandler("animover", function(inst) inst.sg:GoToState("idle") end ),
+        },
+    })
+end

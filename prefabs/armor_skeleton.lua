@@ -17,6 +17,7 @@ local RESISTANCES = -- NOTES(JBK): Keep in sync in skilltree_wortox. [ASRPS]
     "lunarhaildebris",
     "caveindebris",
     "trapdamage",
+    "rock_tree",
 }
 
 for j = 0, 3, 3 do

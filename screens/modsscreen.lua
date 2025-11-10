@@ -481,7 +481,7 @@ function ModsScreen:UpdateForWorkshop()
 		local function alphasort(moda, modb)
 			if not moda then return false end
 			if not modb then return true end
-			return string.lower(KnownModIndex:GetModFancyName(moda.modname)) < string.lower(KnownModIndex:GetModFancyName(modb.modname))
+			return stringidsorter(string.lower(KnownModIndex:GetModFancyName(moda.modname)), string.lower(KnownModIndex:GetModFancyName(modb.modname)))
 		end
 		table.sort(curr_modnames_client, alphasort)
 		table.sort(curr_modnames_server, alphasort)

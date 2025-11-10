@@ -604,6 +604,8 @@ local function CheckForLocationImmunity(player)
 		local x,y,z = player.Transform:GetWorldPosition()
 		if TheWorld.Map:IsPointInWagPunkArenaAndBarrierIsUp(x,y,z) then
 			_targetableplayers[player.GUID] = "arena"
+        elseif TheWorld.Map:IsPointInAnyVault(x,y,z) then
+            _targetableplayers[player.GUID] = "vault"
 		elseif TheWorld.Map:IsVisualGroundAtPoint(x,y,z) then
 			_targetableplayers[player.GUID] = "land"
 		else
@@ -708,6 +710,24 @@ end
 
 function self:SetSpawnData(data)
 	_spawndata = data
+end
+
+-- Not for any actual hounded mechanics (yet?), for tree rock loot data
+-- Keep in sync with CalcEscalationLevel
+function self:GetWorldEscalationLevel()
+	local cycles = TheWorld.state.cycles
+
+	if cycles < 8 then
+		return _spawndata.attack_levels.intro
+	elseif cycles < 25 then
+		return _spawndata.attack_levels.light
+	elseif cycles < 50 then
+		return _spawndata.attack_levels.med
+	elseif cycles < 100 then
+		return _spawndata.attack_levels.heavy
+	else
+		return _spawndata.attack_levels.crazy
+	end
 end
 
 --------------------------------------------------------------------------

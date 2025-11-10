@@ -281,8 +281,6 @@ local function MakeHermitCrabHouse(name, client_postinit, master_postinit, house
 
 		inst:AddTag("antlion_sinkhole_blocker")
 
-        MakeSnowCoveredPristine(inst)
-
         inst.scrapbook_proxy = "hermithouse"
 
         if client_postinit then

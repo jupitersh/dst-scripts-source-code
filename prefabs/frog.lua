@@ -60,9 +60,9 @@ local function retargetfn(inst)
         local cant_tags   = inst.islunar and LUNAR_RETARGET_CANT_TAGS or RETARGET_CANT_TAGS
 
         return FindEntity(inst, target_dist, function(guy)
-            if not guy.components.health:IsDead() then
-                return guy.components.inventory ~= nil
-            end
+			return not guy.components.health:IsDead()
+				and guy.components.inventory ~= nil
+				and inst.components.combat:CanTarget(guy)
         end,
         RETARGET_MUST_TAGS, -- see entityreplica.lua
         cant_tags
@@ -208,6 +208,7 @@ local function lunar_common_postinit(inst)
 	inst.Transform:SetScale(LUNARFROG_SCALE, LUNARFROG_SCALE, LUNARFROG_SCALE)
 
 	inst:AddTag("lunar_aligned")
+    inst:AddTag("gestaltmutant")
 
 	inst.AnimState:SetSymbolLightOverride("flameanim", 0.1)
 	inst.AnimState:SetSymbolBloom("flameanim")

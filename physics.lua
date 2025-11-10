@@ -7,12 +7,12 @@ function OnPhysicsCollision(guid1, guid2, world_position_on_a_x, world_position_
     local i2 = Ents[guid2]
 
     local callback1 = PhysicsCollisionCallbacks[guid1]
-    if callback1 then
+    if callback1 and (not i2 or not i2:HasTag("no_collision_callback_for_other")) then
         callback1(i1, i2, world_position_on_a_x, world_position_on_a_y, world_position_on_a_z, world_position_on_b_x, world_position_on_b_y, world_position_on_b_z, world_normal_on_b_x, world_normal_on_b_y, world_normal_on_b_z, lifetime_in_frames)
     end
 
     local callback2 = PhysicsCollisionCallbacks[guid2]
-    if callback2 then
+    if callback2 and (not i1 or not i1:HasTag("no_collision_callback_for_other")) then
         callback2(i2, i1, world_position_on_b_x, world_position_on_b_y, world_position_on_b_z, world_position_on_a_x, world_position_on_a_y, world_position_on_a_z, -world_normal_on_b_x, -world_normal_on_b_y, -world_normal_on_b_z, lifetime_in_frames)
     end
 end
@@ -114,6 +114,23 @@ function LaunchAt(inst, launcher, target, speedmult, startheight, startradius, r
     end
 end
 
+function LaunchToXZ(inst, tox, toz)
+    if inst ~= nil and inst.Physics ~= nil and inst.Physics:IsActive() then
+        local x, y, z = inst.Transform:GetWorldPosition()
+        local vx, vz = tox - x, toz - z
+        local dist = math.sqrt(vx * vx + vz * vz)
+        if dist > 0 then
+            local angle = math.atan2(vz / dist, vx / dist)
+            local speed = math.sqrt(6.7 * dist) -- Magic constant approximated from inventoryitem tests and their friction to make it get to the destination on rest.
+            inst.Physics:Teleport(x, .1, z)
+            inst.Physics:SetVel(math.cos(angle) * speed, speed, math.sin(angle) * speed)
+        else
+            inst.Physics:Teleport(x, .1, z)
+            inst.Physics:SetVel(0, 2, 0)
+        end
+    end
+end
+
 local COLLAPSIBLE_WORK_ACTIONS =
 {
     CHOP = true,
@@ -129,6 +146,12 @@ local NON_COLLAPSIBLE_TAGS = { "antlion", "groundspike", "flying", "shadow", "gh
 
 function DestroyEntity(ent, destroyer, kill_all_creatures, remove_entity_as_fallback)
     if ent:IsValid() then
+        if ent.proxy_destroy_entity and ent.proxy_destroy_entity:IsValid() then
+            -- So that we can do recursive proxying if needed.
+            -- Don't recurse to each other... I'm putting trust in you....
+            return DestroyEntity(ent.proxy_destroy_entity, destroyer, kill_all_creatures, remove_entity_as_fallback)
+        end
+
         local isworkable = false
         if ent.components.workable ~= nil then
             local work_action = ent.components.workable:GetWorkAction()

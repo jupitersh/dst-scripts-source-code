@@ -263,6 +263,7 @@ local function fn()
         return inst
     end
 
+	inst.override_combat_fx_height = "low"
     inst.scrapbook_anim = "scrapbook"
     inst.scrapbook_overridedata = {"horn", "eyeball_turret_base", "horn"}
 

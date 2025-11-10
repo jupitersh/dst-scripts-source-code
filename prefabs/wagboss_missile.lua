@@ -96,15 +96,8 @@ local function RememberVisualLaunchPt(inst)
 	end
 end
 
-local function CancelLaunchOffset(inst, UpdateLaunchOffset)
-	inst.canceloffsettask = nil
-	inst.components.updatelooper:RemovePostUpdateFn(UpdateLaunchOffset)
-end
-
 local function UpdateLaunchOffset(inst)
-	if inst.canceloffsettask then
-		return
-	elseif inst.rotator then
+	if inst.rotator then
 		if inst.rotator.isnew then
 			inst.rotator.isnew = nil
 			RememberVisualLaunchPt(inst)
@@ -135,7 +128,7 @@ local function UpdateLaunchOffset(inst)
 	end
 
 	if inst.launchpt == nil then
-		inst.canceloffsettask = inst:DoStaticTaskInTime(0, CancelLaunchOffset, UpdateLaunchOffset)
+		inst.components.updatelooper:RemovePostUpdateFn(UpdateLaunchOffset)
 	end
 end
 
@@ -659,6 +652,8 @@ local function fn()
 	inst.circling:set(true)
 	inst.pending = true
 	inst:AddComponent("updatelooper")
+    
+    inst.scrapbook_inspectonseen = true
 
 	inst.entity:SetPristine()
 
@@ -671,8 +666,7 @@ local function fn()
     inst.scrapbook_bank = "missile_fx"
     inst.scrapbook_build = "missile_fx"
     inst.scrapbook_anim = "missile_loop"
-    inst.scrapbook_inspectonseen = true
-
+    
 	inst:AddComponent("combat")
 	inst.components.combat:SetDefaultDamage(TUNING.WAGBOSS_MISSILE_DAMAGE)
 	inst.components.combat.ignorehitrange = true

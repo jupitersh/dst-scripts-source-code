@@ -1,6 +1,5 @@
 require("stategraphs/commonstates")
 
-
 local actionhandlers =
 {
     ActionHandler(ACTIONS.EAT, "eat"),
@@ -12,9 +11,14 @@ local events =
     CommonHandlers.OnSleep(),
     CommonHandlers.OnLocomote(false,true),
     CommonHandlers.OnFreeze(),
-    EventHandler("attacked", function(inst)
+	CommonHandlers.OnElectrocute(),
+	EventHandler("attacked", function(inst, data)
         if not inst.components.health:IsDead() then
-            inst.sg:GoToState("hit")
+			if CommonHandlers.TryElectrocuteOnAttacked(inst, data) then
+				return
+			elseif not inst.sg:HasStateTag("electrocute") then
+				inst.sg:GoToState("hit")
+			end
         end
     end),
     EventHandler("doattack", function(inst)
@@ -22,8 +26,7 @@ local events =
             inst.sg:GoToState("attack")
         end
     end),
-
-    EventHandler("death", function(inst) inst.sg:GoToState("death") end),
+    CommonHandlers.OnDeath(),
 }
 
 local function CheckForNewLeader(inst)
@@ -302,6 +305,6 @@ CommonStates.AddSleepStates(states,
     },
 })
 CommonStates.AddFrozenStates(states)
+CommonStates.AddElectrocuteStates(states)
 
 return StateGraph("smallbird", states, events, "idle", actionhandlers)
-

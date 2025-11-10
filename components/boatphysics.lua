@@ -221,6 +221,9 @@ end
 
 function BoatPhysics:AddBoatDrag(boatdraginst)
 	self.boatdraginstances[boatdraginst] = boatdraginst.components.boatdrag
+    if self.inst.components.physicsmodifiedexternally then
+        self.inst.components.physicsmodifiedexternally:RecalculateExternalVelocity()
+    end
 
 	self.inst:ListenForEvent("onremove", on_boatdrag_removed, boatdraginst)
 	self.inst:ListenForEvent("death", on_boatdrag_removed, boatdraginst)
@@ -229,6 +232,9 @@ end
 
 function BoatPhysics:RemoveBoatDrag(boatdraginst)
 	self.boatdraginstances[boatdraginst] = nil
+    if self.inst.components.physicsmodifiedexternally then
+        self.inst.components.physicsmodifiedexternally:RecalculateExternalVelocity()
+    end
 
 	self.inst:RemoveEventCallback("onremove", on_boatdrag_removed, boatdraginst)
 	self.inst:RemoveEventCallback("death", on_boatdrag_removed, boatdraginst)

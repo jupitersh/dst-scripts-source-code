@@ -347,44 +347,13 @@ local function DoFissures(inst, offset)
 		end
 
 		local fissures = {}
-		for size = 4, 1, -1 do
-			for id in pairs(tospawn) do
-				local tx, ty = WagBossUtil.IdToTileCoords(id)
-				x, _, z = map:GetTileCenterPoint(tx, ty)
-
-				local skip = false
-				if size > 1 then
-					for tx1 = tx, tx + size - 1 do
-						for ty1 = ty, ty + size - 1 do
-							if (tx ~= tx1 or ty ~= ty1) and tospawn[WagBossUtil.TileCoordsToId(tx1, ty1)] == nil then
-								skip = true
-								break
-							end
-						end
-						if skip then
-							break
-						end
-					end
-					if not skip then
-						for tx1 = tx, tx + size - 1 do
-							for ty1 = ty, ty + size - 1 do
-								if tx ~= tx1 or ty ~= ty1 then
-									tospawn[WagBossUtil.TileCoordsToId(tx1, ty1)] = nil
-								end
-							end
-						end
-						local offs = TILE_SIZE * (size - 1) / 2
-						x = x + offs
-						z = z + offs
-					end
-				end
-				if not skip then
-					tospawn[id] = nil
-					local fissure = WagBossUtil.SpawnFissureAtXZ(x, z, size, id, tx, ty)
-					fissure:StartTrackingBoss(inst)
-					table.insert(fissures, fissure)
-				end
-			end
+		for id in pairs(tospawn) do
+			local tx, ty = WagBossUtil.IdToTileCoords(id)
+			x, _, z = map:GetTileCenterPoint(tx, ty)
+			tospawn[id] = nil
+			local fissure = WagBossUtil.SpawnFissureAtXZ(x, z, id, tx, ty)
+			fissure:StartTrackingBoss(inst)
+			table.insert(fissures, fissure)
 		end
 		assert(next(tospawn) == nil)
 		return fissures

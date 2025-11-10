@@ -63,16 +63,18 @@ function RemoteTeleporter:Teleport_Internal(target, from_x, from_z, to_x, to_z, 
     if items then
         self:SetNearbyItems(nil)
         for _, item in ipairs(items) do
-            local ix, iy, iz = item.Transform:GetWorldPosition()
-            local dx, dz = ix - from_x, iz - from_z
-            if item.Physics then
-                item.Physics:Teleport(to_x + dx, 0, to_z + dz)
-            else
-                item.Transform:SetPosition(to_x + dx, 0, to_z + dz)
-            end
-            item:PushEvent("teleported")
-            if item.components.inventoryitem ~= nil then
-                item.components.inventoryitem:SetLanded(false, true)
+            if item:IsValid() then
+                local ix, iy, iz = item.Transform:GetWorldPosition()
+                local dx, dz = ix - from_x, iz - from_z
+                if item.Physics then
+                    item.Physics:Teleport(to_x + dx, 0, to_z + dz)
+                else
+                    item.Transform:SetPosition(to_x + dx, 0, to_z + dz)
+                end
+                item:PushEvent("teleported")
+                if item.components.inventoryitem ~= nil then
+                    item.components.inventoryitem:SetLanded(false, true)
+                end
             end
         end
     end
@@ -94,13 +96,12 @@ function RemoteTeleporter:Teleport(doer)
 
         local x, y, z = doer.Transform:GetWorldPosition()
 		local map = TheWorld.Map
-		local inarena = map:IsPointInWagPunkArenaAndBarrierIsUp(x, y, z)
         local closest_outofcamera, closest_outofcameradsq, closest_outofcamerax, closest_outofcameraz
         local furthest_incamera, furthest_incameradsq, furthest_incamerax, furthest_incameraz
         for target, _ in pairs(targets) do
 			local x1, y1, z1 = target.Transform:GetWorldPosition()
-			if inarena and not map:IsPointInWagPunkArena(x1, y1, z1) then
-				--blocked by arena barrier
+			if not IsTeleportingPermittedFromPointToPoint(x, y, z, x1, y1, z1) then
+				--blocked
 			elseif self.checkdestinationfn == nil or self.checkdestinationfn(self.inst, target, doer) then
                 local dsq = distsq(x, z, x1, z1)
                 if dsq > exclude_radius_sq then

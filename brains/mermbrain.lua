@@ -581,6 +581,10 @@ function MermBrain:OnStart()
             BrainCommon.PanicWhenScared(self.inst, .25, "MERM_TALK_PANICBOSS")),
 		BrainCommon.PanicTrigger(self.inst),
 
+        WhileNode(function() return BrainCommon.ShouldAvoidElectricFence(self.inst) end, "Shocked",
+            ChattyNode(self.inst, "MERM_TALK_PANICELECTRICITY",
+                AvoidElectricFence(self.inst))),
+
         ChattyNode(self.inst, "MERM_TALK_GET_HEALED", 
             FaceEntity(self.inst, GetHealerFn, KeepHealerFn)),
 

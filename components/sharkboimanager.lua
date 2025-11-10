@@ -112,7 +112,7 @@ function self:FindWalkableOffsetInArena(sharkboi)
         return nil
     end
 
-    if sharkboi and self.arena.sharkbois[sharkboi] == nil then
+    if sharkboi and (self.arena.sharkbois == nil or self.arena.sharkbois[sharkboi] == nil) then
         return nil
     end
 
@@ -729,9 +729,9 @@ function self:FindAndPlaceOceanArenaOverTime()
     local _, count = _map:GetGoodOceanArenaPoints()
     if count == 0 then
         if _map._GoodOceanArenaPoints_Task == nil then
-            _map:StartFindingGoodOceanArenaPoints(self.TEMP_DEBUG_RATE)
+            _map:StartFindingGoodOceanArenaPoints()
         end
-        self.findoceanarenatask = self.inst:DoTaskInTime(self.TEMP_DEBUG_RATE and 0 or 5, FindAndPlaceOceanArenaOverTime_Bridge)
+        self.findoceanarenatask = self.inst:DoTaskInTime(5, FindAndPlaceOceanArenaOverTime_Bridge)
         return
     end
 

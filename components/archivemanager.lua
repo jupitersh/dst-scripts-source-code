@@ -62,18 +62,8 @@ end
 --[[ Save/Load ]]
 --------------------------------------------------------------------------
 
-function self:OnSave()
-	return
-	{
-		power_enabled = _power_enabled,
-	}
-end
-
-function self:OnLoad(data)
-	if data._power_enabled then
-		_power_enabled = data._power_enabled
-	end
-end
+--@V2C deleted save/load, typo means it never worked here.
+--     power state is loaded from archive_switch instead.
 
 --------------------------------------------------------------------------
 --[[ Debug ]]

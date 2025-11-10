@@ -142,21 +142,21 @@ local events =
 	CommonHandlers.OnSleepEx(),
 	CommonHandlers.OnWakeEx(),
     CommonHandlers.OnFreeze(),
+	CommonHandlers.OnElectrocute(),
     CommonHandlers.OnDeath(),
     CommonHandlers.OnLocomote(true, false),
 
 	EventHandler("attacked", function(inst, data)
 		--V2C: health check since corpse shares this SG
-		if inst.components.health ~= nil and not inst.components.health:IsDead() and (
-			not inst.sg:HasStateTag("busy") or
-			inst.sg:HasStateTag("caninterrupt") or
-			inst.sg:HasStateTag("frozen")
-		) then
-			if inst.sg:HasStateTag("staggered") then
-				inst.sg.statemem.staggered = true
-				inst.sg:GoToState("stagger_hit")
-			elseif not CommonHandlers.HitRecoveryDelay(inst) then
-				inst.sg:GoToState("hit")
+		if inst.components.health and not inst.components.health:IsDead() then
+			if CommonHandlers.TryElectrocuteOnAttacked(inst, data) then
+				return
+			elseif not inst.sg:HasStateTag("busy") or inst.sg:HasAnyStateTag("caninterrupt", "frozen") then
+				if inst.sg:HasStateTag("staggered") then
+					inst.sg:GoToState("stagger_hit")
+				elseif not CommonHandlers.HitRecoveryDelay(inst) then
+					inst.sg:GoToState("hit")
+				end
 			end
 		end
 	end),
@@ -209,6 +209,9 @@ local events =
             inst.sg:GoToState("transformstatue")
         end
     end),
+
+	-- Corpse handlers
+	CommonHandlers.OnCorpseChomped(),
 }
 
 local function ShowEyeFX(inst)
@@ -344,7 +347,7 @@ local states =
 
 	State{
 		name = "spawn_shake",
-		tags = { "busy", "invisible", "noattack", "temp_invincible" },
+		tags = { "busy", "invisible", "noattack", "temp_invincible", "noelectrocute" },
 
 		onenter = function(inst)
 			inst.components.locomotor:StopMoving()
@@ -379,7 +382,7 @@ local states =
 			inst.components.locomotor:Stop()
 			inst.AnimState:PlayAnimation("death")
 			inst.components.lootdropper:DropLoot(inst:GetPosition())
-			inst.looted = true
+			inst:SetDeathLootLevel(1)
 
 			if inst:HasTag("clay") then
 				inst.sg.statemem.clay = true
@@ -417,183 +420,8 @@ local states =
 
 		events =
 		{
-			EventHandler("animover", function(inst)
-				if not inst.sg.statemem.clay and inst.AnimState:AnimDone() then
-					inst.sg:GoToState("corpse")
-				end
-			end),
+            CommonHandlers.OnCorpseDeathAnimOver(),
 		},
-	},
-
-	State{
-		name = "corpse",
-		tags = { "dead", "busy", "noattack" },
-
-		onenter = function(inst)
-			if inst.components.burnable ~= nil and inst.components.burnable.nocharring then
-				inst.components.burnable.fastextinguish = true
-				inst.components.burnable:SetBurnTime(0)
-				inst.components.burnable:Extinguish()
-			end
-			inst.components.locomotor:Stop()
-			inst.AnimState:PlayAnimation("corpse")
-		end,
-
-		timeline =
-		{
-			--delay 1 frame in case we are loading
-			FrameEvent(1, function(inst)
-				local corpse = not inst:HasTag("lunar_aligned") and TheWorld.components.lunarriftmutationsmanager ~= nil and TheWorld.components.lunarriftmutationsmanager:TryMutate(inst, "wargcorpse") or nil
-				if corpse == nil then
-					inst:AddTag("NOCLICK")
-					inst.persists = false
-					RemovePhysicsColliders(inst)
-
-					--34 + 1 frames since death anim started
-					local delay = (inst.components.health.destroytime or 2) - 35 * FRAMES
-					if delay > 0 then
-						inst.sg:SetTimeout(delay)
-					else
-						ErodeAway(inst)
-						if inst.components.burnable ~= nil and inst.components.burnable:IsBurning() then
-							inst.components.burnable.fastextinguish = true
-							inst.components.burnable:KillFX()
-						end
-					end
-				elseif inst:HasTag("gingerbread") then
-					corpse:SetAltBuild("gingerbread")
-				end
-			end),
-		},
-
-		ontimeout = function(inst)
-			ErodeAway(inst)
-			if inst.components.burnable ~= nil and inst.components.burnable:IsBurning() then
-				inst.components.burnable.fastextinguish = true
-				inst.components.burnable:KillFX()
-			end
-		end,
-	},
-
-	--------------------------------------------------------------------------
-	--Used by "wargcorpse"
-
-	State{
-		name = "corpse_idle",
-
-		onenter = function(inst)
-			inst.AnimState:PlayAnimation("corpse")
-		end,
-	},
-
-	State{
-		name = "corpse_mutate_pre",
-		tags = { "mutating" },
-
-		onenter = function(inst, mutantprefab)
-			inst.AnimState:PlayAnimation("twitch", true)
-			inst.sg:SetTimeout(3)
-			inst.sg.statemem.mutantprefab = mutantprefab
-			inst.SoundEmitter:PlaySound("rifts3/mutated_deerclops/twitching_LP", "loop")
-		end,
-
-		ontimeout = function(inst)
-			inst.sg.statemem.mutating = true
-			inst.sg:GoToState("corpse_mutate", inst.sg.statemem.mutantprefab)
-		end,
-
-		onexit = function(inst)
-			if not inst.sg.statemem.mutating then
-				inst.SoundEmitter:KillSound("loop")
-			end
-		end,
-	},
-
-	State{
-		name = "corpse_mutate",
-		tags = { "mutating" },
-
-		onenter = function(inst, mutantprefab)
-			inst.AnimState:OverrideSymbol("SPIKE", "warg_mutated_actions", "SPIKE")
-			inst.AnimState:OverrideSymbol("hair_mutate", "warg_mutated_actions", "hair_mutate")
-			if inst.build == "gingerbread" then
-				inst.AnimState:OverrideSymbol("cookiecrumbs", "warg_mutated_actions", "cookiecrumbs")
-				inst.AnimState:PlayAnimation("mutate_pre_gingerbread")
-			else
-				inst.AnimState:PlayAnimation("mutate_pre")
-			end
-			inst.SoundEmitter:PlaySound("rifts3/mutated_varg/mutate_pre_f0")
-			inst.sg.statemem.mutantprefab = mutantprefab
-		end,
-
-		timeline =
-		{
-			FrameEvent(14, function(inst) inst.SoundEmitter:KillSound("loop") end),
-			FrameEvent(14, function(inst) inst.SoundEmitter:PlaySound("rifts3/mutated_varg/mutate_pre_f14") end),
-			FrameEvent(106, function(inst) inst.SoundEmitter:PlaySound("rifts3/mutated_varg/mutate") end),
-			FrameEvent(111, function(inst)
-				inst.AnimState:SetAddColour(.5, .5, .5, 0)
-				inst.AnimState:SetLightOverride(.5)
-			end),
-		},
-
-		events =
-		{
-			EventHandler("animover", function(inst)
-				if inst.AnimState:AnimDone() then
-					local rot = inst.Transform:GetRotation()
-					local creature = ReplacePrefab(inst, inst.sg.statemem.mutantprefab)
-					creature.Transform:SetRotation(rot)
-					creature.AnimState:MakeFacingDirty() --not needed for clients
-					creature.sg:GoToState("mutate_pst")
-				end
-			end),
-		},
-
-		onexit = function(inst)
-			--Shouldn't reach here!
-			inst.AnimState:ClearAllOverrideSymbols()
-			inst.AnimState:SetAddColour(0, 0, 0, 0)
-			inst.AnimState:SetLightOverride(0)
-			inst.SoundEmitter:KillSound("loop")
-		end,
-	},
-
-	--------------------------------------------------------------------------
-	--Transitions from corpse_mutate after prefab switch
-	State{
-		name = "mutate_pst",
-		tags = { "busy", "noattack", "temp_invincible" },
-
-		onenter = function(inst)
-			inst.components.locomotor:Stop()
-			inst.AnimState:PlayAnimation("mutate")
-			inst.sg.statemem.flash = 24
-		end,
-
-		onupdate = function(inst)
-			local c = inst.sg.statemem.flash
-			if c >= 0 then
-				inst.sg.statemem.flash = c - 1
-				c = easing.inOutQuad(math.min(20, c), 0, 1, 20)
-				inst.AnimState:SetAddColour(c, c, c, 0)
-				inst.AnimState:SetLightOverride(c)
-			end
-		end,
-
-		events =
-		{
-			EventHandler("animover", function(inst)
-				if inst.AnimState:AnimDone() then
-					inst.sg:GoToState("idle")
-				end
-			end),
-		},
-
-		onexit = function(inst)
-			inst.AnimState:SetAddColour(0, 0, 0, 0)
-			inst.AnimState:SetLightOverride(0)
-		end,
 	},
 
 	--------------------------------------------------------------------------
@@ -1218,13 +1046,19 @@ local states =
 		events =
 		{
 			EventHandler("attacked", function(inst, data)
-				if not inst.components.health:IsDead() and
-					data ~= nil and data.spdamage ~= nil and data.spdamage.planar ~= nil
-				then
-					if not inst.sg.mem.dostagger then
-						inst.sg.mem.dostagger = true
-						inst.sg.statemem.staggertime = GetTime() + 0.3
-					elseif GetTime() > inst.sg.statemem.staggertime then
+				if not inst.components.health:IsDead() then
+					local dohit
+					if data and data.spdamage and data.spdamage.planar then
+						if not inst.sg.mem.dostagger then
+							inst.sg.mem.dostagger = true
+							inst.sg.statemem.staggertime = GetTime() + 0.3
+						elseif GetTime() > inst.sg.statemem.staggertime then
+							dohit = true
+						end
+					end
+					if CommonHandlers.TryElectrocuteOnAttacked(inst, data) then
+						return
+					elseif dohit then
 						inst.sg:GoToState("hit")
 					end
 				end
@@ -1303,7 +1137,7 @@ local states =
 
 	State{
 		name = "stagger_pre",
-		tags = { "staggered", "busy", "nosleep" },
+		tags = { "staggered", "busy", "nosleep", "noelectrocute" },
 
 		onenter = function(inst)
 			inst.sg.mem.dostagger = nil
@@ -1315,13 +1149,18 @@ local states =
 			inst.components.timer:StopTimer("flamethrower_cd")
 			inst.components.timer:StartTimer("flamethrower_cd", TUNING.MUTATED_WARG_STAGGER_TIME + TUNING.MUTATED_WARG_FLAMETHROWER_CD * (0.5 + math.random() * 0.5))
 			inst.SoundEmitter:PlaySound(inst.sounds.hit)
+
+			if inst.sg.lasttags["electrocute"] then
+				local dt = 12 * FRAMES
+				inst.AnimState:SetTime(dt)
+				inst.sg:FastForward(dt)
+			end
 		end,
 
 		timeline =
 		{
-			FrameEvent(16, function(inst)
-			end),
 			FrameEvent(24, function(inst)
+				inst.sg:RemoveStateTag("noelectrocute")
 				inst.sg:AddStateTag("caninterrupt")
 			end),
 		},
@@ -1408,7 +1247,9 @@ local states =
 
 		onenter = function(inst, nohit)
 			inst.AnimState:PlayAnimation("stagger_pst")
-			if not nohit then
+			if nohit then
+				inst.sg:AddStateTag("noelectrocute")
+			else
 				inst.sg:AddStateTag("caninterrupt")
 			end
 			if inst.components.sleeper ~= nil then
@@ -1422,6 +1263,7 @@ local states =
 			FrameEvent(11, function(inst)
 				inst.sg:RemoveStateTag("staggered")
 				inst.sg:RemoveStateTag("caninterrupt")
+				inst.sg:RemoveStateTag("noelectrocute")
 			end),
 			CommonHandlers.OnNoSleepFrameEvent(66, function(inst)
 				if inst.sg.mem.dostagger and TryStagger(inst) then
@@ -1449,6 +1291,21 @@ local states =
 	--------------------------------------------------------------------------
 }
 
+CommonStates.AddCorpseStates(states, nil,
+{
+    corpseoncreate = function(inst, corpse)
+        if inst:HasTag("gingerbread") then
+            corpse:SetAltBuild("gingerbread")
+        end
+    end,
+
+    corpseonerode = function(inst)
+        if inst.components.burnable and inst.components.burnable:IsBurning() then
+            inst.components.burnable.fastextinguish = true
+            inst.components.burnable:KillFX()
+        end
+    end,
+}, "wargcorpse")
 CommonStates.AddRunStates(states,
 {
     runtimeline =
@@ -1499,5 +1356,79 @@ CommonStates.AddSleepExStates(states,
 })
 
 CommonStates.AddFrozenStates(states, HideEyeFX, ShowEyeFX)
+
+CommonStates.AddElectrocuteStates(states,
+nil, --timeline
+{	--anims
+	loop = function(inst)
+		if inst.sg.lasttags["staggered"] then
+			inst.sg:AddStateTag("staggered")
+			inst.override_combat_fx_height = "low"
+			return "staggered_shock_loop"
+		end
+	end,
+	pst = function(inst)
+		if inst.sg.lasttags["staggered"] then
+			inst.sg:AddStateTag("staggered")
+			return "staggered_shock_pst"
+		end
+	end,
+},
+{	--fns
+	loop_onenter = function(inst)
+		if inst.sg:HasStateTag("staggered") then
+			--V2C: can change this back since fx is already spawned at this point
+			inst.override_combat_fx_height = nil
+		end
+	end,
+	pst_onenter = function(inst)
+		if inst.sg.mem.dostagger and not inst.sg:HasStateTag("staggered") then
+			TryStagger(inst)
+		end
+	end,
+	onanimover = function(inst)
+		if inst.AnimState:AnimDone() then
+			if not inst.sg:HasStateTag("staggered") then
+				inst.sg:GoToState("idle")
+			elseif inst.components.timer:TimerExists("stagger") then
+				inst.sg:GoToState("stagger_idle")
+			else
+				inst.sg:GoToState("stagger_pst", true)
+			end
+		end
+	end,
+})
+
+CommonStates.AddLunarRiftMutationStates(states,
+{ -- timelines
+    mutate_timeline = {
+        FrameEvent(14, function(inst) inst.SoundEmitter:KillSound("loop") end),
+		SoundFrameEvent(14, "rifts3/mutated_varg/mutate_pre_f14"),
+		SoundFrameEvent(106, "rifts3/mutated_varg/mutate"),
+		FrameEvent(111, function(inst)
+			inst.AnimState:SetAddColour(.5, .5, .5, 0)
+			inst.AnimState:SetLightOverride(.5)
+		end),
+	},
+},
+{   -- anims
+    mutate = function(inst)
+        return inst.build == "gingerbread" and "mutate_pre_gingerbread"
+    end,
+},
+{ -- fns
+    mutate_onenter = function(inst)
+        inst.AnimState:OverrideSymbol("SPIKE", "warg_mutated_actions", "SPIKE")
+		inst.AnimState:OverrideSymbol("hair_mutate", "warg_mutated_actions", "hair_mutate")
+		if inst.build == "gingerbread" then
+			inst.AnimState:OverrideSymbol("cookiecrumbs", "warg_mutated_actions", "cookiecrumbs")
+		end
+		inst.SoundEmitter:PlaySound("rifts3/mutated_varg/mutate_pre_f0")
+    end,
+},
+{
+    twitch_lp = "rifts3/mutated_deerclops/twitching_LP",
+    keep_twitch_lp = true,
+})
 
 return StateGraph("warg", states, events, "init", actionhandlers)

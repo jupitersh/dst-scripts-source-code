@@ -7,12 +7,12 @@ local function doattackfn(inst, data)
 end
 
 local function onattackedfn(inst, data)
-    if not (inst.sg:HasStateTag("busy") or
-            inst.sg:HasStateTag("invisible") or
-            inst.sg:HasStateTag("nohit") or
-            inst.components.health:IsDead()) then
-        --Will handle the playing of the "hit" animation
-        inst.sg:GoToState("hit")
+	if not (inst.components.health:IsDead() or inst.sg:HasStateTag("invisible")) then
+		if CommonHandlers.TryElectrocuteOnAttacked(inst, data) then
+			return
+		elseif not inst.sg:HasAnyStateTag("busy", "nohit") then
+			inst.sg:GoToState("hit")
+		end
     end
 end
 
@@ -66,6 +66,7 @@ local events =
     CommonHandlers.OnLocomote(false, true),
     CommonHandlers.OnFallInVoid(),
     CommonHandlers.OnFreeze(),
+	CommonHandlers.OnElectrocute(),
     CommonHandlers.OnDeath(),
     CommonHandlers.OnSleep(),
     EventHandler("doattack", doattackfn),
@@ -85,7 +86,7 @@ local states =
 {
     State{
         name = "idle_enter",
-        tags = { "idle", "invisible", "dirt" },
+		tags = { "idle", "invisible", "dirt", "noelectrocute" },
 
         onenter = function(inst)
             inst.Physics:Stop()
@@ -103,7 +104,7 @@ local states =
 
     State{
         name = "idle",
-        tags = { "idle", "invisible", "dirt" },
+		tags = { "idle", "invisible", "dirt", "noelectrocute" },
 
         onenter = function(inst)
             inst.Physics:Stop()
@@ -121,7 +122,7 @@ local states =
 
     State{
         name = "idle_exit",
-        tags = { "idle", "invisible", "dirt" },
+		tags = { "idle", "invisible", "dirt", "noelectrocute" },
 
         onenter = function(inst)
             inst.Physics:Stop()
@@ -161,6 +162,9 @@ local states =
                 inst.SoundEmitter:PlaySound("dontstarve/creatures/worm/bite")
                 inst:PerformBufferedAction()
             end),
+			FrameEvent(19, function(inst)
+				inst.sg:AddStateTag("noelectrocute")
+			end),
             TimeEvent(20 * FRAMES, ExtinguishFire),
             SoundFrameEvent(23, "dontstarve/creatures/worm/retract"),
             FrameEvent(38, kill_loop_sound),
@@ -199,6 +203,9 @@ local states =
                 inst.sg:AddStateTag("nohit")
                 inst:PerformBufferedAction()
             end),
+			FrameEvent(65, function(inst)
+				inst.sg:AddStateTag("noelectrocute")
+			end),
             TimeEvent(66 * FRAMES, ExtinguishFire),
             SoundFrameEvent(75, "dontstarve/creatures/worm/retract"),
         },
@@ -232,6 +239,9 @@ local states =
             TimeEvent(20 * FRAMES, function(inst)
                 inst.sg:AddStateTag("nohit")
             end),
+			FrameEvent(26, function(inst)
+				inst.sg:AddStateTag("noelectrocute")
+			end),
             TimeEvent(27 * FRAMES, ExtinguishFire),
             SoundFrameEvent(30, "dontstarve/creatures/worm/retract"),
             FrameEvent(49, kill_loop_sound),
@@ -249,7 +259,7 @@ local states =
 
     State{
         name = "attack_pre",
-        tags = { "canrotate", "invisible" },
+		tags = { "canrotate", "invisible", "noelectrocute" },
 
         onenter = function(inst)
             inst.Physics:Stop()
@@ -282,6 +292,9 @@ local states =
                 inst.SoundEmitter:PlaySound("dontstarve/creatures/worm/bite")
                 inst.components.combat:DoAttack()
             end),
+			FrameEvent(35, function(inst)
+				inst.sg:AddStateTag("noelectrocute")
+			end),
             TimeEvent(36 * FRAMES, ExtinguishFire),
             SoundFrameEvent(40, "dontstarve/creatures/worm/retract"),
         },
@@ -339,6 +352,9 @@ local states =
                     inst.SoundEmitter:PlaySound(inst.loop_sound, "custom_loop")
                 end
             end),
+			FrameEvent(15, function(inst)
+				inst.sg:AddStateTag("noelectrocute")
+			end),
             TimeEvent(16 * FRAMES, ExtinguishFire),
             SoundFrameEvent(20, "dontstarve/creatures/worm/retract"),
             FrameEvent(36, kill_loop_sound),
@@ -356,7 +372,7 @@ local states =
 
     State{
         name = "walk_start",
-        tags = { "moving", "canrotate", "dirt", "invisible" },
+		tags = { "moving", "canrotate", "dirt", "invisible", "noelectrocute" },
 
         onenter = function(inst)
             inst.components.locomotor:WalkForward()
@@ -383,7 +399,7 @@ local states =
 
     State{
         name = "walk",
-        tags = { "moving", "canrotate", "dirt", "invisible" },
+		tags = { "moving", "canrotate", "dirt", "invisible", "noelectrocute" },
 
         onenter = function(inst)
             inst.components.locomotor:WalkForward()
@@ -417,7 +433,7 @@ local states =
 
     State{
         name = "walk_stop",
-        tags = { "canrotate", "dirt", "invisible" },
+		tags = { "canrotate", "dirt", "invisible", "noelectrocute" },
 
         onenter = function(inst)
             inst.components.locomotor:StopMoving()
@@ -443,7 +459,7 @@ local states =
 
     State{
         name = "lure_enter",
-        tags = { "invisible", "lure" },
+		tags = { "invisible", "lure", "noelectrocute" },
 
         onenter = function(inst)
             inst.Physics:Stop()
@@ -475,7 +491,7 @@ local states =
 
     State{
         name = "lure",
-        tags = { "invisible", "lure" },
+		tags = { "invisible", "lure", "noelectrocute" },
 
         onenter = function(inst, islure)
             inst.Physics:Stop()
@@ -502,7 +518,7 @@ local states =
 
     State{
         name = "lure_exit",
-        tags = { "invisible", "lure" },
+		tags = { "invisible", "lure", "noelectrocute" },
 
         onenter = function(inst, islure)
             inst.AnimState:PlayAnimation("lure_exit")
@@ -530,6 +546,7 @@ local states =
 }
 
 CommonStates.AddFrozenStates(states)
+CommonStates.AddElectrocuteStates(states)
 CommonStates.AddVoidFallStates(states, {voiddrop = "hit",})
 
 return StateGraph("worm", states, events, "idle", actionhandlers)

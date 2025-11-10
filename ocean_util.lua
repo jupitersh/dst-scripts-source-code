@@ -244,6 +244,9 @@ function SinkEntity(entity)
                 end
             end
         end
+        if entity.components.inventoryitem then
+            entity.components.inventoryitem:SetLanded(false, true)
+        end
     else
         entity:Remove()
     end

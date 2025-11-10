@@ -6,15 +6,24 @@ local events=
     CommonHandlers.OnLocomote(true,true),
     CommonHandlers.OnSleep(),
     CommonHandlers.OnFreeze(),
+	CommonHandlers.OnElectrocute(),
 
-    EventHandler("doattack", function(inst) if not inst.components.health:IsDead() then inst.sg:GoToState("attack") end end),
-    EventHandler("death", function(inst) inst.sg:GoToState("death") end),
-	EventHandler("attacked", function(inst)
-		if not (inst.components.health:IsDead() or
-				inst.sg:HasStateTag("attack") or
-				CommonHandlers.HitRecoveryDelay(inst, nil, math.huge)) --hit delay only for projectiles
-		then
-			inst.sg:GoToState("hit")
+	EventHandler("doattack", function(inst)
+		if not (inst.components.health:IsDead() or inst.sg:HasStateTag("electrocute")) then
+			inst.sg:GoToState("attack")
+		end
+	end),
+    CommonHandlers.OnDeath(),
+	EventHandler("attacked", function(inst, data)
+		if not inst.components.health:IsDead() then
+			if CommonHandlers.TryElectrocuteOnAttacked(inst, data) then
+				return
+			elseif not (	inst.sg:HasAnyStateTag("attack", "electrocute") or
+							CommonHandlers.HitRecoveryDelay(inst, nil, math.huge) --hit dealy only for projectiles
+						)
+			then
+				inst.sg:GoToState("hit")
+			end
 		end
 	end),
 }
@@ -178,6 +187,7 @@ CommonStates.AddSleepStates(states,
     },
 })
 CommonStates.AddFrozenStates(states)
+CommonStates.AddElectrocuteStates(states)
 
 return StateGraph("koalefant", states, events, "idle")
 

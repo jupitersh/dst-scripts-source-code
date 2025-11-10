@@ -3,7 +3,7 @@ local WagBossUtil = require("prefabs/wagboss_util")
 
 local assets =
 {
-	Asset("ANIM", "anim/wagboss_fissure.zip"),
+	Asset("ANIM", "anim/wagboss_fissure.zip", ALT_RENDERPATH),
 }
 
 local assets_burn_fx =
@@ -48,8 +48,8 @@ local function OnUpdate(inst)
 		)
 	end
 	local x, y, z = inst.Transform:GetWorldPosition()
-	local radius = DIAG_TILE_SIZE * inst.size / 2
-	local boxrange = TILE_SIZE * inst.size / 2
+	local radius = DIAG_TILE_SIZE / 2
+	local boxrange = TILE_SIZE / 2
 	for i, v in ipairs(TheSim:FindEntities_Registered(x, 0, z, radius + AOE_RANGE_PADDING, REGISTERED_AOE_TAGS)) do
 		if v.components.lunarfissureburning == nil and v:IsValid() and not v:IsInLimbo() then
 			local physrad = v:GetPhysicsRadius(0)
@@ -99,17 +99,14 @@ end
 
 --------------------------------------------------------------------------
 
-local function GetBaseAnim(size)
-	return (size == 4 and "2400x2400")
-		or (size == 3 and "1800x1800")
-		or (size == 2 and "1200x1200")
-		or "600x600"
+local function GetBaseAnim(variation)
+	return "tile"..tostring(variation)
 end
 
 local function OnAnimOver(inst)
 	inst:RemoveEventCallback("animover", OnAnimOver)
 	inst.pre = nil
-	inst.AnimState:PlayAnimation(GetBaseAnim(inst.size), true)
+	inst.AnimState:PlayAnimation(GetBaseAnim(inst.variation).."_loop", true)
 
 	inst.OnEntityWake = StartUpdateTask
 	if not inst:IsAsleep() then
@@ -133,18 +130,7 @@ local function KillMe(inst)
 	end
 	inst.OnEntityWake = nil
 	inst.OnEntitySleep = inst.Remove
-	WagBossUtil.DespawnFissure(inst, GetBaseAnim(inst.size))
-end
-
-local function SetGridSize(inst, size)
-	if size ~= inst.size then
-		inst.size = size
-		if inst.pre then
-			inst.AnimState:PlayAnimation(GetBaseAnim(size).."_pre")
-		else
-			inst.AnimState:PlayAnimation(GetBaseAnim(size), true)
-		end
-	end
+	WagBossUtil.DespawnFissure(inst, GetBaseAnim(inst.variation))
 end
 
 local function StartTrackingBoss(inst, boss)
@@ -166,19 +152,28 @@ local function StartTrackingBoss(inst, boss)
 end
 
 local function OnSave(inst, data)
-	data.size = inst.size > 1 and inst.size or nil
+	data.variation = inst.variation ~= 1 and inst.variation or nil
 end
 
 local function OnLoad(inst, data)--, ents)
 	if data and data.size then
-		inst.size = data.size
+		--backward compatibility: we used to support grid size 1, 2, 3, & 4
+		if data.size > 1 then
+			local x, y, z = inst.Transform:GetWorldPosition()
+			local offs = TILE_SIZE * (data.size - 1) / 2
+			inst.Transform:SetPosition(x - offs, 0, z - offs)
+		end
+		--keep random variation
+	else
+		inst.variation = data and data.variation or 1
 	end
+
 	OnAnimOver(inst)
 	EndFadeIn(inst)
 	WagBossUtil.OnLoadFissure(inst)
 end
 
-local function OnLoadPostPass(inst)--, ents, data)
+local function OnLoadPostPass(inst, ents, data)
 	local boss = inst.components.entitytracker:GetEntity("boss")
 	if boss then
 		inst:ListenForEvent("onremove", inst._onremoveboss, boss)
@@ -186,6 +181,28 @@ local function OnLoadPostPass(inst)--, ents, data)
 		inst:ListenForEvent("resetboss", inst._onremoveboss, boss)
 	else
 		KillMe(inst)
+	end
+
+	if data and data.size and data.size > 1 and (inst.persists or (inst:IsValid() and not inst:IsAsleep())) then
+		--backward compatibility: we used to support grid size 1, 2, 3, & 4
+		local x0, _, z1 = inst.Transform:GetWorldPosition()
+		for row = 1, data.size do
+			local x1 = row > 1 and x0 or x0 + TILE_SIZE
+			for col = row > 1 and 1 or 2, data.size do
+				local newfissure = SpawnPrefab("alterguardian_lunar_fissures")
+				newfissure.Transform:SetPosition(x1, 0, z1)
+				OnAnimOver(newfissure)
+				EndFadeIn(newfissure)
+				WagBossUtil.OnLoadFissure(newfissure)
+				if boss then
+					StartTrackingBoss(newfissure, boss)
+				else
+					KillMe(newfissure)
+				end
+				x1 = x1 + TILE_SIZE
+			end
+			z1 = z1 + TILE_SIZE
+		end
 	end
 end
 
@@ -201,7 +218,7 @@ local function fn()
 
 	inst.AnimState:SetBank("wagboss_fissure")
 	inst.AnimState:SetBuild("wagboss_fissure")
-	inst.AnimState:PlayAnimation("600x600_pre")
+	inst.AnimState:PlayAnimation("tile1_pre")
 	inst.AnimState:SetBloomEffectHandle("shaders/anim.ksh")
 	inst.AnimState:SetLightOverride(0.3)
 	inst.AnimState:SetOrientation(ANIM_ORIENTATION.OnGround)
@@ -232,8 +249,11 @@ local function fn()
 		KillMe(inst)
 	end
 
-	inst.size = 1
-	inst.SetGridSize = SetGridSize
+	inst.variation = math.random(4)
+	if inst.variation ~= 1 then
+		inst.AnimState:PlayAnimation(GetBaseAnim(inst.variation).."_pre")
+	end
+
 	inst.StartTrackingBoss = StartTrackingBoss
 	inst.KillFx = KillMe
 	inst.OnSave = OnSave

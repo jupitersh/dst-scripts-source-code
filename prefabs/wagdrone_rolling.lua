@@ -100,14 +100,7 @@ local function DisconnectBeams(inst)
 end
 
 local function SetBrainEnabled(inst, enable)
-	if enable then
-		inst:SetBrain(brain)
-		if not inst:IsAsleep() then
-			inst:RestartBrain()
-		end
-	else
-		inst:SetBrain(nil)
-	end
+	inst:SetBrain(enable and brain or nil)
 end
 
 local function OnEntitySleep(inst)

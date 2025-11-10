@@ -19,14 +19,7 @@ local function CalcSanityAura(inst, observer)
 end
 
 local function ToggleBrain(inst, enable)
-	if enable then
-		inst:SetBrain(brain)
-		if inst.brain == nil and not inst:IsAsleep() then
-			inst:RestartBrain()
-		end
-	else
-		inst:SetBrain(nil)
-	end
+	inst:SetBrain(enable and brain or nil)
 end
 
 local function StartTrackingDaywalker(inst, daywalker)

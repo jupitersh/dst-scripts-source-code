@@ -339,7 +339,10 @@ local function DoHarvestBerries(inst)
 end
 
 local FISHING_MARKER_TAGS = {"hermitcrab_marker_fishing"}
-local FISH_TAGS = {"oceanfish"}
+
+local FISH_TAGS = {"oceanfish", "oceanfishable"}
+local FISH_NO_TAGS = {"INLIMBO"}
+
 local function DoFishingAction(inst)
     if not using_umbrella(inst) then
         local source = inst.CHEVO_marker
@@ -350,7 +353,7 @@ local function DoFishingAction(inst)
             for i,ent in ipairs(ents)do
                 local x1,y1,z1 = ent.Transform:GetWorldPosition()
 
-                local fish = TheSim:FindEntities(x1,y1,z1, 8, FISH_TAGS)
+                local fish = TheSim:FindEntities(x1,y1,z1, 8, FISH_TAGS, FISH_NO_TAGS)
                 if #fish > mostfish.total then
                     mostfish = {total=#fish,idx=i}
                 end

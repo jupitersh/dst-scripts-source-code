@@ -37,6 +37,7 @@ local FollowCamera = Class(function(self, inst)
     self.extramaxdist = 0
     self.screenoffsetstack = {}
     self.updatelisteners = {}
+    self.largeupdatelisteners = {}
     self:SetDefault()
     self:Snap()
     self.time_since_zoom = nil
@@ -206,6 +207,7 @@ function FollowCamera:MaximizeDistance()
     self.distancetarget = (self.maxdist - self.mindist) * 0.7 + self.mindist
 end
 
+local DELTA_DIST_SQ_UPDATE = 4
 function FollowCamera:Apply()
     --dir
     local pitch = self.pitch * DEGREES
@@ -230,13 +232,19 @@ function FollowCamera:Apply()
         zoffs = hoffs * cos_heading * screen_heights
     end
 
+
+
     --pos
-    TheSim:SetCameraPos(
+
+    self.camera_pos = Vector3(
         self.currentpos.x - dx * self.distance + xoffs,
         self.currentpos.y - dy * self.distance,
         self.currentpos.z - dz * self.distance + zoffs
     )
-    TheSim:SetCameraDir(dx, dy, dz)
+    self.camera_dir = Vector3(dx, dy, dz)
+
+    TheSim:SetCameraPos(self.camera_pos:Get())
+    TheSim:SetCameraDir(self.camera_dir:Get())
 
     --right
     local right = (self.heading + 90) * DEGREES
@@ -249,8 +257,26 @@ function FollowCamera:Apply()
     local uy = dz * rx - dx * rz
     local uz = dx * ry - dy * rx
 
-    TheSim:SetCameraUp(ux, uy, uz)
+    self.camera_up = Vector3(ux, uy, uz)
+
+    TheSim:SetCameraUp(self.camera_up:Get())
     TheSim:SetCameraFOV(self.fov)
+
+    local old_camera_pos = self.last_update_camera_pos
+    local old_camera_dir = self.last_update_camera_dir
+    local old_camera_up = self.last_update_camera_up
+
+    if old_camera_pos == nil or
+        old_camera_pos:DistSq(self.camera_pos) >= DELTA_DIST_SQ_UPDATE or
+        old_camera_dir:DistSq(self.camera_dir) >= DELTA_DIST_SQ_UPDATE or
+        old_camera_up:DistSq(self.camera_up) >= DELTA_DIST_SQ_UPDATE
+    then
+        self.last_update_camera_pos = self.camera_pos
+        self.last_update_camera_dir = self.camera_dir
+        self.last_update_camera_up = self.camera_up
+
+        self.large_dist_update = true
+    end
 
     --listen dist
     local listendist = -.1 * self.distance
@@ -489,11 +515,25 @@ function FollowCamera:UpdateListeners(dt)
             fn(dt)
         end
     end
+
+    if self.large_dist_update then
+        for src, cbs in pairs(self.largeupdatelisteners) do
+            for _, fn in ipairs(cbs) do
+                fn(dt)
+            end
+        end
+    end
+
+    self.large_dist_update = false
 end
 
 function FollowCamera:SetOnUpdateFn(fn)
     self.onupdatefn = fn or dummyfn
 end
+
+--NOTES:
+-- 'regular listener' every Update of FollowCamera
+-- 'large update listener' every Update of FollowCamera if pos, dir or up had a delta dist sq of 4 from their last change
 
 function FollowCamera:AddListener(src, cb)
     if self.updatelisteners[src] ~= nil then
@@ -512,6 +552,26 @@ function FollowCamera:RemoveListener(src, cb)
             end
         end
         self.updatelisteners[src] = nil
+    end
+end
+
+function FollowCamera:AddLargeUpdateListener(src, cb)
+    if self.largeupdatelisteners[src] ~= nil then
+        table.insert(self.largeupdatelisteners[src], cb)
+    else
+        self.largeupdatelisteners[src] = { cb }
+    end
+end
+
+function FollowCamera:RemoveLargeUpdateListener(src, cb)
+    if self.largeupdatelisteners[src] ~= nil then
+        if cb ~= nil then
+            table.removearrayvalue(self.largeupdatelisteners[src], cb)
+            if #self.largeupdatelisteners[src] > 0 then
+                return
+            end
+        end
+        self.largeupdatelisteners[src] = nil
     end
 end
 

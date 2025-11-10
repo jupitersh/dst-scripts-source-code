@@ -173,6 +173,7 @@ local function makestump(inst, instant)
 
     inst:RemoveComponent("sanityaura")
     inst:RemoveComponent("workable")
+    RemoveLunarHailBuildup(inst)
     inst:RemoveComponent("burnable")
     MakeMediumBurnable(inst)
     inst:RemoveComponent("propagator")
@@ -277,9 +278,11 @@ local function onload(inst, data)
             makestump(inst, true)
             if data.burnt or inst:HasTag("burnt") then
                 DefaultBurntFn(inst)
+                RemoveLunarHailBuildup(inst)
             end
         elseif data.burnt and not inst:HasTag("burnt") then
             OnBurnt(inst)
+            RemoveLunarHailBuildup(inst)
         end
     end
 end
@@ -359,6 +362,7 @@ local function fn()
     inst.components.growable:StartGrowing()
 
     MakeSnowCovered(inst)
+    SetLunarHailBuildupAmountLarge(inst)
 
     inst.growfromseed = GrowFromSeed
 

@@ -15,6 +15,7 @@ local events =
     CommonHandlers.OnLocomote(true, true),
     CommonHandlers.OnSleep(),
     CommonHandlers.OnFreeze(),
+	CommonHandlers.OnElectrocute(),
     CommonHandlers.OnAttack(),
     CommonHandlers.OnAttacked(nil, TUNING.BUNNYMAN_MAX_STUN_LOCKS),
     CommonHandlers.OnDeath(),
@@ -200,21 +201,6 @@ local states =
             end),
         },
     },
-
-    State{
-        name = "parasite_revive",
-        tags = {"busy"},
-
-        onenter = function(inst)
-            inst.AnimState:PlayAnimation("parasite_death_pst")
-            inst.Physics:Stop()
-        end,
-
-        events=
-        {
-            EventHandler("animover", function(inst) inst.sg:GoToState("idle") end ),
-        },
-    },    
 }
 
 CommonStates.AddWalkStates(states, {
@@ -256,10 +242,12 @@ CommonStates.AddSleepStates(states,
 CommonStates.AddIdle(states, "funnyidle")
 CommonStates.AddSimpleState(states, "refuse", "pig_reject", { "busy" })
 CommonStates.AddFrozenStates(states)
+CommonStates.AddElectrocuteStates(states)
 CommonStates.AddSimpleActionState(states, "pickup", "pig_pickup", 10 * FRAMES, { "busy" })
 CommonStates.AddSimpleActionState(states, "gohome", "pig_pickup", 4 * FRAMES, { "busy" })
 CommonStates.AddHopStates(states, true, { pre = "boat_jump_pre", loop = "boat_jump_loop", pst = "boat_jump_pst"})
 CommonStates.AddSinkAndWashAshoreStates(states)
 CommonStates.AddVoidFallStates(states)
+CommonStates.AddParasiteReviveState(states)
 
 return StateGraph("bunnyman", states, events, "idle", actionhandlers)

@@ -327,7 +327,7 @@ end
 
 local function OnCaptured(inst, obj, doer)
 	inst.persists = false
-	inst.sg:HandleEvent("captured_despawn")
+	inst:PushEventImmediate("captured_despawn")
 end
 
 --------------------------------------------------------------------------
@@ -418,6 +418,9 @@ local function fn()
 	if not TheWorld.ismastersim then
 		return inst
 	end
+
+    inst.scrapbook_animoffsety = 0
+    inst.scrapbook_bb_y_extra = 75
 
 	inst.cloud = SpawnPrefab("lunar_goop_cloud_fx")
 	inst.cloud.entity:SetParent(inst.entity)

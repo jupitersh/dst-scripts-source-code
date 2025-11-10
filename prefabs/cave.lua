@@ -168,6 +168,34 @@ local prefabs =
 
     -- Meta 5
     "graveguard_ghost",
+
+	-- Rifts 6
+    "shadowthrall_centipede_controller",
+    "shadowthrall_centipede_head",
+    "shadowthrall_centipede_body",
+
+    "tree_rock1",
+    "tree_rock2",
+    "cave_vent_rock",
+    "retrofit_fumaroleteleporter",
+
+    "flower_cave_withered",
+
+    "cave_vent_mite_spawner",
+
+    --   vault
+    "vaultmarker_lobby_center",
+    "vaultmarker_lobby_to_vault",
+    "vaultmarker_lobby_to_archive",
+    "vaultmarker_vault_center",
+    "vaultmarker_vault_north",
+    "vaultmarker_vault_east",
+    "vaultmarker_vault_south",
+    "vaultmarker_vault_west",
+    "oceanwhirlbigportalexit",
+    "vault_lobby_exit",
+    "vault_chandelier",
+    "vault_teleporter",
 }
 
 local monsters =
@@ -500,6 +528,9 @@ local function master_postinit(inst)
 
     -- Meta 5
     inst:AddComponent("decoratedgrave_ghostmanager")
+
+    -- Rifts 6
+    inst:AddComponent("vaultroommanager")
 
     return inst
 end

@@ -193,9 +193,7 @@ local function OnDeploy(inst, pt)--, deployer)
 	if pt then
 		StorageRobotCommon.UpdateSpawnPoint(inst)
 	end
-	if not inst:IsAsleep() then
-		inst:RestartBrain()
-	elseif inst._offscreendeactivatetask == nil then
+	if inst:IsAsleep() and inst._offscreendeactivatetask == nil then
 		inst._offscreendeactivatetask = inst:DoTaskInTime(OFFSCREEN_DEACTIVATE_DELAY, OnOffScreenDeactivate)
 	end
 	inst:ListenForEvent("teleported", OnTeleported)

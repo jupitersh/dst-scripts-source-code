@@ -4,7 +4,7 @@ local assets =
 	Asset("INV_IMAGE", "mapscroll"),
 }
 
-local function SetKillTime(inst, killtime, prefabname)
+local function rifts5_SetKillTime(inst, killtime, prefabname)
 	inst.killtime = math.floor(killtime + 0.5)
 	inst.boss = prefabname
 
@@ -14,13 +14,24 @@ local function SetKillTime(inst, killtime, prefabname)
 end
 
 local function OnSave(inst, data)
+	data.ver = inst.ver
+
+	--rifts 5
 	data.killtime = inst.killtime
 	data.boss = inst.boss
 end
 
 local function OnLoad(inst, data)--, ents)
-	if data and data.killtime then
-		SetKillTime(inst, data.killtime, data.boss)
+	if data then
+		if data.ver == "rifts6" then
+
+		elseif data.killtime then
+			rifts5_SetKillTime(inst, data.killtime, data.boss)
+		else
+			inst.components.inspectable:SetDescription(STRINGS.TEMP_BETA_MSG.RIFTS5_BASIC_NEW)
+		end
+	else
+		inst.components.inspectable:SetDescription(STRINGS.TEMP_BETA_MSG.RIFTS5_BASIC_NEW)
 	end
 end
 
@@ -47,7 +58,7 @@ local function fn()
 	inst.components.inventoryitem:ChangeImageName("mapscroll")
 
 	inst:AddComponent("inspectable")
-	inst.components.inspectable:SetDescription(STRINGS.TEMP_BETA_MSG.RIFTS5_BASIC_NEW)
+	inst.components.inspectable:SetDescription(STRINGS.TEMP_BETA_MSG.RIFTS6_BASIC)
 
 	inst:AddComponent("erasablepaper")
 
@@ -59,7 +70,9 @@ local function fn()
 
 	MakeHauntableLaunch(inst)
 
-	inst.SetKillTime = SetKillTime
+	inst.ver = "rifts6"
+
+	inst.SetKillTime = rifts5_SetKillTime
 	inst.OnSave = OnSave
 	inst.OnLoad = OnLoad
 

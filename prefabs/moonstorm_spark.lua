@@ -28,7 +28,11 @@ local function dospark1(inst, dospark)
 			not (ent.components.health and ent.components.health:IsDead()) and
 			ent.components.combat and ent.components.combat:CanBeAttacked()
 		then
-			ent.components.combat:GetAttacked(inst, TUNING.LIGHTNING_DAMAGE, nil, "electric")
+			local damage_mult = 1
+			if not IsEntityElectricImmune(ent) then
+				damage_mult = TUNING.ELECTRIC_DAMAGE_MULT + TUNING.ELECTRIC_WET_DAMAGE_MULT * ent:GetWetMultiplier()
+			end
+			ent.components.combat:GetAttacked(inst, damage_mult * TUNING.MOONSTORM_SPARK_DAMAGE, nil, "electric")
 			if ent.components.hauntable and ent.components.hauntable.panicable then
 				ent.components.hauntable:Panic(2)
 			end
@@ -188,7 +192,7 @@ local function fn()
     inst:AddTag("show_spoilage")
     inst:AddTag("moonstorm_spark")
 
-    inst.scrapbook_damage = TUNING.LIGHTNING_DAMAGE
+	inst.scrapbook_damage = TUNING.MOONSTORM_SPARK_DAMAGE * TUNING.ELECTRIC_DAMAGE_MULT --show dry damage, not immune damage
     inst.scrapbook_animpercent = 0.5
     inst.scrapbook_anim = "idle_flight_loop"
     inst.scrapbook_animoffsetx = 20
@@ -225,6 +229,9 @@ local function fn()
     inst.components.perishable:SetOnPerishFn(depleted)
 
     inst:AddComponent("stackable")
+
+	inst:AddComponent("electricattacks")
+	inst.components.electricattacks:AddSource(inst)
 
     MakeHauntablePerish(inst, .5)
 

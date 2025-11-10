@@ -1,4 +1,5 @@
 require("stategraphs/commonstates")
+local easing = require("easing")
 
 local TIMEOUT = 2
 
@@ -176,6 +177,8 @@ local function ConfigureRunState(inst)
         end
 	elseif inst:IsInAnyStormOrCloud() and not inst.components.playervision:HasGoggleVision() then
         inst.sg.statemem.sandstorm = true
+	elseif inst.sg.lasttags["teetering"] or inst:IsTeetering() then
+		inst.sg.statemem.teetering = true
     elseif inst:HasTag("groggy") then
         inst.sg.statemem.groggy = true
     elseif inst:IsCarefulWalking() then
@@ -192,6 +195,7 @@ local function GetRunStateAnim(inst)
 		or (inst.sg.statemem.channelcastitem and "channelcast_walk")
 		or (inst.sg.statemem.channelcast and "channelcast_oh_walk")
         or (inst.sg.statemem.sandstorm and "sand_walk")
+		or (inst.sg.statemem.teetering and "teeter")
         or ((inst.sg.statemem.groggy or inst.sg.statemem.moosegroggy or inst.sg.statemem.goosegroggy) and "idle_walk")
         or (inst.sg.statemem.careful and "careful_walk")
         or (inst.sg.statemem.ridingwoby and "run_woby")
@@ -223,6 +227,13 @@ local actionhandlers =
 				return not (inst.sg:HasStateTag("gnawing") or inst:HasTag("gnawing")) and "gnaw" or nil
             end
 			return not (inst.sg:HasStateTag("premine") or inst:HasTag("premine")) and "mine_start" or nil
+        end),
+    ActionHandler(ACTIONS.REMOVELUNARBUILDUP, -- Copy of ACTIONS.MINE
+        function(inst)
+            if inst:HasTag("beaver") then
+                return not (inst.sg:HasStateTag("gnawing") or inst:HasTag("gnawing")) and "gnaw" or nil
+            end
+            return not (inst.sg:HasStateTag("premine") or inst:HasTag("premine")) and "mine_start" or nil
         end),
     ActionHandler(ACTIONS.HAMMER,
         function(inst)
@@ -855,6 +866,11 @@ local actionhandlers =
 
 	-- Rifts 5
 	ActionHandler(ACTIONS.POUNCECAPTURE, "pouncecapture_pre"),
+    ActionHandler(ACTIONS.STARTELECTRICLINK, "doshortaction"),
+    ActionHandler(ACTIONS.ENDELECTRICLINK, "doshortaction"),
+
+    -- rifts5.1
+    ActionHandler(ACTIONS.DIVEGRAB, "divegrab_pre"),
 }
 
 local events =
@@ -964,7 +980,8 @@ local states =
             --V2C: Only predict looped anims. For idles with a pre, stick with
             --     "idle_loop" and wait for server to trigger the custom anims
             local anim
-            if inst.replica.rider ~= nil and inst.replica.rider:IsRiding() then
+			local rider = inst.replica.rider
+			if rider and rider:IsRiding() then
                 anim = "idle_loop"
             elseif inst:HasTag("wereplayer") then
                 --V2C: groggy moose and goose go straight back to idle_groggy (don't play idle_groggy_pre everytime like others do)
@@ -986,19 +1003,23 @@ local states =
             elseif inst.player_classified ~= nil and inst.player_classified.inmightygym:value() > 0 then
 				anim = "mighty_gym_active_loop"
 			else
-                anim =
-                    (inst.replica.inventory ~= nil and inst.replica.inventory:IsHeavyLifting() and "heavy_idle") or
-					(	IsChannelCasting(inst) and
-						(IsChannelCastingItem(inst) and "channelcast_idle" or "channelcast_oh_idle")
-					) or
-					(   inst:IsInAnyStormOrCloud() and not inst.components.playervision:HasGoggleVision() and
-                        (   inst.AnimState:IsCurrentAnimation("sand_walk_pst") or
-                            inst.AnimState:IsCurrentAnimation("sand_walk") or
-                            inst.AnimState:IsCurrentAnimation("sand_walk_pre")
-                        ) and
-                        "sand_idle_loop"
-                    ) or
-                    "idle_loop"
+				local inventory = inst.replica.inventory
+				if inventory and inventory:IsHeavyLifting() then
+					anim = "heavy_idle"
+				elseif IsChannelCasting(inst) then
+					anim = IsChannelCastingItem(inst) and "channelcast_idle" or "channelcast_oh_idle"
+				elseif inst:IsInAnyStormOrCloud() and not inst.components.playervision:HasGoggleVision() and
+					(	inst.AnimState:IsCurrentAnimation("sand_walk_pst") or
+						inst.AnimState:IsCurrentAnimation("sand_walk") or
+						inst.AnimState:IsCurrentAnimation("sand_walk_pre")
+					)
+				then
+					anim = "sand_idle_loop"
+				elseif inst.sg.lasttags and inst.sg.lasttags["teetering"] and inst:IsTeetering() then
+					anim = "teeter_loop"
+				else
+					anim = "idle_loop"
+				end
             end
 
             if pushanim then
@@ -1025,6 +1046,9 @@ local states =
 
         onenter = function(inst)
             ConfigureRunState(inst)
+			--goose footsteps should always be light
+			inst.sg.mem.footsteps = (inst.sg.statemem.goose or inst.sg.statemem.goosegroggy) and 4 or 0
+
 			if inst.sg.statemem.normalwonkey then
 				if inst.components.locomotor:GetTimeMoving() >= TUNING.WONKEY_TIME_TO_RUN then
 					inst.sg:GoToState("run_monkey") --resuming after brief stop from changing directions
@@ -1045,9 +1069,22 @@ local states =
 				inst.sg.mem.turbowoby = false
             end
             inst.components.locomotor:RunForward()
-            inst.AnimState:PlayAnimation(GetRunStateAnim(inst).."_pre")
-            --goose footsteps should always be light
-            inst.sg.mem.footsteps = (inst.sg.statemem.goose or inst.sg.statemem.goosegroggy) and 4 or 0
+			local anim = GetRunStateAnim(inst)
+			if anim == "teeter" then
+				inst.sg:AddStateTag("teetering")
+				if inst.AnimState:IsCurrentAnimation("boat_jump_to_teeter") then
+					if inst.AnimState:AnimDone() then
+						inst.sg:GoToState("run")
+					else
+						inst.AnimState:SetFrame(math.max(6, inst.AnimState:GetCurrentAnimationFrame()))
+					end
+					return
+				elseif inst.sg.lasttags["teetering"] then
+					inst.sg:GoToState("run")
+					return
+				end
+			end
+			inst.AnimState:PlayAnimation(anim.."_pre")
         end,
 
         onupdate = function(inst)
@@ -1122,12 +1159,13 @@ local states =
             inst.components.locomotor:RunForward()
 
             local anim = GetRunStateAnim(inst)
-            if anim == "run" then
-                anim = "run_loop"
-            elseif anim == "run_woby" then
-                anim = "run_woby_loop"
-            end
 
+			if anim == "teeter" then
+				anim = "teeter_loop"
+				inst.sg:AddStateTag("teetering")
+			elseif anim == "run" or anim == "run_woby" then
+				anim = anim.."_loop"
+            end
             if not inst.AnimState:IsCurrentAnimation(anim) then
                 inst.AnimState:PlayAnimation(anim, true)
             end
@@ -1418,7 +1456,13 @@ local states =
             ConfigureRunState(inst)
             inst.components.locomotor:Stop()
 			local anim = GetRunStateAnim(inst)
-			if anim == "run_woby" and inst.sg.lasttags and inst.sg.lasttags["sprint_woby"] then
+			if anim == "teeter" then
+				if inst.sg.lasttags["teetering"] then
+					inst.sg:AddStateTag("teetering")
+				end
+				inst.sg:GoToState("idle", true)
+				return
+			elseif anim == "run_woby" and inst.sg.lasttags and inst.sg.lasttags["sprint_woby"] then
 				anim = "sprint_woby"
 				inst.SoundEmitter:PlaySound("dontstarve/characters/walter/woby/big/chuff", nil, nil, true)
 			end
@@ -1509,7 +1553,7 @@ local states =
 
     State{
         name = "run_monkey",
-        tags = {"moving", "running", "canrotate", "monkey"},
+		tags = { "moving", "running", "canrotate", "monkey", "monkey_predict_run" --[[for hunger drain arrow]]},
 
         onenter = function(inst)
             ConfigureRunState(inst)
@@ -3206,10 +3250,11 @@ local states =
 
     State{
         name = "mount_plank",
-        tags = { "idle" },
+		tags = { "doing", "canrotate" },
 		server_states = { "mount_plank" },
 
         onenter = function(inst)
+			inst.components.locomotor:Stop()
             inst.AnimState:PlayAnimation("plank_idle_pre")
             inst.AnimState:PushAnimation("plank_idle_loop", true)
             inst:PerformPreviewBufferedAction()
@@ -6298,10 +6343,11 @@ local states =
 					local x, y, z = inst.Transform:GetWorldPosition()
 					local x1, y1, z1 = chair.Transform:GetWorldPosition()
 					if x == x1 and z == z1 then
+						local _ispassableatpoint = GetActionPassableTestFnAt(x, y, z)
 						local rot = inst.Transform:GetRotation() * DEGREES
 						x = x1 + radius * math.cos(rot)
 						z = z1 - radius * math.sin(rot)
-						if TheWorld.Map:IsPassableAtPoint(x, 0, z, true) then
+						if _ispassableatpoint(x, 0, z, true) then
 							inst.Physics:Teleport(x, 0, z)
 						end
 					end
@@ -6922,6 +6968,32 @@ local states =
 			local inventory = inst.replica.inventory
 			if not (inventory and inventory:IsFloaterHeld()) then
 				inst.sg:GoToState("idle", "noanim")
+			elseif inst.sg:HasStateTag("floating_predict_move") then
+				local t = GetTime()
+				local elapsed = t - inst.sg.statemem.swim_t
+				local swimtime = TUNING.FLOATING_SWIM_TIME
+				if elapsed < swimtime.max and
+					inst.components.locomotor:WantsToMoveForward() and
+					not inst:HasTag("noswim")
+				then
+					local maxspeed = TUNING.FLOATING_SWIM_SPEED
+					inst.Physics:SetMotorVel(easing.outQuad(elapsed, maxspeed, -0.5 * maxspeed, swimtime.max), 0, 0)
+					--local x, y, z = inst.Transform:GetWorldPosition()
+					--local isdirect = inst.components.locomotor.dest == nil
+					--inst.components.playercontroller:RemotePredictWalking(x, z, elapsed == 0, elapsed, isdirect)
+				else
+					inst.sg:RemoveStateTag("floating_predict_move")
+					inst.sg.statemem.swim_t = elapsed >= swimtime.min and t + swimtime.min or nil
+					inst.components.locomotor:Stop()
+					inst.components.locomotor:Clear()
+					--[[if inst.AnimState:IsCurrentAnimation("swim_pre") then
+						inst.AnimState:PushAnimation("swim_pst", false)
+					else
+						inst.AnimState:PlayAnimation("swim_pst")
+					end]]
+					--inst.components.playercontroller:RemoteStopWalking()
+					inst.entity:SetIsPredictingMovement(false)
+				end
 			end
 		end,
 
@@ -6936,42 +7008,40 @@ local states =
 				inst.sg:GoToState("idle", "noanim")
 			end),
 			EventHandler("locomote", function(inst, data)
-				local x1, y1, z1, nodelay
-				if inst.components.locomotor.dest then
-					local pt = inst.components.locomotor.dest.pt
-					if pt then
-						x1, y1, z1 = pt:Get()
-					end
-					inst.components.locomotor:Stop()
-					inst.components.locomotor:Clear()
-					nodelay = true
-				end
 				if data and data.dir then
 					inst.Transform:SetRotation(data.dir)
 
-					local x, y, z = inst.Transform:GetWorldPosition()
-					local dx, dz
-					if x1 then
-						if x ~= x1 or z ~= z1 then
-							local dx = x1 - x
-							local dz = z1 - z
-							local len = math.sqrt(dx * dx + dz * dz)
-							dx = dx / len
-							dz = dz / len
+					if not inst.sg:HasStateTag("floating_predict_move") and
+						not inst:HasTag("noswim") and
+						inst.components.locomotor:WantsToMoveForward()
+					then
+						local t = GetTime()
+						if inst.sg.statemem.swim_t == nil or inst.sg.statemem.swim_t < t then
+							inst.sg:AddStateTag("floating_predict_move")
+							inst.sg.statemem.swim_t = t
+							inst.entity:SetIsPredictingMovement(true)
+							inst.AnimState:PlayAnimation("swim_pre")
 						end
 					end
-					if dx == nil then
-						local theta = data.dir * DEGREES
-						dx = math.cos(theta)
-						dz = -math.sin(theta)
+				end
+				if not inst.sg:HasStateTag("floating_predict_move") then
+					if inst.components.locomotor.dest then
+						inst.components.locomotor:Stop()
+						inst.components.locomotor:Clear()
 					end
-					local step_size = 0.5
-					local steps_to_platform = math.ceil(TUNING.FLOATING_HOP_DISTANCE_PLATFORM / step_size)
-					local steps_to_land = math.ceil(TUNING.FLOATING_HOP_DISTANCE_LAND / step_size)
-					local can_hop, px, pz, found_platform = inst.components.locomotor:ScanForPlatformInDirFromFloating(TheWorld.Map, x, z, dx, dz, steps_to_platform, steps_to_land, step_size, nodelay)
-					inst.components.playercontroller:RemotePredictOverrideLocomote(can_hop)
+					inst.components.playercontroller:RemotePredictOverrideLocomote()
 				end
 				return true
+			end),
+			EventHandler("animover", function(inst)
+				if inst.sg:HasStateTag("floating_predict_move") then
+					if inst.AnimState:IsCurrentAnimation("swim_pre") then
+						inst.AnimState:PlayAnimation("swim_loop", true)
+					end
+				--[[elseif inst.AnimState:IsCurrentAnimation("swim_pst") then
+					inst.AnimState:PlayAnimation("float_loop", true)
+					inst.entity:SetIsPredictingMovement(false)]]
+				end
 			end),
 		},
 
@@ -7099,6 +7169,38 @@ local states =
 			end
 		end,
 	},
+
+    -- rifts5.1
+
+    State{
+        name = "divegrab_pre",
+        tags = { "busy" },
+        server_states = { "divegrab_pre", "divegrab", "divegrab_pst" },
+
+        onenter = function(inst)
+            inst.components.locomotor:Stop()
+            inst.AnimState:PlayAnimation("divegrab_pre")
+            inst.AnimState:PushAnimation("divegrab_lag", false)
+
+            inst:PerformPreviewBufferedAction()
+            inst.sg:SetTimeout(TIMEOUT)
+        end,
+
+        onupdate = function(inst)
+            if inst.sg:ServerStateMatches() then
+                if inst.entity:FlattenMovementPrediction() then
+                    inst.sg:GoToState("idle", "noanim")
+                end
+            elseif inst.bufferedaction == nil then
+                inst.sg:GoToState("idle")
+            end
+        end,
+
+        ontimeout = function(inst)
+            inst:ClearBufferedAction()
+            inst.sg:GoToState("idle")
+        end,
+    },
 }
 
 local hop_timelines =
@@ -7113,9 +7215,39 @@ local hop_timelines =
 
 local hop_anims =
 {
-    pre = function(inst) return (inst.replica.inventory ~= nil and inst.replica.inventory:IsHeavyLifting() and (inst.replica.rider == nil or not inst.replica.rider:IsRiding())) and "boat_jumpheavy_pre" or "boat_jump_pre" end,
-    loop = function(inst) return (inst.replica.inventory ~= nil and inst.replica.inventory:IsHeavyLifting() and (inst.replica.rider == nil or not inst.replica.rider:IsRiding())) and "boat_jumpheavy_loop" or "boat_jump_loop" end,
-    pst = function(inst) return (inst.replica.inventory ~= nil and inst.replica.inventory:IsHeavyLifting() and (inst.replica.rider == nil or not inst.replica.rider:IsRiding())) and "boat_jumpheavy_pst" or "boat_jump_pst" end,
+	pre = function(inst)
+		local inventory = inst.replica.inventory
+		if inventory and inventory:IsHeavyLifting() then
+			local rider = inst.replica.rider
+			if not (rider and rider:IsRiding()) then
+				return "boat_jumpheavy_pre"
+			end
+		end
+		return "boat_jump_pre"
+	end,
+	loop = function(inst)
+		local inventory = inst.replica.inventory
+		if inventory and inventory:IsHeavyLifting() then
+			local rider = inst.replica.rider
+			if not (rider and rider:IsRiding()) then
+				return "boat_jumpheavy_loop"
+			end
+		end
+		return "boat_jump_loop"
+	end,
+	pst = function(inst)
+		local rider = inst.replica.rider
+		if not (rider and rider:IsRiding()) then
+			local inventory = inst.replica.inventory
+			if inventory and inventory:IsHeavyLifting() then
+				return "boat_jumpheavy_pst"
+			elseif inst.components.embarker.embarkable and inst.components.embarker.embarkable:HasTag("teeteringplatform") then
+				inst.sg:AddStateTag("teetering")
+				return "boat_jump_to_teeter"
+			end
+		end
+		return "boat_jump_pst"
+	end,
 }
 
 CommonStates.AddHopStates(states, true, hop_anims, hop_timelines, "turnoftides/common/together/boat/jump_on", nil, {start_embarking_pre_frame = 4*FRAMES})

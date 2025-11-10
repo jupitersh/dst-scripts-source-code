@@ -464,6 +464,7 @@ local function fn()
 
     inst:SetBrain(brain)
     inst:SetStateGraph("SGfruitdragon")
+	inst.sg.mem.burn_on_electrocute = true --it's plant-based. will have the short stun, but won't actually burn though.
 
     MakeHauntablePanicAndIgnite(inst)
 

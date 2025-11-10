@@ -90,7 +90,23 @@ end
 
 BrainCommon.ShouldTriggerPanic = ShouldTriggerPanic
 BrainCommon.PanicTrigger = function(inst)
-	return WhileNode(function() return ShouldTriggerPanic(inst) end, "PanicTrigger", Panic(inst))
+    return WhileNode(function() return ShouldTriggerPanic(inst) end, "PanicTrigger", Panic(inst))
+end
+
+--------------------------------------------------------------------------
+
+require("behaviours/avoidelectricfence")
+local function ShouldAvoidElectricFence(inst)
+    return inst.panic_electric_field ~= nil
+end
+
+BrainCommon.ShouldAvoidElectricFence = ShouldAvoidElectricFence
+BrainCommon.ElectricFencePanicTrigger = function(inst)
+    return WhileNode(function() return ShouldAvoidElectricFence(inst) end, "ElectricShock", AvoidElectricFence(inst))
+end
+
+BrainCommon.HasElectricFencePanicTriggerNode = function(inst)
+    return inst._has_electric_fence_panic_trigger --Set in AvoidElectricFence
 end
 
 --------------------------------------------------------------------------

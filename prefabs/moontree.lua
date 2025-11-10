@@ -200,6 +200,7 @@ local function make_stump(inst)
     inst:RemoveComponent("burnable")
     inst:RemoveComponent("propagator")
     inst:RemoveComponent("workable")
+    RemoveLunarHailBuildup(inst)
     inst:RemoveComponent("hauntable")
     inst:RemoveTag("shelter")
 
@@ -498,6 +499,9 @@ local function on_load(inst, data)
         on_moon_tree_burnt_immediate_helper(inst, true)
     else
         sway(inst)
+    end
+    if is_burnt then
+        RemoveLunarHailBuildup(inst)
     end
 end
 

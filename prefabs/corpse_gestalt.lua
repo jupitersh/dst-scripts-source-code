@@ -16,6 +16,8 @@ end
 
 local function GeSpawnPoint(inst, target)
     local pos = target:GetPosition()
+    pos.y = 0
+
     local offset = FindWalkableOffset(pos, TWOPI*math.random(), 30, 12, true, false, nil, true, true)
 
     return pos + (offset or Vector3(0,0,0))

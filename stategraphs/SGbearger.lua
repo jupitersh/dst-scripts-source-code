@@ -8,7 +8,7 @@ local SHAKE_DIST = 40
 local YAWNTARGET_CANT_TAGS = { "playerghost", "FX", "DECOR", "INLIMBO" }
 local YAWNTARGET_ONEOF_TAGS = { "sleeper", "player" }
 
-function yawnfn(inst)
+local function yawnfn(inst)
     local x, y, z = inst.Transform:GetWorldPosition()
     local ents = TheSim:FindEntities(x, y, z, TUNING.BEARGER_YAWN_RANGE, nil, YAWNTARGET_CANT_TAGS, YAWNTARGET_ONEOF_TAGS)
     for i, v in ipairs(ents) do
@@ -386,6 +386,7 @@ local events =
 	CommonHandlers.OnSleepEx(),
 	CommonHandlers.OnWakeEx(),
 	CommonHandlers.OnFreeze(),
+	CommonHandlers.OnElectrocute(),
 	CommonHandlers.OnDeath(),
     CommonHandlers.OnSink(),
     CommonHandlers.OnFallInVoid(),
@@ -396,21 +397,24 @@ local events =
 	end),
 	EventHandler("attacked", function(inst, data)
 		--V2C: health check since corpse shares this SG
-		if inst.components.health ~= nil and not inst.components.health:IsDead() and (
-			not inst.sg:HasStateTag("busy") or
-			inst.sg:HasStateTag("caninterrupt") or
-			inst.sg:HasStateTag("frozen")
-		) then
-			if inst.sg:HasStateTag("staggered") then
-				inst.sg.statemem.staggered = true
-				inst.sg:GoToState("stagger_hit")
-			elseif not CommonHandlers.HitRecoveryDelay(inst) then
-				-- Clear out the inventory if he got interrupted
-				ClearInventory(inst)
-				inst.sg:GoToState(inst:IsStandState("quad") and "hit" or "standing_hit")
+		if inst.components.health and not inst.components.health:IsDead() then
+			if CommonHandlers.TryElectrocuteOnAttacked(inst, data) then
+				return
+			elseif not inst.sg:HasStateTag("busy") or inst.sg:HasAnyStateTag("caninterrupt", "frozen") then
+				if inst.sg:HasStateTag("staggered") then
+					inst.sg.statemem.staggered = true
+					inst.sg:GoToState("stagger_hit")
+				elseif not CommonHandlers.HitRecoveryDelay(inst) then
+					-- Clear out the inventory if he got interrupted
+					ClearInventory(inst)
+					inst.sg:GoToState(inst:IsStandState("quad") and "hit" or "standing_hit")
+				end
 			end
 		end
 	end),
+
+	-- Corpse handlers
+	CommonHandlers.OnCorpseChomped(),
 }
 
 local function ShakeIfClose(inst)
@@ -601,7 +605,7 @@ local states =
 
 		timeline =
 		{
-			FrameEvent(8, function(inst) inst.SoundEmitter:PlaySound("dontstarve_DLC001/creatures/bearger/taunt") end),
+			FrameEvent(8, function(inst) inst.SoundEmitter:PlaySound(inst.sounds.taunt) end),
 			FrameEvent(9, DoFootstep),
 			FrameEvent(33, DoFootstep),
 		},
@@ -744,7 +748,7 @@ local states =
 		timeline =
 		{
 			FrameEvent(22, function(inst)
-				inst.SoundEmitter:PlaySound("dontstarve_DLC001/creatures/bearger/yawn")
+				inst.SoundEmitter:PlaySound(inst.sounds.yawn)
 				inst.components.timer:StopTimer("Yawn")
 				inst.components.timer:StartTimer("Yawn", TUNING.BEARGER_YAWN_COOLDOWN)
 			end),
@@ -800,7 +804,7 @@ local states =
 
 		timeline =
 		{
-			FrameEvent(4, function(inst) inst.SoundEmitter:PlaySound("dontstarve_DLC001/creatures/bearger/attack") end),
+			FrameEvent(4, function(inst) inst.SoundEmitter:PlaySound(inst.sounds.attack) end),
 			FrameEvent(10, StopTrackingTarget),
 			FrameEvent(28, function(inst) inst.SoundEmitter:PlaySound("dontstarve_DLC001/creatures/bearger/swhoosh") end),
 			FrameEvent(29, function(inst)
@@ -866,7 +870,7 @@ local states =
 
 		timeline =
 		{
-			FrameEvent(4, function(inst) inst.SoundEmitter:PlaySound("dontstarve_DLC001/creatures/bearger/attack") end),
+			FrameEvent(4, function(inst) inst.SoundEmitter:PlaySound(inst.sounds.attack) end),
 			FrameEvent(10, StopTrackingTarget),
 			FrameEvent(28, function(inst) inst.SoundEmitter:PlaySound("dontstarve_DLC001/creatures/bearger/swhoosh") end),
 			FrameEvent(27, function(inst) inst.Physics:SetMotorVelOverride(6, 0, 0) end),
@@ -962,7 +966,7 @@ local states =
 
 		timeline =
 		{
-			FrameEvent(0, function(inst) inst.SoundEmitter:PlaySound("dontstarve_DLC001/creatures/bearger/attack") end),
+			FrameEvent(0, function(inst) inst.SoundEmitter:PlaySound(inst.sounds.attack) end),
 			FrameEvent(10, StopTrackingTarget),
 			FrameEvent(24, function(inst) inst.SoundEmitter:PlaySound("dontstarve_DLC001/creatures/bearger/swhoosh") end),
 			FrameEvent(23, function(inst) inst.Physics:SetMotorVelOverride(6, 0, 0) end),
@@ -1057,7 +1061,7 @@ local states =
 
 		timeline =
 		{
-			FrameEvent(0, function(inst) inst.SoundEmitter:PlaySound("dontstarve_DLC001/creatures/bearger/attack") end),
+			FrameEvent(0, function(inst) inst.SoundEmitter:PlaySound(inst.sounds.attack) end),
 			FrameEvent(10, StopTrackingTarget),
 			FrameEvent(24, function(inst) inst.SoundEmitter:PlaySound("dontstarve_DLC001/creatures/bearger/swhoosh") end),
 			FrameEvent(23, function(inst) inst.Physics:SetMotorVelOverride(6, 0, 0) end),
@@ -1204,7 +1208,7 @@ local states =
 
 		timeline =
 		{
-			FrameEvent(0, function(inst) inst.SoundEmitter:PlaySound("dontstarve_DLC001/creatures/bearger/attack") end),
+			FrameEvent(0, function(inst) inst.SoundEmitter:PlaySound(inst.sounds.attack) end),
 			FrameEvent(23, function(inst)
 				local p = inst.sg.statemem.targetpos
 				if p ~= nil then
@@ -1418,7 +1422,7 @@ local states =
 
 	State{
 		name = "butt_pst",
-		tags = { "attack", "busy", "jumping" },
+		tags = { "attack", "busy", "jumping", "noelectrocute" },
 
 		onenter = function(inst, data)
 			inst.components.locomotor:Stop()
@@ -1448,17 +1452,19 @@ local states =
 			FrameEvent(41, function(inst)
 				inst.sg.statemem.vulnerable = false
 				inst:SetStandState("quad")
+				inst.sg:RemoveStateTag("noelectrocute")
 			end),
 		},
 
 		events =
 		{
 			EventHandler("attacked", function(inst, data)
-				if inst.sg.statemem.vulnerable and
-					not inst.components.health:IsDead() and
-					data ~= nil and data.spdamage ~= nil and data.spdamage.planar ~= nil
-				then
-					inst.sg:GoToState("butt_face_hit")
+				if not inst.components.health:IsDead() then
+					if CommonHandlers.TryElectrocuteOnAttacked(inst, data) then
+						return
+					elseif inst.sg.statemem.vulnerable and data and data.spdamage and data.spdamage.planar then
+						inst.sg:GoToState("butt_face_hit")
+					end
 				end
 				return true
 			end),
@@ -1477,7 +1483,7 @@ local states =
 
 	State{
 		name = "butt_face_hit",
-		tags = { "hit", "busy" },
+		tags = { "hit", "busy", "noelectrocute" },
 
 		onenter = function(inst)
 			inst.components.locomotor:Stop()
@@ -1498,19 +1504,21 @@ local states =
 			FrameEvent(28, function(inst)
 				inst:SetStandState("quad")
 				inst.sg.statemem.vulnerable = false
+				inst.sg:RemoveStateTag("noelectrocute")
 			end),
 		},
 
 		events =
 		{
 			EventHandler("attacked", function(inst, data)
-				if inst.sg.statemem.vulnerable and
-					not inst.components.health:IsDead() and
-					data ~= nil and data.spdamage ~= nil and data.spdamage.planar ~= nil
-				then
-					inst.sg.mem.dostagger = true
-					if inst.sg.statemem.canstagger then
-						TryStagger(inst)
+				if not inst.components.health:IsDead() then
+					if CommonHandlers.TryElectrocuteOnAttacked(inst, data) then
+						return
+					elseif inst.sg.statemem.vulnerable and data and data.spdamage and data.spdamage.planar then
+						inst.sg.mem.dostagger = true
+						if inst.sg.statemem.canstagger then
+							TryStagger(inst)
+						end
 					end
 				end
 				return true
@@ -1538,186 +1546,19 @@ local states =
 
 		timeline =
 		{
-			FrameEvent(6, function(inst) inst.SoundEmitter:PlaySound("dontstarve_DLC001/creatures/bearger/death") end),
+			FrameEvent(6, function(inst) inst.SoundEmitter:PlaySound(inst.sounds.death) end),
 			FrameEvent(46, function(inst) inst.SoundEmitter:PlaySound("dontstarve_DLC001/creatures/bearger/groundpound") end),
 			FrameEvent(48, function(inst)
 				ShakeIfClose(inst)
 				inst.components.lootdropper:DropLoot(inst:GetPosition())
-				inst.looted = true
+                inst:SetDeathLootLevel(1)
 			end),
 		},
 
 		events =
 		{
-			EventHandler("animover", function(inst)
-				if inst.AnimState:AnimDone() then
-					inst.sg:GoToState("corpse")
-				end
-			end)
+			CommonHandlers.OnCorpseDeathAnimOver(),
 		},
-	},
-
-	State{
-		name = "corpse",
-		tags = { "dead", "busy", "noattack" },
-
-		onenter = function(inst)
-			inst.components.locomotor:Stop()
-			inst.AnimState:PlayAnimation("corpse")
-		end,
-
-		timeline =
-		{
-			--delay 1 frame in case we are loading
-			FrameEvent(1, function(inst)
-				local corpse = not inst:HasTag("lunar_aligned") and TheWorld.components.lunarriftmutationsmanager ~= nil and TheWorld.components.lunarriftmutationsmanager:TryMutate(inst, "beargercorpse") or nil
-				if corpse == nil then
-					inst:AddTag("NOCLICK")
-					inst.persists = false
-					RemovePhysicsColliders(inst)
-
-					--58 + 1 frames since death anim started
-					local delay = (inst.components.health.destroytime or 2) - 59 * FRAMES
-					if delay > 0 then
-						inst.sg:SetTimeout(delay)
-					else
-						ErodeAway(inst)
-					end
-				elseif IsSpecialEventActive(SPECIAL_EVENTS.WINTERS_FEAST) then
-					corpse:SetAltBuild("yule")
-				end
-			end),
-		},
-
-		ontimeout = ErodeAway,
-	},
-
-	--------------------------------------------------------------------------
-	--Used by "beargercorpse"
-
-	State{
-		name = "corpse_idle",
-
-		onenter = function(inst)
-			inst.AnimState:PlayAnimation("corpse")
-		end,
-	},
-
-	State{
-		name = "corpse_mutate_pre",
-		tags = { "mutating" },
-
-		onenter = function(inst, mutantprefab)
-			inst.AnimState:PlayAnimation("twitch", true)
-			inst.sg.statemem.mutantprefab = mutantprefab
-			inst.SoundEmitter:PlaySound("rifts3/mutated_deerclops/twitching_LP", "loop")
-		end,
-
-		timeline =
-		{
-			FrameEvent(82, function(inst) inst.SoundEmitter:PlaySound("rifts3/mutated_bearger/mutate_pre_cracks_f0") end),
-			TimeEvent(3, function(inst)
-				inst.sg:GoToState("corpse_mutate", inst.sg.statemem.mutantprefab)
-			end),
-		},
-
-		onexit = function(inst)
-			inst.SoundEmitter:KillSound("loop")
-		end,
-	},
-
-	State{
-		name = "corpse_mutate",
-		tags = { "mutating" },
-
-		onenter = function(inst, mutantprefab)
-			inst.AnimState:OverrideSymbol("bearger_rib", "bearger_mutated", "bearger_rib")
-			inst.AnimState:PlayAnimation("mutate_pre")
-			inst.SoundEmitter:PlaySound("rifts3/mutated_bearger/mutate_pre_tone_f0")
-			inst.sg.statemem.mutantprefab = mutantprefab
-		end,
-
-		timeline =
-		{
-			FrameEvent(68, function(inst) inst.SoundEmitter:PlaySound("dontstarve_DLC001/creatures/bearger/step_soft") end),
-			FrameEvent(70, function(inst) ShakeAllCameras(CAMERASHAKE.FULL, .35, .02, .5, inst, 30) end),
-			FrameEvent(125, function(inst) inst.SoundEmitter:PlaySound("rifts3/mutated_bearger/mutate") end),
-			FrameEvent(149, function(inst)
-				inst.AnimState:SetAddColour(.5, .5, .5, 0)
-				inst.AnimState:SetLightOverride(.5)
-			end),
-		},
-
-		events =
-		{
-			EventHandler("animover", function(inst)
-				if inst.AnimState:AnimDone() then
-					local rot = inst.Transform:GetRotation()
-					local creature = ReplacePrefab(inst, inst.sg.statemem.mutantprefab)
-					creature.Transform:SetRotation(rot)
-					creature.AnimState:MakeFacingDirty() --not needed for clients
-					creature.sg:GoToState("mutate_pst")
-				end
-			end),
-		},
-
-		onexit = function(inst)
-			--Shouldn't reach here!
-			inst.AnimState:ClearAllOverrideSymbols()
-			inst.AnimState:SetAddColour(0, 0, 0, 0)
-			inst.AnimState:SetLightOverride(0)
-		end,
-	},
-
-	--------------------------------------------------------------------------
-	--Transitions from corpse_mutate after prefab switch
-	State{
-		name = "mutate_pst",
-		tags = { "busy", "noattack", "temp_invincible" },
-
-		onenter = function(inst)
-			inst.components.locomotor:Stop()
-			inst.AnimState:PlayAnimation("mutate")
-			inst.SoundEmitter:PlaySound("rifts3/mutated_bearger/taunt")
-			inst.sg.statemem.flash = 24
-			inst:SetStandState("bi")
-		end,
-
-		onupdate = function(inst)
-			local c = inst.sg.statemem.flash
-			if c >= 0 then
-				inst.sg.statemem.flash = c - 1
-				c = easing.inOutQuad(math.min(20, c), 0, 1, 20)
-				inst.AnimState:SetAddColour(c, c, c, 0)
-				inst.AnimState:SetLightOverride(c)
-			end
-		end,
-
-		timeline =
-		{
-			FrameEvent(25, DoFootstep),
-			FrameEvent(27, function(inst) inst.SoundEmitter:PlaySound("dontstarve_DLC001/creatures/bearger/step_soft") end),
-			FrameEvent(28, function(inst)
-				inst:SetStandState("quad")
-			end),
-			FrameEvent(44, function(inst)
-				inst:SetStandState("bi")
-			end),
-		},
-
-		events =
-		{
-			EventHandler("animover", function(inst)
-				if inst.AnimState:AnimDone() then
-					inst.sg:GoToState("idle", IDLE_FLAGS.NoFaced + IDLE_FLAGS.Aggro)
-				end
-			end),
-		},
-
-		onexit = function(inst)
-			inst.AnimState:SetAddColour(0, 0, 0, 0)
-			inst.AnimState:SetLightOverride(0)
-		end,
 	},
 
 	--------------------------------------------------------------------------
@@ -1839,7 +1680,7 @@ local states =
 
 		timeline =
 		{
-			FrameEvent(4, function(inst) inst.SoundEmitter:PlaySound("dontstarve_DLC001/creatures/bearger/attack") end),
+			FrameEvent(4, function(inst) inst.SoundEmitter:PlaySound(inst.sounds.attack) end),
 			FrameEvent(28, function(inst) inst.SoundEmitter:PlaySound("dontstarve_DLC001/creatures/bearger/swhoosh") end),
 			FrameEvent(32, function(inst)
 				inst:PerformBufferedAction()
@@ -1913,7 +1754,7 @@ local states =
 		end,
 
 		ontimeout = function(inst)
-			inst.SoundEmitter:PlaySound("dontstarve_DLC001/creatures/bearger/grrrr")
+			inst.SoundEmitter:PlaySound(inst.sounds.growl)
 		end,
 
 		timeline =
@@ -1982,7 +1823,7 @@ local states =
 				inst.components.locomotor.runspeed = TUNING.BEARGER_ANGRY_WALK_SPEED
 				inst.components.locomotor:RunForward()
 				if not inst.SoundEmitter:PlayingSound("taunt") then
-					inst.SoundEmitter:PlaySound("dontstarve_DLC001/creatures/bearger/taunt", "taunt")
+					inst.SoundEmitter:PlaySound(inst.sounds.taunt, "taunt")
 				end
 				inst.AnimState:PlayAnimation("charge_pre")
 			end
@@ -2010,7 +1851,7 @@ local states =
 			inst:SetStandState("bi")
 			inst.components.locomotor:RunForward()
 			if not inst.SoundEmitter:PlayingSound("taunt") then
-				inst.SoundEmitter:PlaySound("dontstarve_DLC001/creatures/bearger/taunt", "taunt")
+				inst.SoundEmitter:PlaySound(inst.sounds.taunt, "taunt")
 			end
 			inst.AnimState:PlayAnimation("charge_roar_loop")
 		end,
@@ -2113,7 +1954,7 @@ local states =
 		tags = { "busy", "sleeping" },
 
 		onenter = function(inst)
-			inst.SoundEmitter:PlaySound("dontstarve_DLC001/creatures/bearger/sleep")
+			inst.SoundEmitter:PlaySound(inst.sounds.sleep)
 			inst.AnimState:PlayAnimation("sleep_loop")
 		end,
 
@@ -2150,7 +1991,7 @@ local states =
 
 		timeline =
 		{
-			FrameEvent(27, function(inst) inst.SoundEmitter:PlaySound("dontstarve_DLC001/creatures/bearger/taunt_short") end),
+			FrameEvent(27, function(inst) inst.SoundEmitter:PlaySound(inst.sounds.taunt_short) end),
 			CommonHandlers.OnNoSleepFrameEvent(33, function(inst)
 				if inst.sg.mem.dostagger and TryStagger(inst) then
 					return
@@ -2184,7 +2025,7 @@ local states =
 
 	State{
 		name = "stagger_pre",
-		tags = { "staggered", "busy", "nosleep" },
+		tags = { "staggered", "busy", "nosleep", "noelectrocute" },
 
 		onenter = function(inst)
 			inst.sg.mem.dostagger = nil
@@ -2212,14 +2053,14 @@ local states =
 
 	State{
 		name = "stagger_pre_timeline_from_frame3",
-		tags = { "staggered", "busy", "nosleep" },
+		tags = { "staggered", "busy", "nosleep", "noelectrocute" },
 
 		timeline =
 		{
 			--already standing (skips 3 frames)
-			FrameEvent(0, function(inst) inst.SoundEmitter:PlaySound("dontstarve_DLC001/creatures/bearger/yawn") end),
-			FrameEvent(33, function(inst) inst.SoundEmitter:PlaySound("dontstarve_DLC001/creatures/bearger/attack") end),
-			FrameEvent(40, function(inst) inst.SoundEmitter:PlaySound("dontstarve_DLC001/creatures/bearger/yawn", nil, 0.5) end),
+			FrameEvent(0, function(inst) inst.SoundEmitter:PlaySound(inst.sounds.yawn) end),
+			FrameEvent(33, function(inst) inst.SoundEmitter:PlaySound(inst.sounds.attack) end),
+			FrameEvent(40, function(inst) inst.SoundEmitter:PlaySound(inst.sounds.yawn, nil, 0.5) end),
 			FrameEvent(54, function(inst)
 				inst.SoundEmitter:PlaySound("dontstarve_DLC001/creatures/bearger/step_stomp")
 				ShakeIfClose_Footstep(inst)
@@ -2232,6 +2073,7 @@ local states =
 				ShakeIfClose(inst)
 			end),
 			FrameEvent(83, function(inst)
+				inst.sg:RemoveStateTag("noelectrocute")
 				inst.sg:AddStateTag("caninterrupt")
 			end),
 		},
@@ -2321,7 +2163,9 @@ local states =
 			inst.AnimState:PlayAnimation("stagger_pst")
 			inst.sg.statemem.aggro = IsAggro(inst)
 			inst.AnimState:PushAnimation(inst.sg.statemem.aggro and "standing_stagger_pst2" or "stagger_pst2", false)
-			if not nohit then
+			if nohit then
+				inst.sg:AddStateTag("noelectrocute")
+			else
 				inst.sg:AddStateTag("caninterrupt")
 			end
 			if inst.components.sleeper ~= nil then
@@ -2331,13 +2175,14 @@ local states =
 
 		timeline =
 		{
-			FrameEvent(41, function(inst) inst.SoundEmitter:PlaySound("dontstarve_DLC001/creatures/bearger/taunt_short") end),
+			FrameEvent(41, function(inst) inst.SoundEmitter:PlaySound(inst.sounds.taunt_short) end),
 			FrameEvent(45, function(inst)
 				inst.sg:RemoveStateTag("staggered")
 				inst.sg:RemoveStateTag("caninterrupt")
 			end),
 			FrameEvent(56, function(inst)
 				inst:SetStandState("bi")
+				inst.sg:RemoveStateTag("noelectrocute")
 			end),
 			CommonHandlers.OnNoSleepFrameEvent(60, function(inst)
 				if inst.sg.mem.dostagger and TryStagger(inst) then
@@ -2370,8 +2215,105 @@ local states =
 	--------------------------------------------------------------------------
 }
 
+CommonStates.AddCorpseStates(states, nil,
+{
+    corpseoncreate = function(inst, corpse)
+        if IsSpecialEventActive(SPECIAL_EVENTS.WINTERS_FEAST) then
+            corpse:SetAltBuild("yule")
+        end
+    end,
+})
 CommonStates.AddFrozenStates(states, function(inst) inst:SetStandState("bi") end)
+
+CommonStates.AddElectrocuteStates(states,
+nil, --timeline
+{	--anims
+	loop = function(inst)
+		if inst.sg.lasttags["staggered"] then
+			inst.sg:AddStateTag("staggered")
+			inst.override_combat_fx_height = "low"
+			return "staggered_shock_loop"
+		end
+	end,
+	pst = function(inst)
+		if inst.sg.lasttags["staggered"] then
+			inst.sg:AddStateTag("staggered")
+			return "staggered_shock_pst"
+		elseif IsAggro(inst) then
+			inst.sg.statemem.aggro = true
+			return "standing_shock_pst"
+		end
+	end,
+},
+{	--fns
+	loop_onenter = function(inst)
+		if inst.sg:HasStateTag("staggered") then
+			--V2C: can change this back since fx is already spawned at this point
+			inst.override_combat_fx_height = nil
+		else
+			inst:SetStandState("bi")
+		end
+	end,
+	onanimover = function(inst)
+		if inst.AnimState:AnimDone() then
+			if not inst.sg:HasStateTag("staggered") then
+				inst.sg:GoToState("idle", IDLE_FLAGS.NoFaced + (inst.sg.statemem.aggro and IDLE_FLAGS.Aggro or IDLE_FLAGS.Calm))
+			elseif inst.components.timer:TimerExists("stagger") then
+				inst.sg:GoToState("stagger_idle")
+			else
+				inst.sg:GoToState("stagger_pst", true)
+			end
+		end
+	end,
+})
+
 CommonStates.AddSinkAndWashAshoreStates(states)
 CommonStates.AddVoidFallStates(states)
+
+CommonStates.AddLunarRiftMutationStates(states,
+{ -- timelines
+    mutatepre_timeline = {
+        SoundFrameEvent(82, "rifts3/mutated_bearger/mutate_pre_cracks_f0")
+    },
+
+    mutate_timeline = {
+        SoundFrameEvent(68, "dontstarve_DLC001/creatures/bearger/step_soft"),
+		FrameEvent(70, function(inst) ShakeAllCameras(CAMERASHAKE.FULL, .35, .02, .5, inst, 30) end),
+		SoundFrameEvent(125, "rifts3/mutated_bearger/mutate"),
+		FrameEvent(149, function(inst)
+			inst.AnimState:SetAddColour(.5, .5, .5, 0)
+			inst.AnimState:SetLightOverride(.5)
+		end),
+	},
+
+    mutatepst_timeline = {
+        FrameEvent(25, DoFootstep),
+        SoundFrameEvent(27, "dontstarve_DLC001/creatures/bearger/step_soft"),
+		FrameEvent(28, function(inst) inst:SetStandState("quad") end),
+        FrameEvent(44, function(inst) inst:SetStandState("bi") end),
+    },
+},
+nil,
+{ -- fns
+    mutate_onenter = function(inst)
+        inst.AnimState:OverrideSymbol("bearger_rib", "bearger_mutated", "bearger_rib")
+        inst.SoundEmitter:PlaySound("rifts3/mutated_bearger/mutate_pre_tone_f0")
+    end,
+
+    mutatepst_onenter = function(inst)
+        inst.SoundEmitter:PlaySound("rifts3/mutated_bearger/taunt")
+        inst:SetStandState("bi")
+    end,
+
+    mutatepst_onanimover = function(inst)
+        if inst.AnimState:AnimDone() then
+            inst.sg:GoToState("idle", IDLE_FLAGS.NoFaced + IDLE_FLAGS.Aggro)
+        end
+    end,
+},
+{
+    twitch_lp = "rifts3/mutated_deerclops/twitching_LP",
+    post_mutate_state = "taunt",
+})
 
 return StateGraph("bearger", states, events, "init", actionhandlers)

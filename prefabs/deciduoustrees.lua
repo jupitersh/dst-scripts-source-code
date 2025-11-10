@@ -201,7 +201,9 @@ local function SpawnLeafFX(inst, waittime, chop)
 end
 
 local function PushSway(inst, monster, monsterpost, skippre)
-    if monster then
+	if inst.sg:HasStateTag("electrocute") then
+		return
+	elseif monster then
         inst.sg:GoToState("gnash_pre", { push = true, skippre = skippre })
     elseif monsterpost then
         inst.sg:GoToState(inst.sg:HasStateTag("gnash") and "gnash_pst" or "gnash_idle")
@@ -213,7 +215,7 @@ local function PushSway(inst, monster, monsterpost, skippre)
 end
 
 local function Sway(inst, monster, monsterpost)
-    if inst.sg:HasStateTag("burning") or inst:HasTag("stump") then
+	if inst.sg:HasAnyStateTag("burning", "electrocute") or inst:HasTag("stump") then
         return
     elseif monster then
         inst.sg:GoToState("gnash_pre", { push = false, skippre = false })
@@ -363,6 +365,7 @@ local function SetShort(inst)
         if inst.components.workable ~= nil then
            inst.components.workable:SetWorkLeft(TUNING.DECIDUOUS_CHOPS_SMALL)
         end
+        SetLunarHailBuildupAmountSmall(inst)
         inst.components.lootdropper:SetLoot(GetBuild(inst).short_loot)
     end
 end
@@ -383,6 +386,7 @@ local function SetNormal(inst)
     if inst.components.workable ~= nil then
         inst.components.workable:SetWorkLeft(TUNING.DECIDUOUS_CHOPS_NORMAL)
     end
+    SetLunarHailBuildupAmountMedium(inst)
     inst.components.lootdropper:SetLoot(GetBuild(inst).normal_loot)
 end
 
@@ -400,6 +404,7 @@ local function SetTall(inst)
     if inst.components.workable ~= nil then
         inst.components.workable:SetWorkLeft(TUNING.DECIDUOUS_CHOPS_TALL)
     end
+    SetLunarHailBuildupAmountLarge(inst)
     inst.components.lootdropper:SetLoot(GetBuild(inst).tall_loot)
 end
 
@@ -441,7 +446,9 @@ local function chop_tree(inst, chopper, chopsleft, numchops)
     if inst.monster then
 		if inst.dostartmonster_task == nil then
 			inst.SoundEmitter:PlaySound("dontstarve_DLC001/creatures/deciduous/hurt_chop")
-			inst.sg:GoToState("chop_pst")
+			if not inst.sg:HasStateTag("electrocute") then
+				inst.sg:GoToState("chop_pst")
+			end
 		elseif inst.components.workable and chopsleft <= 0 then
 			-- V2C: doesn't handle nicely being chopped down during the short transformation window
 			inst.components.workable:SetWorkLeft(1)
@@ -478,6 +485,7 @@ local function make_stump(inst)
     inst:RemoveComponent("propagator")
     MakeSmallPropagator(inst)
     inst:RemoveComponent("workable")
+    RemoveLunarHailBuildup(inst)
     inst:RemoveTag("shelter")
     inst:RemoveTag("cattoyairborne")
     inst:AddTag("stump")
@@ -580,6 +588,8 @@ local function chop_down_tree(inst, chopper)
         inst.monster_duration = nil
         inst:RemoveComponent("deciduoustreeupdater")
         inst:RemoveComponent("combat")
+		inst.sg.mem.burn_on_electrocute = nil
+		inst.sg.mem.noelectrocute = true
         inst.sg:GoToState("empty")
         if inst.domonsterstop_task ~= nil then
             inst.domonsterstop_task:Cancel()
@@ -680,6 +690,8 @@ local function _OnBurnt2(inst)
         inst.monster = false
         inst:RemoveComponent("deciduoustreeupdater")
         inst:RemoveComponent("combat")
+		inst.sg.mem.burn_on_electrocute = nil
+		inst.sg.mem.noelectrocute = true
         inst.sg:GoToState("empty")
         inst.AnimState:SetBank("tree_leaf")
         inst:DoTaskInTime(FRAMES, onburntchanges)
@@ -695,6 +707,8 @@ local function OnBurnt(inst, immediate)
             inst.monster = false
             inst:RemoveComponent("deciduoustreeupdater")
             inst:RemoveComponent("combat")
+			inst.sg.mem.burn_on_electrocute = nil
+			inst.sg.mem.noelectrocute = true
             inst.sg:GoToState("empty")
             inst.AnimState:SetBank("tree_leaf")
             inst:DoTaskInTime(FRAMES, onburntchanges)
@@ -793,6 +807,10 @@ local function DoStartMonster(inst, starttimeoffset)
     end
     if inst.components.combat == nil then
         inst:AddComponent("combat")
+		inst.sg.mem.noelectrocute = nil
+		inst.sg.mem.burn_on_electrocute = true
+
+        MakeCollidesWithElectricField(inst)
     end
     if inst.components.deciduoustreeupdater == nil then
         inst:AddComponent("deciduoustreeupdater")
@@ -857,6 +875,9 @@ local function StopMonster(inst)
         inst.monster_duration = nil
         inst:RemoveComponent("deciduoustreeupdater")
         inst:RemoveComponent("combat")
+		inst.sg.mem.burn_on_electrocute = nil
+		inst.sg.mem.noelectrocute = true
+        ClearCollidesWithElectricField(inst)
         if not (inst:HasTag("stump") or inst:HasTag("burnt")) then
             inst.AnimState:PlayAnimation("transform_out")
             inst.SoundEmitter:PlaySound("dontstarve_DLC001/creatures/deciduous/transform_out")
@@ -871,7 +892,7 @@ local function StopMonster(inst)
 end
 
 local function onignite(inst)
-    if inst.monster and not inst:HasTag("stump") then
+	if inst.monster and not (inst.sg:HasStateTag("electrocute") or inst:HasTag("stump")) then
         inst.sg:GoToState("burning_pre")
     end
     if inst.components.deciduoustreeupdater ~= nil then
@@ -880,7 +901,7 @@ local function onignite(inst)
 end
 
 local function onextinguish(inst)
-    if inst.monster and not inst:HasTag("stump") then
+	if inst.monster and not (inst.sg:HasStateTag("electrocute") or inst:HasTag("stump")) then
         inst.sg:GoToState("gnash_idle")
     end
 end
@@ -939,6 +960,8 @@ local function OnEntityWake(inst)
             inst.monster_duration = nil
             inst:RemoveComponent("deciduoustreeupdater")
             inst:RemoveComponent("combat")
+			inst.sg.mem.burn_on_electrocute = nil
+			inst.sg.mem.noelectrocute = true
         end
     end
 
@@ -1040,6 +1063,7 @@ local function onload(inst, data)
             if data.stump then
                 inst.monster = data.monster
                 inst.components.growable.stage = 3
+                RemoveLunarHailBuildup(inst)
                 inst:AddTag("stump")
             elseif not data.burnt then
                 inst.monster = false
@@ -1053,6 +1077,8 @@ local function onload(inst, data)
             end
             inst:RemoveComponent("deciduoustreeupdater")
             inst:RemoveComponent("combat")
+			inst.sg.mem.burn_on_electrocute = nil
+			inst.sg.mem.noelectrocute = true
             inst.sg:GoToState("empty")
         end
 
@@ -1083,9 +1109,11 @@ local function onload(inst, data)
             make_stump(inst)
             if data.burnt or inst:HasTag("burnt") then
                 DefaultBurntFn(inst)
+                RemoveLunarHailBuildup(inst)
             end
         elseif data.burnt then
             inst._wasonfire = true--OnEntityWake will handle it actually doing burnt logic
+            RemoveLunarHailBuildup(inst)
         end
     end
 
@@ -1302,7 +1330,10 @@ local function makefn(build, stage, data)
 
         inst:PrereplicateComponent("combat")
 
+		inst.override_combat_fx_size = "large"
+
         inst:SetStateGraph("SGdeciduoustree")
+		inst.sg.mem.noelectrocute = true
         inst.sg:GoToState("empty")
 
         inst.color = .5 + math.random() * .5
@@ -1380,6 +1411,7 @@ local function makefn(build, stage, data)
             inst:RemoveComponent("burnable")
             MakeSmallBurnable(inst)
             inst:RemoveComponent("workable")
+            RemoveLunarHailBuildup(inst)
             inst:RemoveComponent("propagator")
             MakeSmallPropagator(inst)
             inst:RemoveComponent("growable")

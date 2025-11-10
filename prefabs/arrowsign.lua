@@ -105,6 +105,7 @@ local function fn()
     inst.components.workable:SetOnWorkCallback(onhit)
 
     MakeSnowCovered(inst)
+    SetLunarHailBuildupAmountSmall(inst)
 
     inst:AddComponent("savedrotation")
 
@@ -152,6 +153,8 @@ local function panelfn()
     -- TODO: Make workable, but transfer the work to the sign base instead
 
     MakeSnowCovered(inst)
+    -- TODO(JBK): The panel needs the workable transfer and so we will not want to have lunarhailbuildup here.
+    RemoveLunarHailBuildup(inst)
 
     inst.OnSave = onsave
     inst.OnLoad = onload

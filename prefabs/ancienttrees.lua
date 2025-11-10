@@ -45,9 +45,8 @@ local function OnSetStage(inst)
         inst:AddTag(inst.statedata.tag)
     end
 
-    inst.AnimState:SetBank(inst.statedata.bank   or inst._bank )
+    inst.AnimState:SetBankAndPlayAnimation(inst.statedata.bank   or inst._bank, inst.statedata.idleanim, true)
     inst.AnimState:SetBuild(inst.statedata.build or inst._build)
-    inst.AnimState:PlayAnimation(inst.statedata.idleanim, true)
 
     inst:DoTaskInTime(0, inst.CheckGrowConstraints) -- NOTES(DiogoW): Growable calls StartGrowing after setting a stage.
 end
@@ -164,7 +163,7 @@ local function Sapling_CheckGrowConstraints(inst)
     local tile = TheWorld.Map:GetTileAtPoint(inst.Transform:GetWorldPosition())
     local season = TheWorld.state.season
 
-    local correct_tile   = tile == constraints.TILE
+    local correct_tile   = type(constraints.TILE) == "table" and constraints.TILE[tile] or tile == constraints.TILE
     local correct_season = season == constraints.SEASON
 
     if inst.statedata ~= nil and inst.statedata.name == "seed" then
@@ -261,6 +260,7 @@ local function Full_MakeStump(inst)
     local work_left = is_mineable and 3 or 1
 
     inst:RemoveComponent("workable")
+    RemoveLunarHailBuildup(inst)
     inst:RemoveComponent("pickable")
 
     inst:AddTag("stump")
@@ -346,11 +346,10 @@ end
 
 local function Full_CanRegenFruits(inst)
     local constraints = TREE_DEFS[inst.type].GROW_CONSTRAINT
-
     local tile = TheWorld.Map:GetTileAtPoint(inst.Transform:GetWorldPosition())
 
     -- NOTES(DiogoW): Won't grow fruit on wrong tile!
-    return tile == constraints.TILE
+    return type(constraints.TILE) == "table" and constraints.TILE[tile] or tile == constraints.TILE
 end
 
 local function Full_OnRegenFn(inst)
@@ -521,6 +520,7 @@ local function MakeAncientTree(name, data)
 
         if data.snowcovered then
             MakeSnowCovered(inst)
+            SetLunarHailBuildupAmountLarge(inst)
         end
 
         inst.OnSave = Full_OnSave

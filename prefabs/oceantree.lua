@@ -186,6 +186,7 @@ local function SetShort(inst)
     if inst.components.workable then
         inst.components.workable:SetWorkLeft(TUNING.EVERGREEN_CHOPS_SMALL)
     end
+    SetLunarHailBuildupAmountSmall(inst)
 
     inst.components.lootdropper:SetLoot(tree_data.short_loot)
 
@@ -211,6 +212,7 @@ local function SetNormal(inst)
     if inst.components.workable then
         inst.components.workable:SetWorkLeft(TUNING.EVERGREEN_CHOPS_NORMAL)
     end
+    SetLunarHailBuildupAmountMedium(inst)
 
     inst.components.lootdropper:SetLoot(tree_data.normal_loot)
 
@@ -236,6 +238,7 @@ local function SetTall(inst)
     if inst.components.workable then
         inst.components.workable:SetWorkLeft(TUNING.EVERGREEN_CHOPS_TALL)
     end
+    SetLunarHailBuildupAmountLarge(inst)
 
     inst.components.lootdropper:SetLoot(tree_data.tall_loot)
     
@@ -307,6 +310,7 @@ local function make_stump(inst)
     inst:RemoveComponent("propagator")
     MakeSmallPropagator(inst)
     inst:RemoveComponent("workable")
+    RemoveLunarHailBuildup(inst)
     inst:RemoveComponent("timer")
     inst:RemoveTag("shelter")
     inst:RemoveComponent("hauntable")
@@ -511,9 +515,11 @@ local function onload(inst, data)
             inst.AnimState:PlayAnimation(inst.anims.stump)
             if data.burnt or inst:HasTag("burnt") then
                 DefaultBurntFn(inst)
+                RemoveLunarHailBuildup(inst)
             end
         elseif data.burnt and not inst:HasTag("burnt") then
             OnBurnt(inst, true)
+            RemoveLunarHailBuildup(inst)
         end
 
         if not inst:IsValid() then
@@ -727,6 +733,7 @@ local function tree(name, stage, data)
             inst:RemoveComponent("burnable")
             MakeSmallBurnable(inst)
             inst:RemoveComponent("workable")
+            RemoveLunarHailBuildup(inst)
             inst:RemoveComponent("propagator")
             MakeSmallPropagator(inst)
             inst:RemoveComponent("growable")
@@ -899,6 +906,7 @@ local function falling_tree_fn()
     inst:AddTag("NOCLICK")        
 
     -- Build, bank, and anim are set from falling_tree_start_falling()
+    MakeSnowCoveredPristine(inst)
 
     inst.entity:SetPristine()
 

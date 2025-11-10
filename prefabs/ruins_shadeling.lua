@@ -121,11 +121,16 @@ local function fn()
 		inst.components.transparentonsanity:ForceUpdate()
 	end
 
+	inst.scrapbook_inspectonseen = true
+
 	inst.entity:SetPristine()
 
 	if not TheWorld.ismastersim then
 		return inst
 	end
+
+	inst.scrapbook_anim = "scrapbook"
+	inst.scrapbook_overridedata = { { "chair", "ruins_chair", "chair" } }
 
 	inst:AddComponent("sanityaura")
 	inst.components.sanityaura.aurafn = CalcSanityAura

@@ -48,6 +48,7 @@ local Pickable = Class(function(self, inst)
     self.quickpick = false
     self.jostlepick = false
     self.wildfirestarter = false
+    --self.stuck = nil
 
     self.droppicked = nil
     self.dropheight = nil
@@ -298,7 +299,8 @@ function Pickable:OnSave()
         picked = not self.canbepicked and true or nil,
         transplanted = self.transplanted and true or nil,
         paused = self.paused and true or nil,
-        caninteractwith = self.caninteractwith and true or nil,
+        caninteractwith = not self.donotsavecaninteractwithstate and self.caninteractwith and true or nil,
+		stuck = self.stuck or nil,
     }
 
     if self.cycles_left ~= self.max_cycles then
@@ -326,6 +328,7 @@ function Pickable:OnLoad(data)
     self.transplanted = data.transplanted or false
     self.cycles_left = data.cycles_left or self.cycles_left
     self.max_cycles = data.max_cycles or self.max_cycles
+	self.stuck = data.stuck
 
     if data.picked or data.time ~= nil then
         if self:IsBarren() and self.makebarrenfn ~= nil then
@@ -530,7 +533,7 @@ end
 --   two different events to handle being picked.
 
 function Pickable:Pick(picker)
-    if self.canbepicked and self.caninteractwith then
+	if self.canbepicked and self.caninteractwith and not self.stuck then
         if self.transplanted and self.cycles_left ~= nil then
             self.cycles_left = math.max(0, self.cycles_left - 1)
         end
@@ -587,6 +590,14 @@ function Pickable:ConsumeCycles(cycles)
     if self.protected_cycles ~= nil then
         self.protected_cycles = math.max(0, self.protected_cycles - cycles)
     end
+end
+
+function Pickable:SetStuck(stuck)
+	self.stuck = stuck
+end
+
+function Pickable:IsStuck()
+	return self.stuck == true
 end
 
 return Pickable

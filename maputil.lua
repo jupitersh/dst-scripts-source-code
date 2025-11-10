@@ -389,3 +389,140 @@ function ReconstructTopology(graph)
 	graph.flattenedPoints = flattenedPoints
 end
 
+
+StaticLayoutPlacer = nil -- Predeclare.
+local function AddTopologyData(topology, left, top, width, height, room_id, tags)
+    local index = #topology.ids + 1
+    topology.ids[index] = room_id
+    topology.story_depths[index] = 0
+
+    local node = {}
+    node.area = width * height
+    node.c = 1 -- colour index
+    node.cent = {left + (width / 2), top + (height / 2)}
+    node.neighbours = {}
+    node.poly = { {left, top},
+                  {left + width, top},
+                  {left + width, top + height},
+                  {left, top + height}
+                }
+    node.tags  = tags
+    node.type = NODE_TYPE.Default
+    node.x = node.cent[1]
+    node.y = node.cent[2]
+
+    node.validedges = {}
+
+    topology.nodes[index] = node
+
+    return index
+end
+local function AddTileNodeIdsForArea(node_index, left, top, width, height)
+    local map = TheWorld.Map
+    for x = left, left + width do
+        for y = top, top + height do
+            map:SetTileNodeId(x, y, node_index)
+        end
+    end
+end
+local function TileFilter_Impassable(tileid)
+    return TileGroupManager:IsImpassableTile(tileid)
+end
+local function ScanForStaticLayoutPosition_Spiral(tx, ty, size, displacement, filterfn)
+    local map = TheWorld.Map
+    local map_width, map_height = map:GetSize()
+    map_width = map_width - size
+    map_height = map_height - size
+
+    local dx, dy = 1, 0
+    local step = 1
+
+    local tries = math.floor(10000 / displacement)
+    while true do
+        for j = 1, 2 do
+            for i = 1, step do
+                if tx > 0 and tx < map_width and ty > 0 and ty < map_height then
+                    if map:IsAreaTilesFiltered(tx, ty, size, size, filterfn) then
+                        return tx, ty
+                    end
+                end
+                tries = tries - 1
+                if tries < 0 then
+                    return
+                end
+
+                tx = tx + dx * displacement
+                ty = ty + dy * displacement
+            end
+            dx, dy = -dy, dx
+        end
+        step = step + 1
+    end
+end
+local function SpawnLayout_AddFn(prefab, points_x, points_y, current_pos_idx, entitiesOut, width, height, prefab_list, prefab_data, rand_offset)
+    local x = (points_x[current_pos_idx] - width/2.0)  * TILE_SCALE
+    local y = (points_y[current_pos_idx] - height/2.0) * TILE_SCALE
+
+    x = math.floor(x*100) / 100.0
+    y = math.floor(y*100) / 100.0
+
+    prefab_data.x = x
+    prefab_data.z = y
+
+    prefab_data.prefab = prefab
+
+    local ent = SpawnSaveRecord(prefab_data)
+
+    ent:LoadPostPass(Ents, FunctionOrValue(prefab_data.data))
+
+    if ent.components.scenariorunner ~= nil then
+        ent.components.scenariorunner:Run()
+    end
+end
+local function TryToPlaceStaticLayoutNear(layout, tx, ty, scanmethodfn, scanfilterfn)
+    local obj_layout = require("map/object_layout")
+    local map = TheWorld.Map
+    local topology = TheWorld.topology
+    for padding = 6, 2, -1 do
+        local offset = math.floor(padding / 2)
+        local size = #layout.ground + padding
+        for displacement = math.floor(size / 2), 1, -1 do
+            local tx2, ty2 = scanmethodfn(tx, ty, size, displacement, scanfilterfn)
+            if tx2 then
+                local map_width, map_height = map:GetSize()
+                local add_fn = {
+                    fn = StaticLayoutPlacer.SpawnLayout_AddFn,
+                    args = {entitiesOut={}, width=map_width, height=map_height, rand_offset=false}
+                }
+                obj_layout.Place({tx2 + offset, ty2 + offset}, layout.name, add_fn, nil, map)
+                local tags, nodename
+                if layout.add_topology then
+                    tags = layout.add_topology.tags
+                    nodename = layout.add_topology.room_id
+                end
+                tags = tags or {}
+                nodename = nodename or ("GenericStatic:" .. layout.name)
+                local topology_node_index = StaticLayoutPlacer.AddTopologyData(topology, tx2*TILE_SCALE - (map_width * 0.5 * TILE_SCALE), ty2*TILE_SCALE - (map_height * 0.5 * TILE_SCALE), size*TILE_SCALE, size*TILE_SCALE, nodename, tags)
+                StaticLayoutPlacer.AddTileNodeIdsForArea(topology_node_index, tx2, ty2, size, size)
+                return true
+            end
+        end
+    end
+    return false
+end
+StaticLayoutPlacer = {
+    -- Helper functions
+    AddTopologyData = AddTopologyData,
+    AddTileNodeIdsForArea = AddTileNodeIdsForArea,
+    SpawnLayout_AddFn = SpawnLayout_AddFn,
+
+    -- scanmethodfn premade functions
+    ScanForStaticLayoutPosition_Spiral = ScanForStaticLayoutPosition_Spiral,
+
+    -- scanfilterfn premade functions
+    TileFilter_Impassable = TileFilter_Impassable,
+
+    -- The placer
+    TryToPlaceStaticLayoutNear = TryToPlaceStaticLayoutNear,
+}
+

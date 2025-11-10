@@ -120,7 +120,9 @@ local function fn()
     inst:AddComponent("locomotor") -- locomotor must be constructed before the stategraph
     inst.components.locomotor:EnableGroundSpeedMultiplier(false)
     inst.components.locomotor:SetTriggersCreep(false)
+
     inst:SetStateGraph("SGbutterfly")
+	inst.sg.mem.burn_on_electrocute = true
 
     ---------------------
     inst:AddComponent("stackable")

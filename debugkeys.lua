@@ -62,6 +62,20 @@ local function d_c_remove(entity)
     end
 end
 
+local function d_c_removeall(entity)
+    local mouseentity = entity or TheInput:GetWorldEntityUnderMouse()
+    if not TheWorld.ismastersim then
+        if TheWorld == nil or mouseentity == nil or mouseentity.Network == nil then
+            c_remove()
+            return
+        end
+
+        ConsoleRemote('c_removeall(%s)', {dumpvariabletostr(mouseentity.prefab)})
+    elseif mouseentity then
+        c_removeall(mouseentity.prefab)
+    end
+end
+
 local function DebugKeyPlayer()
     return (TheWorld and TheWorld.ismastersim and ConsoleCommandPlayer()) or nil
 end
@@ -1660,7 +1674,11 @@ local function DebugRMB(x,y)
         end
     elseif TheInput:IsKeyDown(KEY_CTRL) and TheWorld then
         if not TheWorld.ismastersim or MouseCharacter then
-            d_c_remove()
+            if TheInput:IsKeyDown(KEY_ALT) then
+                d_c_removeall()
+            else
+                d_c_remove()
+            end
         else
             local ents = TheSim:FindEntities(pos.x, pos.y, pos.z, 5, nil, DEBUGRMB_IGNORE_TAGS)
             for k,v in pairs(ents) do

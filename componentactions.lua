@@ -13,22 +13,21 @@ local function CanCastFishingNetAtPoint(thrower, target_x, target_z)
 end
 
 local function Row(inst, doer, pos, actions)
-    local map = TheWorld.Map
+	local my_platform = doer:GetCurrentPlatform()
+	if my_platform == nil or not my_platform:HasTag("boat") then
+		return
+	end
 
-    local platform_under_cursor = map:GetPlatformAtPoint(pos.x, pos.z)
+    local map = TheWorld.Map
+	local is_controller_attached = doer.components.playercontroller.isclientcontrollerattached
+	if not is_controller_attached then
+		local platform_under_cursor = map:GetPlatformAtPoint(pos.x, pos.z)
+		if my_platform == platform_under_cursor then
+			return
+		end
+	end
 
     local doer_x, doer_y, doer_z = doer.Transform:GetWorldPosition()
-    local my_platform = doer:GetCurrentPlatform()
-    local is_controller_attached = doer.components.playercontroller.isclientcontrollerattached
-
-    local is_hovering_cursor_over_my_platform = false
-    if not is_controller_attached then
-        is_hovering_cursor_over_my_platform = my_platform ~= nil and (my_platform == platform_under_cursor)
-    end
-
-    if is_hovering_cursor_over_my_platform or my_platform == nil then
-        return
-    end
 
     if CLIENT_REQUESTED_ACTION == ACTIONS.ROW_FAIL then
         table.insert(actions, ACTIONS.ROW_FAIL)
@@ -105,7 +104,7 @@ local function CheckRowOverride(doer, target)
     if target ~= nil then
         local doer_pos = doer:GetPosition()
         local boat = TheWorld.Map:GetPlatformAtPoint(doer_pos.x, doer_pos.z)
-        if boat == nil then
+		if boat == nil or not boat:HasTag("boat") then
             return false
         end
 
@@ -251,10 +250,10 @@ local COMPONENT_ACTIONS =
 
         channelable = function(inst, doer, actions, right)
             if right and inst:HasTag("channelable") then
-                if not inst:HasTag("channeled") then
-                    table.insert(actions, ACTIONS.STARTCHANNELING)
-                elseif doer:HasTag("channeling") then
+                if doer:HasTag("channeling") then
                     table.insert(actions, ACTIONS.STOPCHANNELING)
+                elseif not inst:HasTag("channeled") then
+                    table.insert(actions, ACTIONS.STARTCHANNELING)
                 end
             end
         end,
@@ -347,6 +346,16 @@ local COMPONENT_ACTIONS =
         dryer = function(inst, doer, actions)
             if inst:HasTag("dried") and not inst:HasTag("burnt") then
                 table.insert(actions, ACTIONS.HARVEST)
+            end
+        end,
+
+        electricconnector = function(inst, doer, actions, right)
+            if not inst:HasTag("fully_electrically_linked") and not right then
+                table.insert(actions, ACTIONS.STARTELECTRICLINK)
+            end
+
+            if inst:HasTag("is_electrically_linked") and right then
+                table.insert(actions, ACTIONS.ENDELECTRICLINK)
             end
         end,
 
@@ -837,7 +846,7 @@ local COMPONENT_ACTIONS =
 
         teleporter = function(inst, doer, actions, right)
             if inst:HasTag("teleporter") then
-                if not inst:HasTag("townportal") then
+                if not inst:HasAnyTag("townportal", "vault_teleporter") then
                     table.insert(actions, ACTIONS.JUMPIN)
                 elseif right and not doer:HasTag("channeling") then
                     table.insert(actions, ACTIONS.TELEPORT)
@@ -1507,8 +1516,16 @@ local COMPONENT_ACTIONS =
         end,
 
 		pumpkincarver = function(inst, doer, target, actions)
-			if target.components.pumpkincarvable then --component exists on clients
+			--V2C: pumpkincarvable and pumpkinhatcarvable exist on clients
+			if target.components.pumpkincarvable then
 				table.insert(actions, ACTIONS.CARVEPUMPKIN)
+			elseif target.components.pumpkinhatcarvable then
+				local equippable = target.replica.equippable
+				if not (equippable and equippable:IsEquipped()) and
+					not (target.components.floater and target.components.floater:IsFloating())
+				then
+					table.insert(actions, ACTIONS.CARVEPUMPKIN)
+				end
 			end
 		end,
 
@@ -1726,6 +1743,9 @@ local COMPONENT_ACTIONS =
 
         tool = function(inst, doer, target, actions, right)
             if not target:HasTag("INLIMBO") and not (inst.replica.equippable ~= nil and inst.replica.equippable:IsRestricted(doer)) then
+                if target:HasTag("LunarBuildup") and inst:HasTag("MINE_tool") then
+                    table.insert(actions, ACTIONS.REMOVELUNARBUILDUP)
+                end
                 for k in pairs(TOOLACTIONS) do
                     if inst:HasTag(k.."_tool")
                             and target:IsActionValid(ACTIONS[k], right) then
@@ -1935,7 +1955,7 @@ local COMPONENT_ACTIONS =
             local x,y,z = pos:Get()
             if right and (TheWorld.Map:IsAboveGroundAtPoint(x,y,z) or TheWorld.Map:GetPlatformAtPoint(x,z) ~= nil) and not TheWorld.Map:IsGroundTargetBlocked(pos) and not doer:HasTag("steeringboat") and not doer:HasTag("rotatingboat") then
                 local doerx, doery, doerz = doer.Transform:GetWorldPosition()
-                if TheWorld.Map:IsPointInWagPunkArenaAndBarrierIsUp(x, y, z) == TheWorld.Map:IsPointInWagPunkArenaAndBarrierIsUp(doerx, doery, doerz) then
+                if IsTeleportingPermittedFromPointToPoint(x, y, z, doerx, doery, doerz) then
                     table.insert(actions, ACTIONS.BLINK)
                 end
             end
@@ -2128,7 +2148,14 @@ local COMPONENT_ACTIONS =
 		end,
 
         complexprojectile = function(inst, doer, target, actions, right)
-            if right and not (doer.components.playercontroller ~= nil and doer.components.playercontroller.isclientcontrollerattached) then
+			--V2C: This is so mousing over entities doesn't block the "Toss" action; just forward
+			--     to the ground position of the target, and the target will get highlighted.
+			--     "nohighlight" can counter this specifically, used for things like decor vault_pillar,
+			--     where we do want to block the action and prevent highlighting.
+			if right and
+				not (doer.components.playercontroller and doer.components.playercontroller.isclientcontrollerattached) and
+				not target:HasTag("nohighlight")
+			then
                 local targetpos = target:GetPosition()
                 if not TheWorld.Map:IsGroundTargetBlocked(targetpos) and
                     (inst.CanTossInWorld == nil or inst:CanTossInWorld(doer, targetpos)) and
@@ -2226,6 +2253,12 @@ local COMPONENT_ACTIONS =
             end
         end,
 
+        moonstormstaticcatcher = function(inst, doer, target, actions, right)
+            if target:HasTag("moonstormstaticcapturable") then
+                table.insert(actions, ACTIONS.DIVEGRAB)
+            end
+        end,
+
         nabbag = function(inst, doer, target, actions, right)
             if right and target.replica.inventoryitem and target.replica.inventoryitem:CanBePickedUp(doer) and not target:HasAnyTag("_container", "heavy", "fire") then
                 table.insert(actions, ACTIONS.NABBAG)
@@ -2313,6 +2346,9 @@ local COMPONENT_ACTIONS =
 
         tool = function(inst, doer, target, actions, right)
             if not target:HasTag("INLIMBO") then
+                if target:HasTag("LunarBuildup") and inst:HasTag("MINE_tool") then
+                    table.insert(actions, ACTIONS.REMOVELUNARBUILDUP)
+                end
                 for k in pairs(TOOLACTIONS) do
                     if inst:HasTag(k.."_tool")
                             and target:IsActionValid(ACTIONS[k], right)
@@ -2881,6 +2917,10 @@ local COMPONENT_ACTIONS =
             if not valid then return false end
 
             return IsValidScytheTarget(inst)
+        end,
+
+        lunarhailbuildup = function(inst, action, right)
+            return action == ACTIONS.REMOVELUNARBUILDUP and inst:HasTag("LunarBuildup")
         end,
 
         workable = function(inst, action, right)

@@ -432,6 +432,16 @@ function InventoryItem:GetMoisture()
     end
 end
 
+function InventoryItem:GetMoisturePercent()
+    if self.inst.components.inventoryitemmoisture ~= nil then
+        return self.inst.components.inventoryitemmoisture.moisture / TUNING.MAX_WETNESS
+    elseif self.classified ~= nil then
+        return self.classified.moisture:value() / TUNING.MAX_WETNESS
+    else
+        return 0
+    end
+end
+
 function InventoryItem:SetIsWet(iswet)
     if iswet ~= self._iswet:value() then
         self._iswet:set(iswet)

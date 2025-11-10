@@ -81,6 +81,10 @@ end
 
 function Hauntable:DoHaunt(doer)
     if self.onhaunt ~= nil then
+        if self.inst.components.itemmimic then
+            self.inst.components.itemmimic:TurnEvil(doer)
+            return
+        end
         self.haunted = self.onhaunt(self.inst, doer)
         if self.haunted then
             if doer ~= nil then

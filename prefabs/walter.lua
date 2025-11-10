@@ -1182,9 +1182,9 @@ local function master_postinit(inst)
     inst.components.sanity:SetMax(TUNING.WALTER_SANITY)
 
     inst.components.sanity.custom_rate_fn = CustomSanityFn
-    inst.components.sanity:SetNegativeAuraImmunity(true)
-    inst.components.sanity:SetPlayerGhostImmunity(true)
-    inst.components.sanity:SetLightDrainImmune(true)
+	inst.components.sanity:SetNegativeAuraImmunity(true, inst)
+	inst.components.sanity:SetPlayerGhostImmunity(true, inst)
+	inst.components.sanity:SetLightDrainImmune(true, inst)
 	inst.components.sanity.get_equippable_dappernessfn = GetEquippableDapperness
 	inst.components.sanity.only_magic_dapperness = true
 
@@ -1237,13 +1237,22 @@ end
 -------------------------------------------------------------------------------
 
 local function CampfireStory_OnNotNight(inst, isnight)
-	if not isnight and inst.storyteller ~= nil and inst.storyteller:IsValid() and inst.storyteller.components.storyteller ~= nil then
+	if not isnight and
+		inst.storyteller and
+		inst.storyteller:IsValid() and
+		inst.storyteller.components.storyteller
+	then
 		inst.storyteller.components.storyteller:AbortStory(GetString(inst.storyteller, "ANNOUNCE_STORYTELLING_ABORT_NOT_NIGHT"))
 	end
 end
 
 local function CampfireStory_CheckFire(inst, data)
-	if data ~= nil and data.newsection == 0 and inst.storyteller:IsValid() and inst.components.storyteller ~= nil then
+	if data and
+		data.newsection == 0 and
+		inst.storyteller and
+		inst.storyteller:IsValid() and
+		inst.storyteller.components.storyteller
+	then
 		inst.storyteller.components.storyteller:AbortStory(GetString(inst.storyteller, "ANNOUNCE_STORYTELLING_ABORT_FIREWENTOUT"))
 	end
 end

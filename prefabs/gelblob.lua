@@ -259,13 +259,16 @@ local function DoDigest(inst, target, useimpactsound)
 end
 
 local function OnUpdateSuspended2(inst)
+	inst._suspendedtask = nil
 	DoDigest(inst, inst._suspendedplayer, true)
 	StealSuspendedEquip(inst)
 	ReleaseSuspended(inst, true)
 end
 
 local function OnUpdateSuspended(inst)
-	if inst._digestcount < 3 then
+	if inst.sg:HasStateTag("electrocute") then
+		inst._suspendedplayer:PushEvent("abouttospit")
+	elseif inst._digestcount < 3 then
 		inst._digestcount = inst._digestcount + 1
 		DoDigest(inst, inst._suspendedplayer)
 		inst.sg:HandleEvent("jiggle")
@@ -496,6 +499,12 @@ local function OnDropItem(inst, data)
 	end
 end
 
+local function GetStatus(inst)
+	return (inst.components.inventory:HasAnyEquipment() and "HAS_ITEM")
+		or (inst._suspendedplayer ~= nil and "HAS_CHARACTER")
+		or nil
+end
+
 local function fn()
 	local inst = CreateEntity()
 
@@ -563,6 +572,7 @@ local function fn()
 	inst.components.planardamage:SetBaseDamage(TUNING.GELBLOB_PLANAR_DAMAGE)
 
 	inst:AddComponent("inspectable")
+	inst.components.inspectable.getstatus = GetStatus
 
 	inst:AddComponent("inventory")
 	inst.components.inventory.maxslots = 0

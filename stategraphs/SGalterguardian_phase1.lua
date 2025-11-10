@@ -99,7 +99,6 @@ end
 
 local events =
 {
-    CommonHandlers.OnFreeze(),
     CommonHandlers.OnDeath(),
     CommonHandlers.OnSink(),
     CommonHandlers.OnFallInVoid(),
@@ -127,9 +126,7 @@ local events =
             if inst.sg:HasStateTag("shield") then
                 inst.sg:GoToState("shield_hit")
 			elseif not CommonHandlers.HitRecoveryDelay(inst, nil, math.huge) and --hit delay only for projectiles
-					(not inst.sg:HasStateTag("busy") or
-                    inst.sg:HasStateTag("caninterrupt") or
-                    inst.sg:HasStateTag("frozen")) then
+					(not inst.sg:HasStateTag("busy") or inst.sg:HasAnyStateTag("caninterrupt", "frozen")) then
                 inst.sg:GoToState("hit")
             end
         end
@@ -243,7 +240,7 @@ local states =
 {
     State{
         name = "prespawn_idle",
-        tags = { "busy", "noaoestun", "noattack", "nofreeze", "nosleep", "nostun" },
+        tags = { "busy", "noaoestun", "noattack", "nosleep", "nostun" },
 
         onenter = function(inst)
             inst.AnimState:SetBuild("alterguardian_spawn_death")
@@ -278,7 +275,7 @@ local states =
 
     State{
         name = "spawn",
-        tags = {"busy", "noaoestun", "noattack", "nofreeze", "nosleep", "nostun" },
+        tags = {"busy", "noaoestun", "noattack", "nosleep", "nostun" },
 
         onenter = function(inst)
             inst.AnimState:SetBuild("alterguardian_spawn_death")
@@ -726,7 +723,7 @@ local states =
 
     State{
         name = "shield_end",
-        tags = {"busy"},
+        tags = { "busy", "shield_end" },
 
         onenter = function(inst)
             inst.AnimState:PlayAnimation("shield_pst")
@@ -966,7 +963,7 @@ local states =
 
     State {
         name = "spawn_lunar",
-        tags = {"busy", "noaoestun", "noattack", "nofreeze", "nosleep", "nostun", "spawn_lunar"},
+        tags = {"busy", "noaoestun", "noattack", "nosleep", "nostun", "spawn_lunar"},
 
         onenter = function(inst)
             inst.AnimState:PlayAnimation("spawn_lunar")
@@ -1054,7 +1051,6 @@ CommonStates.AddWalkStates(states,
 })
 
 CommonStates.AddHitState(states)
-CommonStates.AddFrozenStates(states)
 CommonStates.AddSinkAndWashAshoreStates(states, {washashore = "shield_pst"})
 
 return StateGraph("alterguardian_phase1", states, events, "idle", actionhandlers)

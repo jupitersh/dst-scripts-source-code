@@ -75,6 +75,7 @@ return{
 --fallback to speech_wilson.lua 			REVIVE_FAILED = "only_used_by_wanda",
 --fallback to speech_wilson.lua 			WARP_NO_POINTS_LEFT = "only_used_by_wanda",
 --fallback to speech_wilson.lua 			SHARD_UNAVAILABLE = "only_used_by_wanda",
+--fallback to speech_wilson.lua 			NO_TELEPORT_ZONE = "only_used_by_wanda",
 		},
 		CAST_SPELLBOOK =
 		{
@@ -274,6 +275,7 @@ return{
         PICK =
         {
             NOTHING_INSIDE = "No stuff.",
+			STUCK = "Flort! It stuck.",
         },
         PICKUP =
         {
@@ -318,6 +320,8 @@ return{
 --fallback to speech_wilson.lua             TOOMANYBEES = "only_used_by_waxwell_and_wicker",
 --fallback to speech_wilson.lua             NOMOONINCAVES = "only_used_by_waxwell_and_wicker",
 --fallback to speech_wilson.lua             ALREADYFULLMOON = "only_used_by_waxwell_and_wicker",
+--fallback to speech_wilson.lua             -- rifts5.1
+--fallback to speech_wilson.lua             DEADBIRDS = "only_used_by_waxwell_and_wicker",
 --fallback to speech_wilson.lua         },
 		REMOTE_TELEPORT =
 		{
@@ -480,6 +484,10 @@ return{
 		{
 			MISSED = "Florp! Missed!",
 		},
+        DIVEGRAB =
+        {
+            MISSED = "Florp! Missed!",
+        },
     },
 
 	ANNOUNCE_CANNOT_BUILD =
@@ -700,7 +708,7 @@ return{
 	},
 
     --hallowed nights
-    ANNOUNCE_SPOOKED = "G-glurp... saw something...",
+    ANNOUNCE_SPOOKED = "G-glurp... no thank you!",
 	ANNOUNCE_BRAVERY_POTION = "Me was never scared, florp!",
 	ANNOUNCE_MOONPOTION_FAILED = "Awww... nothing happen.",
 
@@ -1163,6 +1171,22 @@ return{
     ANNOUNCE_LUNARGUARDIAN_INCOMING = "Flort! It baaack!",
     ANNOUNCE_FLOATER_HELD = "See? Me best floater.",
     ANNOUNCE_FLOATER_LETGO = "Glurph!",
+
+    -- rifts5.1
+    ANNOUNCE_LUNARHAIL_BIRD_SOUNDS = "Birds dying. Glurph.",
+    ANNOUNCE_LUNARHAIL_BIRD_CORPSES = "They dead.",
+    ANNOUNCE_FLOAT_SWIM_TIRED = "Tired! Glurph!",
+    ANOUNCE_MUTATED_BIRD_ATTACK = "Glurph! Birds!",
+
+    -- Rift 6
+    ANNOUNCE_WEAPON_TOOWEAK = "Grrr... need stronger weapon, florp!",
+    ANNOUNCE_VAULT_TELEPORTER_DOES_NOTHING = "Grrr... why not work?",
+
+	-- Rift 6.1
+	ANNOUNCE_LIGHTSOUT_SHADOWHAND = "Grrr... go away, Shadowfolk!",
+
+    -- Hallowed Nights 2025
+    ANNOUNCE_MUTATED_BUZZARD_ARRIVAL = "Buzzbirds! Glurph, look weird!", -- Mutated buzzards arrive to lurk and circle the player
 
 	BATTLECRY =
 	{
@@ -1747,6 +1771,8 @@ return{
 		TURF_FUNGUS="Ground bit.",
 		TURF_FUNGUS_MOON = "Ground bit.",
 		TURF_ARCHIVE = "Ground bit.",
+        TURF_VAULT = "Ground bit.",
+        TURF_VENT = "Ground bit.",
 		TURF_SINKHOLE="Ground bit.",
 		TURF_UNDERROCK="Ground bit.",
 		TURF_MUD="Ground bit.",
@@ -2095,6 +2121,8 @@ return{
         CHESSPIECE_SHARKBOI = "Haha! Bad fishie frozen.",
         CHESSPIECE_WORMBOSS = "Hungriest worm.",
         CHESSPIECE_YOTS = "Cute little worm.",
+        CHESSPIECE_WAGBOSS_ROBOT = "Little big Ironfolk.",
+        CHESSPIECE_WAGBOSS_LUNAR = "Moon stuff made big Ironfolk bad.",
 
         CHESSJUNK1 = "It all broken.",
         CHESSJUNK2 = "Didn't do it!!",
@@ -3316,6 +3344,7 @@ return{
         WINTER_ORNAMENTBOSS = "These get special place on tree!",
 		WINTER_ORNAMENTFORGE = "Have to put that one on tree?",
 		WINTER_ORNAMENTGORGE = "...?",
+        WINTER_ORNAMENTPEARL = "Crab lady made it.",
 
         WINTER_FOOD1 = "MMMM, but what it supposed to be?", --gingerbread cookie
         WINTER_FOOD2 = "This snowflake melt on tongue too!", --sugar cookie
@@ -4412,6 +4441,13 @@ return{
             LINE_4 = "Someone read story!",
             LINE_5 = "Glorph... it too hard to read.",
         },
+		VAULT_RUNE = "Glorph... who cares.",
+		VAULT_STATUE =
+		{
+			LORE1 = "Bugfolk King sick? Glurgh.",
+			LORE2 = "Bugfolk all gone.",
+			LORE3 = "Brave Bugfolk.",
+		},
 
         ARCHIVE_RESONATOR = {
             GENERIC = "Glorph! What it doing?!",
@@ -4800,6 +4836,7 @@ return{
 
         MOONSTORM_STATIC = "What that sparky stuff?",
         MOONSTORM_STATIC_ITEM = "Hee-hee! It can't get out!",
+        MOONSTORM_STATIC_ROAMER = "Watch me catch sparky stuff!",
         MOONSTORM_SPARK = "Glorp! It zaps!",
 
         BIRD_MUTANT = "Ha ha! What happen to you?",
@@ -5113,6 +5150,7 @@ return{
 
         PLAYBILL_THE_DOLL = "Too many words to remember, florp.",
         PLAYBILL_THE_VEIL = "Dunno. Ask Wicker-lady.",
+        PLAYBILL_THE_VAULT = "Pages so hard, florp.",
         STATUEHARP_HEDGESPAWNER = "It look broken. Didn't do it!",
         HEDGEHOUND = "Sneaky doggy! Bad!",
         HEDGEHOUND_BUSH = "Glurgh, it full of ugly flowers.",
@@ -5463,8 +5501,11 @@ return{
 
         FENCE_JUNK = "Made of bunch of metal bits.",
         JUNK_PILE = "If anything good in there, it mine!",
-        JUNK_PILE_BIG = "Glurp... look like it gonna fall!",
-
+        JUNK_PILE_BIG = {
+            BLUEPRINT = "What that? Me get!",
+            GENERIC = "Glurp... look like it gonna fall!",
+        },
+        
         ARMOR_LUNARPLANT_HUSK = "Plant's killing shirt!",
 
         -- Meta 4 / Ocean QoL
@@ -5531,8 +5572,8 @@ return{
         MERM_ARMORY_UPGRADED = "Best Mermfolk fighting hat here!",
         MERM_TOOLSHED = "Mermfolk tools inside.",
         MERM_TOOLSHED_UPGRADED = "These Mermfolk tools better.",
-        MERMARMORHAT = "Only for big Mermfolk, glorp…",
-        MERMARMORUPGRADEDHAT = "Only for big Mermfolk, glorp…",
+        MERMARMORHAT = "Only for big Mermfolk, glorp...",
+        MERMARMORUPGRADEDHAT = "Only for big Mermfolk, glorp...",
         MERM_TOOL = "Made for hardworking Mermfolk!",
         MERM_TOOL_UPGRADED = "Made for hardest working Mermfolk!",
 
@@ -5645,7 +5686,7 @@ return{
 		SLINGSHOT_HANDLE_SILK = "Pine boy shooty toy. Florp!",
 		SLINGSHOT_HANDLE_VOIDCLOTH = "Pine boy shooty toy. Florp!",
 
-		WOBY_TREAT = "Smell… familiar.",
+		WOBY_TREAT = "Smell... familiar.",
 		BANDAGE_BUTTERFLYWINGS = "Stick me!",
 		PORTABLEFIREPIT_ITEM = "Florp! Can take cozy time anywhere!",
         SLINGSHOTAMMO_CONTAINER = "Pine boy pockets.",
@@ -5715,6 +5756,147 @@ return{
         GESTALT_GUARD_EVOLVED = "You not nice! Flort!",
         FLOTATIONCUSHION = "Me best floater, florp!",
         LUNAR_SEED = "Glorp, me keep!",
+
+        -- rifts5.1
+        WAGBOSS_ROBOT_CONSTRUCTIONSITE = "Big bad ironfolk body.",
+        WAGBOSS_ROBOT_CONSTRUCTIONSITE_KIT = "Florp, me build.",
+        WAGBOSS_ROBOT_CREATION_PARTS = "Me always have spare parts left.",
+        MOONSTORM_STATIC_CATCHER = "Put thing inside?",
+        COOLANT = "Glurgh. Weird bubble slime.",
+
+        FENCE_ELECTRIC = {
+            LINKED = "Me touch.",      --NOTE: the fence post is fully linked to two other posts
+            GENERIC = "Where zap? Make zap.",           --NOTE: no links or electricity, just boring ol fence post
+        },
+        FENCE_ELECTRIC_ITEM = "Where put for zap?",
+
+        MUTATEDBIRD = "Pretty bird",
+
+        BIRDCORPSE =
+        {
+            GENERIC  = "Dead bird. Glurgh.", --witnessing the corpse
+            BURNING  = "Florp! Burn bird!", --when its burning
+            REVIVING = "Dead bird waking up! Florp!", --when its mutating and being revived
+        },
+
+        BUZZARDCORPSE = {
+            GENERIC  = "Dead bird. Glurgh.", --witnessing the corpse
+            BURNING  = "Florp! Burn bird!", --when its burning
+            REVIVING = "Dead bird waking up! Florp!", --when its mutating and being revived
+        },
+
+        MUTATEDBUZZARD_GESTALT = {
+            GENERIC = "Dead bird even prettier.", -- Generic string
+            EATING_CORPSE = "Flort! Stop that!", -- Eating from a fresh corpse (might be from the players kill or another creatures kill)
+        },
+
+        -- Rifts 6
+
+        SHADOWTHRALL_CENTIPEDE = {
+            HEAD = "Where you going?", --The head segment
+            BODY = "Big and strong and pretty!", --The body segment
+            FLIPPED = "Haha! Florpt!", --When it's flipped over (either head or body segment)
+        },
+
+        TREE_ROCK =
+		{
+			BURNING = "About to florp!", --It's vines are burning, it will collapse
+			CHOPPED = "Haha! Florpt!", --It's 'chopped', so the rock fell
+			GENERIC = "Me make it florp.", --Rock is still on tree
+		},
+
+        -- NOTE: Unsure about HOT and COLD, just do GENERIC, GAS, MIASMA for now!
+        CAVE_VENT_ROCK =
+        {
+            GENERIC = "Stinky rock holes.", -- Not ventilating anything
+            HOT     = "So hot, florp.", -- Ventiliating hot air, making the area warm
+            GAS     = "Florp! Rude!", -- Ventiliating Toadstools gas fumes and spores
+            MIASMA  = "Flort! Bad cloud!", -- Ventiliating the shadow rift miasma
+        },
+        CAVE_FERN_WITHERED = "Leafy cave plant dead. Flort.",
+        FLOWER_CAVE_WITHERED = "Not so glowy.",
+
+		ABYSSPILLAR_MINION =
+		{
+			GENERIC = "Glurgh.", --off, looks like decor/statue
+			ACTIVATED = "Stop it, florp!", --turned on and hopping over puzzle pillars
+		},
+		ABYSSPILLAR_TRIAL = "Me pull!",
+
+        VAULT_TELEPORTER =
+        {
+            GENERIC = "Me go first!",
+            BROKEN = "Not work. Glurgh.",
+            UNPOWERED = "Grrr... why not?",
+        },
+--fallback to speech_wilson.lua 		VAULT_TELEPORTER_UNDERCONSTRUCTION = "\"This Waymark is under development for a future update.\"",
+		VAULT_ORB = "Mine!",
+        VAULT_LOBBY_EXIT = "Me jump!",
+		VAULT_CHANDELIER_BROKEN = "Not me, florp.",
+
+		ANCIENT_HUSK = "Glurgh. Something bad.",
+		MASK_ANCIENT_HANDMAIDHAT = "Florpt. Me wanna wear it.",
+		MASK_ANCIENT_ARCHITECTHAT = "Look like funny hair man! Florpt!",
+		MASK_ANCIENT_MASONHAT = "Strong Bugfolk face.",
+
+        TREE_ROCK_SEED = "A sweet baby, florpt!",
+        TREE_ROCK_SAPLING = "Grow, grow grow!",
+
+        -- Rifts 6.1
+        OCEANWHIRLBIGPORTALEXIT = "Ocean poop?", -- The flotsam pickable not the waterfall.
+
+		VAULT_TORCH =
+		{
+			GENERIC = "We switch!",
+			BROKEN = "Florp! Broke!", --the torch still functions, just the lever is broken
+		},
+
+        CAVE_VENT_MITE =
+		{
+			DEAD = "Bye stink bug!",
+			GENERIC = "Stink bug!",
+			SLEEPING = "Stink bug sleeping.",
+            VENTING = "So stinky, flort!", -- in the shield state and venting out gasses
+        },
+
+		--Hallowed Nights 2025
+
+		PUMPKINHAT =
+		{
+			GENERIC = "Me carve best face.",
+			UNCARVED = "No face holes yet.",--can't wear it unless it's carved.
+		},
+
+        PENGUINCORPSE =
+		{
+            GENERIC  = "Dead bird. Glurgh.", --witnessing the corpse
+            BURNING  = "Florp! Burn bird!", --when its burning
+            REVIVING = "Dead bird waking up! Florp!", --when its mutating and being revived
+		},
+        SPIDERCORPSE =
+		{
+			GENERIC = "That Spiderfolk dead.",
+			BURNING = "Better to burn dead Spiderfolk.",
+			REVIVING = "I know should have burned dead Spiderfolk!",
+		},
+        SPIDERQUEENCORPSE =
+		{
+			GENERIC = "Mighty queen has died.",
+			BURNING = "Hope Webby-boy okay.",
+			REVIVING = "Florp. Not like this.",
+		},
+        MERMCORPSE =
+		{
+			GENERIC = "Who do this?!",
+			BURNING = "For best, my Mermfolk.",
+			REVIVING = "Better gone than like this. Glurgh.",
+		},
+        GENERIC_CORPSE = -- A generic set of lines for ANY corpse, until they get their own unique lines at least.
+        {
+            GENERIC = "It dead. But will poke to make sure.",
+            BURNING = "Bye-bye dead thing!",
+            REVIVING = "TODO",
+        },
     },
 
     DESCRIBE_GENERIC = "What that?",

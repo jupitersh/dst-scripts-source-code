@@ -16,27 +16,14 @@ end
 local function OnRemoveFissure(fissure)
 	assert(FISSURES[fissure._wagpunkarena_fissure_id] == fissure)
 	FISSURES[fissure._wagpunkarena_fissure_id] = nil
-	if fissure.size > 1 then
-		local tx, ty = IdToTileCoords(fissure._wagpunkarena_fissure_id)
-		for tx1 = tx, tx + fissure.size - 1 do
-			for ty1 = ty, ty + fissure.size - 1 do
-				if tx ~= tx1 or ty ~= ty1 then
-					local id1 = TileCoordsToId(tx1, ty1)
-					assert(FISSURES[id1] == fissure)
-					FISSURES[id1] = nil
-				end
-			end
-		end
-	end
 	if next(FISSURES) == nil then
 		FISSURES = nil
 		--print("All alterguardian_lunar_fissures cleared.")
 	end
 end
 
-local function SpawnFissureAtXZ(x, z, size, id, tx, ty)
+local function SpawnFissureAtXZ(x, z, id, tx, ty)
 	local fissure = SpawnPrefab("alterguardian_lunar_fissures")
-	fissure:SetGridSize(size)
 	fissure.Transform:SetPosition(x, 0, z)
 	fissure._wagpunkarena_fissure_id = id
 	if FISSURES then
@@ -44,17 +31,6 @@ local function SpawnFissureAtXZ(x, z, size, id, tx, ty)
 		FISSURES[id] = fissure
 	else
 		FISSURES = { [id] = fissure }
-	end
-	if size > 1 then
-		for tx1 = tx, tx + size - 1 do
-			for ty1 = ty, ty + size - 1 do
-				if tx ~= tx1 or ty ~= ty1 then
-					local id1 = TileCoordsToId(tx1, ty1)
-					assert(FISSURES[id1] == nil)
-					FISSURES[id1] = fissure
-				end
-			end
-		end
 	end
 	fissure:ListenForEvent("onremove", OnRemoveFissure)
 	return fissure
@@ -76,41 +52,26 @@ local function DespawnFissure(fissure, anim)
 	end
 end
 
-local TILE_SIZE = 4
-
 local function OnLoadFissure(fissure)
 	local x, _, z = fissure.Transform:GetWorldPosition()
-	local size = fissure.size
-	local offs = TILE_SIZE * (size - 1) / 2
-	local tx, ty = TheWorld.Map:GetTileCoordsAtPoint(x - offs, 0, z - offs)
+	local tx, ty = TheWorld.Map:GetTileCoordsAtPoint(x, 0, z)
 
 	if FISSURES == nil then
 		FISSURES = {}
 	end
 
-	for tx1 = tx, tx + size - 1 do
-		for ty1 = ty, ty + size - 1 do
-			local id1 = TileCoordsToId(tx1, ty1)
-			if FISSURES[id1] then
-				if BRANCH == "dev" then
-					assert(false, "[WagBossUtil] Failed to register "..tostring(fissure))
-				else
-					print("[WagBossUtil] Failed to register "..tostring(fissure))
-				end
-				--undo what we've registered up till now
-				for tx2 = tx, tx1 do
-					for ty2 = ty, tx2 < tx1 and ty + size - 1 or ty1 - 1 do
-						local id2 = TileCoordsToId(tx2, ty2)
-						FISSURES[id2] = nil
-					end
-				end
-				return false
-			end
-			FISSURES[id1] = fissure
-			if fissure._wagpunkarena_fissure_id == nil then
-				fissure._wagpunkarena_fissure_id = id1
-			end
+	local id = TileCoordsToId(tx, ty)
+	if FISSURES[id] then
+		if BRANCH == "dev" then
+			assert(false, "[WagBossUtil] Failed to register "..tostring(fissure))
+		else
+			print("[WagBossUtil] Failed to register "..tostring(fissure))
 		end
+		return false
+	end
+	FISSURES[id] = fissure
+	if fissure._wagpunkarena_fissure_id == nil then
+		fissure._wagpunkarena_fissure_id = id
 	end
 
 	fissure:ListenForEvent("onremove", OnRemoveFissure)

@@ -676,23 +676,23 @@ function OnEntitySleep(guid)
             inst:OnEntitySleep()
         end
 
-        inst:StopBrain()
+		inst:_DisableBrain_Internal()
 
         if inst.sg then
             SGManager:Hibernate(inst.sg)
         end
+
+		inst.sleepstatepending = nil
 
         if inst.emitter then
             EmitterManager:Hibernate(inst.emitter)
         end
 
         for k,v in pairs(inst.components) do
-
             if v.OnEntitySleep then
                 v:OnEntitySleep()
             end
         end
-
     end
 end
 
@@ -710,11 +710,13 @@ function OnEntityWake(guid)
         --     :HasTag("INLIMBO").  But there should be no networked
         --     entities on clients that can go to sleep.
         if not inst:IsInLimbo() then
-            inst:RestartBrain()
+			inst:_EnableBrain_Internal()
             if inst.sg then
                 SGManager:Wake(inst.sg)
             end
         end
+
+		inst.sleepstatepending = nil
 
         if inst.emitter then
             EmitterManager:Wake(inst.emitter)
@@ -2072,6 +2074,12 @@ function ResumeExistingUserSession(data, guid)
 
             -- Spawn the player to last known location
 			local x, y, z, platform = ResolveSaveRecordPosition(data)
+            if TheWorld.Map:IsPointInVaultRoom(x, y, z) then
+                local vault_lobby_center = TheWorld.components.vaultroommanager:GetVaultLobbyCenterMarker()
+                if vault_lobby_center then
+                    x, y, z = vault_lobby_center.Transform:GetWorldPosition()
+                end
+            end
 			TheWorld.components.playerspawner:SpawnAtLocation(TheWorld, player, x, y, z, true)
 			if platform ~= nil then
 				player.components.walkableplatformplayer:TestForPlatform()

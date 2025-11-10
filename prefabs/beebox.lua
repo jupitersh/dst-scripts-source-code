@@ -310,6 +310,7 @@ local function MakeBeebox(name, common_postinit, master_postinit)
         MakeHauntableWork(inst)
 
         MakeSnowCovered(inst)
+        SetLunarHailBuildupAmountSmall(inst)
         inst:ListenForEvent("onbuilt", onbuilt)
 
         inst.OnSave = OnSave

@@ -12,6 +12,8 @@ local prefabs =
     "feather_crow",
     "bird_egg",
     "teamleader",
+
+    "penguincorpse",
 }
 
 local mutated_penguin_assets =
@@ -63,6 +65,11 @@ local function OnLoad(inst, data)
     end
 end
 
+local function SaveCorpseData(inst, corpse)
+    return inst.colonyNum and { colonyNum = inst.colonyNum }
+        or nil
+end
+
 local function GetStatus(inst)
     if inst.components.hunger then
         if inst.components.hunger:IsStarving(inst) then
@@ -77,7 +84,7 @@ local function MakeTeam(inst, attacker)
     local leader = SpawnPrefab("teamleader")
     leader:AddTag("penguin")
     local teamleader = leader.components.teamleader
-    teamleader.threat = attacker
+    teamleader:SetNewThreat(attacker)
     teamleader.radius = 10
     teamleader:SetAttackGrpSize(5+math.random(1,3))
     teamleader.timebetweenattacks = 0  -- first attack happens immediately
@@ -93,18 +100,16 @@ end
 local RETARGET_MUST_TAGS = { "_combat" }
 local RETARGET_CANT_TAGS = { "penguin" }
 local RETARGET_ONEOF_TAGS = { "character", "monster", "wall" }
+local function IsValidTarget(guy, inst)
+    return inst.components.combat:CanTarget(guy)
+end
+
 local function Retarget(inst)
     if inst.components.hunger and not inst.components.hunger:IsStarving() then
         return nil
     end
 
-    local newtarget = FindEntity(inst, 3, function(guy)
-            return inst.components.combat:CanTarget(guy)
-            end,
-            RETARGET_MUST_TAGS,
-            RETARGET_CANT_TAGS,
-            RETARGET_ONEOF_TAGS
-            )
+    local newtarget = FindEntity(inst, 3, IsValidTarget, RETARGET_MUST_TAGS, RETARGET_CANT_TAGS, RETARGET_ONEOF_TAGS)
 
     local teamattacker = inst.components.teamattacker
     if newtarget and teamattacker and not teamattacker.inteam and not teamattacker:SearchForTeam() then
@@ -118,16 +123,14 @@ local function Retarget(inst)
 end
 
 local RETARGET_MUTATED_MUST_TAGS = { "_combat" }
-local RETARGET_MUTATED_CANT_TAGS = { "penguin" }
-local RETARGET_MUTATED_ONEOF_TAGS = {"character","monster","smallcreature","animal","wall"}
+local RETARGET_MUTATED_CANT_TAGS = { "penguin", "mutantdominant" }
+local RETARGET_MUTATED_ONEOF_TAGS = { "character", "monster", "smallcreature", "animal", "wall" }
+local function MutatedIsValidTarget(guy, inst)
+    return inst.components.combat:CanTarget(guy)
+end
+
 local function MutatedRetarget(inst)
-    local newtarget = FindEntity(inst, 4, function(guy)
-            return inst.components.combat:CanTarget(guy)
-            end,
-            RETARGET_MUTATED_MUST_TAGS,
-            RETARGET_MUTATED_CANT_TAGS,
-            RETARGET_MUTATED_ONEOF_TAGS
-            )
+    local newtarget = FindEntity(inst, 4, MutatedIsValidTarget, RETARGET_MUTATED_MUST_TAGS, RETARGET_MUTATED_CANT_TAGS, RETARGET_MUTATED_ONEOF_TAGS)
 
     local teamattacker = inst.components.teamattacker
     if newtarget and teamattacker and not teamattacker.inteam and not teamattacker:SearchForTeam() then
@@ -320,14 +323,30 @@ local function fn()
 
     MakeHauntablePanic(inst)
 
+    inst.SaveCorpseData = SaveCorpseData
+
     inst.OnSave = OnSave
     inst.OnLoad = OnLoad
     inst.eggsLayed = 0
 	inst.eggprefab = "bird_egg"
+    inst.spawn_lunar_mutated_tuning = "SPAWN_MOON_PENGULLS"
 
     inst:DoTaskInTime(0, OnInit)
 
     return inst
+end
+
+-----------------------------------------------------------
+
+local function LoadCorpseData(inst, corpse)
+    local data = corpse.corpsedata
+    if data and data.colonyNum then
+        inst.colonyNum = data.colonyNum
+        local spawner = TheWorld.components.penguinspawner
+        if spawner then
+            spawner:AddToColony(inst.colonyNum, inst)
+        end
+    end
 end
 
 local function mutated_fn()
@@ -352,6 +371,8 @@ local function mutated_fn()
     inst:AddTag("animal")
     inst:AddTag("smallcreature")
     inst:AddTag("lunar_aligned")
+    inst:AddTag("mutated_penguin")
+    inst:AddTag("soulless") -- no wortox souls
 
     --herdmember (from herdmember component) added to pristine state for optimization
     inst:AddTag("herdmember")
@@ -436,6 +457,8 @@ local function mutated_fn()
     inst:ListenForEvent("attacked", OnAttacked)
 
     MakeHauntablePanic(inst)
+
+    inst.LoadCorpseData = LoadCorpseData
 
     inst.OnSave = OnSave
     inst.OnLoad = OnLoad

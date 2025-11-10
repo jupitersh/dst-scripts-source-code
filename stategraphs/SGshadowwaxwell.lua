@@ -519,6 +519,7 @@ local states =
 				inst.sg:RemoveStateTag("abouttoattack")
 				local target = inst.sg.statemem.target
 				CheckLeaderShadowLevel(inst, target ~= nil and target:IsValid() and target or nil)
+				inst.sg.statemem.recoilstate = "attack_recoil"
 				inst.components.combat:DoAttack(target) --purposely not checking valid for this call
 			end),
             TimeEvent(12*FRAMES, function(inst) -- Keep FRAMES time synced up with ShouldKiteProtector.
@@ -790,7 +791,74 @@ local states =
 
 			inst.AnimState:PlayAnimation("pickaxe_recoil")
 			if data ~= nil and data.target ~= nil and data.target:IsValid() then
-				SpawnPrefab("impact").Transform:SetPosition(data.target.Transform:GetWorldPosition())
+                local pos = data.target:GetPosition()
+
+                if data.target.recoil_effect_offset then
+                    pos = pos + data.target.recoil_effect_offset
+                end
+                
+				SpawnPrefab("impact").Transform:SetPosition(pos:Get())
+			end
+			inst.Physics:SetMotorVelOverride(-6, 0, 0)
+		end,
+
+		onupdate = function(inst)
+			if inst.sg.statemem.speed ~= nil then
+				inst.Physics:SetMotorVelOverride(inst.sg.statemem.speed, 0, 0)
+				inst.sg.statemem.speed = inst.sg.statemem.speed * 0.75
+			end
+		end,
+
+		timeline =
+		{
+			FrameEvent(4, function(inst)
+				inst.sg.statemem.speed = -3
+			end),
+			FrameEvent(17, function(inst)
+				inst.sg.statemem.speed = nil
+				inst.Physics:ClearMotorVelOverride()
+				inst.Physics:Stop()
+			end),
+			FrameEvent(23, function(inst)
+				inst.sg:RemoveStateTag("busy")
+			end),
+			FrameEvent(30, function(inst)
+				inst.sg:GoToState("idle", true)
+			end),
+		},
+
+		events =
+		{
+			EventHandler("animover", function(inst)
+				if inst.AnimState:AnimDone() then
+					inst.sg:GoToState("idle")
+				end
+			end),
+		},
+
+		onexit = function(inst)
+			inst.Physics:ClearMotorVelOverride()
+			inst.Physics:Stop()
+		end,
+	},
+
+	State{
+		name = "attack_recoil",
+		tags = { "busy", "recoil" },
+
+		onenter = function(inst, data)
+			inst.components.locomotor:Stop()
+			inst:ClearBufferedAction()
+
+			inst.AnimState:PlayAnimation("atk_recoil")
+			if data ~= nil and data.target ~= nil and data.target:IsValid() then
+                local pos = data.target:GetPosition()
+
+                if data.target.recoil_effect_offset then
+                    pos = pos + data.target.recoil_effect_offset
+                end
+                
+				SpawnPrefab("impact").Transform:SetPosition(pos:Get())
 			end
 			inst.Physics:SetMotorVelOverride(-6, 0, 0)
 		end,
@@ -1153,7 +1221,7 @@ local states =
 		tags = { "attack", "busy" },
 
 		onenter = function(inst, target)
-			inst:StopBrain()
+			inst:StopBrain("SGshadowwaxwell_lunge")
 			inst.components.locomotor:Stop()
 			inst.AnimState:SetBankAndPlayAnimation("lavaarena_shadow_lunge", "lunge_pre")
 
@@ -1194,7 +1262,7 @@ local states =
 		onexit = function(inst)
 			if not inst.sg.statemem.lunge then
 				inst.components.combat:CancelAttack()
-				inst:RestartBrain()
+				inst:RestartBrain("SGshadowwaxwell_lunge")
 				inst.AnimState:SetBank("wilson")
 			end
 		end,
@@ -1287,7 +1355,7 @@ local states =
 			inst.components.combat.externaldamagemultipliers:RemoveModifier(inst, "shadowstrike")
 			inst.components.combat:SetRange(2)
 			if not inst.sg.statemem.lunge then
-				inst:RestartBrain()
+				inst:RestartBrain("SGshadowwaxwell_lunge")
 				inst.AnimState:SetBank("wilson")
 				inst.Physics:CollidesWith(COLLISION.GIANTS)
 				ToggleOnCharacterCollisions(inst)
@@ -1352,7 +1420,7 @@ local states =
 		},
 
 		onexit = function(inst)
-			inst:RestartBrain()
+			inst:RestartBrain("SGshadowwaxwell_lunge")
 			inst.AnimState:SetBank("wilson")
 			inst.Physics:CollidesWith(COLLISION.GIANTS)
 			if not inst.sg.statemem.appearing then

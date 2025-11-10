@@ -12,6 +12,7 @@ local events =
     CommonHandlers.OnLocomote(true, true),
     CommonHandlers.OnSleep(),
     CommonHandlers.OnFreeze(),
+	CommonHandlers.OnElectrocute(),
     CommonHandlers.OnAttack(),
     CommonHandlers.OnAttacked(nil, TUNING.PIG_MAX_STUN_LOCKS),
     CommonHandlers.OnDeath(),
@@ -25,7 +26,7 @@ local events =
         end
     end),
     EventHandler("giveuptarget", function(inst, data)
-        if data.target ~= nil then
+		if data.target and not inst.sg:HasStateTag("electrocute") then
             inst.sg:GoToState("howl")
         end
     end),
@@ -43,6 +44,13 @@ local events =
 local states =
 {
     State{
+		name = "init",
+		onenter = function(inst)
+			inst.sg:GoToState(inst.components.locomotor ~= nil and "idle" or "corpse_idle")
+		end,
+	},
+
+    State{
         name = "death",
         tags = { "busy" },
 
@@ -52,7 +60,14 @@ local states =
             inst.components.locomotor:StopMoving()
             RemovePhysicsColliders(inst)
             inst.components.lootdropper:DropLoot(inst:GetPosition())
+            inst:SetDeathLootLevel(1)
         end,
+
+        events =
+        {
+            -- TODO NOTE(Omar): HALLOWED_NIGHTS_2025_CORPSES
+            --CommonHandlers.OnCorpseDeathAnimOver(),
+        },
     },
 
     State{
@@ -86,7 +101,7 @@ local states =
 
     State{
         name = "transformWere",
-        tags = { "transform", "busy" },
+		tags = { "transform", "busy" },
 
         onenter = function(inst)
             inst.Physics:Stop()
@@ -98,8 +113,12 @@ local states =
 
         events =
         {
-            EventHandler("attacked", function(inst)
-                inst.sg:GoToState("hit")
+			EventHandler("attacked", function(inst, data)
+				if CommonHandlers.TryElectrocuteOnAttacked(inst, data) then
+					return true
+				end
+				inst.sg:GoToState("hit")
+				return true
             end),
             EventHandler("animover", function(inst)
                 inst.components.sleeper:WakeUp()
@@ -322,10 +341,22 @@ CommonStates.AddSleepStates(states,
 })
 
 CommonStates.AddFrozenStates(states)
+CommonStates.AddElectrocuteStates(states)
 CommonStates.AddSimpleActionState(states, "eat", "eat", 20 * FRAMES, { "busy" })
 CommonStates.AddHopStates(states, true, { pre = "boat_jump_pre", loop = "boat_jump_loop", pst = "boat_jump_pst"})
 CommonStates.AddSinkAndWashAshoreStates(states)
 CommonStates.AddVoidFallStates(states)
 CommonStates.AddIpecacPoopState(states)
 
-return StateGraph("werepig", states, events, "idle", actionhandlers)
+-- TODO NOTE(Omar): HALLOWED_NIGHTS_2025_CORPSES
+--[[
+CommonStates.AddCorpseStates(states, nil,
+{
+    corpseoncreate = function(inst, corpse)
+        corpse.AnimState:Hide("HAT")
+        corpse:SetAltBuild("werepig")
+    end,
+}, "pigcorpse")
+]]
+
+return StateGraph("werepig", states, events, "init", actionhandlers)

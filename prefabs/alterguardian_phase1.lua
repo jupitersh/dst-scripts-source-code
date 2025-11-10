@@ -138,12 +138,15 @@ end
 
 local function OnPhaseTransition(inst)
     local px, py, pz = inst.Transform:GetWorldPosition()
+    local rot = inst.Transform:GetRotation()
     local target = inst.components.combat.target
 
     inst:Remove()
 
     local phase2 = SpawnPrefab("alterguardian_phase2")
     phase2.Transform:SetPosition(px, py, pz)
+    phase2.Transform:SetRotation(rot)
+    phase2.AnimState:MakeFacingDirty() --not needed for clients
     phase2.components.combat:SuggestTarget(target)
     phase2.sg:GoToState("spawn")
 end
@@ -454,9 +457,6 @@ local function commonfn(common_postinit, server_postinit)
 
     inst:AddComponent("drownable")
 
-    MakeLargeFreezableCharacter(inst)
-    inst.components.freezable:SetResistance(8)
-
 	inst:AddComponent("hauntable")
 	inst.components.hauntable:SetHauntValue(TUNING.HAUNT_TINY)
 
@@ -652,6 +652,12 @@ local function riftgestalt_AddFollowFx(inst, anim, symbol)
 	fx.OnRemoveEntity = riftgestalt_OnRemoveEntity
 end
 
+local SCRAPBOOK_OVERRIDEBUILDS = {"alterguardian_phase1_lunar", "wagboss_lunar"}
+local SCRAPBOOK_SYMBOLCOLOURS = { 
+    {"lb_glow", 1, 1, 1, 0.375},
+    {"scrapbook_art", 1, 1, 1, 0.75},
+    {"lb_flame_loop", 1, 1, 1, 0.75}, 
+}
 local function riftgestaltfn()
 	local inst = CreateEntity()
 
@@ -690,6 +696,12 @@ local function riftgestaltfn()
 	if not TheWorld.ismastersim then
 		return inst
 	end
+
+	inst.scrapbook_bank = "alterguardian_phase1"
+	inst.scrapbook_build = "alterguardian_phase1_lunarrift"
+    inst.scrapbook_overridebuild = SCRAPBOOK_OVERRIDEBUILDS
+    inst.scrapbook_symbolcolours = SCRAPBOOK_SYMBOLCOLOURS
+    inst.scrapbook_anim = "scrapbook"
 
 	inst:AddComponent("inspectable")
 

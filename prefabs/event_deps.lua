@@ -70,7 +70,9 @@ local SPECIAL_EVENT_DEPS =
         {
             assets =
             {
-                Asset("ANIM", "anim/dst_menu_halloween3.zip"),
+				Asset("ANIM", "anim/dst_menu_halloween4.zip"),
+				Asset("PKGREF", "sound/music_frontend_hallowednights2024.fsb"),
+				Asset("PKGREF", "anim/dst_menu_halloween3.zip"),
                 Asset("PKGREF", "anim/dst_menu_rift4.zip"),
                 Asset("PKGREF", "anim/dst_menu_rift3.zip"),
                 Asset("PKGREF", "anim/dst_menu_rift3_bg.zip"),
@@ -108,7 +110,8 @@ local SPECIAL_EVENT_DEPS =
         {
             assets =
             {
-				Asset("ANIM", "anim/dst_menu_carnival.zip"),
+				Asset("ANIM", "anim/dst_menu_rift5.zip"),
+				Asset("PKGREF", "anim/dst_menu_carnival.zip"),
                 Asset("PKGREF", "anim/dst_menu_webber_carnival.zip"),
 				Asset("PKGREF", "anim/dst_menu_winona_wurt_carnival_foreground.zip"),
 				Asset("PKGREF", "anim/dst_menu_winona_wurt.zip"),
@@ -249,7 +252,8 @@ local SPECIAL_EVENT_DEPS =
         {
             assets =
             {
-				Asset("ANIM", "anim/dst_menu_rift5.zip"),
+                Asset("ANIM", "anim/dst_menu_rift6.zip"),
+				Asset("PKGREF", "anim/dst_menu_rift5.zip"),
 				Asset("PKGREF", "anim/dst_menu_meta5.zip"),
                 Asset("PKGREF", "anim/dst_menu_halloween3.zip"),
 				Asset("PKGREF", "anim/dst_menu_rift4.zip"),

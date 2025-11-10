@@ -37,10 +37,13 @@ local SMALL = 1
 local MEDIUM = 2
 local LARGE = 3
 
-local function set_stage(inst, workleft, play_grow_sound)
+local function set_stage(inst, workleft, regrow)
     local new_stage = (workleft * 4 <= TUNING.MOONSPIDERDEN_WORK and SMALL)
             or (workleft * 2 <= TUNING.MOONSPIDERDEN_WORK and MEDIUM)
             or LARGE
+
+    local _childreninside = inst.components.childspawner.childreninside
+    local _emergencychildreninside = inst.components.childspawner.emergencychildreninside
 
     inst.components.childspawner:SetMaxChildren(TUNING.MOONSPIDERDEN_SPIDERS[new_stage])
     inst.components.childspawner:SetMaxEmergencyChildren(TUNING.MOONSPIDERDEN_EMERGENCY_WARRIORS[new_stage])
@@ -55,10 +58,16 @@ local function set_stage(inst, workleft, play_grow_sound)
             inst.AnimState:PushAnimation("full")
         end
 
-        if play_grow_sound then
+        if regrow then
             inst.SoundEmitter:PlaySound("dontstarve/creatures/spider/spiderLair_grow")
         end
     else
+        -- Small hack, SetMaxChildren and SetMaxEmergencyChildren repopulate with new children, we should only do that on actual growth
+        -- otherwise, everytime we mine it, we get a fresh batch of spiders!
+        -- We'll let it respawn every spider if it actually regrows a stage, since that makes sense.
+        inst.components.childspawner.childreninside = _childreninside
+        inst.components.childspawner.emergencychildreninside = _emergencychildreninside
+
         inst.AnimState:PlayAnimation((new_stage == SMALL and "low") or (new_stage == MEDIUM and "med") or "full")
     end
 
@@ -100,8 +109,32 @@ end
 
 ---------------------------------------------------------------------------
 
-local function push_twitch_idle(inst)
-    if inst.components.workable ~= nil and (inst.components.workable.workleft * 2) > TUNING.MOONSPIDERDEN_WORK then
+local function play_crack_small(inst)
+    inst.SoundEmitter:PlaySound("lunarhail_event/creatures/lunar_mutation/mutate_crack_small")
+end
+
+local function play_crack(inst)
+    inst.SoundEmitter:PlaySound("lunarhail_event/creatures/lunar_mutation/mutate_crack")
+end
+
+local function play_crack_fleshy(inst)
+    inst.SoundEmitter:PlaySound("lunarhail_event/creatures/lunar_mutation/mutate_crack_fleshy")
+end
+
+local function push_twitch_idle(inst, skip_anim_check)
+    if inst.components.workable ~= nil and (inst.components.workable.workleft * 2) > TUNING.MOONSPIDERDEN_WORK 
+        and (skip_anim_check or (
+            inst.AnimState:IsCurrentAnimation("low") or
+            inst.AnimState:IsCurrentAnimation("med") or
+            inst.AnimState:IsCurrentAnimation("full")
+        )) then
+
+        inst:DoTaskInTime(0 * FRAMES, play_crack_small)
+        inst:DoTaskInTime(3 * FRAMES, play_crack_small)
+        inst:DoTaskInTime(6 * FRAMES, play_crack)
+        inst:DoTaskInTime(27 * FRAMES, play_crack_small)
+        inst:DoTaskInTime(47 * FRAMES, play_crack_small)
+
         inst.AnimState:PlayAnimation("twitch")
         inst.AnimState:PushAnimation("full")
     end
@@ -279,6 +312,51 @@ local function OnGoHome(inst, child)
     end
 end
 
+local function OnSpawnChild(inst, spider)
+    spider.sg:GoToState("taunt")
+end
+
+local function OnMutatePost_AnimOver(inst)
+    push_twitch_idle(inst, true)
+    inst:RemoveEventCallback("animover", OnMutatePost_AnimOver)
+end
+-- When spawning from the mutating spider queen
+local function OnMutatePost(inst)
+    inst.AnimState:PlayAnimation("spawn")
+    inst:DoTaskInTime(19 * FRAMES, play_crack_fleshy)
+    inst:DoTaskInTime(25 * FRAMES, play_crack)
+    inst:DoTaskInTime(41 * FRAMES, play_crack_small)
+    inst:DoTaskInTime(54 * FRAMES, play_crack_small)
+    inst:DoTaskInTime(57 * FRAMES, play_crack_fleshy)
+    inst:DoTaskInTime(59 * FRAMES, play_crack)
+    inst:ListenForEvent("animover", OnMutatePost_AnimOver)
+end
+
+local function StartSpawning(inst)
+    if inst.components.childspawner ~= nil and not TheWorld.state.iscaveday then
+        inst.components.childspawner:StartSpawning()
+    end
+end
+
+local function StopSpawning(inst)
+    if inst.components.childspawner ~= nil then
+        inst.components.childspawner:StopSpawning()
+    end
+end
+
+local function OnIsCaveDay(inst, iscaveday)
+    if iscaveday then
+        StopSpawning(inst)
+    else
+        StartSpawning(inst)
+    end
+end
+
+local function OnInit(inst)
+    inst:WatchWorldState("iscaveday", OnIsCaveDay)
+    OnIsCaveDay(inst, TheWorld.state.iscaveday)
+end
+
 local function moonspiderden_fn()
     local inst = CreateEntity()
 
@@ -302,6 +380,7 @@ local function moonspiderden_fn()
     inst.MiniMapEntity:SetIcon("spidermoonden.png")
 
     inst:AddTag("spiderden")
+    --inst:AddTag("cavedweller") -- NOTE: Most cave spawners have cavedweller, but it only actually has a use for how sleeper perceives day phase, so it doesn't do anything here?
 
     MakeSnowCoveredPristine(inst)
 
@@ -325,6 +404,7 @@ local function moonspiderden_fn()
     inst.components.childspawner:SetRegenPeriod(TUNING.MOONSPIDERDEN_SPIDER_REGENTIME)
     inst.components.childspawner:SetSpawnPeriod(TUNING.MOONSPIDERDEN_RELEASE_TIME)
     inst.components.childspawner:SetGoHomeFn(OnGoHome)
+    inst.components.childspawner:SetSpawnedFn(OnSpawnChild)
 
     WorldSettings_ChildSpawner_SpawnPeriod(inst, TUNING.MOONSPIDERDEN_RELEASE_TIME, TUNING.MOONSPIDERDEN_ENABLED)
     WorldSettings_ChildSpawner_RegenPeriod(inst, TUNING.MOONSPIDERDEN_SPIDER_REGENTIME, TUNING.MOONSPIDERDEN_ENABLED)
@@ -350,7 +430,7 @@ local function moonspiderden_fn()
 
     set_stage(inst, TUNING.MOONSPIDERDEN_WORK, false)
 
-    inst.components.childspawner:StartSpawning()
+    inst:DoTaskInTime(0, OnInit)
 
     inst.OnEntitySleep = on_sleep
     inst.OnEntityWake = on_wake
@@ -360,6 +440,8 @@ local function moonspiderden_fn()
     inst.OnPreLoad = OnPreLoad
 
     inst.SummonChildren = SummonChildren
+
+    inst.OnMutatePost = OnMutatePost
 
     MakeSnowCovered(inst)
 

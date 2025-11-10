@@ -70,14 +70,14 @@ end
 
 
 self.UnregisterSpawnPoint_Master = function(spawnpoint)
-    table.removearrayvalue(self.spawnpoints_masters, spawnpt)
+    table.removearrayvalue(self.spawnpoints_masters, spawnpoint)
 end
 self.UnregisterSpawnPoint = function(spawnpoint)
-    table.removearrayvalue(self.spawnpoints, spawnpt)
+    table.removearrayvalue(self.spawnpoints, spawnpoint)
 end
 
 self.OnRegisterSpawnPoint = function(inst, spawnpoint)
-    if inst.master then
+    if spawnpoint.master then
         if table.contains(self.spawnpoints_masters, spawnpoint) then
             return
         end

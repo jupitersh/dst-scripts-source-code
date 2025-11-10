@@ -75,6 +75,7 @@ return{
 			REVIVE_FAILED = "It looks like I was too late...",
 			WARP_NO_POINTS_LEFT = "That's enough backtracking for now.",
 			SHARD_UNAVAILABLE = "There's too much wobble wibbling the timestream.",
+			NO_TELEPORT_ZONE = "The timestream here is too unstable... I shouldn't risk it.",
 		},
 		CAST_SPELLBOOK =
 		{
@@ -274,6 +275,7 @@ return{
         PICK =
         {
             NOTHING_INSIDE = "I forgot it would be empty.",
+			STUCK = "I knew it was stuck.",
         },
         PICKUP =
         {
@@ -302,10 +304,10 @@ return{
             OUT_OF_WATER = "Didn't I just fill this up? Gardening is so tedious...",
         },
         --wickerbottom specific action
-        READ =
-        {
-            GENERIC = "only_used_by_wickerbottom",
-            NOBIRDS = "only_used_by_wickerbottom",
+--fallback to speech_wilson.lua         READ =
+--fallback to speech_wilson.lua         {
+--fallback to speech_wilson.lua             GENERIC = "only_used_by_waxwell_and_wicker",
+--fallback to speech_wilson.lua             NOBIRDS = "only_used_by_waxwell_and_wicker",
 --fallback to speech_wilson.lua             NOWATERNEARBY = "only_used_by_waxwell_and_wicker",
 --fallback to speech_wilson.lua             TOOMANYBIRDS = "only_used_by_waxwell_and_wicker",
 --fallback to speech_wilson.lua             WAYTOOMANYBIRDS = "only_used_by_waxwell_and_wicker",
@@ -318,7 +320,9 @@ return{
 --fallback to speech_wilson.lua             TOOMANYBEES = "only_used_by_waxwell_and_wicker",
 --fallback to speech_wilson.lua             NOMOONINCAVES = "only_used_by_waxwell_and_wicker",
 --fallback to speech_wilson.lua             ALREADYFULLMOON = "only_used_by_waxwell_and_wicker",
-        },
+--fallback to speech_wilson.lua             -- rifts5.1
+--fallback to speech_wilson.lua             DEADBIRDS = "only_used_by_waxwell_and_wicker",
+--fallback to speech_wilson.lua         },
 		REMOTE_TELEPORT =
 		{
 			NOSKILL = "only_used_by_winona",
@@ -480,6 +484,10 @@ return{
 		{
 			MISSED = "Missed! Bad timing...",
 		},
+        DIVEGRAB =
+        {
+            MISSED = "Missed! Bad timing...",
+        },
     },
 
 	ANNOUNCE_CANNOT_BUILD =
@@ -700,7 +708,7 @@ return{
 	},
 
     --hallowed nights
-    ANNOUNCE_SPOOKED = "Ack! Leave me alone!!",
+    ANNOUNCE_SPOOKED = "Ack! I don't need this in my life!!",
 	ANNOUNCE_BRAVERY_POTION = "It doesn't seem quite as scary this time around.",
 	ANNOUNCE_MOONPOTION_FAILED = "Well that didn't work out like I hoped.",
 
@@ -1163,6 +1171,22 @@ return{
     ANNOUNCE_LUNARGUARDIAN_INCOMING = "Right on cue.",
     ANNOUNCE_FLOATER_HELD = "I saw my life flash before my eyes... not in any particular order.",
     ANNOUNCE_FLOATER_LETGO = "I hate this part!",
+
+    -- rifts5.1
+    ANNOUNCE_LUNARHAIL_BIRD_SOUNDS = "I'll never get over that dreadful sound.",
+    ANNOUNCE_LUNARHAIL_BIRD_CORPSES = "They never stood a chance.",
+    ANNOUNCE_FLOAT_SWIM_TIRED = "I need a rest.",
+    ANOUNCE_MUTATED_BIRD_ATTACK = "Heads up!",
+
+    -- Rift 6
+    ANNOUNCE_WEAPON_TOOWEAK = "Oh botheration! I'll need something stronger than this...",
+    ANNOUNCE_VAULT_TELEPORTER_DOES_NOTHING = "Now this is rather annoying.",
+
+	-- Rift 6.1
+	ANNOUNCE_LIGHTSOUT_SHADOWHAND = "That's strange. You don't belong down here.",
+
+    -- Hallowed Nights 2025
+    ANNOUNCE_MUTATED_BUZZARD_ARRIVAL = "I know what those are... nothing right about them.", -- Mutated buzzards arrive to lurk and circle the player
 
 	BATTLECRY =
 	{
@@ -1747,6 +1771,8 @@ return{
 		TURF_FUNGUS="Why am I wasting time staring at the ground?",
 		TURF_FUNGUS_MOON = "Why am I wasting time staring at the ground?",
 		TURF_ARCHIVE = "Slightly more interesting to look at, but still just ground.",
+        TURF_VAULT = "Slightly more interesting to look at, but still just ground.",
+        TURF_VENT = "Why am I wasting time staring at the ground?",
 		TURF_SINKHOLE="Why am I wasting time staring at the ground?",
 		TURF_UNDERROCK="Why am I wasting time staring at the ground?",
 		TURF_MUD="Why am I wasting time staring at the ground?",
@@ -2095,6 +2121,8 @@ return{
         CHESSPIECE_SHARKBOI = "How could I forget this ruffian?",
         CHESSPIECE_WORMBOSS = "Rather not relive this one.",
         CHESSPIECE_YOTS = "And I just managed to forget you.",
+        CHESSPIECE_WAGBOSS_ROBOT = "Do we really need a reminder of this?",
+        CHESSPIECE_WAGBOSS_LUNAR = "Can't we just leave this monstrosity in the past?",
 
         CHESSJUNK1 = "I don't see much in the way of proper clockwork in there.",
         CHESSJUNK2 = "I have a suspicion these were held together with more magic than craftsmanship.",
@@ -3316,6 +3344,7 @@ return{
         WINTER_ORNAMENTBOSS = "Ah. Memories.",
 		WINTER_ORNAMENTFORGE = "I must have missed this one.",
 		WINTER_ORNAMENTGORGE = "Such a lovely family.",
+        WINTER_ORNAMENTPEARL = "I should spend more time with her.",
 
         WINTER_FOOD1 = "I half expect it to start running at any moment.", --gingerbread cookie
         WINTER_FOOD2 = "It's so hard to stop once you've eaten one.", --sugar cookie
@@ -4412,6 +4441,13 @@ return{
             LINE_4 = "I'd go back and ask what it means, but this time period is a bit beyond my reach.",
             LINE_5 = "I won't waste my time trying to decipher this gibberish.",
         },
+		VAULT_RUNE = "I'll not figure this out anytime soon.",
+		VAULT_STATUE =
+		{
+			LORE1 = "I don't think he foresaw this.",
+			LORE2 = "This is how it ended for them.",
+			LORE3 = "They've stood guard for a long time.",
+		},
 
         ARCHIVE_RESONATOR = {
             GENERIC = "Finally, something to point me in the right direction!",
@@ -4800,6 +4836,7 @@ return{
 
         MOONSTORM_STATIC = "Unbridled energy.",
         MOONSTORM_STATIC_ITEM = "Somewhat bridled energy.",
+        MOONSTORM_STATIC_ROAMER = "Shall we bridle that energy?",
         MOONSTORM_SPARK = "A speck of powerful possibility.",
 
         BIRD_MUTANT = "What an awful sight!",
@@ -5113,6 +5150,7 @@ return{
 
         PLAYBILL_THE_DOLL = "What an odd little play.",
         PLAYBILL_THE_VEIL = "Rather disturbing if you ask me.",
+        PLAYBILL_THE_VAULT = "This one takes me back.",
         STATUEHARP_HEDGESPAWNER = "There's just something about it...",
         HEDGEHOUND = "Fool me once, shame on you. Fool me twice, shame on you again!",
         HEDGEHOUND_BUSH = "Was that rosebush there a second ago?",
@@ -5463,8 +5501,11 @@ return{
 
         FENCE_JUNK = "As long as it keeps things out, I don't care how it looks.",
         JUNK_PILE = "There might be something worth my time in there.",
-        JUNK_PILE_BIG = "I'm not eager to be crushed by a teetering pile of scrap metal.",
-
+        JUNK_PILE_BIG = {
+            BLUEPRINT = "I remember seeing something up there.",
+            GENERIC = "I'm not eager to be crushed by a teetering pile of scrap metal.",
+        },
+        
         ARMOR_LUNARPLANT_HUSK = "It kills while it protects. Rather efficient.",
 
         -- Meta 4 / Ocean QoL
@@ -5645,7 +5686,7 @@ return{
 		SLINGSHOT_HANDLE_SILK = "Rather innovative for a child.",
 		SLINGSHOT_HANDLE_VOIDCLOTH = "Rather innovative for a child.",
 
-		WOBY_TREAT = "I suppose with a really strong cup of tea… nah.",
+		WOBY_TREAT = "I suppose with a really strong cup of tea... nah.",
 		BANDAGE_BUTTERFLYWINGS = "This will heal it up in no time at all.",
 		PORTABLEFIREPIT_ITEM = "That Walter is a clever little fellow.",
         SLINGSHOTAMMO_CONTAINER = "Stockpiling for the future. Good boy!",
@@ -5715,6 +5756,147 @@ return{
         GESTALT_GUARD_EVOLVED = "They know what we've done.",
         FLOTATIONCUSHION = "How convenient!",
         LUNAR_SEED = "I forget if this is the end or the beginning.",
+
+        -- rifts5.1
+        WAGBOSS_ROBOT_CONSTRUCTIONSITE = "Again?!",
+        WAGBOSS_ROBOT_CONSTRUCTIONSITE_KIT = "Am I the only one who thinks this is a bad idea?",
+        WAGBOSS_ROBOT_CREATION_PARTS = "Here we go...",
+        MOONSTORM_STATIC_CATCHER = "I thought I caught one...",
+        COOLANT = "I know that bubbling gunk has a use.",
+
+        FENCE_ELECTRIC = {
+            LINKED = "Delivers an unforgettable shock.",      --NOTE: the fence post is fully linked to two other posts
+            GENERIC = "Did I forget to connect this one?",           --NOTE: no links or electricity, just boring ol fence post
+        },
+        FENCE_ELECTRIC_ITEM = "Must remember to plant this.",
+
+        MUTATEDBIRD = "I don't trust it.",
+
+        BIRDCORPSE =
+        {
+            GENERIC  = "I know what comes next.", --witnessing the corpse
+            BURNING  = "This should put an end to it.", --when its burning
+            REVIVING = "I hate this part.", --when its mutating and being revived
+        },
+
+        BUZZARDCORPSE = {
+            GENERIC  = "I know what comes next.", --witnessing the corpse
+            BURNING  = "This should put an end to it.", --when its burning
+            REVIVING = "I hate this part.", --when its mutating and being revived
+        },
+
+        MUTATEDBUZZARD_GESTALT = {
+            GENERIC = "This is not good.", -- Generic string
+            EATING_CORPSE = "I see it hasn't lost its appetite.", -- Eating from a fresh corpse (might be from the players kill or another creatures kill)
+        },
+
+        -- Rifts 6
+
+        SHADOWTHRALL_CENTIPEDE = {
+            HEAD = "Is it moving forwards or backwards?", --The head segment
+            BODY = "I almost forgot how huge they are.", --The body segment
+            FLIPPED = "There isn't much time!", --When it's flipped over (either head or body segment)
+        },
+
+        TREE_ROCK =
+		{
+			BURNING = "The stone will fall any time now.", --It's vines are burning, it will collapse
+			CHOPPED = "Time to mine.", --It's 'chopped', so the rock fell
+			GENERIC = "Looks like a quick job.", --Rock is still on tree
+		},
+
+        -- NOTE: Unsure about HOT and COLD, just do GENERIC, GAS, MIASMA for now!
+        CAVE_VENT_ROCK =
+        {
+            GENERIC = "Let's go around those, shall we?", -- Not ventilating anything
+            HOT     = "I feel sluggish in this heat.", -- Ventiliating hot air, making the area warm
+            GAS     = "Oh that dreadful, noxious odor.", -- Ventiliating Toadstools gas fumes and spores
+            MIASMA  = "Oh botheration, I've no desire to wade through that vile substance.", -- Ventiliating the shadow rift miasma
+        },
+        CAVE_FERN_WITHERED = "Not interesting at all.",
+        FLOWER_CAVE_WITHERED = "This flower's time is running out.",
+
+		ABYSSPILLAR_MINION =
+		{
+			GENERIC = "There's something about it...", --off, looks like decor/statue
+			ACTIVATED = "Yes, they follow a pattern...", --turned on and hopping over puzzle pillars
+		},
+		ABYSSPILLAR_TRIAL = "Is it my choice to pull the lever now if I already know what I'm going to do?",
+
+        VAULT_TELEPORTER =
+        {
+            GENERIC = "A shame it's not portable.",
+            BROKEN = "It's plain to see it's broken.",
+            UNPOWERED = "I knew I forgot something.",
+        },
+--fallback to speech_wilson.lua 		VAULT_TELEPORTER_UNDERCONSTRUCTION = "\"This Waymark is under development for a future update.\"",
+		VAULT_ORB = "This is the functional piece.",
+        VAULT_LOBBY_EXIT = "Sure, why not?",
+		VAULT_CHANDELIER_BROKEN = "I'm surprised it stayed up that long in the first place.",
+
+		ANCIENT_HUSK = "How awful.",
+		MASK_ANCIENT_HANDMAIDHAT = "It reminds me of someone with authority.",
+		MASK_ANCIENT_ARCHITECTHAT = "Looks rather familiar.",
+		MASK_ANCIENT_MASONHAT = "A mask like this is earned through years of hard labor.",
+
+        TREE_ROCK_SEED = "I could plant this anywhere.",
+        TREE_ROCK_SAPLING = "It has its whole life ahead of it.",
+
+        -- Rifts 6.1
+        OCEANWHIRLBIGPORTALEXIT = "Not how I want to spend my time.", -- The flotsam pickable not the waterfall.
+
+		VAULT_TORCH =
+		{
+			GENERIC = "Is there an order to this.",
+			BROKEN = "It's broken.", --the torch still functions, just the lever is broken
+		},
+
+        CAVE_VENT_MITE =
+		{
+			DEAD = "That's the end of that.",
+			GENERIC = "I was hoping not to see or smell you again.",
+			SLEEPING = "That's one way to pass the time.",
+            VENTING = "Disgusting.", -- in the shield state and venting out gasses
+        },
+
+		--Hallowed Nights 2025
+
+		PUMPKINHAT =
+		{
+			GENERIC = "Yes, that will no nicely.",
+			UNCARVED = "Pumpkin carving reminds me of a simpler time.",--can't wear it unless it's carved.
+		},
+
+        PENGUINCORPSE =
+		{
+            GENERIC  = "I know what comes next.", --witnessing the corpse
+            BURNING  = "This should put an end to it.", --when its burning
+            REVIVING = "I hate this part.", --when its mutating and being revived
+		},
+        SPIDERCORPSE =
+		{
+			GENERIC = "I have a bad feeling about it.",
+			BURNING = "A wise choice.",
+			REVIVING = "This was predictable.",
+		},
+        SPIDERQUEENCORPSE =
+		{
+			GENERIC = "We should burn it, if I recall correctly.",
+			BURNING = "I hope I never see you again.",
+			REVIVING = "A new cycle begins.",
+		},
+        MERMCORPSE =
+		{
+			GENERIC = "That merm needs to be burned.",
+			BURNING = "It's the right thing to do.",
+			REVIVING = "What a terrible fate for that poor merm.",
+		},
+        GENERIC_CORPSE = -- A generic set of lines for ANY corpse, until they get their own unique lines at least.
+        {
+            GENERIC = "I'd better burn that thing before it's too late.",
+            BURNING = "One less potential reanimated corpse to worry about.",
+            REVIVING = "TODO",
+        },
     },
 
     DESCRIBE_GENERIC = "A very particular something or other.",

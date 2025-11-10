@@ -18,6 +18,7 @@ local function custom_postinit(inst)
     inst:AddComponent("moonstorms")
     inst:AddComponent("sharkboimanagerhelper")
     inst:AddComponent("wagpunk_floor_helper")
+    inst:AddComponent("lunarhailbirdsoundmanager")
 end
 
 return MakeWorldNetwork("forest_network", prefabs, assets, custom_postinit)

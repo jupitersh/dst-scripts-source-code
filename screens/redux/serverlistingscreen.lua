@@ -1390,7 +1390,7 @@ function ServerListingScreen:DoSorting()
         elseif a.ping >= 0 and b.ping < 0 then
             return true
         elseif a.ping == b.ping then
-            return string.lower(a.name) < string.lower(b.name)
+            return stringidsorter(string.lower(a.name), string.lower(b.name))
         else
             return a.ping < b.ping
         end
@@ -1436,9 +1436,9 @@ function ServerListingScreen:DoSorting()
     if self.viewed_servers then
         table.sort(self.viewed_servers, function(a,b)
             if self.sort_column == "SERVER_NAME_AZ" then
-                return string.lower(a.name) < string.lower(b.name)
+                return stringidsorter(string.lower(a.name), string.lower(b.name))
             elseif self.sort_column == "SERVER_NAME_ZA" then
-                return string.lower(a.name) > string.lower(b.name)
+                return stringidsorter(string.lower(a.name), string.lower(b.name))
             elseif self.sort_column == "RELEVANCE" then
                 local social = has_bestsocial(a,b)
                 if social ~= nil then

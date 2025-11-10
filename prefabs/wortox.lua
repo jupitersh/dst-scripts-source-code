@@ -495,12 +495,13 @@ local function IsNotBlocked(pt)
     return TheWorld.Map:IsPassableAtPoint(pt:Get()) and not TheWorld.Map:IsGroundTargetBlocked(pt)
 end
 local function CanBlinkTo(inst, pt)
-    return IsNotBlocked(pt) and (TheWorld.Map:IsPointInWagPunkArenaAndBarrierIsUp(pt:Get()) == TheWorld.Map:IsPointInWagPunkArenaAndBarrierIsUp(inst.Transform:GetWorldPosition())) -- NOTES(JBK): Keep in sync with blinkstaff. [BATELE]
+    local x, y, z = inst.Transform:GetWorldPosition()
+    return IsNotBlocked(pt) and IsTeleportingPermittedFromPointToPoint(x, y, z, pt.x, pt.y, pt.z) -- NOTES(JBK): Keep in sync with blinkstaff. [BATELE]
 end
 
 local function CanBlinkFromWithMap(inst, pt)
     local x, y, z = inst.Transform:GetWorldPosition()
-    return TheWorld.Map:IsPointInWagPunkArenaAndBarrierIsUp(x, y, z) == TheWorld.Map:IsPointInWagPunkArenaAndBarrierIsUp(pt.x, pt.y, pt.z)
+    return IsTeleportingPermittedFromPointToPoint(x, y, z, pt.x, pt.y, pt.z)
 end
 
 local function ReticuleTargetFn(inst)
@@ -523,10 +524,7 @@ local function GetPointSpecialActions(inst, pos, useitem, right)
         if inst.checkingmapactions then
             canblink = inst:CanBlinkFromWithMap(inst.checkingmapactions_pos or inst:GetPosition())
         else
-            local x, y, z = inst.Transform:GetWorldPosition()
-            if TheWorld.Map:IsPointInWagPunkArenaAndBarrierIsUp(x, y, z) == TheWorld.Map:IsPointInWagPunkArenaAndBarrierIsUp(pos.x, pos.y, pos.z) then
-                canblink = inst:CanBlinkTo(pos)
-            end
+            canblink = inst:CanBlinkTo(pos)
         end
         if canblink and inst.CanSoulhop and inst:CanSoulhop() then
             return { ACTIONS.BLINK }
@@ -1573,7 +1571,7 @@ local function wortox_decoy_fn()
     local follower = inst:AddComponent("follower") -- For leader combat targets.
     follower.noleashing = true
     follower.keepdeadleader = true
-    follower.keepleaderonattacked = true
+    follower:KeepLeaderOnAttacked()
     follower.keepleaderduringminigame = true
     follower.neverexpire = true
 

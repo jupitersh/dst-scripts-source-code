@@ -153,6 +153,9 @@ local ARENA_ENTITIES = {
     ["wagboss_robot"] = { -- Only one.
         {ARENA_CENTER_X, ARENA_CENTER_Z, 0},
     },
+    ["wagboss_robot_constructionsite_placerindicator"] = { -- Only one.
+        {ARENA_CENTER_X, ARENA_CENTER_Z, 0},
+    },
 }
 ARENA_ENTITIES["gestalt_cage_filled_placerindicator"] = deepcopy(ARENA_ENTITIES["wagdrone_spot_marker"])
 for i, v in ipairs(TILESPOTS) do
@@ -809,7 +812,11 @@ function self:CheckConstructCompleted()
         return false
     end
 
-    if self.wagboss and not self.wagboss:IsSocketed() then
+    if not self.wagboss then
+        return false
+    end
+
+    if not self.wagboss:IsSocketed() then
         if not self.spawnedguardian then
             self.spawnedguardian = true
             if self.inst.components.lunaralterguardianspawner then
@@ -1075,6 +1082,15 @@ function self:BossCooldownFinished()
     self:QueueCheck()
 end
 
+function self:AddWagbossDefeatedRecipes()
+    if self.workstation then
+        self.workstation.components.craftingstation:LearnItem("wagboss_robot_constructionsite_kit", "wagboss_robot_constructionsite_kit")
+        self.workstation.components.craftingstation:LearnItem("wagboss_robot_creation_parts", "wagboss_robot_creation_parts")
+        self.workstation.components.craftingstation:LearnItem("wagpunk_workstation_moonstorm_static_catcher", "wagpunk_workstation_moonstorm_static_catcher")
+        self.workstation.components.craftingstation:LearnItem("wagpunk_workstation_security_pulse_cage", "wagpunk_workstation_security_pulse_cage")
+    end
+end
+
 function self:CheckStateForChanges_Internal()
     if self.state == self.STATES.SPARKARK then
         if self.sparkark then
@@ -1117,13 +1133,16 @@ function self:CheckStateForChanges_Internal()
         self:RemoveArenaEntities("wagpunk_floor_placerindicator") -- Just in case.
         local wagboss_tracker = _world.components.wagboss_tracker
         local wagboss_defeated = wagboss_tracker and wagboss_tracker:IsWagbossDefeated()
-        if next(self.wagdrones) == nil then
-            local marker_to_spawn = wagboss_defeated and "gestalt_cage_filled_placerindicator" or "wagdrone_spot_marker"
-            self:TryToSpawnArenaEntities(marker_to_spawn, self.validspotfn_clearthisarea)
-        end
-        local wagboss_robots = self:TryToSpawnArenaEntities("wagboss_robot", self.validspotfn_clearthisarea)
-        if wagboss_robots then
-            self:TrackWagboss(wagboss_robots[1])
+        if wagboss_defeated then
+            self:TryToSpawnArenaEntities("wagboss_robot_constructionsite_placerindicator", self.validspotfn_clearthisarea)
+        else
+            if next(self.wagdrones) == nil then
+                self:TryToSpawnArenaEntities("wagdrone_spot_marker", self.validspotfn_clearthisarea)
+            end
+            local wagboss_robots = self:TryToSpawnArenaEntities("wagboss_robot", self.validspotfn_clearthisarea)
+            if wagboss_robots then
+                self:TrackWagboss(wagboss_robots[1])
+            end
         end
         if self.wagstaff then
             self.wagstaff:AddTrader()
@@ -1154,13 +1173,18 @@ function self:CheckStateForChanges_Internal()
                 self.constructed = nil
                 self.spawnedguardian = nil
                 self.givencage = nil
-                self:SetState(self.STATES.BOSSCOOLDOWN)
-                if self.bosscooldowntask ~= nil then
-                    self.bosscooldowntask:Cancel()
-                    self.bosscooldowntask = nil
+                local wagboss_tracker = _world.components.wagboss_tracker
+                if wagboss_tracker and wagboss_tracker:IsWagbossDefeated() then
+                    self:AddWagbossDefeatedRecipes()
+                    self:SetState(self.STATES.CONSTRUCT)
+                else
+                    self:SetState(self.STATES.BOSSCOOLDOWN)
+                    if self.bosscooldowntask ~= nil then
+                        self.bosscooldowntask:Cancel()
+                        self.bosscooldowntask = nil
+                    end
+                    self.bosscooldowntask = self.inst:DoTaskInTime(TUNING.WAGPUNK_ARENA_WAGBOSS_ROBOT_COOLDOWN_DEFEATED_TIME, BossCooldownFinished_Bridge)
                 end
-                self.bosscooldowntask = self.inst:DoTaskInTime(TUNING.WAGPUNK_ARENA_WAGBOSS_ROBOT_COOLDOWN_DEFEATED_TIME, BossCooldownFinished_Bridge)
-                -- FIXME(JBK): Wagstaff oneshot here?
             else
                 -- The boss won make it go back to the center and reset the arena.
                 self.levered = nil
@@ -1596,7 +1620,8 @@ function self:OnLoad(data)
         end
     end
     if data.bosscooldownremaining then
-        self.bosscooldowntask = self.inst:DoTaskInTime(data.bosscooldownremaining, BossCooldownFinished_Bridge)
+        local remainingtime = math.min(1, data.bosscooldownremaining) -- NOTES(JBK): The boss cooldown is no longer a real state when wagstaff is defeated the boss is fresh.
+        self.bosscooldowntask = self.inst:DoTaskInTime(remainingtime, BossCooldownFinished_Bridge)
     end
 
     if data.state then
@@ -1665,6 +1690,11 @@ function self:LoadPostPass(newents, savedata)
     if self.playersdata then
         self.inst:ListenForEvent("ms_playerjoined", self.OnPlayerJoined)
         self.inst:StartUpdatingComponent(self)
+    end
+
+    local wagboss_tracker = _world.components.wagboss_tracker
+    if wagboss_tracker and wagboss_tracker:IsWagbossDefeated() then
+        self:AddWagbossDefeatedRecipes() -- Retrofit pass.
     end
 end
 
@@ -1768,6 +1798,7 @@ end
 self.OnWagstaffSpawned_GiveGestaltCage = function(wagstaff)
     self.tryingtogivecage = nil
     self.givencage = true
+    wagstaff.wantingcage = true
     wagstaff:GiveGestaltCageToToss()
 end
 function self:DoWagstaffGiveGestaltCage(ent)
@@ -1798,6 +1829,15 @@ function self:TryWagstaffGiveGestaltCage(ent)
     self.tryingtogivecage = true
     self:DoWagstaffGiveGestaltCage(ent)
 end
+function self:GetTotalDronePlacementCount()
+    local dronecount = 0
+    for ent, _ in pairs(self.wagdrones) do
+        if ent.prefab == "wagdrone_rolling" or ent.prefab == "wagdrone_flying" then
+            dronecount = dronecount + 1
+        end
+    end
+    return dronecount
+end
 
 
 self.inst:ListenForEvent("ms_register_hermitcrab_marker", function(inst, ent) self:RegisterHermitCrabMarker(ent) end, _world)
@@ -1819,6 +1859,12 @@ self.inst:ListenForEvent("ms_wagboss_robot_losecontrol", function(inst) self:OnR
 self.inst:ListenForEvent("ms_wagboss_alter_defeated", function(inst, ent) self:UntrackWagboss() self:BossCompleted() end, _world)
 self.inst:ListenForEvent("ms_alterguardian_phase1_lunarrift_capturable", function(inst, ent) self:TryWagstaffGiveGestaltCage(ent) end, _world)
 self.inst:ListenForEvent("ms_wagboss_robot_turnoff", function(inst) if self.state == self.STATES.BOSS then self:BossCompleted() end end, _world)
+self.inst:ListenForEvent("ms_wagboss_robot_constructed", function(inst, ent)
+    self:TrackWagboss(ent)
+    if next(self.wagdrones) == nil then
+        self:TryToSpawnArenaEntities("gestalt_cage_filled_placerindicator", self.validspotfn_clearthisarea)
+    end
+end, _world)
 self.inst:ListenForEvent("ms_wagstaff_arena_oneshot", function(inst, data)
     if data then
         local strname, monologue, focusentity = data.strname, data.monologue, data.focusentity

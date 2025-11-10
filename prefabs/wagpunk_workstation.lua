@@ -60,6 +60,13 @@ local function OnActivate(inst)
     inst.prototyper_activatedtask = inst:DoTaskInTime(inst.AnimState:GetCurrentAnimationLength(), FinishUseAnim)
 end
 
+local function OnLoad(inst, data)
+    -- NOTES(JBK): This is to retrofit recipes added as a baseline to the workstation and is not normally needed.
+    local craftingstation = inst.components.craftingstation
+    craftingstation:LearnItem("wagpunk_workstation_blueprint_moonstorm_goggleshat", "wagpunk_workstation_blueprint_moonstorm_goggleshat")
+    craftingstation:LearnItem("wagpunk_workstation_blueprint_moon_device_construction1", "wagpunk_workstation_blueprint_moon_device_construction1")
+end
+
 local function fn()
     local inst = CreateEntity()
 
@@ -88,13 +95,17 @@ local function fn()
 
     inst:AddComponent("inspectable")
 
-    inst:AddComponent("craftingstation")
+    local craftingstation = inst:AddComponent("craftingstation")
+    craftingstation:LearnItem("wagpunk_workstation_blueprint_moonstorm_goggleshat", "wagpunk_workstation_blueprint_moonstorm_goggleshat")
+    craftingstation:LearnItem("wagpunk_workstation_blueprint_moon_device_construction1", "wagpunk_workstation_blueprint_moon_device_construction1")
 
     inst:AddComponent("prototyper")
     inst.components.prototyper.onturnon = OnTurnOn
     inst.components.prototyper.onturnoff = OnTurnOff
     inst.components.prototyper.onactivate = OnActivate
     inst.components.prototyper.trees = TUNING.PROTOTYPER_TREES.WAGPUNK_WORKSTATION
+
+    inst.OnLoad = OnLoad
 
     return inst
 end

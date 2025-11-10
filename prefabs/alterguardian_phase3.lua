@@ -453,9 +453,6 @@ local function fn()
     inst:AddComponent("teleportedoverride")
     inst.components.teleportedoverride:SetDestPositionFn(teleport_override_fn)
 
-    MakeHugeFreezableCharacter(inst)
-    inst.components.freezable:SetResistance(8)
-
 	inst:AddComponent("hauntable")
 	inst.components.hauntable:SetHauntValue(TUNING.HAUNT_TINY)
 

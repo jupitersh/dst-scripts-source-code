@@ -199,9 +199,47 @@ function params.woby_rack_container.itemtestfn(container, item, slot)
 		or (TheWorld.ismastersim and (
 				item:GetTimeAlive() == 0 or --items perishing replaced by spoiled_food/fish
 				container.inst:GetTimeAlive() == 0 or --transferring items during woby transform
-				(	item.wobyrack_lastinfo and --failing to move items; return to slot
-					item.wobyrack_lastinfo.container == container and
-					item.wobyrack_lastinfo.slot == slot
+				(	item.dryingrack_lastinfo and --failing to move items; return to slot
+					item.dryingrack_lastinfo.container == container and
+					item.dryingrack_lastinfo.slot == slot
+				)
+			))
+end
+
+--------------------------------------------------------------------------
+--[[ meatrack ]]
+--------------------------------------------------------------------------
+
+params.meatrack =
+{
+	widget =
+	{
+		slotpos = {},
+		slotbg = {},
+		animbank = "ui_meatrack_multi_3x1",
+		animbuild = "ui_meatrack_multi_3x1",
+		pos = Vector3(0, 200, 0),
+		side_align_tip = 160,
+	},
+	acceptsstacks = false,
+	type = "chest",
+}
+
+local dryer_slotbg = { image = "inv_slot_morsel.tex" }
+for x = 0, 2 do
+	table.insert(params.meatrack.widget.slotpos, Vector3(75 * x - 75 * 2 + 75, 0, 0))
+	table.insert(params.meatrack.widget.slotbg, dryer_slotbg)
+end
+dryer_slotbg = nil
+
+function params.meatrack.itemtestfn(container, item, slot)
+	return item:HasTag("dryable")
+		or (TheWorld.ismastersim and (
+				item:GetTimeAlive() == 0 or --items perishing replaced by spoiled_food/fish
+				--container.inst:GetTimeAlive() == 0 or --woby specific; see above
+				(	item.dryingrack_lastinfo and --failing to move items; return to slot
+					item.dryingrack_lastinfo.container == container and
+					item.dryingrack_lastinfo.slot == slot
 				)
 			))
 end
@@ -478,6 +516,20 @@ params.enable_shadow_rift_construction_container.widget.side_align_tip = 120
 params.enable_shadow_rift_construction_container.widget.animbank = "ui_bundle_2x2"
 params.enable_shadow_rift_construction_container.widget.animbuild = "ui_bundle_2x2"
 params.enable_shadow_rift_construction_container.widget.buttoninfo.text = STRINGS.ACTIONS.APPLYCONSTRUCTION.OFFER
+
+---------------------------------------
+-- construction_container_1x1
+
+
+params.construction_container_1x1 = deepcopy(params.construction_container)
+
+params.construction_container_1x1.widget.slotpos = {Vector3(0, 8, 0)}
+params.construction_container_1x1.widget.pos.x = 150
+params.construction_container_1x1.widget.side_align_tip = 40
+params.construction_container_1x1.widget.animbank = "ui_construction_1x1"
+params.construction_container_1x1.widget.animbuild = "ui_construction_1x1"
+
+---------------------------------------
 
 local function IsConstructionSiteComplete(inst, doer)
     local container = inst.replica.container
@@ -1092,7 +1144,6 @@ params.pandoraschest = params.treasurechest
 params.chest_mimic = params.pandoraschest
 params.skullchest = params.treasurechest
 params.terrariumchest = params.treasurechest
-params.sunkenchest = params.treasurechest
 
 params.quagmire_safe = deepcopy(params.treasurechest)
 params.quagmire_safe.widget.animbank = "quagmire_ui_chest_3x3"
@@ -1516,6 +1567,31 @@ for y = 1, -3, -1 do
 end
 
 params.supertacklecontainer.itemtestfn = params.tacklecontainer.itemtestfn
+
+--------------------------------------------------------------------------
+--[[ sunkenchest ]]
+--------------------------------------------------------------------------
+-- Sunken Chest is an actual container though it can not be opened it often reaches capacity from it's old container data (3x3) we have moved to 3x5 now
+-- We can deepcopy supertacklecontainer and set itemtestfn but I am making a entirely new definition to ensure it is not potentially messed with
+
+params.sunkenchest =
+{
+    widget =
+    {
+        slotpos = {},
+        animbank = "ui_tacklecontainer_3x5",
+        animbuild = "ui_tacklecontainer_3x5",
+        pos = Vector3(0, 280, 0),
+        side_align_tip = 160,
+    },
+    type = "chest",
+}
+
+for y = 1, -3, -1 do
+    for x = 0, 2 do
+        table.insert(params.sunkenchest.widget.slotpos, Vector3(80 * x - 80 * 2 + 80, 80 * y - 45, 0))
+    end
+end
 
 --------------------------------------------------------------------------
 --[[ sacred_chest ]]

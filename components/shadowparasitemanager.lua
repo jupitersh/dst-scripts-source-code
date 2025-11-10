@@ -323,7 +323,7 @@ function ShadowParasiteManager:BeginParasiteWave()
     self.num_waves = self.num_waves - 1
 
     if IsAnyPlayerInRange(x, 0, z, PLAYER_REVEAL_RADIUS) then
-        local total = 6 + math.random(6)
+        local total = TUNING.SHADOWTHRALL_PARASITE_WAVE_MIN + math.random(TUNING.SHADOWTHRALL_PARASITE_WAVE_VAR)
 
         for i=1, total do
             self.inst:DoTaskInTime(math.random()*5, SpawnFloater, pos)

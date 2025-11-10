@@ -523,6 +523,7 @@ Recipe2("goggleshat", 						{Ingredient("goldnugget", 1), Ingredient("pigskin", 
 Recipe2("deserthat", 						{Ingredient("goggleshat", 1), Ingredient("pigskin", 1)}, 										TECH.LOST)
 Recipe2("moonstorm_goggleshat", 			{Ingredient("moonglass", 2),Ingredient("potato", 1)}, 											TECH.LOST)
 Recipe2("watermelonhat", 					{Ingredient("watermelon", 1), Ingredient("twigs", 3)}, 											TECH.SCIENCE_ONE)
+Recipe2("pumpkinhat", 						{Ingredient("pumpkin", 1)},							 											TECH.HALLOWED_NIGHTS)
 Recipe2("icehat",							{Ingredient("transistor", 2), Ingredient("rope", 4), Ingredient("ice", 10)}, 					TECH.SCIENCE_TWO)
 Recipe2("beehat", 							{Ingredient("silk", 8), Ingredient("rope", 1)}, 												TECH.SCIENCE_TWO)
 Recipe2("featherhat", 						{Ingredient("feather_crow", 3),Ingredient("feather_robin", 2), Ingredient("tentaclespots", 2)}, TECH.SCIENCE_TWO)
@@ -585,6 +586,8 @@ Recipe2("wall_moonrock_item",				{Ingredient("moonrocknugget", 4)},													
 Recipe2("wall_dreadstone_item",				{Ingredient("dreadstone", 4)},																			TECH.LOST,					{numtogive=4})
 Recipe2("wall_scrap_item",					{Ingredient("wagpunk_bits", 4)},																		TECH.SCIENCE_TWO,			{numtogive=4})
 
+Recipe2("fence_electric_item", 				{Ingredient("wagpunk_bits", 6), Ingredient("moonglass", 6)},											TECH.LOST,					{numtogive=4})
+
 Recipe2("fence_rotator",					{Ingredient("spear", 1), Ingredient("flint", 2) },														TECH.SCIENCE_TWO)
 
 Recipe2("rope_bridge_kit",					{Ingredient("rope", 2), Ingredient("boards", 4) },														TECH.SCIENCE_TWO)
@@ -618,7 +621,7 @@ Recipe2("flotationcushion",					{Ingredient("mosquitosack", 1), Ingredient("rope
 Recipe2("dock_kit",							{Ingredient("boards", 4), Ingredient("cutstone", 1), Ingredient("stinger", 2), Ingredient("palmcone_scale", 1)},		TECH.LOST, 	{numtogive=4})
 Recipe2("dock_woodposts_item",				{Ingredient("log", 2)},																					TECH.LOST)
 
-Recipe2("pirate_flag_pole",					{Ingredient("blackflag", 1), Ingredient("log", 2)},														TECH.LOST, 					{placer="pirate_flag_pole_placer"})
+Recipe2("pirate_flag_pole",					{Ingredient("blackflag", 1), Ingredient("log", 2)},														TECH.LOST, 					{placer="pirate_flag_pole_placer", min_spacing=1.5})
 
 Recipe2("fishingrod",						{Ingredient("twigs", 2), Ingredient("silk", 2)},														TECH.SCIENCE_ONE)
 Recipe2("oceanfishingrod",					{Ingredient("boards", 1), Ingredient("silk", 3)},														TECH.SCIENCE_ONE)
@@ -703,6 +706,7 @@ Recipe2("turf_fungus_green",				{Ingredient("cutlichen", 1), Ingredient("spore_s
 Recipe2("turf_marsh",						{Ingredient("cutreeds", 1), Ingredient("spoiled_food", 2)},												TECH.MASHTURFCRAFTING_TWO,	{numtogive=4})
 
 Recipe2("turf_archive",						{Ingredient("moonrocknugget", 1), Ingredient("thulecite_pieces", 1)},									TECH.LOST,					{numtogive=4})
+Recipe2("turf_vault",						{Ingredient("moonrocknugget", 1), Ingredient("thulecite_pieces", 1)},									TECH.LOST,					{numtogive=4})
 
 Recipe2("turf_ruinsbrick",					{Ingredient("rocks", 2), Ingredient("nightmarefuel", 1)},												TECH.LOST,					{numtogive=4})
 Recipe2("turf_ruinsbrick_glow",				{Ingredient("rocks", 2)},																				TECH.LOST,					{numtogive=4})
@@ -711,14 +715,20 @@ Recipe2("turf_ruinstiles_glow",				{Ingredient("rocks", 2)},																				
 Recipe2("turf_ruinstrim",					{Ingredient("rocks", 2), Ingredient("nightmarefuel", 1)},												TECH.LOST,					{numtogive=4})
 Recipe2("turf_ruinstrim_glow",				{Ingredient("rocks", 2)},																				TECH.LOST,					{numtogive=4})
 
+Recipe2("turf_vent",						{Ingredient("rocks", 3)},																				TECH.TURFCRAFTING_TWO,		{numtogive=4})
+
 Recipe2("pottedfern",						{Ingredient("foliage", 2), Ingredient("slurtle_shellpieces", 1)},										TECH.SCIENCE_TWO,			{placer="pottedfern_placer", min_spacing=0.9})
 Recipe2("succulent_potted",					{Ingredient("succulent_picked", 2), Ingredient("cutstone", 1)},											TECH.SCIENCE_TWO,			{placer="succulent_potted_placer", min_spacing=0.9})
-Recipe2("ruinsrelic_plate",					{Ingredient("cutstone", 1)},																			TECH.LOST,					{placer="ruinsrelic_plate_placer", min_spacing=0.5})
-Recipe2("ruinsrelic_chipbowl",				{Ingredient("cutstone", 1)},																			TECH.LOST,					{placer="ruinsrelic_chipbowl_placer", min_spacing=0.5})
-Recipe2("ruinsrelic_bowl",					{Ingredient("cutstone", 2)},																			TECH.LOST,					{placer="ruinsrelic_bowl_placer", min_spacing=2})
-Recipe2("ruinsrelic_vase",					{Ingredient("cutstone", 2)},																			TECH.LOST,					{placer="ruinsrelic_vase_placer", min_spacing=2})
+Recipe2("ruinsrelic_plate",					{Ingredient("cutstone", 1)},																			TECH.LOST)
+Recipe2("ruinsrelic_chipbowl",				{Ingredient("cutstone", 1)},																			TECH.LOST)
+Recipe2("ruinsrelic_bowl",					{Ingredient("cutstone", 2)},																			TECH.LOST)
+Recipe2("ruinsrelic_vase",					{Ingredient("cutstone", 2)},																			TECH.LOST)
 Recipe2("ruinsrelic_chair",					{Ingredient("cutstone", 1)},																			TECH.LOST,					{placer="ruinsrelic_chair_placer", min_spacing=2})
 Recipe2("ruinsrelic_table",					{Ingredient("cutstone", 1)},																			TECH.LOST,					{placer="ruinsrelic_table_placer"})
+local function vaultrelic_nodecon(inst) return inst.replica.inventoryitem == nil end
+Recipe2("vaultrelic_bowl",					{Ingredient("thulecite_pieces", 1), Ingredient("cutstone", 1)},											TECH.LOST,					{no_deconstruction=vaultrelic_nodecon})
+Recipe2("vaultrelic_vase",					{Ingredient("thulecite_pieces", 1), Ingredient("moonrocknugget", 1)},									TECH.LOST,					{no_deconstruction=vaultrelic_nodecon})
+Recipe2("vaultrelic_planter",				{Ingredient("cutstone", 1)},																			TECH.LOST,					{no_deconstruction=vaultrelic_nodecon})
 
 -- WX78 Items
 Recipe2("wx78module_maxhealth",				{Ingredient("scandata", 2), Ingredient("spidergland", 1)},													TECH.ROBOTMODULECRAFT_ONE,	{builder_tag="upgrademoduleowner"})
@@ -778,16 +788,16 @@ Recipe2("critter_eyeofterror_builder",		{Ingredient("milkywhites", 1), Ingredien
 ----CELESTIAL----
 Recipe2("moonrockidol",								{Ingredient("moonrocknugget", 1), Ingredient("purplegem", 1)},									TECH.CELESTIAL_ONE,			{nounlock=true})
 Recipe2("multiplayer_portal_moonrock_constr_plans", {Ingredient("boards", 1), Ingredient("rope", 1)},												TECH.CELESTIAL_ONE,			{nounlock=true})
-Recipe2("lunar_forge_kit",							{Ingredient("moonrocknugget", 5),Ingredient("moonglass", 5),Ingredient("purebrilliance", 1)},	TECH.CELESTIAL_ONE,			{nounlock=true})
 Recipe2("moon_mushroomhat",							{Ingredient("moon_cap", 4), Ingredient("red_mushroomhat",1)},									TECH.CELESTIAL_ONE,			{nounlock=true})
+Recipe2("bathbomb", 								{Ingredient("moon_tree_blossom", 1), Ingredient("nitre", 1)}, 									TECH.CELESTIAL_ONE,			{nounlock=true})
 
 ----MOON_ALTAR-----
-Recipe2("moonglassaxe",						{Ingredient("twigs", 2), Ingredient("moonglass", 3)},													TECH.CELESTIAL_THREE,		{nounlock=true})
-Recipe2("glasscutter",						{Ingredient("boards", 1), Ingredient("moonglass", 6)},													TECH.CELESTIAL_THREE,		{nounlock=true})
+Recipe2("moonglassaxe",								{Ingredient("twigs", 2), Ingredient("moonglass", 3)},											TECH.CELESTIAL_THREE,		{station_tag="celestial_station"})
+Recipe2("glasscutter",								{Ingredient("log", 1), Ingredient("moonglass", 5)},												TECH.CELESTIAL_THREE,		{station_tag="celestial_station"})
+Recipe2("lunar_forge_kit",					{Ingredient("moonrocknugget", 5),Ingredient("moonglass", 5),Ingredient("purebrilliance", 1)},			TECH.CELESTIAL_THREE,		{nounlock=true})
 Recipe2("carpentry_blade_moonglass",		{Ingredient("moonglass", 6), Ingredient("moonbutterfly", 1)},											TECH.CELESTIAL_THREE,		{nounlock=true})
 Recipe2("turf_meteor",						{Ingredient("moonrocknugget", 1), Ingredient("moonglass", 2)},											TECH.CELESTIAL_THREE,		{nounlock=true, numtogive=4})
 Recipe2("turf_fungus_moon",					{Ingredient("moonrocknugget", 1), Ingredient("moon_cap", 2)},											TECH.CELESTIAL_THREE,		{nounlock=true, numtogive=4})
-Recipe2("bathbomb", 						{Ingredient("moon_tree_blossom", 6), Ingredient("nitre", 1)}, 											TECH.CELESTIAL_THREE,		{nounlock=true})
 Recipe2("chesspiece_butterfly_sketch",		{Ingredient("papyrus", 1)},																				TECH.CELESTIAL_THREE,		{nounlock=true})
 Recipe2("chesspiece_moon_sketch", 			{Ingredient("papyrus", 1)},																				TECH.CELESTIAL_THREE,		{nounlock=true})
 
@@ -865,6 +875,8 @@ Recipe2("chesspiece_yotd_builder",				{Ingredient(TECH_INGREDIENT.SCULPTING, 2),
 Recipe2("chesspiece_sharkboi_builder",			{Ingredient(TECH_INGREDIENT.SCULPTING, 2), Ingredient("rocks", 2)},									TECH.LOST,					{nounlock = true, actionstr="SCULPTING", image="chesspiece_sharkboi.tex"})
 Recipe2("chesspiece_wormboss_builder",			{Ingredient(TECH_INGREDIENT.SCULPTING, 2), Ingredient("rocks", 2)},									TECH.LOST,					{nounlock = true, actionstr="SCULPTING", image="chesspiece_wormboss.tex"})
 Recipe2("chesspiece_yots_builder",				{Ingredient(TECH_INGREDIENT.SCULPTING, 2), Ingredient("rocks", 2)},									TECH.LOST,					{nounlock = true, actionstr="SCULPTING", image="chesspiece_yots.tex"})
+Recipe2("chesspiece_wagboss_robot_builder",		{Ingredient(TECH_INGREDIENT.SCULPTING, 2), Ingredient("rocks", 2)},									TECH.LOST,					{nounlock = true, actionstr="SCULPTING", image="chesspiece_wagboss_robot.tex"})
+Recipe2("chesspiece_wagboss_lunar_builder",		{Ingredient(TECH_INGREDIENT.SCULPTING, 2), Ingredient("rocks", 2)},									TECH.LOST,					{nounlock = true, actionstr="SCULPTING", image="chesspiece_wagboss_lunar.tex"})
 
 -- Hermitcrab
 Recipe2("hermitshop_hermit_bundle_shells",				{Ingredient("messagebottleempty", 1)},														TECH.HERMITCRABSHOP_ONE,	{nounlock = true, sg_state="give", product="hermit_bundle_shells",		image="hermit_bundle.tex"})
@@ -901,7 +913,7 @@ Recipe2("wanderingtradershop_flint",		{Ingredient("ash", 1)},				TECH.LOST,	{lim
 Recipe2("wanderingtradershop_cutreeds",		{Ingredient("ash", 4)},				TECH.LOST,	{limitedamount = true, nounlock = true, actionstr="WANDERINGTRADERSHOP", sg_state="give", product="cutreeds"})
 --  Uncommon
 Recipe2("wanderingtradershop_pigskin",		{Ingredient("beefalowool", 3)},		TECH.LOST,	{limitedamount = true, nounlock = true, actionstr="WANDERINGTRADERSHOP", sg_state="give", product="pigskin"})
-Recipe2("wanderingtradershop_livinglog",	{Ingredient("beefalowool", 3)},		TECH.LOST,	{limitedamount = true, nounlock = true, actionstr="WANDERINGTRADERSHOP", sg_state="give", product="livinglog"})
+Recipe2("wanderingtradershop_livinglog",	{Ingredient("beefalowool", 3)},		TECH.LOST,	{limitedamount = true, nounlock = true, actionstr="WANDERINGTRADERSHOP", sg_state="give", product="livinglog", description = "wanderingtradershop_livinglog"})
 --  Rare
 Recipe2("wanderingtradershop_redgem",		{Ingredient("pigskin", 3)},			TECH.LOST,	{limitedamount = true, nounlock = true, actionstr="WANDERINGTRADERSHOP", sg_state="give", product="redgem"})
 Recipe2("wanderingtradershop_bluegem",		{Ingredient("pigskin", 3)},			TECH.LOST,	{limitedamount = true, nounlock = true, actionstr="WANDERINGTRADERSHOP", sg_state="give", product="bluegem"})
@@ -909,8 +921,17 @@ Recipe2("wanderingtradershop_bluegem",		{Ingredient("pigskin", 3)},			TECH.LOST,
 Recipe2("wanderingtradershop_moonglass",	{Ingredient("ash", 4)},				TECH.LOST,	{limitedamount = true, nounlock = true, actionstr="WANDERINGTRADERSHOP", sg_state="give", product="moonglass"})
 
 -- wagpunk_workstation
-Recipe2("wagpunk_floor_kit",				{Ingredient("cutstone", 1), Ingredient("wagpunk_bits", 1)},	TECH.WAGPUNK_WORKSTATION_TWO,	{numtogive = 4, nounlock = true,})
-Recipe2("gestalt_cage",						{Ingredient("thulecitebugnet", 1), Ingredient("wagpunk_bits", 2)},	TECH.WAGPUNK_WORKSTATION_TWO,	{nounlock = true,})
+--  Moonstorm event blueprints.
+Recipe2("wagpunk_workstation_blueprint_moonstorm_goggleshat",		{Ingredient("papyrus", 1)},	TECH.WAGPUNK_WORKSTATION_TWO,	{nounlock = true, product="moonstorm_goggleshat_blueprint", image="blueprint_rare.tex"})
+Recipe2("wagpunk_workstation_blueprint_moon_device_construction1",	{Ingredient("papyrus", 1)},	TECH.WAGPUNK_WORKSTATION_TWO,	{nounlock = true, product="moon_device_construction1_blueprint", image="blueprint_rare.tex"})
+--  Wagpunk Arena.
+Recipe2("wagpunk_floor_kit",					{Ingredient("cutstone", 1), Ingredient("wagpunk_bits", 1)},	TECH.WAGPUNK_WORKSTATION_TWO,	{numtogive = 4, nounlock = true,})
+Recipe2("gestalt_cage",							{Ingredient("thulecitebugnet", 1), Ingredient("wagpunk_bits", 2)},	TECH.WAGPUNK_WORKSTATION_TWO,	{nounlock = true,})
+-- Post lunar boss.
+Recipe2("wagboss_robot_constructionsite_kit",	{Ingredient("cutstone", 2), Ingredient("boards", 2), Ingredient("wagpunk_bits", 1)},	TECH.WAGPUNK_WORKSTATION_TWO,	{nounlock = true,})
+Recipe2("wagboss_robot_creation_parts",			{Ingredient("cutstone", 1), Ingredient("wagpunk_bits", 2)},	TECH.WAGPUNK_WORKSTATION_TWO,	{nounlock = true,})
+Recipe2("wagpunk_workstation_moonstorm_static_catcher",				{Ingredient("moonglass", 2), Ingredient("wagpunk_bits", 1)},	TECH.WAGPUNK_WORKSTATION_TWO,	{nounlock = true, product="moonstorm_static_catcher"})
+Recipe2("wagpunk_workstation_security_pulse_cage",	{Ingredient("thulecite", 2), Ingredient("moonstorm_static_item", 1), Ingredient("coolant", 1)},	TECH.WAGPUNK_WORKSTATION_TWO,	{nounlock = true, product="security_pulse_cage"})
 
 -- Cult of the Lamb
 Recipe2("turf_cotl_gold",								{Ingredient("rocks", 1), Ingredient("goldnugget", 1)},										TECH.LOST,					{numtogive=4})
@@ -1178,6 +1199,9 @@ CONSTRUCTION_PLANS =
 	--Cult of the Lamb
 	["cotl_tabernacle_level1"] = { Ingredient("cutstone", 5), Ingredient("log", 1) },
 	["cotl_tabernacle_level2"] = { Ingredient("goldnugget", 10), Ingredient("cutstone", 10), Ingredient("log", 1) },
+
+    -- rifts5.1
+	["wagboss_robot_constructionsite"] = { Ingredient("wagboss_robot_creation_parts", 3) },
 }
 CONSTRUCTION_PLANS["support_pillar_scaffold"] = CONSTRUCTION_PLANS["support_pillar"]
 CONSTRUCTION_PLANS["support_pillar_dreadstone_scaffold"] = CONSTRUCTION_PLANS["support_pillar_dreadstone"]

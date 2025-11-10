@@ -535,70 +535,6 @@ local states =
     --------------------------------------------------------------------------
 
     State{
-        name = "electrocute",
-        tags = { "busy", "pausepredict" },
-
-        onenter = function(inst)
-            ClearStatusAilments(inst)
-            ForceStopHeavyLifting(inst)
-
-            inst.components.locomotor:Stop()
-            inst:ClearBufferedAction()
-
-            inst.fx = SpawnPrefab("shock_fx")
-
-            inst.fx.entity:SetParent(inst.entity)
-            inst.fx.entity:AddFollower()
-            inst.fx.Follower:FollowSymbol(inst.GUID, "swap_shock_fx", 0, 0, 0)
-
-            inst.components.bloomer:PushBloom("electrocute", "shaders/anim.ksh", -2)
-            inst.Light:Enable(true)
-
-            inst.AnimState:PlayAnimation("shock")
-            inst.AnimState:PushAnimation("shock_pst", false)
-
-            DoHurtSound(inst)
-
-            inst.sg:SetTimeout(8 * FRAMES + inst.AnimState:GetCurrentAnimationLength())
-        end,
-
-        events =
-        {
-            EventHandler("animover", function(inst)
-                if inst.fx ~= nil then
-                    if not inst:HasTag("electricdamageimmune") then
-                        inst.Light:Enable(false)
-                        inst.components.bloomer:PopBloom("electrocute")
-                    end
-                    inst.fx:Remove()
-                    inst.fx = nil
-                end
-            end),
-
-            EventHandler("animqueueover", function(inst)
-                if inst.AnimState:AnimDone() then
-                    inst.sg:GoToState("idle")
-                end
-            end),
-        },
-
-        ontimeout = function(inst)
-            inst.sg:GoToState("idle", true)
-        end,
-
-        onexit = function(inst)
-            if inst.fx ~= nil then
-                if not inst:HasTag("electricdamageimmune") then
-                    inst.Light:Enable(false)
-                    inst.components.bloomer:PopBloom("electrocute")
-                end
-                inst.fx:Remove()
-                inst.fx = nil
-            end
-        end,
-    },
-
-    State{
         name = "idle",
         tags = { "idle", "canrotate" },
 
@@ -4570,5 +4506,6 @@ local states =
 CommonStates.AddSimpleState(states, "refuse", "idle_loop", { "busy" })
 CommonStates.AddSimpleActionState(states, "gohome", "pickup", 4 * FRAMES, { "busy", "ishome" })
 CommonStates.AddSimpleActionState(states, "pickup", "pickup", 10 * FRAMES, { "busy" })
+CommonStates.AddElectrocuteStates(states)
 
 return StateGraph("hermit", states, events, "idle", actionhandlers)

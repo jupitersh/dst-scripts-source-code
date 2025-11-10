@@ -17,6 +17,8 @@ local prefabs =
 	"gears",
 	"transistor",
 	"wagpunk_bits",
+
+    "chesspiece_wagboss_robot_sketch",
 }
 
 SetSharedLootTable("wagboss_robot",
@@ -25,6 +27,7 @@ SetSharedLootTable("wagboss_robot",
 	{ "transistor",			0.5 },
 	{ "wagpunk_bits",		1.0 },
 	{ "wagpunk_bits",		0.5 },
+	{"chesspiece_wagboss_robot_sketch", 1.0},
 })
 
 local brain = require("brains/wagboss_robotbrain")
@@ -621,13 +624,7 @@ local function CreateBackFx()
 	return fx
 end
 
-local CancelBackFxPostUpdate_Client --forward declare
-
 local function BackFxPostUpdate_Client(inst)
-	if inst._cancelbackfxpostupdate then
-		return
-	end
-
 	if inst.AnimState:IsCurrentAnimation("lunar_spawn_1") then
 		if inst._backfx == nil then
 			inst._backfx = CreateBackFx()
@@ -642,11 +639,6 @@ local function BackFxPostUpdate_Client(inst)
 		inst._backfx = nil
 	end
 
-	inst._cancelbackfxpostupdate = inst:DoStaticTaskInTime(0, CancelBackFxPostUpdate_Client)
-end
-
-CancelBackFxPostUpdate_Client = function(inst)
-	inst._cancelbackfxpostupdate = nil
 	inst._backfxpostupdating = false
 	inst.components.updatelooper:RemovePostUpdateFn(BackFxPostUpdate_Client)
 end
@@ -659,9 +651,6 @@ local function OnShowBackFx_Client(inst)
 		if not inst._backfxpostupdating then
 			inst._backfxpostupdating = true
 			inst.components.updatelooper:AddPostUpdateFn(BackFxPostUpdate_Client)
-		elseif inst._cancelbackfxpostupdate then
-			inst._cancelbackfxpostupdate:Cancel()
-			inst._cancelbackfxpostupdate = nil
 		end
 	else
 		if inst._backfx then
@@ -669,10 +658,8 @@ local function OnShowBackFx_Client(inst)
 			inst._backfx = nil
 		end
 		if inst._backfxpostupdating then
-			if inst._cancelbackfxpostupdate then
-				inst._cancelbackfxpostupdate:Cancel()
-			end
-			CancelBackFxPostUpdate_Client(inst)
+			inst._backfxpostupdating = false
+			inst.components.updatelooper:RemovePostUpdateFn(BackFxPostUpdate_Client)
 		end
 	end
 end
@@ -868,7 +855,7 @@ local function CreateStompFx()
 	return fx
 end
 
-local ClearStompFx_Client, CancelStompFxPostUpdate_Client --forward declare
+local ClearStompFx_Client --forward declare
 
 local function OnStompFxAnimOver(fx)
 	local inst = fx.entity:GetParent()
@@ -877,10 +864,6 @@ local function OnStompFxAnimOver(fx)
 end
 
 local function StompFxPostUpdate_Client(inst)
-	if inst._cancelstompfxpostupdate then
-		return
-	end
-
 	local frame =
 		(inst.AnimState:IsCurrentAnimation("atk_squish") and inst.AnimState:GetCurrentAnimationFrame() - 27) or
 		(inst.AnimState:IsCurrentAnimation("atk_leap_pst") and inst.AnimState:GetCurrentAnimationFrame() - 4) or
@@ -901,11 +884,6 @@ local function StompFxPostUpdate_Client(inst)
 		inst.showstompfx:set_local(false)
 	end
 
-	inst._cancelstompfxpostupdate = inst:DoStaticTaskInTime(0, CancelStompFxPostUpdate_Client)
-end
-
-CancelStompFxPostUpdate_Client = function(inst)
-	inst._cancelstompfxpostupdate = nil
 	inst._stompfxpostupdating = false
 	inst.components.updatelooper:RemovePostUpdateFn(StompFxPostUpdate_Client)
 end
@@ -916,10 +894,8 @@ ClearStompFx_Client = function(inst)
 		inst._stompfx = nil
 	end
 	if inst._stompfxpostupdating then
-		if inst._cancelstompfxpostupdate then
-			inst._cancelstompfxpostupdate:Cancel()
-		end
-		CancelStompFxPostUpdate_Client(inst)
+		inst._stompfxpostupdating = false
+		inst.components.updatelooper:RemovePostUpdateFn(StompFxPostUpdate_Client)
 	end
 end
 
@@ -931,9 +907,6 @@ local function OnShowStompFx_Client(inst)
 		if not inst._stompfxpostupdating then
 			inst._stompfxpostupdating = true
 			inst.components.updatelooper:AddPostUpdateFn(StompFxPostUpdate_Client)
-		elseif inst._cancelstompfxpostupdate then
-			inst._cancelstompfxpostupdate:Cancel()
-			inst._cancelstompfxpostupdate = nil
 		end
 	else
 		ClearStompFx_Client(inst)
@@ -1229,14 +1202,7 @@ local function SetCombatEnabled(inst, enabled)
 end
 
 local function SetBrainEnabled(inst, enabled)
-	if enabled then
-		inst:SetBrain(brain)
-		if not inst:IsAsleep() then
-			inst:RestartBrain()
-		end
-	else
-		inst:SetBrain(nil)
-	end
+	inst:SetBrain(enabled and brain or nil)
 end
 
 local function ConfigureOff(inst)
@@ -1299,7 +1265,7 @@ local function SocketCage(inst)
 		if not POPULATING then
 			inst.SoundEmitter:PlaySound("rifts5/wagstaff_boss/gestalt_placed_activate")
 		end
-		inst.sg:HandleEvent("reveal")
+		inst:PushEventImmediate("reveal")
 	end
 end
 
@@ -1344,7 +1310,7 @@ local function OnPreLoad(inst, data, ents)
 			end
 			inst:SetMusicLevel(1)
 		elseif data.active then
-			inst.sg:HandleEvent("activate")
+			inst:PushEventImmediate("activate")
 		end
 		if data.shattered then
 			BreakGlass(inst)
@@ -1388,7 +1354,7 @@ end
 
 --------------------------------------------------------------------------
 
-local OBSTACLE_RADIUS = 3.5
+local OBSTACLE_RADIUS = 3.5 -- NOTES(JBK): Keep in sync with the constructionkit! Search string [WBRPR]
 local STANDING_RADIUS = 0.25
 
 local function ForEachInPathfinding(x, z, cb)
@@ -1608,6 +1574,10 @@ local function RemoveTrader(inst)
     inst:RemoveComponent("trader")
 end
 
+local SCRAPBOOK_SYMBOLCOLOURS = {
+	{"lb_glow", 1, 1, 1, 0.375},
+	--{"lb_flame_loop", 1, 1, 1, 0.75},
+}
 local function fn()
 	local inst = CreateEntity()
 
@@ -1681,6 +1651,17 @@ local function fn()
 
 		return inst
 	end
+
+	inst.scrapbook_overridedata = {
+		{ "glass1", "wagboss_robot", "glass2" },
+
+		{ "lb_flame_loop", "wagboss_lunar", "lb_flame_loop" },
+		{ "lb_glow", "wagboss_lunar", "lb_glow" },
+		--{ "crown_bk_follow", "wagboss_lunar", "crown_bk_comp" },
+	}
+	inst.scrapbook_symbolcolours = SCRAPBOOK_SYMBOLCOLOURS
+	inst.scrapbook_anim = "scrapbook"
+	--inst.scrapbook_overridebuild = "wagboss_lunar"
 
 	--Remove these tags so that they can be added properly when replicating components below
 	inst:RemoveTag("__health")

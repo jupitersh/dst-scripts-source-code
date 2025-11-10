@@ -46,7 +46,8 @@ local function OnBlinked(caster, self, dpt)
         caster.sg.statemem.onstopblinking()
     end
 	local pt = dpt:GetPosition()
-	if pt ~= nil and TheWorld.Map:IsPassableAtPoint(pt:Get()) and not TheWorld.Map:IsGroundTargetBlocked(pt) and (TheWorld.Map:IsPointInWagPunkArenaAndBarrierIsUp(pt:Get()) == TheWorld.Map:IsPointInWagPunkArenaAndBarrierIsUp(caster.Transform:GetWorldPosition())) then -- NOTES(JBK): Keep in sync with wortox. [BATELE]
+    local casterx, castery, casterz = caster.Transform:GetWorldPosition()
+	if pt ~= nil and TheWorld.Map:IsPassableAtPoint(pt:Get()) and not TheWorld.Map:IsGroundTargetBlocked(pt) and IsTeleportingPermittedFromPointToPoint(casterx, castery, casterz, pt.x, pt.y, pt.z) then -- NOTES(JBK): Keep in sync with wortox. [BATELE]
 	    caster.Physics:Teleport(pt:Get())
 	end
     self:SpawnEffect(caster)
@@ -57,7 +58,7 @@ end
 
 function BlinkStaff:Blink(pt, caster)
     local casterx, castery, casterz = caster.Transform:GetWorldPosition()
-    if TheWorld.Map:IsPointInWagPunkArenaAndBarrierIsUp(pt:Get()) ~= TheWorld.Map:IsPointInWagPunkArenaAndBarrierIsUp(casterx, castery, casterz) then
+    if not IsTeleportingPermittedFromPointToPoint(casterx, castery, casterz, pt.x, pt.y, pt.z) then
         return false
     elseif (caster.sg ~= nil and caster.sg.currentstate.name ~= "quicktele") or
         not TheWorld.Map:IsPassableAtPoint(pt:Get()) or

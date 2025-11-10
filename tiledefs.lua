@@ -861,6 +861,30 @@ TileManager.AddTile(
 )
 
 TileManager.AddTile(
+    "VENT",
+    TileRanges.LAND,
+    {ground_name = "Vent Flooring" },
+    {
+        name="cave",
+        noise_texture="ground_noise_fumarole",
+        runsound="dontstarve/movement/run_dirt",
+        walksound="dontstarve/movement/walk_dirt",
+        snowsound="dontstarve/movement/run_ice",
+        mudsound="dontstarve/movement/run_mud",
+        hard = true,
+    },
+    {
+        name="map_edge",
+        noise_texture="ground_noise_fumarole_mini",
+    },
+    {
+        name = "vent", -- Inventory item
+        anim = "fumarole", -- Ground item
+        pickupsound = "rock",
+    }
+)
+
+TileManager.AddTile(
     "MUD",
     TileRanges.LAND,
     {ground_name = "Mud", old_static_id = GROUND.MUD},
@@ -902,6 +926,49 @@ TileManager.AddTile(
     {
         name = "archive",
         bank_build = "turf_archives",
+        pickupsound = "rock",
+    }
+)
+
+TileManager.AddTile(
+    "VAULT",
+    TileRanges.LAND,
+    {ground_name = "Vault"},
+    {
+        name="blocky",
+        noise_texture="Ground_noise_vault",
+        runsound="dontstarve/movement/run_marble",
+        walksound="dontstarve/movement/run_marble",
+        snowsound="dontstarve/movement/run_ice",
+        mudsound="dontstarve/movement/run_mud",
+        cannotbedug = true,
+        hard = true,
+    },
+    {
+        name="map_edge",
+        noise_texture="Ground_noise_vault_clean_mini",
+    }
+)
+
+TileManager.AddTile(
+    "VAULT_CLEAN",
+    TileRanges.LAND,
+    {ground_name = "Vault Clean"},
+    {
+        name="blocky",
+        noise_texture="Ground_noise_vault_clean",
+        runsound="dontstarve/movement/run_marble",
+        walksound="dontstarve/movement/run_marble",
+        snowsound="dontstarve/movement/run_ice",
+        mudsound="dontstarve/movement/run_mud",
+        hard = true,
+    },
+    {
+        name="map_edge",
+        noise_texture="Ground_noise_vault_clean_mini",
+    },
+    {
+        name = "vault", -- Inventory item
         pickupsound = "rock",
     }
 )
@@ -1194,7 +1261,8 @@ TileManager.AddTile(
         walksound="dontstarve/movement/run_marble",
         snowsound="dontstarve/movement/run_ice",
         mudsound="dontstarve/movement/run_mud",
-        flashpoint_modifier = 250,
+        flashpoint_modifier = 250, --Deprecated, as fire spread is completely disabled now.
+        no_fire_spread = true,
         flooring = true,
         hard = true,
     },
@@ -1575,6 +1643,10 @@ TileManager.AddTile(
     "FUNGUS_NOISE",
     TileRanges.NOISE,
     {old_static_id = GROUND.FUNGUS_NOISE}
+)
+TileManager.AddTile(
+    "VENT_NOISE",
+    TileRanges.NOISE
 )
 
 mod_protect_TileManager = true

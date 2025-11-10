@@ -170,7 +170,7 @@ end
 local function PropCreationFn(inst)
     local corpse = SpawnPrefab("koalefantcorpse_prop")
     if TheWorld.state.iswinter then
-        corpse:SetAltBuild()
+		corpse:SetAltBuild("winter")
     end
     corpse.Transform:SetPosition(inst.Transform:GetWorldPosition())
 

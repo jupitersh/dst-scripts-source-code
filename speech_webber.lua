@@ -75,6 +75,7 @@ return{
 --fallback to speech_wilson.lua 			REVIVE_FAILED = "only_used_by_wanda",
 --fallback to speech_wilson.lua 			WARP_NO_POINTS_LEFT = "only_used_by_wanda",
 --fallback to speech_wilson.lua 			SHARD_UNAVAILABLE = "only_used_by_wanda",
+--fallback to speech_wilson.lua 			NO_TELEPORT_ZONE = "only_used_by_wanda",
 		},
 		CAST_SPELLBOOK =
 		{
@@ -274,6 +275,7 @@ return{
         PICK =
         {
             NOTHING_INSIDE = "We found nothing inside!",
+			STUCK = "Aw! It's stuck!",
         },
         PICKUP =
         {
@@ -318,6 +320,8 @@ return{
 --fallback to speech_wilson.lua             TOOMANYBEES = "only_used_by_waxwell_and_wicker",
 --fallback to speech_wilson.lua             NOMOONINCAVES = "only_used_by_waxwell_and_wicker",
 --fallback to speech_wilson.lua             ALREADYFULLMOON = "only_used_by_waxwell_and_wicker",
+--fallback to speech_wilson.lua             -- rifts5.1
+--fallback to speech_wilson.lua             DEADBIRDS = "only_used_by_waxwell_and_wicker",
 --fallback to speech_wilson.lua         },
 		REMOTE_TELEPORT =
 		{
@@ -480,6 +484,10 @@ return{
 		{
 			MISSED = "Aww, we missed!",
 		},
+        DIVEGRAB =
+        {
+            MISSED = "Aww, we missed!",
+        },
     },
 
 	ANNOUNCE_CANNOT_BUILD =
@@ -700,7 +708,7 @@ return{
 	},
 
     --hallowed nights
-    ANNOUNCE_SPOOKED = "Are we seeing things?!",
+    ANNOUNCE_SPOOKED = "Hey, that's not nice!",
 	ANNOUNCE_BRAVERY_POTION = "Hey, those trees aren't so scary anymore!",
 	ANNOUNCE_MOONPOTION_FAILED = "Whoops!",
 
@@ -1163,6 +1171,22 @@ return{
     ANNOUNCE_LUNARGUARDIAN_INCOMING = "The giant ball is back.",
     ANNOUNCE_FLOATER_HELD = "We float!",
     ANNOUNCE_FLOATER_LETGO = "Weeee!",
+
+    -- rifts5.1
+    ANNOUNCE_LUNARHAIL_BIRD_SOUNDS = "Those birds don't sound happy.",
+    ANNOUNCE_LUNARHAIL_BIRD_CORPSES = "Maybe they're coming down for a rest.",
+    ANNOUNCE_FLOAT_SWIM_TIRED = "We're tired!",
+    ANOUNCE_MUTATED_BIRD_ATTACK = "Watch out for the birds!",
+
+    -- Rift 6
+    ANNOUNCE_WEAPON_TOOWEAK = "We need something stronger!",
+    ANNOUNCE_VAULT_TELEPORTER_DOES_NOTHING = "Hey, we're still here!",
+
+	-- Rift 6.1
+	ANNOUNCE_LIGHTSOUT_SHADOWHAND = "Hey, no fair! Nobody invited that hand to play!",
+
+    -- Hallowed Nights 2025
+    ANNOUNCE_MUTATED_BUZZARD_ARRIVAL = "Buzzards! Hey, they look strange.", -- Mutated buzzards arrive to lurk and circle the player
 
 	BATTLECRY =
 	{
@@ -1747,6 +1771,8 @@ return{
 		TURF_FUNGUS="Some pretty average earth.",
 		TURF_FUNGUS_MOON = "Some pretty average earth.",
 		TURF_ARCHIVE = "Some very old stones.",
+        TURF_VAULT = "Some very old stones.",
+        TURF_VENT = "Some pretty average earth.",
 		TURF_SINKHOLE="Some pretty average earth.",
 		TURF_UNDERROCK="Some pretty average earth.",
 		TURF_MUD="Some pretty average earth.",
@@ -2095,6 +2121,8 @@ return{
         CHESSPIECE_SHARKBOI = "They weren't so bad after we got to know them.",
         CHESSPIECE_WORMBOSS = "That big worm had a big mouth.",
         CHESSPIECE_YOTS = "We can play with this worm!",
+        CHESSPIECE_WAGBOSS_ROBOT = "Can we keep it?",
+        CHESSPIECE_WAGBOSS_LUNAR = "Yes! Three-legged space spider!",
 
         CHESSJUNK1 = "A mess of chess.",
         CHESSJUNK2 = "A mess of chess.",
@@ -3316,6 +3344,7 @@ return{
         WINTER_ORNAMENTBOSS = "Wow, that one looks great!",
 		WINTER_ORNAMENTFORGE = "Not so scary when they're like this.",
 		WINTER_ORNAMENTGORGE = "Huh. It kinda looks...goaty!",
+        WINTER_ORNAMENTPEARL = "We like Ms. Pearl.",
 
         WINTER_FOOD1 = "I won't eat it. It's our friend now.", --gingerbread cookie
         WINTER_FOOD2 = "Icy icy icing!", --sugar cookie
@@ -4412,6 +4441,13 @@ return{
             LINE_4 = "It's very pretty.",
             LINE_5 = "We sure wish we knew what it says!",
         },
+		VAULT_RUNE = "Nice drawings.",
+		VAULT_STATUE =
+		{
+			LORE1 = "He's not okay.",
+			LORE2 = "Oh no...",
+			LORE3 = "They look mean!",
+		},
 
         ARCHIVE_RESONATOR = {
             GENERIC = "It's taking us on a treasure hunt!",
@@ -4800,6 +4836,7 @@ return{
 
         MOONSTORM_STATIC = "That looks kinda dangerous...",
         MOONSTORM_STATIC_ITEM = "It's like a big lightning bug stuck in a jar.",
+        MOONSTORM_STATIC_ROAMER = "We can catch it!",
         MOONSTORM_SPARK = "It makes all our spider hairs stand on end!",
 
         BIRD_MUTANT = "We think there might be something wrong with that bird...",
@@ -5113,6 +5150,7 @@ return{
 
         PLAYBILL_THE_DOLL = "What a funny play!",
         PLAYBILL_THE_VEIL = "It's not scary. We won't cover our eyes.",
+        PLAYBILL_THE_VAULT = "It's so heavy!",
         STATUEHARP_HEDGESPAWNER = "This place is making our spider-hairs tingle...",
         HEDGEHOUND = "Did we say something wrong?!",
         HEDGEHOUND_BUSH = "Look at all those pretty red roses.",
@@ -5463,8 +5501,11 @@ return{
 
         FENCE_JUNK = "It's not the nicest-looking fence.",
         JUNK_PILE = "There might be something fun to play with in there!",
-        JUNK_PILE_BIG = "We don't want to get squashed!",
-
+        JUNK_PILE_BIG = {
+            BLUEPRINT = "Ooh! We see a prize at the top!",
+            GENERIC = "We don't want to get squashed!",
+        },
+        
         ARMOR_LUNARPLANT_HUSK = "We aren't allowed to play with that. It's just for Wormwood.",
 
         -- Meta 4 / Ocean QoL
@@ -5542,8 +5583,8 @@ return{
         MERM_SHADOW = "We've been starting to get a little worried about Wurt...",
         MERMGUARD_SHADOW = "We've been starting to get a little worried about Wurt...",
 
-        MERM_LUNAR = "Um, Wurt? Are the merms sick?",
-        MERMGUARD_LUNAR = "Um, Wurt? Are the merms sick?",
+        MERM_LUNAR = "Are the merms sick?",
+        MERMGUARD_LUNAR = "Are the merms sick?",
 
         -- Rifts 4
 
@@ -5715,6 +5756,147 @@ return{
         GESTALT_GUARD_EVOLVED = "Why are they mad at us?",
         FLOTATIONCUSHION = "Promise we won't splash...",
         LUNAR_SEED = "So pretty! Can we keep it?",
+
+        -- rifts5.1
+        WAGBOSS_ROBOT_CONSTRUCTIONSITE = "Maybe it won't be so cranky this time.",
+        WAGBOSS_ROBOT_CONSTRUCTIONSITE_KIT = "A fun and dangerous toy to build!",
+        WAGBOSS_ROBOT_CREATION_PARTS = "More parts!",
+        MOONSTORM_STATIC_CATCHER = "Let's catch something!",
+        COOLANT = "We like bubbles.",
+
+        FENCE_ELECTRIC = {
+            LINKED = "We're not afraid of zaps.",      --NOTE: the fence post is fully linked to two other posts
+            GENERIC = "It's not doing anything!",           --NOTE: no links or electricity, just boring ol fence post
+        },
+        FENCE_ELECTRIC_ITEM = "Where should we put it?",
+
+        MUTATEDBIRD = "Hello, weird bird!",
+
+        BIRDCORPSE =
+        {
+            GENERIC  = "Poke it!", --witnessing the corpse
+            BURNING  = "We love that smell!", --when its burning
+            REVIVING = "What's happening to it?", --when its mutating and being revived
+        },
+
+        BUZZARDCORPSE = {
+            GENERIC  = "Poke it!", --witnessing the corpse
+            BURNING  = "We love that smell!", --when its burning
+            REVIVING = "What's happening to it?", --when its mutating and being revived
+        },
+
+        MUTATEDBUZZARD_GESTALT = {
+            GENERIC = "What do you want?", -- Generic string
+            EATING_CORPSE = "Kinda makes us hungry.", -- Eating from a fresh corpse (might be from the players kill or another creatures kill)
+        },
+
+        -- Rifts 6
+
+        SHADOWTHRALL_CENTIPEDE = {
+            HEAD = "It's staring at us!", --The head segment
+            BODY = "It has more legs than us!", --The body segment
+            FLIPPED = "Aww, poor guy.", --When it's flipped over (either head or body segment)
+        },
+
+        TREE_ROCK =
+		{
+			BURNING = "Get out of the way!", --It's vines are burning, it will collapse
+			CHOPPED = "We'll mine it!", --It's 'chopped', so the rock fell
+			GENERIC = "When the bough breaks...", --Rock is still on tree
+		},
+
+        -- NOTE: Unsure about HOT and COLD, just do GENERIC, GAS, MIASMA for now!
+        CAVE_VENT_ROCK =
+        {
+            GENERIC = "What's in there?", -- Not ventilating anything
+            HOT     = "It's too hot!", -- Ventiliating hot air, making the area warm
+            GAS     = "We don't like that smell.", -- Ventiliating Toadstools gas fumes and spores
+            MIASMA  = "It makes us feel sick.", -- Ventiliating the shadow rift miasma
+        },
+        CAVE_FERN_WITHERED = "Aww, it's dead.",
+        FLOWER_CAVE_WITHERED = "It's not glowing much.",
+
+		ABYSSPILLAR_MINION =
+		{
+			GENERIC = "We're glad it's just a statue!", --off, looks like decor/statue
+			ACTIVATED = "Hey! No fair!", --turned on and hopping over puzzle pillars
+		},
+		ABYSSPILLAR_TRIAL = "We'll pull it!",
+
+        VAULT_TELEPORTER =
+        {
+            GENERIC = "We like this game.",
+            BROKEN = "Aw, it's broken!",
+            UNPOWERED = "Why won't it turn on?",
+        },
+--fallback to speech_wilson.lua 		VAULT_TELEPORTER_UNDERCONSTRUCTION = "\"This Waymark is under development for a future update.\"",
+		VAULT_ORB = "Ooh, a ball!",
+        VAULT_LOBBY_EXIT = "We're first!",
+		VAULT_CHANDELIER_BROKEN = "We'll catch the next one!",
+
+		ANCIENT_HUSK = "Were they mad at each other?",
+		MASK_ANCIENT_HANDMAIDHAT = "If we put it on, will we look tough too?",
+		MASK_ANCIENT_ARCHITECTHAT = "Do we have a smart face too?",
+		MASK_ANCIENT_MASONHAT = "It must have been worn by someone big and strong.",
+
+        TREE_ROCK_SEED = "What a cute little seed!",
+        TREE_ROCK_SAPLING = "They grow up so fast!",
+
+        -- Rifts 6.1
+        OCEANWHIRLBIGPORTALEXIT = "Let's dig for treasure!", -- The flotsam pickable not the waterfall.
+
+		VAULT_TORCH =
+		{
+			GENERIC = "We know how it works!",
+			BROKEN = "Aw, it's broken.", --the torch still functions, just the lever is broken
+		},
+
+        CAVE_VENT_MITE =
+		{
+			DEAD = "Aw.",
+			GENERIC = "We don't think it's trying to play.",
+			SLEEPING = "It's sleeping!",
+            VENTING = "How does it do that?", -- in the shield state and venting out gasses
+        },
+
+		--Hallowed Nights 2025
+
+		PUMPKINHAT =
+		{
+			GENERIC = "Aw, it's still missing some eyes.",
+			UNCARVED = "It's missing eyes and a mouth.",--can't wear it unless it's carved.
+		},
+
+        PENGUINCORPSE =
+		{
+            GENERIC  = "It's dead, we think?", --witnessing the corpse
+            BURNING  = "Mmm.", --when its burning
+            REVIVING = "We don't understand!", --when its mutating and being revived
+		},
+        SPIDERCORPSE =
+		{
+			GENERIC = "Sorry.",
+			BURNING = "Bye.",
+			REVIVING = "Oh no!",
+		},
+        SPIDERQUEENCORPSE =
+		{
+			GENERIC = "Aw, Mommy-Longlegs.",
+			BURNING = "It's going to be okay.",
+			REVIVING = "Uh-oh...",
+		},
+        MERMCORPSE =
+		{
+			GENERIC = "Maybe we could have been friends.",
+			BURNING = "We know it's the right thing to do.",
+			REVIVING = "Yikes!",
+		},
+        GENERIC_CORPSE = -- A generic set of lines for ANY corpse, until they get their own unique lines at least.
+        {
+            GENERIC = "Are we sure it's not just sleeping?",
+            BURNING = "We really hope it wasn't just sleeping.",
+            REVIVING = "TODO",
+        },
     },
 
     DESCRIBE_GENERIC = "Can we play with it?",

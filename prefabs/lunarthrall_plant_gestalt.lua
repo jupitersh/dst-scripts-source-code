@@ -47,6 +47,8 @@ local function fn()
 
 	inst.AnimState:SetBloomEffectHandle("shaders/anim.ksh")
 
+    inst.scrapbook_inspectonseen = true
+
     inst.entity:SetPristine()
 
     if not TheWorld.ismastersim then

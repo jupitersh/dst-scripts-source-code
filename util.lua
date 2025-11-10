@@ -406,6 +406,17 @@ function MergeMaps(...)
 	return ret
 end
 
+-- merge two map-style tables with number values, performing addition with the latter map's value
+function MergeMapsAdditively(...)
+    local ret = {}
+	for i,map in ipairs({...}) do
+		for k,v in pairs(map) do
+			ret[k] = v + (ret[k] or 0)
+		end
+	end
+	return ret
+end
+
 -- merge two map-style tables, overwriting duplicate keys with the latter map's value
 -- subtables are recursed into
 function MergeMapsDeep(...)
@@ -1781,12 +1792,12 @@ end
 
 -- NOTES(JBK): Controller reticles AKA reticules or handbags.
 local BLINKFOCUS_MUST_TAGS = { "blinkfocus" }
-function ControllerReticle_Blink_GetPosition_Oneshot(pos, rotation, rmin, rmax, riter, validwalkablefn, inwagpunkarena)
+function ControllerReticle_Blink_GetPosition_Oneshot(pos, rotation, rmin, rmax, riter, validwalkablefn)
     -- If this function returns true the pos vector will be modified.
     for r = rmin, rmax, riter do
         local offset = FindWalkableOffset(pos, rotation, r, 1, false, true, validwalkablefn, false, true)
         if offset ~= nil then
-            if inwagpunkarena == TheWorld.Map:IsPointInWagPunkArenaAndBarrierIsUp(pos.x + offset.x, pos.y, pos.z + offset.z) then
+            if IsTeleportingPermittedFromPointToPoint(pos.x, pos.y, pos.z, pos.x + offset.x, pos.y, pos.z + offset.z) then
                 pos.x = pos.x + offset.x
                 pos.z = pos.z + offset.z
                 return true
@@ -1796,14 +1807,14 @@ function ControllerReticle_Blink_GetPosition_Oneshot(pos, rotation, rmin, rmax, 
     -- Variable pos was not edited.
     return false
 end
-function ControllerReticle_Blink_GetPosition_Direction(pos, rotation, maxrange, validwalkablefn, inwagpunkarena)
+function ControllerReticle_Blink_GetPosition_Direction(pos, rotation, maxrange, validwalkablefn)
     -- If this function returns true the pos vector will be modified.
     -- 12 to 6
-    if ControllerReticle_Blink_GetPosition_Oneshot(pos, rotation, maxrange or 12, 6, -.5, validwalkablefn, inwagpunkarena) then
+    if ControllerReticle_Blink_GetPosition_Oneshot(pos, rotation, maxrange or 12, 6, -.5, validwalkablefn) then
         return true
     end
     -- 12.5 to 20
-    if ControllerReticle_Blink_GetPosition_Oneshot(pos, rotation, 12.5, maxrange or 20, .5, validwalkablefn, inwagpunkarena) then
+    if ControllerReticle_Blink_GetPosition_Oneshot(pos, rotation, 12.5, maxrange or 20, .5, validwalkablefn) then
         return true
     end
     -- Variable pos was not edited.
@@ -1812,7 +1823,6 @@ end
 function ControllerReticle_Blink_GetPosition(player, validwalkablefn)
     local rotation = player.Transform:GetRotation()
     local pos = player:GetPosition()
-    local inwagpunkarena = TheWorld.Map:IsPointInWagPunkArenaAndBarrierIsUp(pos.x, pos.y, pos.z)
 
     -- Obtain max range.
     local ents = TheSim:FindEntities(pos.x, pos.y, pos.z, TUNING.CONTROLLER_BLINKFOCUS_DISTANCE, BLINKFOCUS_MUST_TAGS)
@@ -1822,7 +1832,7 @@ function ControllerReticle_Blink_GetPosition(player, validwalkablefn)
         if newmaxrange ~= nil and newmaxrange ~= 0 and (maxrange == nil or newmaxrange < maxrange) then
             if player:GetDistanceSqToInst(v) < newmaxrange * newmaxrange then
                 local x, y, z = v.Transform:GetWorldPosition()
-                if inwagpunkarena == TheWorld.Map:IsPointInWagPunkArenaAndBarrierIsUp(x, y, z) then
+                if IsTeleportingPermittedFromPointToPoint(pos.x, pos.y, pos.z, x, y, z) then
                     maxrange = newmaxrange
                 end
             end
@@ -1837,7 +1847,7 @@ function ControllerReticle_Blink_GetPosition(player, validwalkablefn)
             local angleto = math.abs(anglediff(rotation, angletoepos))
             if angleto < TUNING.CONTROLLER_BLINKFOCUS_ANGLE then
                 local x, y, z = v.Transform:GetWorldPosition()
-                if inwagpunkarena == TheWorld.Map:IsPointInWagPunkArenaAndBarrierIsUp(x, y, z) then
+                if IsTeleportingPermittedFromPointToPoint(pos.x, pos.y, pos.z, x, y, z) then
                     return epos
                 end
             end
@@ -1849,7 +1859,7 @@ function ControllerReticle_Blink_GetPosition(player, validwalkablefn)
     -- NOTES(JBK): This is done this way to try to find a forward angle first and then go back and forth in a conical sweep away from the forward direction.
     -- This will create a more intuitive feel for spots for the reticle location instead of a circular sweep.
     -- Directly forward first.
-    if ControllerReticle_Blink_GetPosition_Direction(pos, rotation, maxrange, validwalkablefn, inwagpunkarena) then
+    if ControllerReticle_Blink_GetPosition_Direction(pos, rotation, maxrange, validwalkablefn) then
         return pos
     end
     -- Conical sweep.
@@ -1857,15 +1867,15 @@ function ControllerReticle_Blink_GetPosition(player, validwalkablefn)
     local CONE_ANGLE = TUNING.CONTROLLER_BLINKCONE_ANGLE
     for i = 1, SWEEPS do
         local deviation = (i / SWEEPS) * CONE_ANGLE * DEGREES
-        if ControllerReticle_Blink_GetPosition_Direction(pos, rotation + deviation, maxrange, validwalkablefn, inwagpunkarena) then
+        if ControllerReticle_Blink_GetPosition_Direction(pos, rotation + deviation, maxrange, validwalkablefn) then
             return pos
         end
-        if ControllerReticle_Blink_GetPosition_Direction(pos, rotation - deviation, maxrange, validwalkablefn, inwagpunkarena) then
+        if ControllerReticle_Blink_GetPosition_Direction(pos, rotation - deviation, maxrange, validwalkablefn) then
             return pos
         end
     end
     -- One last try for very close forward oneshot to get a valid position.
-    if ControllerReticle_Blink_GetPosition_Oneshot(pos, rotation, maxrange or 4, 0, -.5, validwalkablefn, inwagpunkarena) then
+    if ControllerReticle_Blink_GetPosition_Oneshot(pos, rotation, maxrange or 4, 0, -.5, validwalkablefn) then
         return pos
     end
     -- No valid point but we will return something for the reticle to use.
@@ -1961,5 +1971,68 @@ function ControllerPlacer_Boat_SpotFinder(inst, boat_radius)
 	inst.components.placer._min_boat_radius = min_range + 0.01 --make sure placer stays within valid range of CLIENT_CanDeployBoat
     inst.components.placer.controllergroundoverridefn = ControllerPlacer_Boat_SpotFinder_Internal
 end
+
+------------------------------
+-- PRNG implementation based off of Sergei Mikhailovich Prigarin's demonstration program documentation for the "2^40-5^17" multiplicative generator from June, 1999.
+PRNG_Uniform = Class(function(self, seed)
+    self.A1 = 727595 -- 5^17 = D20 * A1 + A2
+    self.A2 = 798405
+    self.D20 = 1048576 -- 2^20
+    self.D40 = 1099511627776 -- 2^40
+    self:SetSeed(seed or 0)
+end)
+
+function PRNG_Uniform:SetSeed(seed)
+    self.X1 = seed
+    self.X2 = 1 -- This must be an odd number.
+end
+
+function PRNG_Uniform:Rand()
+    local U = self.X2 * self.A2
+    local V = (self.X1 * self.A2 + self.X2 * self.A1) % self.D20
+    V = (V * self.D20 + U) % self.D40
+    self.X1 = math.floor(V / self.D20)
+    self.X2 = V - self.X1 * self.D20
+    return V / self.D40
+end
+
+function PRNG_Uniform:RandInt(min, max)
+    local rand = self:Rand()
+    return min + math.floor(rand * (max - min + 1))
+end
+------------------------------
+-- Checks for if teleportations should be blocked for any inst going from points A to B.
+
+function IsTeleportingPermittedFromPointToPoint(fx, fy, fz, tx, ty, tz)
+    local map = TheWorld.Map
+
+    if map:IsWagPunkArenaBarrierUp() then
+        if map:IsPointInWagPunkArena(fx, fy, fz) ~= map:IsPointInWagPunkArena(tx, ty, tz) then
+            return false
+        end
+    end
+
+    if map:IsPointInAnyVault(tx, ty, tz) then
+        return false
+    end
+
+    return true
+end
+
+function IsTeleportLinkingPermittedFromPoint(fx, fy, fz)
+    local map = TheWorld.Map
+
+    if map:IsPointInWagPunkArenaAndBarrierIsUp(fx, fy, fz) then
+        return false
+    end
+
+    if map:IsPointInAnyVault(fx, fy, fz) then
+        return false
+    end
+
+    return true
+end
+
+------------------------------
 
 --END--

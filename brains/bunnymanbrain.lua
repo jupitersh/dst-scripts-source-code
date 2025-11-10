@@ -24,6 +24,7 @@ local STOP_RUN_DIST = 30
 local MAX_CHASE_TIME = 10
 local MAX_CHASE_DIST = 30
 local TRADE_DIST = 20
+local TRADE_DIST_SQ = TRADE_DIST * TRADE_DIST
 local SEE_FOOD_DIST = 10
 
 local SEE_BURNING_HOME_DIST_SQ = 20*20
@@ -34,14 +35,18 @@ local SCARER_MUST_TAGS = {"manrabbitscarer"}
 local SEE_SCARER_DIST = TUNING.RABBITKINGSPEAR_SCARE_RADIUS
 local STOP_SCARER_DIST = SEE_SCARER_DIST + 6
 
-local GETTRADER_MUST_TAGS = { "player" }
 local FINDFOOD_CANT_TAGS = { "INLIMBO", "outofreach" }
 
 local function GetTraderFn(inst)
-    return FindEntity(inst, TRADE_DIST,
-        function(target)
-            return inst.components.trader:IsTryingToTradeWithMe(target)
-        end, GETTRADER_MUST_TAGS)
+    if inst.components.trader ~= nil then
+        local x, y, z = inst.Transform:GetWorldPosition()
+        local players = FindPlayersInRangeSq(x, y, z, TRADE_DIST_SQ, true)
+        for _, player in ipairs(players) do
+            if inst.components.trader:IsTryingToTradeWithMe(player) then
+                return player
+            end
+        end
+    end
 end
 
 local function KeepTraderFn(inst, target)
@@ -164,6 +169,9 @@ function BunnymanBrain:OnStart()
             WhileNode(function() return self.inst.components.health.takingfiredamage end, "OnFire",
                 ChattyNode(self.inst, "RABBIT_PANICFIRE",
                     Panic(self.inst))),
+            WhileNode(function() return BrainCommon.ShouldAvoidElectricFence(self.inst) end, "Shocked",
+                ChattyNode(self.inst, "RABBIT_PANICELECTRICITY",
+                    AvoidElectricFence(self.inst))),
             WhileNode(function() return self.inst.components.health:GetPercent() < TUNING.BUNNYMAN_PANIC_THRESH end, "LowHealth",
                 ChattyNode(self.inst, "RABBIT_RETREAT",
                     RunAway(self.inst, "scarytoprey", SEE_PLAYER_DIST, STOP_RUN_DIST))),

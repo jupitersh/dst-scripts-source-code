@@ -747,6 +747,8 @@ local function MakeBuried(inst, junk)
 	if not (inst.buried or inst.defeated) then
 		inst.buried = true
 		inst.hostile = false
+		inst.override_combat_fx_size = "med"
+		inst.override_combat_fx_height = nil
 		OnThiefReset(inst)
 		inst.persists = false
 		if inst.canswing or inst.cantackle or inst.cancannon then
@@ -785,7 +787,10 @@ local function MakeBuried(inst, junk)
 		inst.AnimState:Hide("junk_mid")
 		inst.AnimState:Hide("junk_back")
 		inst.Transform:SetEightFaced()
-		inst.Physics:SetActive(false)
+
+		inst.Physics:SetMass(0) -- Static object when buried
+		--MakeCollidesWithElectricField(inst) -- We already collide with COLLISION.GROUND! We're fine!
+
 		PHASES[0].fn(inst)
 		inst:SetBrain(nil)
 		inst:SetHeadTracking(false)
@@ -820,6 +825,8 @@ end
 local function MakeFreed(inst)
 	if inst.buried then
 		inst.buried = nil
+		inst.override_combat_fx_size = nil
+		inst.override_combat_fx_height = "low"
 		--OnThiefReset(inst)
 		inst.persists = true
 		inst.sg:GoToState("transition")
@@ -837,14 +844,14 @@ local function MakeFreed(inst)
 		inst.AnimState:Show("junk_mid")
 		inst.AnimState:Show("junk_back")
 		inst.Transform:SetFourFaced()
-		inst.Physics:SetActive(true)
+
+		inst.Physics:SetMass(MASS)
+		--ClearCollidesWithElectricField(inst) -- We already collide with COLLISION.GROUND! Don't clear!!!
+
 		inst:SetStateGraph("SGdaywalker2")
 		inst.sg:GoToState("emerge")
 		CheckHealthPhase(inst)
 		inst:SetBrain(brain)
-		if inst.brain == nil and not inst:IsAsleep() then
-			inst:RestartBrain()
-		end
 
 		if inst.junkfx then
 			for i, v in ipairs(inst.junkfx) do
@@ -1099,6 +1106,7 @@ local function fn()
 	inst:AddTag("scarytoprey")
 	inst:AddTag("largecreature")
 	inst:AddTag("junkmob")
+    inst:AddTag("pigtype") -- For scrapbook
 	--inst:AddTag("lunar_aligned")
 
 	inst.AnimState:SetBank("daywalker")
@@ -1151,6 +1159,7 @@ local function fn()
 
 	shallowcopy(scrapbook_data, inst)
 
+	inst.override_combat_fx_height = "low"
 	inst.footstep = "qol1/daywalker_scrappy/step"
 
 	inst.components.talker.ontalk = OnTalk

@@ -148,12 +148,13 @@ local function UpdateTargets(inst, p1, p2, pv, targets)
 					if not (v.components.health and v.components.health:IsDead()) and
 						v.components.combat and inst.components.combat:CanTarget(v)
 					then
-						if v:HasTag("electricdamageimmune") or (v.components.inventory and v.components.inventory:IsInsulated()) then
+						if IsEntityElectricImmune(v) then
 							inst.components.combat:SetDefaultDamage(TUNING.WAGDRONE_LASERWIRE_DAMAGE * TUNING.WAGDRONE_LASERWIRE_INSULATED_DAMAGE_MULT)
 							inst.components.combat:DoAttack(v, nil, nil, "electric")
 							inst.components.combat:SetDefaultDamage(TUNING.WAGDRONE_LASERWIRE_DAMAGE)
 						else
 							inst.components.combat:DoAttack(v, nil, nil, "electric")
+							v:PushEventImmediate("electrocute") -- (NOTE): Don't add electric tag to laserwire, or it counts as a fork attack! we dont want that!
 						end
 					end
 					targets[v] = t + SHOCK_COOLDOWN
@@ -253,6 +254,10 @@ local function KeepTargetFn(inst)--, target)
 	return false
 end
 
+local function CanMouseThrough() -- So that we don't block trying to select other entities.
+	return true, false
+end
+
 local function fn()
 	local inst = CreateEntity()
 
@@ -266,6 +271,7 @@ local function fn()
 	inst.rot = net_byte(inst.GUID, "wagdrone_laserwire_fx.rot", "beamdirty")
 
 	inst:SetPrefabNameOverride("wagdrone_rolling") --for death announce
+	inst.CanMouseThrough = CanMouseThrough
 
 	inst.entity:SetPristine()
 

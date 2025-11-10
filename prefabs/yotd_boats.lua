@@ -917,7 +917,7 @@ return Prefab("dragonboat_body", body_fn, assets, prefabs),
 	MakePlacer("dragonboat_kit_placer", "boat_yotd", "boat_yotd", "idle_full", true, false, false, nil, nil, nil, boat_placer_postinit, 6),
 
     Prefab("dragonboat_pack", pack_fn, pack_assets, pack_prefabs),
-    MakePlacer("dragonboat_pack_placer", "boat_yotd", "boat_yotd", "idle_full", true, false, false, nil, nil, nil, ControllerPlacer_Boat_SpotFinder, 6),
+	MakePlacer("dragonboat_pack_placer", "boat_yotd", "boat_yotd", "idle_full", true, false, false, nil, nil, nil, boat_placer_postinit, 6),
 
     Prefab("dragonboat_shadowboat", shadowboat_fn, assets, shadowboat_prefabs),
     Prefab("dragonboat_shadowboat_deploy_blocker", shadowboat_deploy_blocker_fn),

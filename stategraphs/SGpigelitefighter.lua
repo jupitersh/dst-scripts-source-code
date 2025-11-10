@@ -7,6 +7,7 @@ local events =
 {
     CommonHandlers.OnAttack(),
     CommonHandlers.OnFreeze(),
+	CommonHandlers.OnElectrocute(),
     CommonHandlers.OnSleepEx(),
     CommonHandlers.OnWakeEx(),
 
@@ -27,11 +28,17 @@ local events =
             inst.sg:GoToState("despawn")
         end
 	end),
-
 }
 
 local states =
 {
+    State{
+		name = "init",
+		onenter = function(inst)
+			inst.sg:GoToState(inst.components.locomotor ~= nil and "idle" or "corpse_idle")
+		end,
+	},
+
     State{
         name = "idle",
         tags = { "idle", "canrotate" },
@@ -115,11 +122,17 @@ local states =
             inst.Physics:Stop()
             RemovePhysicsColliders(inst)
         end,
+
+        events =
+        {
+            -- TODO NOTE(Omar): HALLOWED_NIGHTS_2025_CORPSES
+            --CommonHandlers.OnCorpseDeathAnimOver(),
+        },
     },
 
     State{
         name = "spawnin",
-        tags = { "intropose", "busy", "nofreeze", "nosleep", "noattack", "jumping" },
+		tags = { "intropose", "busy", "nofreeze", "nosleep", "noattack", "jumping", "noelectrocute" },
 
         onenter = function(inst, data)
             inst.AnimState:PlayAnimation(inst.sg.mem.variation == "3" and "side_lob" or "front_lob")
@@ -165,11 +178,7 @@ local states =
 
         events =
         {
-            EventHandler("animqueueover", function(inst)
-                if inst.AnimState:AnimDone() then
-                    inst.sg:GoToState("idle")
-                end
-            end),
+			CommonHandlers.OnNoSleepAnimQueueOver("idle"),
         },
 
         onexit = function(inst)
@@ -186,7 +195,7 @@ local states =
 
     State{
         name = "despawn",
-        tags = { "endpose", "busy", "nofreeze", "nosleep", "noattack", "jumping" },
+		tags = { "endpose", "busy", "nofreeze", "nosleep", "noattack", "jumping", "noelectrocute" },
         --jumping tag to disable brain activity
 
         onenter = function(inst)
@@ -250,6 +259,30 @@ CommonStates.AddSleepExStates(states,
 })
 
 CommonStates.AddFrozenStates(states)
+CommonStates.AddElectrocuteStates(states)
 CommonStates.AddHopStates(states, true, { pre = "boat_jump_pre", loop = "boat_jump_loop", pst = "boat_jump_pst"})
 
-return StateGraph("pigelite", states, events, "idle")
+--in order: blue, red, white, green
+local BUILD_VARIATIONS =
+{
+    ["1"] = { "pig_ear", "pig_head", "pig_skirt", "pig_torso", "spin_bod" },
+    ["2"] = { "pig_arm", "pig_ear", "pig_head", "pig_skirt", "pig_torso", "spin_bod" },
+    ["3"] = { "pig_arm", "pig_ear", "pig_head", "pig_skirt", "pig_torso", "spin_bod" },
+    ["4"] = { "pig_head", "pig_skirt", "pig_torso", "spin_bod" },
+}
+-- TODO NOTE(Omar): HALLOWED_NIGHTS_2025_CORPSES
+--[[
+CommonStates.AddCorpseStates(states, nil,
+{
+    corpseoncreate = function(inst, corpse)
+        corpse.AnimState:Hide("HAT")
+        corpse:SetAltBuild("pigelite")
+
+        for i, v in ipairs(BUILD_VARIATIONS[inst.sg.mem.variation]) do
+            corpse.AnimState:OverrideSymbol(v, "pig_elite_build", v.."_"..variation)
+        end
+    end,
+}, "pigcorpse")
+]]
+
+return StateGraph("pigelitefighter", states, events, "init")

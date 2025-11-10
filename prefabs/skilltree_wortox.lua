@@ -158,6 +158,7 @@ local CUSTOM_FUNCTIONS;CUSTOM_FUNCTIONS = {
         "lunarhaildebris",
         "caveindebris",
         "trapdamage",
+        "rock_tree",
     },
     SetupLunarResists = function(item)
         local resistance = item:AddComponent("resistance")

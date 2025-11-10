@@ -3,8 +3,16 @@ local assets =
 	Asset("ANIM", "anim/gestalt_cage.zip"),
 }
 
-local assets_filled =
-{
+local assets_filled1 = {
+	Asset("ANIM", "anim/gestalt_cage.zip"),
+    Asset("ANIM", "anim/wagdrone_rolling.zip"),
+}
+local assets_filled2 = {
+	Asset("ANIM", "anim/gestalt_cage.zip"),
+    Asset("ANIM", "anim/wagdrone_flying.zip"),
+	Asset("INV_IMAGE", "gestalt_cage_filled2"),
+}
+local assets_filled3 = {
 	Asset("ANIM", "anim/gestalt_cage.zip"),
 	Asset("INV_IMAGE", "gestalt_cage_filled2"),
 	Asset("INV_IMAGE", "gestalt_cage_filled3"),
@@ -367,6 +375,8 @@ local function filledfn1()
 		return inst
 	end
 
+	inst.scrapbook_proxy = "gestalt_cage"
+
 	inst._soundtask = inst:DoTaskInTime(0, Filled_StartSoundLoop)
 
     inst.AnimState:SetFrame(math.random(inst.AnimState:GetCurrentAnimationNumFrames()) - 1)
@@ -445,6 +455,8 @@ local function filledfn2()
 		return inst
 	end
 
+	inst.scrapbook_proxy = "gestalt_cage"
+
 	inst._soundtask = inst:DoTaskInTime(0, Filled_StartSoundLoop)
 
     inst.AnimState:SetFrame(math.random(inst.AnimState:GetCurrentAnimationNumFrames()) - 1)
@@ -522,6 +534,8 @@ local function filledfn3()
 		return inst
 	end
 
+	inst.scrapbook_proxy = "gestalt_cage"
+
 	inst._soundtask = inst:DoTaskInTime(0, Filled_StartSoundLoop)
 
     inst.AnimState:SetFrame(math.random(inst.AnimState:GetCurrentAnimationNumFrames()) - 1)
@@ -550,13 +564,32 @@ end
 -------------------------------------------
 -- gestalt_cage_placer
 
+local function OnUpdateTransform_Placer(inst)
+    local x, y, z = inst.Transform:GetWorldPosition()
+    local ents = TheSim:FindEntities(x, 0, z, TUNING.GESTALT_CAGE_FILLED_PLACEMENT_RADIUS, INDICATOR_MUST_TAGS)
+
+    if ents[1] then
+        local ex, ey, ez = ents[1].Transform:GetWorldPosition()
+        inst.Transform:SetPosition(ex, 0, ez)
+    end
+end
+local function OverrideBuildPoint_Placer(inst)
+    -- Gamepad defaults to this behavior, but mouse input normally takes
+    -- mouse position over placer position, ignoring the placer snapping
+    -- to a nearby location
+    return inst:GetPosition()
+end
 local function PlacerPostinit_1(inst)
     inst.deployhelper_key = "gestalt_cage_filled_placerindicator"
     inst.replacementprefab = "wagdrone_rolling"
+    inst.components.placer.onupdatetransform = OnUpdateTransform_Placer
+    inst.components.placer.override_build_point_fn = OverrideBuildPoint_Placer
 end
 local function PlacerPostinit_2(inst)
     inst.deployhelper_key = "gestalt_cage_filled_placerindicator"
     inst.replacementprefab = "wagdrone_flying"
+    inst.components.placer.onupdatetransform = OnUpdateTransform_Placer
+    inst.components.placer.override_build_point_fn = OverrideBuildPoint_Placer
 end
 
 
@@ -610,7 +643,8 @@ local function CreateFloorDecal(kind)
         SetupFlyingDecal(inst)
     end
     inst.AnimState:SetLightOverride(1)
-    inst.AnimState:SetMultColour(0.5, 0.5, 0.5, 0.75)
+    inst.AnimState:SetMultColour(0.4, 0.5, 0.6, 0.6)
+    inst.AnimState:SetSortOrder(-1)
 
     return inst
 end
@@ -672,9 +706,9 @@ end
 
 return Prefab("gestalt_cage", fn, assets, prefabs),
 	Prefab("gestalt_cage_swap_fx", fxfn, assets),
-	Prefab("gestalt_cage_filled1", filledfn1, assets_filled),
-	Prefab("gestalt_cage_filled2", filledfn2, assets_filled),
-	Prefab("gestalt_cage_filled3", filledfn3, assets_filled),
-	MakePlacer("gestalt_cage_filled1_placer", "gestalt_cage", "gestalt_cage", "success_1_loop", nil, nil, nil, nil, nil, nil, PlacerPostinit_1),
-	MakePlacer("gestalt_cage_filled2_placer", "gestalt_cage", "gestalt_cage", "success_2_loop", nil, nil, nil, nil, nil, nil, PlacerPostinit_2),
+	Prefab("gestalt_cage_filled1", filledfn1, assets_filled1),
+	Prefab("gestalt_cage_filled2", filledfn2, assets_filled2),
+	Prefab("gestalt_cage_filled3", filledfn3, assets_filled3),
+	MakePlacer("gestalt_cage_filled1_placer", "wagdrone_rolling", "wagdrone_rolling", "off_idle", nil, nil, nil, nil, nil, nil, PlacerPostinit_1),
+	MakePlacer("gestalt_cage_filled2_placer", "wagdrone_flying", "wagdrone_flying", "off_idle", nil, nil, nil, nil, nil, nil, PlacerPostinit_2),
     Prefab("gestalt_cage_filled_placerindicator", fn_placerindicator, assets_placerindicator)

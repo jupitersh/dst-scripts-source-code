@@ -1952,7 +1952,7 @@ function GetBoxPopupLayoutDetails( num_item_types )
 	elseif num_item_types == 19 or num_item_types == 14 then
 		columns = 7
 		resize_root = true
-	elseif num_item_types == 22 or num_item_types == 23 or num_item_types == 24 or num_item_types == 27 then
+	elseif num_item_types == 21 or num_item_types == 22 or num_item_types == 23 or num_item_types == 24 or num_item_types == 26 or num_item_types == 27 then
 		columns = 8
 		resize_root_small = true
 	elseif num_item_types == 31 or num_item_types == 35 then
@@ -1973,6 +1973,16 @@ function GetBoxPopupLayoutDetails( num_item_types )
 		print("Warning: Found an unexpected number of items in a box.", num_item_types)
 	end
 	return columns, resize_root, resize_root_small, resize_root_small_higher, resize_root_thisisreallybig
+end
+
+function GetPurchasePackFromEntitlement(entitlement_id)
+	local pack_type = nil
+	--if IsPSN() then
+	if true then
+		pack_type = ENTITLEMENTLOOKUPS.PSN[entitlement_id]
+	end
+
+	return pack_type
 end
 
 -- Testing and viewing skins on a more close level.

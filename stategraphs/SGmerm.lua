@@ -49,11 +49,21 @@ local actionhandlers =
     ActionHandler(ACTIONS.TILL, "use_tool"),
 }
 
+local function GetAttackState(inst)
+    return (inst.CanTripleAttack and inst:CanTripleAttack()) and "tri_attack"
+        or "attack"
+end
+
+local function GetHitState(inst)
+    return inst:HasTag("shadowminion") and "hit_shadow" or "hit"
+end
+
 local events =
 {
     CommonHandlers.OnLocomote(true,true),
     CommonHandlers.OnSleep(),
     CommonHandlers.OnFreeze(),
+	CommonHandlers.OnElectrocute(),
     CommonHandlers.OnDeath(),
     CommonHandlers.OnHop(),
 	CommonHandlers.OnSink(),
@@ -61,13 +71,27 @@ local events =
 
     --CommonHandlers.OnAttack(),
     EventHandler("doattack", function(inst)
-        if inst.components.health ~= nil and not inst.components.health:IsDead()
-                and (not inst.sg:HasStateTag("busy") or inst.sg:HasStateTag("hit")) then
-            inst.sg:GoToState((inst.CanTripleAttack and inst:CanTripleAttack() and "tri_attack")
-                or "attack")
+		if inst.components.health and not inst.components.health:IsDead() and
+			(	not inst.sg:HasStateTag("busy") or
+				(inst.sg:HasStateTag("hit") and not inst.sg:HasAnyStateTag("electrocute", "shadow_hit"))
+			)
+		then
+            inst.sg:GoToState(GetAttackState(inst))
         end
     end),
-    CommonHandlers.OnAttacked(nil, TUNING.MERM_MAX_STUN_LOCKS),
+    EventHandler("attacked", function(inst, data)
+        if inst.components.health and not inst.components.health:IsDead() then
+	    	if CommonHandlers.TryElectrocuteOnAttacked(inst, data) then
+	    		return
+	    	elseif not CommonHandlers.HitRecoveryDelay(inst, nil, TUNING.MERM_MAX_STUN_LOCKS) and
+	    		(	not inst.sg:HasStateTag("busy") or
+	    			inst.sg:HasAnyStateTag("caninterrupt", "frozen")
+	    		)
+	    	then
+	    		inst.sg:GoToState(GetHitState(inst))
+	    	end
+	    end
+    end),
     EventHandler("attackdodged", function(inst, attacker)
         if inst.components.health ~= nil and not inst.components.health:IsDead() then
             inst.sg:GoToState("dodge_attack", attacker)
@@ -142,6 +166,8 @@ local events =
         inst.sg:GoToState("shadow_spawn", data)
     end),
 
+	-- Corpse handlers
+	CommonHandlers.OnCorpseChomped(),
 }
 
 local function go_to_idle(inst)
@@ -150,6 +176,13 @@ end
 
 local states =
 {
+    State{
+		name = "init",
+		onenter = function(inst)
+			inst.sg:GoToState(inst.components.locomotor ~= nil and "idle" or "corpse_idle")
+		end,
+	},
+
     State{
         name = "funnyidle",
         tags = { "busy" },
@@ -237,7 +270,7 @@ local states =
 
     State{
         name = "transform_to_king",
-        tags = { "busy", "transforming", "nospellcasting"},
+		tags = { "busy", "transforming", "nospellcasting", "noelectrocute" },
 
         onenter = function(inst)
             inst.Physics:Stop()
@@ -460,7 +493,7 @@ local states =
 
     State{
         name = "revive_lunar",
-        tags = { "busy" },
+		tags = { "busy", "noelectrocute" },
 
         onenter = function(inst)
             inst:RemoveTag("lunar_merm_revivable")
@@ -744,7 +777,7 @@ local states =
 
     State{
         name = "hit_shadow",
-        tags = { "hit", "busy" },
+        tags = { "hit", "busy", "shadow_hit" },
 
         onenter = function(inst)
             inst.Physics:Stop()
@@ -820,7 +853,7 @@ local states =
 
     State{
         name = "lunar_transform",
-        tags = {"busy" },
+		tags = { "busy", "noelectrocute" },
 
         onenter = function(inst, data)
             if data.oldbuild then
@@ -859,7 +892,7 @@ local states =
 
     State{
         name = "lunar_revert",
-        tags = { "busy" },
+		tags = { "busy", "noelectrocute" },
 
         onenter = function(inst, data)
             if data.oldbuild then
@@ -893,28 +926,6 @@ local states =
             EventHandler("animover", function(inst) inst.sg:GoToState("idle") end)
         },
     },
-
-    State{
-        name = "parasite_revive",
-        tags = {"busy"},
-
-        onenter = function(inst)
-            inst.AnimState:PlayAnimation("parasite_death_pst")
-            inst.Physics:Stop()
-        end,
-
-        events=
-        {
-            EventHandler("animover", function(inst) inst.sg:GoToState("idle") end ),
-        },
-    },    
-
-
-
-
-
-
-
 
     State{
         name = "attack",
@@ -970,9 +981,6 @@ local states =
                 if inst:HasTag("lunarminion") then
                    inst:DoThorns()
                 end
-                if inst:HasTag("shadowminion") then
-                    inst.sg:GoToState("hit_shadow")
-                end
                 inst.SoundEmitter:PlaySound(inst.sounds.hit)
             end),
         },
@@ -1000,6 +1008,7 @@ local states =
             if not inst.shadowthrall_parasite_hosted_death or not TheWorld.components.shadowparasitemanager then
                 RemovePhysicsColliders(inst)
                 inst.components.lootdropper:DropLoot(inst:GetPosition())
+                inst:SetDeathLootLevel(1)
             end 
         end,
 
@@ -1008,6 +1017,8 @@ local states =
             EventHandler("animover", function(inst)
                 if inst.shadowthrall_parasite_hosted_death and TheWorld.components.shadowparasitemanager then
                     TheWorld.components.shadowparasitemanager:ReviveHosted(inst)
+                elseif inst.AnimState:AnimDone() then
+                    inst.sg:GoToState("corpse")
                 end
             end),
         },
@@ -1022,9 +1033,6 @@ local states =
         },
        
     },
-
-
-
 }
 
 CommonStates.AddWalkStates(states,
@@ -1054,9 +1062,68 @@ CommonStates.AddIdle(states, "funnyidle", GetIdleAnim)
 CommonStates.AddSimpleActionState(states, "gohome", "pig_pickup", 4*FRAMES, {"busy"})
 CommonStates.AddSimpleState(states, "refuse", "pig_reject", { "busy" })
 CommonStates.AddFrozenStates(states)
+CommonStates.AddElectrocuteStates(states)
 CommonStates.AddHopStates(states, true, { pre = "boat_jump_pre", loop = "boat_jump_loop", pst = "boat_jump_pst"})
 CommonStates.AddSinkAndWashAshoreStates(states)
 CommonStates.AddVoidFallStates(states)
 CommonStates.AddSimpleActionState(states, "pickup", "pig_pickup", 10 * FRAMES, { "busy" })
+CommonStates.AddParasiteReviveState(states)
 
-return StateGraph("merm", states, events, "idle", actionhandlers)
+CommonStates.AddCorpseStates(states, nil,
+{
+    corpseoncreate = function(inst, corpse)
+        if inst:HasTag("mermguard") then
+            local mermkingmanager = TheWorld.components.mermkingmanager
+            if mermkingmanager and mermkingmanager:HasKingAnywhere() then
+                corpse:SetAltBuild("mermguard")
+            else
+                corpse:SetAltBuild("mermguard_small")
+            end
+        end
+    end,
+}, "mermcorpse")
+
+CommonStates.AddLunarPreRiftMutationStates(states,
+{
+    mutate_timeline = {
+
+        SoundFrameEvent(8, "lunarhail_event/creatures/lunar_mutation/mutate_crack_thump"),
+        SoundFrameEvent(28, "lunarhail_event/creatures/lunar_mutation/mutate_crack_thump"),
+        SoundFrameEvent(48, "lunarhail_event/creatures/lunar_mutation/mutate_rip_pre_31f"),
+        SoundFrameEvent(77, "lunarhail_event/creatures/lunar_mutation/mutate_crack"),
+    },
+
+    mutatepst_timeline = {
+        SoundFrameEvent(28, "lunarhail_event/creatures/lunar_mutation/mutate_rip"),
+        FrameEvent(38, function(inst) inst.SoundEmitter:PlaySound(inst.sounds.attack) end),
+        FrameEvent(57, function(inst) inst.SoundEmitter:PlaySound(inst.sounds.attack) end),
+
+        FrameEvent(25, function(inst)
+            ChangeToCharacterPhysics(inst, 50, .5)
+            inst.Physics:Stop() -- Could be sliding from any physics collisions.
+        end),
+    },
+},
+{
+    mutate = "merm_mutation_front",
+    mutate_pst = "merm_mutation_back",
+},
+{
+    mutate_createmutant = function(corpse, mutant)
+        mutant.AnimState:OverrideSymbol("merm_mutation_parts", corpse.AnimState:GetBuild(), "merm_mutation_parts")
+        if mutant.OnGuardInitialize ~= nil then
+            mutant:OnGuardInitialize()
+        end
+    end,
+
+    mutatepst_onenter = function(inst)
+        ChangeToInventoryItemPhysics(inst)
+        inst:AddTag("blocker")
+    end,
+},
+{
+    mutated_spawn_timing = 52 * FRAMES,
+    post_mutate_state = "funnyidle",
+})
+
+return StateGraph("merm", states, events, "init", actionhandlers)

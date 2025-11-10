@@ -261,6 +261,9 @@ local function hotspring()
     inst:AddTag("antlion_sinkhole_blocker")
     inst:AddTag("birdblocker")
 
+    --HASHEATER (from heater component) added to pristine state for optimization
+	inst:AddTag("HASHEATER")
+
     inst.Light:Enable(false)
     inst.Light:SetRadius(TUNING.HOTSPRING_GLOW.RADIUS)
     inst.Light:SetIntensity(TUNING.HOTSPRING_GLOW.INTENSITY)

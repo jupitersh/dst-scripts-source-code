@@ -79,7 +79,10 @@ local function OnOpen(inst)
 end
 
 local function OnClose(inst)
-    if not inst.components.health:IsDead() and inst.sg.currentstate.name ~= "transition" then
+	if not inst.components.health:IsDead() and
+		inst.sg.currentstate.name ~= "transition" and
+		not inst.sg:HasStateTag("electrocute")
+	then
 		inst.sg.statemem.closing = true
         inst.sg:GoToState("close")
     end
@@ -689,7 +692,6 @@ local function create_chester()
     inst.sounds = sounds
 
     inst:SetStateGraph("SGchester")
-    inst.sg:GoToState("idle")
 
     inst:SetBrain(brain)
 

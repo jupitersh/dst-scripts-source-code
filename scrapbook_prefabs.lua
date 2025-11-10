@@ -366,7 +366,6 @@ local PREFABS =
     ["marble"] = true,
     ["mastupgrade_lamp_item"] = true,
     ["chesspiece_twinsofterror"] = true,
-    --["playbill_the_doll"] = true,
     ["bonestew"] = true,
     ["abigail_flower"] = true,
     ["book_moon"] = true,
@@ -1890,6 +1889,103 @@ local PREFABS =
     ["archive_orchestrina_main"] = true,
     ["multiplayer_portal"] = true,
     ["balatro_machine"] = true,
+
+    -- [[Rifts 5]]
+    ["gestalt_cage"] = true,
+    ["wagboss_robot"] = true,
+    ["wagboss_robot_leg"] = true,
+    ["wagboss_missile"] = true,
+    ["alterguardian_phase1_lunarrift"] = true,
+    ["alterguardian_phase1_lunarrift_gestalt"] = true,
+    ["alterguardian_phase4_lunarrift"] = true,
+    ["wagdrone_rolling"] = true,
+    ["wagdrone_flying"] = true,
+    ["wagdrone_parts"] = true,
+    ["wagpunk_cagewall"] = true,
+    ["wagpunk_floor_kit"] = true,
+    ["wagpunk_lever"] = true,
+    ["wagpunk_workstation"] = true,
+    ["wagstaff_item_1"] = true,
+    ["wagstaff_item_2"] = true,
+    ["hermitcrab_relocation_kit"] = true,
+    ["wanderingtrader"] = true,
+    ["flotationcushion"] = true,
+    ["gestalt_guard_evolved"] = true,
+    ["lunar_seed"] = true,
+
+    ["wagstaff_containment_note"] = true,
+    ["wagstaff_electricity_note"] = true,
+    ["wagstaff_energy_note"] = true,
+    ["wagstaff_materials_note"] = true,
+    ["wagstaff_thermal_note"] = true,
+
+    -- [[ Electrocute ]]
+    ["wagboss_robot_constructionsite"] = true,
+    ["wagboss_robot_constructionsite_kit"] = true,
+    ["wagboss_robot_creation_parts"] = true,
+    ["chesspiece_wagboss_robot"] = true,
+    ["chesspiece_wagboss_lunar"] = true,
+
+    ["moonstorm_static_catcher"] = true,
+    ["moonstorm_static_roamer"] = true,
+    ["coolant"] = true,
+
+    ["fence_electric"] = true,
+    ["fence_electric_item"] = true,
+
+    ["mutatedbird"] = true,
+
+    -- [[ Missed Prefabs ]]
+
+    ["shadowhand"] = true,
+    ["waveyjones"] = true,
+    ["ruins_shadeling"] = true,
+    ["gestalt"] = true,
+    ["lunarthrall_plant_gestalt"] = true,
+    ["wobysmall"] = true,
+    ["deer_red"] = true,
+    ["deer_blue"] = true,
+    ["gingerbreadpig"] = true,
+    ["gingerbreadwarg"] = true,
+    --["dreadstone_stack"] = true, --Not a seperate prefab
+
+    -- [[ Rifts 6 and Rifts 6.1 ]]
+
+    -- fumarole biome
+    ["tree_rock"] = true,
+    ["shadowthrall_centipede_head"] = true,
+    ["cave_vent_rock"] = true,
+    ["cave_vent_mite"] = true,
+    ["cave_fern_withered"] = true,
+    ["flower_cave_withered"] = true,
+
+    -- sanctum
+    ["oceanwhirlbigportal"] = true,
+    ["oceanwhirlbigportalexit"] = true, -- Item collector for the big whirlpool.
+    ["vault_lobby_exit"] = true, -- Hole to jump in.
+    ["vault_teleporter"] = true,
+    ["vault_orb"] = true,
+    ["vault_chandelier_broken"] = true,
+    ["vault_rune"] = true, -- Lore stones.
+    ["vault_statue"] = true,
+    ["vault_torch"] = true,
+    ["ancient_husk"] = true, -- Skeleton remains.
+    ["vaultrelic_vase"] = true,
+
+    ["abysspillar_minion"] = true,
+    ["abysspillar_trial"] = true,
+
+    ["mask_ancient_handmaidhat"] = true,
+    ["mask_ancient_architecthat"] = true,
+    ["mask_ancient_masonhat"] = true,
+
+    ["playbill_the_doll"] = true,
+    ["playbill_the_veil"] = true,
+    ["playbill_the_vault"] = true,
+
+    -- Hallowed Nights 2025
+    ["mutatedbuzzard_gestalt"] = true,
+    ["pumpkinhat"] = true,
 
     -----------------------------------------------
 

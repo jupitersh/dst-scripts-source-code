@@ -241,6 +241,14 @@ local MainSounds =
     "rifts5.fev",
     "rifts5.fsb",
 
+    "lunarhail_event.fev",
+    "lunarhail_event.fsb",
+
+    "rifts6.fev",
+    "rifts6.fsb",
+
+    "hallowednights2025.fev",
+    "hallowednights2025.fsb",
 }
 
 function PreloadSoundList(list)

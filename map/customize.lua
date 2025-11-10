@@ -421,6 +421,28 @@ local MOD_WORLDGEN_GROUP = {}
 local MOD_WORLDGEN_MISC = {}
 
 local WORLDSETTINGS_GROUP = {
+	["lunar_mutations"] = {
+		order = 9,
+		text = STRINGS.UI.SANDBOXMENU.CHOICELUNARMUTATIONS,
+		desc = yesno_descriptions,
+		atlas = "images/worldsettings_customization.xml",
+		items={
+			-- Regular mutations
+			["mutated_hounds"] = {value = "default", image = "mutated_hounds.tex", world={"forest"}},
+			["penguins_moon"] = {value = "default", image = "moon_pengull.tex", world={"forest"}},
+			["moon_spider"] = {value = "default", desc = frequency_descriptions, image = "moon_spider.tex", world={"forest", "cave"}},
+			["mutated_birds"] = {value = "default", image = "mutated_birds.tex", world={"forest", "cave"}},
+			["mutated_merm"] = {value = "default", image = "mutated_merm.tex", world={"forest", "cave"}},
+			["mutated_spiderqueen"] = {value = "default", image = "mutated_spiderqueen.tex", world={"forest", "cave"}},
+
+			-- Gestalt mutations
+			["mutated_bird_gestalt"] = {value = "default", image = "mutated_bird_gestalt.tex", world={"forest"}},
+			["mutated_buzzard_gestalt"] = {value = "default", image = "mutated_buzzard_gestalt.tex", world={"forest"}},
+			["mutated_deerclops"] = {value = "default", image = "mutated_deerclops.tex", world={"forest"}},
+			["mutated_bearger"] = {value = "default", image = "mutated_bearger.tex", world={"forest"}},
+			["mutated_warg"] = {value = "default", image = "mutated_warg.tex", world={"forest"}},
+		}
+	},
 	["giants"] = {
 		order = 8,
 		text = STRINGS.UI.SANDBOXMENU.CHOICEGIANTS,
@@ -456,7 +478,6 @@ local WORLDSETTINGS_GROUP = {
 		desc = frequency_descriptions,
 		atlas = "images/worldsettings_customization.xml",
 		items={
-			["mutated_hounds"] = {value = "default", desc = yesno_descriptions, image = "mutated_hounds.tex", world={"forest"}},
 			["lureplants"] = {value = "default", image = "lureplants.tex", world={"forest"}},
 			["hound_mounds"] = {value = "default", image = "hounds.tex", world={"forest"}},
 			["mosquitos"] = {value = "default", image = "mosquitos.tex", world={"forest"}},
@@ -464,8 +485,6 @@ local WORLDSETTINGS_GROUP = {
 			["squid"] = {value = "default", image = "squid.tex", world={"forest"}},
 			["wasps"] = {value = "default", image = "wasps.tex", world={"forest"}},
 			["frogs"] = {value = "default", image = "frogs.tex", world={"forest"}},
-			["penguins_moon"] = {value = "default", desc = yesno_descriptions, image = "moon_pengull.tex", world={"forest"}},
-			["moon_spider"] = {value = "default", image = "moon_spider.tex", world={"forest"}},
 			["walrus_setting"] = {value = "default", image = "mactusk.tex", world={"forest"}},
 			["cookiecutters"] = {value = "default", image = "cookiecutters.tex", world={"forest"}},
             ["pirateraids"] = {value = "default", image = "pirateattacks.tex", world={"forest"}},
@@ -892,11 +911,9 @@ local function GetOptionsFromGroup(GROUP, MOD_GROUP, location, is_master_world)
 		end
 	end
 
-
 	table.sort(options, function(a, b)
 		local item_a = GetOption(a.name)
 		local item_b = GetOption(b.name)
-
 
 		if item_a.group.order ~= item_b.group.order then
 			return item_a.group.order < item_b.group.order
@@ -908,7 +925,7 @@ local function GetOptionsFromGroup(GROUP, MOD_GROUP, location, is_master_world)
 		local item_b_order = item_b.order
 
 		if item_a_order == item_b_order then
-			return (STRINGS.UI.CUSTOMIZATIONSCREEN[string.upper(item_a.name)] or "") < (STRINGS.UI.CUSTOMIZATIONSCREEN[string.upper(item_b.name)]  or "")
+			return stringidsorter(STRINGS.UI.CUSTOMIZATIONSCREEN[string.upper(item_a.name)] or "", STRINGS.UI.CUSTOMIZATIONSCREEN[string.upper(item_b.name)] or "")
 		elseif item_a_order == nil or item_b_order == nil then
 			return item_a_order ~= nil
 		end
